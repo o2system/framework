@@ -52,7 +52,7 @@ class Title
 
     // ------------------------------------------------------------------------
 
-    public function setTitle ( $title )
+    public function set ( $title )
     {
         $this->setPageTitle( $title );
         $this->setBrowserTitle( $title );
@@ -89,7 +89,7 @@ class Title
      *
      * @return $this
      */
-    public function addTitle ( $title )
+    public function add ( $title )
     {
         $this->page[] = $title;
         $this->browser[] = $title;

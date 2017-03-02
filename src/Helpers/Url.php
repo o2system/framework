@@ -1,44 +1,46 @@
 <?php
 /**
- * v6.0.0-svn
+ * This file is part of the O2System PHP Framework package.
  *
- * @author      Steeve Andrian Salim
- * @created     17/11/2016 00:14
- * @copyright   Copyright (c) 2016 Steeve Andrian Salim
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author         Steeve Andrian Salim
+ * @copyright      Copyright (c) Steeve Andrian Salim
  */
+// ------------------------------------------------------------------------
 
 if ( ! function_exists( 'base_url' ) ) {
-    function base_url ( $uri = null, $suffix = null, $query = [ ] )
+    function base_url ( $segments = null, $query = null )
     {
-
-    }
-}
-
-if ( ! function_exists( 'public_url' ) ) {
-    function public_url ( $uri = null, $suffix = null, $query = [ ] )
-    {
-
+        return (new \O2System\Framework\Http\Message\Uri())
+            ->withQuery($query)
+            ->withSegments( new O2System\Framework\Http\Message\Uri\Segments( $segments ) )
+            ->__toString();
     }
 }
 
 if ( ! function_exists( 'current_url' ) ) {
-    function current_url ( $uri = null, $suffix = null, $query = [ ] )
-    {
 
+    function current_url ( $segments = null, $query = null )
+    {
+        return (new \O2System\Framework\Http\Message\Uri())
+            ->withQuery($query)
+            ->addSegments( new O2System\Framework\Http\Message\Uri\Segments( $segments ) )
+            ->__toString();
     }
 }
 
 if ( ! function_exists( 'assets_url' ) ) {
-    function assets_url ( $uri = null, $suffix = null, $query = [ ] )
+    /**
+     * assets_url
+     *
+     * @param string $path Uri path.
+     * @return string
+     */
+    function assets_url ( $path )
     {
-
-    }
-}
-
-if ( ! function_exists( 'theme_url' ) ) {
-    function theme_url ( $uri = null, $suffix = null, $query = [ ] )
-    {
-
+        return presenter()->assets->getUrl( $path );
     }
 }
 

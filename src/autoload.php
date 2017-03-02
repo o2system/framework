@@ -10,7 +10,7 @@
  */
 // ------------------------------------------------------------------------
 
-require_once 'Framework.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'Framework.php';
 
 /**
  * O2System Spl Autoload
@@ -19,7 +19,9 @@ require_once 'Framework.php';
  */
 spl_autoload_register(
     function ( $className ) {
-        if ( strpos( $className, 'O2System\Framework\\' ) === false ) {
+        if ( $className === 'O2System\Framework' ) {
+            require __DIR__ . DIRECTORY_SEPARATOR . 'Framework.php';
+        } elseif ( strpos( $className, 'O2System\Framework\\' ) === false ) {
             return;
         }
 

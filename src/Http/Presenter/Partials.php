@@ -14,28 +14,35 @@ namespace O2System\Framework\Http\Presenter;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractCollectorPattern;
+use O2System\Psr\Patterns\AbstractItemStoragePattern;
 
 /**
  * Class Partials
  *
  * @package O2System\Framework\Http\View\Presenter
  */
-class Partials extends AbstractCollectorPattern
+class Partials extends AbstractItemStoragePattern
 {
-    public function __get ( $partial )
+    public function hasPartial($partialOffset)
     {
-        if ( $this->hasItem( $partial ) ) {
+        return $this->__isset($partialOffset);
+    }
 
-            $partialContent = $this->getItem( $partial );
+    public function addPartial($partialOffset, $partialFilePath)
+    {
+        $this->store($partialOffset, $partialFilePath);
+    }
 
-            if ( is_file( $partialContent ) ) {
-                parser()->loadFile( $partialContent );
+    public function __get($partial)
+    {
+        $partialContent = parent::__get($partial);
 
-                return parser()->parse();
-            } else {
-                return $partialContent;
-            }
+        if (is_file($partialContent)) {
+            parser()->loadFile($partialContent);
+
+            return parser()->parse();
+        } elseif (is_string($partialContent)) {
+            return $partialContent;
         }
 
         return null;

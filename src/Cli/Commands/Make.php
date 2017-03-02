@@ -14,15 +14,15 @@ namespace O2System\Framework\Cli\Commands;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Abstracts\AbstractCommand;
-use O2System\Kernel\Spl\Exceptions\Logic\OutOfRangeException;
+use O2System\Framework\Cli\Command;
+use O2System\Spl\Exceptions\Logic\OutOfRangeException;
 
 /**
  * Class Make
  *
  * @package O2System\Framework\Cli\Commands
  */
-class Make extends AbstractCommand
+class Make extends Command
 {
     protected $version = '1.0.0';
 

@@ -76,7 +76,7 @@ if ( ! function_exists( 'cache' ) ) {
      *
      * Convenient shortcut for O2System Framework Cache service.
      *
-     * @return O2System\Cache\ItemPools
+     * @return O2System\Cache\Adapters
      */
     function cache ()
     {
@@ -124,7 +124,7 @@ if ( ! function_exists( 'database' ) ) {
      *
      * Convenient shortcut for O2System Framework Database Connection pools.
      *
-     * @return O2System\Database\ConnectionPools
+     * @return O2System\Database\Connections
      */
     function database ()
     {
@@ -161,6 +161,22 @@ if ( ! function_exists( 'modules' ) ) {
     function modules ()
     {
         return o2system()->__get( 'modules' );
+    }
+}
+
+// ------------------------------------------------------------------------
+
+if ( ! function_exists( 'request' ) ) {
+    /**
+     * request
+     *
+     * Convenient shortcut for O2System Kernel Http Message Request service.
+     *
+     * @return O2System\Kernel\Http\Message\Request
+     */
+    function request ()
+    {
+        return o2system()->getService( 'request' );
     }
 }
 
@@ -229,7 +245,7 @@ if ( ! function_exists( 'view' ) ) {
         if ( count( $args ) ) {
             $view =& o2system()->getService( 'view' );
 
-            return call_user_func_array( [ &$view, 'load' ], $args );
+            call_user_func_array( [ &$view, 'load' ], $args );
         }
 
         return o2system()->getService( 'view' );
@@ -276,7 +292,7 @@ if ( ! function_exists( 'controller' ) ) {
      *
      * Convenient shortcut for O2System Framework Controller service.
      *
-     * @return O2System\Framework\Http\Controller|O2System\Cli\Controller|bool
+     * @return O2System\Framework\Http\Controller|bool
      */
     function controller ()
     {

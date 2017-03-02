@@ -14,16 +14,16 @@ namespace O2System\Framework\Cli\Commands;
 
 // ------------------------------------------------------------------------
 
-use O2System\Cli\Writers\Formatter;
-use O2System\Cli\Writers\Table;
-use O2System\Framework\Abstracts\AbstractCommand;
+use O2System\Framework\Cli\Command;
+use O2System\Kernel\Cli\Writers\Formatter;
+use O2System\Kernel\Cli\Writers\Table;
 
 /**
  * Class Registry
  *
  * @package O2System\Framework\Cli\Commands
  */
-class Registry extends AbstractCommand
+class Registry extends Command
 {
     protected $version = '1.0.0';
 

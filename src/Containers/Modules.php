@@ -15,7 +15,7 @@ namespace O2System\Framework\Containers;
 // ------------------------------------------------------------------------
 
 use O2System\Cache\Item;
-use O2System\Framework\Http\Router\Maps;
+use O2System\Framework\Http\Router\Routes;
 use O2System\Framework\Registries;
 use O2System\Framework\Services\Hooks;
 use O2System\Psr\Cache\CacheItemPoolInterface;
@@ -31,13 +31,13 @@ use O2System\Spl\Info\SplNamespaceInfo;
 class Modules extends SplArrayStack
 {
     private $types    = [
+        'apps',
         'modules',
         'components',
         'plugins',
-        'applications',
     ];
 
-    private $registry = [ ];
+    private $registry = [];
 
     public function __construct ()
     {
@@ -125,7 +125,7 @@ class Modules extends SplArrayStack
                 language()->setDefault( $config[ 'language' ] );
             }
 
-            config()->mergeItems( $config );
+            config()->merge( $config );
 
             unset( $config );
         }
@@ -133,6 +133,11 @@ class Modules extends SplArrayStack
 
     private function autoloadRoutes ( Registries\Module $module )
     {
+        // Routes is not available on cli
+        if ( is_cli() ) {
+            return;
+        }
+
         if ( is_file(
             $filePath = $module->getRealPath() . 'Config' . DIRECTORY_SEPARATOR . ucfirst(
                     strtolower( ENVIRONMENT )
@@ -143,7 +148,7 @@ class Modules extends SplArrayStack
             include( $filePath );
         }
 
-        if ( isset( $routes ) AND $routes instanceof Maps ) {
+        if ( isset( $routes ) AND $routes instanceof Routes ) {
             config()->addItem( 'routes', $routes );
 
             unset( $routes );
@@ -232,23 +237,23 @@ class Modules extends SplArrayStack
 
     public function loadRegistry ()
     {
-        $cacheHandler = cache()->get( 'default' );
+        $cacheItemPool = cache()->getItemPool( 'default' );
 
-        if ( cache()->has( 'registry' ) ) {
-            $cacheHandler = cache()->get( 'registry' );
+        if ( cache()->hasItemPool( 'registry' ) ) {
+            $cacheItemPool = cache()->getItemPool( 'registry' );
         }
 
-        if ( $cacheHandler instanceof CacheItemPoolInterface ) {
-            if ( $cacheHandler->hasItem( 'o2modules' ) ) {
-                if ( $registry = $cacheHandler->getItem( 'o2modules' )->get() ) {
+        if ( $cacheItemPool instanceof CacheItemPoolInterface ) {
+            if ( $cacheItemPool->hasItem( 'o2modules' ) ) {
+                if ( $registry = $cacheItemPool->getItem( 'o2modules' )->get() ) {
                     $this->registry = $registry;
                 } else {
                     $this->registry = $this->fetchRegistry();
-                    $cacheHandler->save( new Item( 'o2modules', $this->registry, false ) );
+                    $cacheItemPool->save( new Item( 'o2modules', $this->registry, false ) );
                 }
             } else {
                 $this->registry = $this->fetchRegistry();
-                $cacheHandler->save( new Item( 'o2modules', $this->registry, false ) );
+                $cacheItemPool->save( new Item( 'o2modules', $this->registry, false ) );
             }
         } else {
             $this->registry = $this->fetchRegistry();
@@ -257,7 +262,7 @@ class Modules extends SplArrayStack
 
     public function fetchRegistry ()
     {
-        $registries = [ ];
+        $registries = [];
         $directory = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator( PATH_APP ),
             \RecursiveIteratorIterator::SELF_FIRST
@@ -267,6 +272,12 @@ class Modules extends SplArrayStack
 
         foreach ( $propertiesIterator as $propertiesFiles ) {
             foreach ( $propertiesFiles as $propertiesFile ) {
+
+                // subversion properties file conflict.
+                if ( strpos( $propertiesFile, '.svn' ) !== false ) {
+                    continue;
+                }
+
                 $propertiesFile = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $propertiesFile );
                 $propertiesFileInfo = pathinfo( $propertiesFile );
                 $propertiesMetadata = json_decode( file_get_contents( $propertiesFile ), true );
@@ -302,7 +313,8 @@ class Modules extends SplArrayStack
                         PATH_ROOT,
                         '',
                         $propertiesFileInfo[ 'dirname' ]
-                    ) . DIRECTORY_SEPARATOR . $propertiesFileInfo[ 'filename' ]
+                    ) . DIRECTORY_SEPARATOR . $propertiesFileInfo[ 'filename' ],
+                    false
                 );
 
                 if ( isset( $propertiesMetadata[ 'namespace' ] ) ) {
@@ -312,7 +324,7 @@ class Modules extends SplArrayStack
 
                 $modulePluralTypes = $this->addType( $propertiesFileInfo[ 'filename' ] );
 
-                $moduleParentSegments = [ ];
+                $moduleParentSegments = [];
                 if ( false !== ( $moduleTypeSegmentKey = array_search( $modulePluralTypes, $moduleSegments ) ) ) {
                     $moduleParentSegments = array_slice( $moduleSegments, 0, $moduleTypeSegmentKey );
 
@@ -320,7 +332,19 @@ class Modules extends SplArrayStack
                     $moduleSegments = array_diff( $moduleSegments, $this->types );
                 }
 
-                $registries[ implode( '/', $moduleSegments ) ] = ( new Registries\Module(
+                $registryKey = implode( '/', $moduleSegments );
+
+                if ( $registryKey === '' ) {
+                    if ( $propertiesFileInfo[ 'dirname' ] . DIRECTORY_SEPARATOR !== PATH_APP and $modulePluralTypes === 'apps' ) {
+                        $registryKey = 'apps/' . dash(
+                                pathinfo( $propertiesFileInfo[ 'dirname' ], PATHINFO_FILENAME )
+                            );
+                    }
+                } else {
+                    $registryKey = 'modules/' . $registryKey;
+                }
+
+                $registries[ $registryKey ] = ( new Registries\Module(
                     $propertiesFileInfo[ 'dirname' ]
                 ) )
                     ->setType( $propertiesFileInfo[ 'filename' ] )
@@ -348,28 +372,28 @@ class Modules extends SplArrayStack
 
     public function updateRegistry ()
     {
-        $cacheHandler = cache()->get( 'default' );
+        $cacheItemPool = cache()->getObject( 'default' );
 
-        if ( cache()->has( 'registry' ) ) {
-            $cacheHandler = cache()->get( 'registry' );
+        if ( cache()->hasItemPool( 'registry' ) ) {
+            $cacheItemPool = cache()->getObject( 'registry' );
         }
 
-        if ( $cacheHandler instanceof CacheItemPoolInterface ) {
+        if ( $cacheItemPool instanceof CacheItemPoolInterface ) {
             $this->registry = $this->fetchRegistry();
-            $cacheHandler->save( new Item( 'o2modules', $this->registry, false ) );
+            $cacheItemPool->save( new Item( 'o2modules', $this->registry, false ) );
         }
     }
 
     public function flushRegistry ()
     {
-        $cacheHandler = cache()->get( 'default' );
+        $cacheItemPool = cache()->getObject( 'default' );
 
-        if ( cache()->has( 'registry' ) ) {
-            $cacheHandler = cache()->get( 'registry' );
+        if ( cache()->hasItemPool( 'registry' ) ) {
+            $cacheItemPool = cache()->getObject( 'registry' );
         }
 
-        if ( $cacheHandler instanceof CacheItemPoolInterface ) {
-            $cacheHandler->deleteItem( 'o2modules' );
+        if ( $cacheItemPool instanceof CacheItemPoolInterface ) {
+            $cacheItemPool->deleteItem( 'o2modules' );
         }
     }
 
@@ -378,10 +402,28 @@ class Modules extends SplArrayStack
         $pluralTypes = plural( strtolower( $type ) );
 
         if ( ! in_array( $pluralTypes, $this->types ) ) {
-            array_push( $pluralTypes, $this->types );
+            array_push( $this->types, $pluralTypes );
         }
 
         return $pluralTypes;
+    }
+
+    /**
+     * getApp
+     *
+     * @param $segments
+     *
+     * @return bool|Registries\Module
+     */
+    public function getApp ( $segment )
+    {
+        $segment = 'apps/' . dash( $segment );
+
+        if ( $this->isExists( $segment ) ) {
+            return $this->registry[ $segment ];
+        }
+
+        return false;
     }
 
     /**
@@ -393,7 +435,7 @@ class Modules extends SplArrayStack
      */
     public function getModule ( $segments )
     {
-        $segments = is_array( $segments ) ? implode( '/', $segments ) : $segments;
+        $segments = 'modules/' . ( is_array( $segments ) ? implode( '/', array_map( 'dash', $segments ) ) : $segments );
 
         if ( $this->isExists( $segments ) ) {
             return $this->registry[ $segments ];
@@ -421,7 +463,7 @@ class Modules extends SplArrayStack
 
     public function getNamespaces ()
     {
-        $namespaces = [ ];
+        $namespaces = [];
 
         foreach ( $this as $key => $module ) {
             if ( $module instanceof Registries\Module ) {
@@ -434,7 +476,7 @@ class Modules extends SplArrayStack
 
     public function getDirs ( $dirName, $reverse = false )
     {
-        $dirs = [ ];
+        $dirs = [];
         $dirName = prepare_class_name( $dirName );
 
         foreach ( $this as $module ) {

@@ -12,32 +12,39 @@
 
 namespace O2System\Framework\Http\Presenter;
 
-
 use O2System\Framework\Http\Message\Uri;
 use O2System\Kernel\Registries\Config;
 use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
 
+/**
+ * Class Assets
+ *
+ * @package O2System\Framework\Http\Presenter
+ */
 class Assets
 {
     use FilePathCollectorTrait;
 
     public  $isCombine  = false;
 
-    private $iconAssets = [ ];
+    private $iconAssets = [];
 
-    private $fontAssets = [ ];
+    private $fontAssets = [];
 
-    private $cssAssets  = [ ];
+    private $cssAssets  = [];
 
-    private $jsAssets   = [ ];
+    private $jsAssets   = [];
 
+    /**
+     * Assets::__construct
+     */
     public function __construct ()
     {
         $this->setFileDirName( 'assets' );
         $this->addFilePath( PATH_PUBLIC );
     }
 
-    public function loadItems ( $assets )
+    public function loadFiles ( $assets )
     {
         if ( $assets instanceof Config ) {
             $assets = $assets->getArrayCopy();
@@ -65,10 +72,10 @@ class Assets
                 foreach ( $this->filePaths as $filePath ) {
                     $filePath .= 'js' . DIRECTORY_SEPARATOR;
                     if ( is_file( $filePath . $filename . '.min.js' ) ) {
-                        $this->jsAssets[] = $this->pathToRelative( $filePath . $filename . '.min.js' );
+                        $this->jsAssets[] = $this->getUrl( $filePath . $filename . '.min.js' );
                         break;
                     } elseif ( is_file( $filePath . $filename . '.js' ) ) {
-                        $this->jsAssets[] = $this->pathToRelative( $filePath . $filename . '.js' );
+                        $this->jsAssets[] = $this->getUrl( $filePath . $filename . '.js' );
                         break;
                     }
                 }
@@ -76,11 +83,20 @@ class Assets
         }
     }
 
-    private function pathToRelative ( $realPath )
+    public function getUrl ( $realPath )
     {
-        return ( new Uri() )->withQuery( null )->withSegment(
-            str_replace( [ PATH_PUBLIC, DIRECTORY_SEPARATOR ], [ '', '/' ], $realPath )
-        )->__toString();
+        return ( new Uri() )
+            ->withQuery( null )
+            ->withSegments(
+                new Uri\Segments(
+                    str_replace(
+                        [ PATH_PUBLIC, DIRECTORY_SEPARATOR ],
+                        [ '', '/' ],
+                        $realPath
+                    )
+                )
+            )
+            ->__toString();
     }
 
     public function addCss ( $css )
@@ -96,10 +112,10 @@ class Assets
                 foreach ( $this->filePaths as $filePath ) {
                     $filePath .= 'css' . DIRECTORY_SEPARATOR;
                     if ( is_file( $filePath . $filename . '.min.css' ) ) {
-                        $this->cssAssets[] = $this->pathToRelative( $filePath . $filename . '.min.css' );
+                        $this->cssAssets[] = $this->getUrl( $filePath . $filename . '.min.css' );
                         break;
                     } elseif ( is_file( $filePath . $filename . '.css' ) ) {
-                        $this->cssAssets[] = $this->pathToRelative( $filePath . $filename . '.css' );
+                        $this->cssAssets[] = $this->getUrl( $filePath . $filename . '.css' );
                         break;
                     }
                 }
@@ -127,7 +143,7 @@ class Assets
                     if ( is_file( $filePath . $filename ) ) {
                         $this->iconAssets[] = ( new Uri() )
                             ->withQuery( null )
-                            ->withSegment(
+                            ->addPath(
                                 str_replace( [ PATH_PUBLIC, DIRECTORY_SEPARATOR ], [ '', '/' ], $filePath . $filename )
                             )
                             ->__toString();
@@ -156,10 +172,10 @@ class Assets
                 foreach ( $this->filePaths as $filePath ) {
                     $filePath .= 'fonts' . DIRECTORY_SEPARATOR . $filename . DIRECTORY_SEPARATOR;
                     if ( is_file( $filePath . $filename . '.min.css' ) ) {
-                        $this->fontAssets[] = $this->pathToRelative( $filePath . $filename . '.min.css' );
+                        $this->fontAssets[] = $this->getUrl( $filePath . $filename . '.min.css' );
                         break;
                     } elseif ( is_file( $filePath . $filename . '.css' ) ) {
-                        $this->fontAssets[] = $this->pathToRelative( $filePath . $filename . '.css' );
+                        $this->fontAssets[] = $this->getUrl( $filePath . $filename . '.css' );
                         break;
                     }
                 }
@@ -183,16 +199,16 @@ class Assets
 
                     // Add CSS
                     if ( is_file( $filePath . $package . '.min.css' ) ) {
-                        $this->cssAssets[] = $this->pathToRelative( $filePath . $package . '.min.css' );
+                        $this->cssAssets[ $package ] = $this->getUrl( $filePath . $package . '.min.css' );
                     } elseif ( is_file( $filePath . $package . '.css' ) ) {
-                        $this->cssAssets[] = $this->pathToRelative( $filePath . $package . '.css' );
+                        $this->cssAssets[ $package ] = $this->getUrl( $filePath . $package . '.css' );
                     }
 
                     // Add JS
                     if ( is_file( $filePath . $package . '.min.js' ) ) {
-                        $this->jsAssets[] = $this->pathToRelative( $filePath . $package . '.min.js' );
+                        $this->jsAssets[ $package ] = $this->getUrl( $filePath . $package . '.min.js' );
                     } elseif ( is_file( $filePath . $package . '.js' ) ) {
-                        $this->jsAssets[] = $this->pathToRelative( $filePath . $package . '.js' );
+                        $this->jsAssets[ $package ] = $this->getUrl( $filePath . $package . '.js' );
                     }
                 }
             } else {
@@ -208,16 +224,18 @@ class Assets
 
                         // Add Css
                         if ( is_file( $packagePath . $packageName . '.min.css' ) ) {
-                            $this->cssAssets[] = $this->pathToRelative( $packagePath . $packageName . '.min.css' );
+                            $this->cssAssets[ $packageName ] = $this->getUrl(
+                                $packagePath . $packageName . '.min.css'
+                            );
                         } elseif ( is_file( $packagePath . $packageName . '.css' ) ) {
-                            $this->cssAssets[] = $this->pathToRelative( $packagePath . $packageName . '.css' );
+                            $this->cssAssets[ $packageName ] = $this->getUrl( $packagePath . $packageName . '.css' );
                         }
 
                         // Add Js
                         if ( is_file( $packagePath . $packageName . '.min.js' ) ) {
-                            $this->jsAssets[] = $this->pathToRelative( $packagePath . $packageName . '.min.js' );
+                            $this->jsAssets[ $packageName ] = $this->getUrl( $packagePath . $packageName . '.min.js' );
                         } elseif ( is_file( $packagePath . $packageName . '.js' ) ) {
-                            $this->jsAssets[] = $this->pathToRelative( $packagePath . $packageName . '.js' );
+                            $this->jsAssets[ $packageName ] = $this->getUrl( $packagePath . $packageName . '.js' );
                         }
 
                         // Add Package Theme
@@ -225,9 +243,11 @@ class Assets
                             $themeName = $package[ 'themes' ];
                             $themeFilePath = $packagePath . 'themes' . DIRECTORY_SEPARATOR . $themeName . DIRECTORY_SEPARATOR;
                             if ( is_file( $themeFilePath . $themeName . '.min.css' ) ) {
-                                $this->cssAssets[] = $this->pathToRelative( $themeFilePath . $themeName . '.min.css' );
+                                $this->cssAssets[ $themeName ] = $this->getUrl(
+                                    $themeFilePath . $themeName . '.min.css'
+                                );
                             } elseif ( is_file( $themeFilePath . $themeName . '.css' ) ) {
-                                $this->cssAssets[] = $this->pathToRelative( $themeFilePath . $themeName . '.css' );
+                                $this->cssAssets[ $themeName ] = $this->getUrl( $themeFilePath . $themeName . '.css' );
                             }
                         }
 
@@ -238,18 +258,18 @@ class Assets
 
                                 // Add Package Plugin Css
                                 if ( is_file( $pluginFilePath . $plugin . '.min.css' ) ) {
-                                    $this->cssAssets[] = $this->pathToRelative(
+                                    $this->cssAssets[ $plugin ] = $this->getUrl(
                                         $pluginFilePath . $plugin . '.min.css'
                                     );
                                 } elseif ( is_file( $pluginFilePath . $plugin . '.css' ) ) {
-                                    $this->cssAssets[] = $this->pathToRelative( $pluginFilePath . $plugin . '.css' );
+                                    $this->cssAssets[ $plugin ] = $this->getUrl( $pluginFilePath . $plugin . '.css' );
                                 }
 
                                 // Add Package Plugin Js
                                 if ( is_file( $pluginFilePath . $plugin . '.min.js' ) ) {
-                                    $this->jsAssets[] = $this->pathToRelative( $pluginFilePath . $plugin . '.min.js' );
+                                    $this->jsAssets[ $plugin ] = $this->getUrl( $pluginFilePath . $plugin . '.min.js' );
                                 } elseif ( is_file( $pluginFilePath . $plugin . '.js' ) ) {
-                                    $this->jsAssets[] = $this->pathToRelative( $pluginFilePath . $plugin . '.js' );
+                                    $this->jsAssets[ $plugin ] = $this->getUrl( $pluginFilePath . $plugin . '.js' );
                                 }
                             }
                         }
@@ -266,20 +286,24 @@ class Assets
         switch ( $position ) {
             case 'header':
 
-                return $this->header();
+                return $this->getHeaderOutput();
 
                 break;
             case 'footer':
 
-                return $this->footer();
+                return $this->getFooterOutput();
 
                 break;
         }
     }
 
-    private function header ()
+    private function getHeaderOutput ()
     {
-        $headerOutput = [ ];
+        $headerOutput = [];
+
+        foreach ( $this->fontAssets as $fontAsset ) {
+            $headerOutput[] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"$fontAsset\">";
+        }
 
         foreach ( $this->cssAssets as $cssAsset ) {
             $headerOutput[] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"$cssAsset\">";
@@ -288,9 +312,9 @@ class Assets
         return implode( PHP_EOL, $headerOutput );
     }
 
-    private function footer ()
+    private function getFooterOutput ()
     {
-        $footerOutput = [ ];
+        $footerOutput = [];
 
         foreach ( $this->jsAssets as $jsAsset ) {
             $footerOutput[] = "<script type=\"text/javascript\" src=\"$jsAsset\"></script>";
@@ -307,12 +331,8 @@ class Assets
             $filePath .= 'images' . DIRECTORY_SEPARATOR;
 
             if ( is_file( $filePath . $image ) ) {
-                return ( new Uri() )
-                    ->withQuery( null )
-                    ->withSegment(
-                        str_replace( [ PATH_PUBLIC, DIRECTORY_SEPARATOR ], [ '', '/' ], $filePath . $image )
-                    )
-                    ->__toString();
+                return $this->getUrl( $filePath . $image );
+                break;
             }
         }
     }

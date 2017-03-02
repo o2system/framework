@@ -130,7 +130,11 @@ require __DIR__ . '/Config/Constants.php';
  */
 require __DIR__ . '/Helpers/Framework.php';
 
-
+/**
+ * Class Framework
+ *
+ * @package O2System
+ */
 class Framework extends Kernel
 {
     /**
@@ -160,6 +164,8 @@ class Framework extends Kernel
      * @var Framework\Containers\Modules
      */
     private $modules;
+
+    // ------------------------------------------------------------------------
 
     /**
      * Framework::__construct
@@ -202,7 +208,7 @@ class Framework extends Kernel
                 // Instantiate Database Connection Pools
                 profiler()->watch( 'INSTANTIATE_DATABASE_CONNECTION_POOLS' );
 
-                $this->database = new Database\ConnectionPools(
+                $this->database = new Database\Connections(
                     new Database\Registries\Config(
                         $config->getArrayCopy()
                     )
@@ -217,6 +223,13 @@ class Framework extends Kernel
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Framework::__isset
+     *
+     * @param $property
+     *
+     * @return bool
+     */
     public function __isset ( $property )
     {
         return (bool) isset( $this->{$property} );
@@ -224,6 +237,13 @@ class Framework extends Kernel
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Framework::__get
+     *
+     * @param $property
+     *
+     * @return mixed
+     */
     public function &__get ( $property )
     {
         $get[ $property ] = false;
@@ -237,6 +257,10 @@ class Framework extends Kernel
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Framework::__reconstruct
+     *
+     */
     protected function __reconstruct ()
     {
         // Instantiate Modules Container
@@ -245,7 +269,7 @@ class Framework extends Kernel
 
         // Instantiate Cache Service
         profiler()->watch( 'INSTANTIATE_CACHE_SERVICE' );
-        $cache = new Cache\ItemPools( config( 'cache', true ) );
+        $cache = new Cache\Adapters( config( 'cache', true ) );
         $this->addService( $cache, 'cache' );
 
         // Modules Service Load Registries
@@ -269,20 +293,28 @@ class Framework extends Kernel
     // ------------------------------------------------------------------------
 
     /**
-     * Framework::cliRoute
+     * Framework::cliHandler
      *
      * @return void
      */
     private function cliHandler ()
     {
-        $router = new Framework\Cli\Router();
-        $this->addService( $router );
+        // Instantiate CLI Router Service
+        profiler()->watch( 'INSTANTIATE_CLI_ROUTER_SERVICE' );
+        $this->addService( 'O2System\Framework\Cli\Router' );
+
+        profiler()->watch( 'CLI_ROUTER_SERVICE_PARSE_REQUEST' );
+        router()->parseRequest();
+
+        if ( $commander = router()->getCommander() ) {
+
+        }
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Framework::httpRoute
+     * Framework::httpHandler
      *
      * @return void
      */
@@ -309,6 +341,8 @@ class Framework extends Kernel
         // Instantiate Http Presenter Service
         $this->addService( 'O2System\Framework\Http\Presenter' );
 
+        $this->addService('O2System\Framework\Http\Message\Request');
+
         // Instantiate Http Middleware Service
         profiler()->watch( 'INSTANTIATE_HTTP_MIDDLEWARE_SERVICE' );
         $this->addService( 'O2System\Framework\Http\Middleware' );
@@ -318,7 +352,7 @@ class Framework extends Kernel
         $this->addService( 'O2System\Framework\Http\Router' );
 
         profiler()->watch( 'HTTP_ROUTER_SERVICE_PARSE_REQUEST' );
-        router()->parseRequest( new Framework\Http\Message\Request() );
+        router()->parseRequest();
 
         profiler()->watch( 'HTTP_RUN_MIDDLEWARE_SERVICE' );
         middleware()->run();
@@ -376,7 +410,7 @@ class Framework extends Kernel
                     $this->addService( new $presenterClassName(), 'presenter' );
                 }
 
-                presenter()->assets->loadItems(
+                presenter()->assets->loadFiles(
                     [
                         'css' => $controllerAssets,
                         'js'  => $controllerAssets,
@@ -414,6 +448,6 @@ class Framework extends Kernel
         middleware()->run();
 
         // Show Error (404) Page Not Found
-        output()->showError( 404, 'NOT_FOUND_HEADER', 'NOT_FOUND_MESSAGE' );
+        output()->sendError( 404 );
     }
 }

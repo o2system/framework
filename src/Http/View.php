@@ -14,9 +14,11 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Http\Router\Registries\Page;
 use O2System\Framework\Registries\Module\Theme;
 use O2System\Gear\Toolbar;
 use O2System\HTML;
+use O2System\Spl\Exceptions\ErrorException;
 use O2System\Spl\Traits\Collectors\FileExtensionCollectorTrait;
 use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
 
@@ -92,7 +94,7 @@ class View
         return $get[ $property ];
     }
 
-    public function parse ( $string, array $vars = [ ] )
+    public function parse ( $string, array $vars = [] )
     {
         parser()->loadString( $string );
 
@@ -105,58 +107,94 @@ class View
             $vars = [ $vars => $value ];
         }
 
-        presenter()->mergeItems( $vars );
+        presenter()->merge( $vars );
 
         return $this;
     }
 
-    public function load ( $filename, array $vars = [ ], $return = false )
+    public function load ( $filename, array $vars = [], $return = false )
     {
+        if ( $filename instanceof Page ) {
+            return $this->page( $filename->getRealPath(), array_merge( $vars, $filename->getVars() ) );
+        }
+
         if ( strpos( $filename, 'Pages' ) !== false ) {
             return $this->page( $filename, $vars, $return );
         }
 
-        presenter()->mergeItems( $vars );
+        presenter()->merge( $vars );
 
         if ( false !== ( $filePath = $this->getFilePath( $filename ) ) ) {
+
             if ( $return === false ) {
 
-                $partials = presenter()->getItem( 'partials' );
+                $partials = presenter()->getVariable( 'partials' );
 
-                if ( $partials->hasItem( 'content' ) === false ) {
-                    $partials->addItem( 'content', $filePath );
+                if ( $partials->hasPartial( 'content' ) === false ) {
+                    $partials->addPartial( 'content', $filePath );
                 } else {
-                    $partials->addItem( pathinfo( $filePath, PATHINFO_FILENAME ), $filePath );
+                    $partials->addPartial( pathinfo( $filePath, PATHINFO_FILENAME ), $filePath );
                 }
 
             } else {
-                parser()->loadFile($filePath);
+                parser()->loadFile( $filePath );
+
                 return parser()->parse( presenter()->getArrayCopy() );
             }
         } else {
-            // @todo: throw file not found
-        }
 
-        return $this;
+            $backtrace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
+
+            $error = new ErrorException(
+                'E_VIEW_NOT_FOUND',
+                0,
+                $backtrace[ 0 ][ 'file' ],
+                $backtrace[ 0 ][ 'line' ],
+                [ trim( $filename ) ]
+            );
+
+            unset( $backtrace );
+
+            ob_start();
+            include PATH_KERNEL . 'Views' . DIRECTORY_SEPARATOR . 'http' . DIRECTORY_SEPARATOR . 'error.phtml';
+            $content = ob_get_contents();
+            ob_end_clean();
+
+            if ( $return === false ) {
+
+                $partials = presenter()->getVariable( 'partials' );
+
+                if ( $partials->hasPartial( 'content' ) === false ) {
+                    $partials->addPartial( 'content', $content );
+                } else {
+                    $partials->addPartial( pathinfo( $filePath, PATHINFO_FILENAME ), $content );
+                }
+
+            } else {
+                return $content;
+            }
+        }
     }
 
-    public function page ( $filename, array $vars = [ ], $return = false )
+    public function page ( $filename, array $vars = [], $return = false )
     {
-        presenter()->mergeItems( $vars );
+        if ( $filename instanceof Page ) {
+            return $this->page( $filename->getRealPath(), array_merge( $vars, $filename->getVars() ) );
+        }
+
+        presenter()->merge( $vars );
 
         if ( $return === false ) {
-            $partials = presenter()->getItem( 'partials' );
+            $partials = presenter()->getVariable( 'partials' );
 
-            if ( $partials->hasItem( 'content' ) === false ) {
-                $partials->addItem( 'content', $filename );
+            if ( $partials->hasPartial( 'content' ) === false ) {
+                $partials->addPartial( 'content', $filename );
             } else {
-                $partials->addItem( pathinfo( $filename, PATHINFO_FILENAME ), $filename );
+                $partials->addPartial( pathinfo( $filename, PATHINFO_FILENAME ), $filename );
             }
         } elseif ( parser()->loadFile( $filename ) ) {
             return parser()->parse( presenter()->getArrayCopy() );
         }
-
-        return $this;
     }
 
     private function getFilePath ( $filename )
@@ -170,10 +208,14 @@ class View
             $viewsDirectories = modules()->getDirs( 'Views' );
 
             if ( ( $theme = presenter()->getItem( 'theme' ) ) instanceof Theme ) {
-                $moduleReplacementPath = $theme->getPathName(
-                    ) . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . dash(
+                $moduleReplacementPath = $theme->getPathName()
+                                         . DIRECTORY_SEPARATOR
+                                         . 'modules'
+                                         . DIRECTORY_SEPARATOR
+                                         . dash(
                                              modules()->current()->getDirName()
-                                         ) . DIRECTORY_SEPARATOR;
+                                         )
+                                         . DIRECTORY_SEPARATOR;
 
                 if ( is_dir( $moduleReplacementPath ) ) {
                     array_unshift( $viewsDirectories, $moduleReplacementPath );
@@ -225,21 +267,35 @@ class View
 
         $this->document->title->text( presenter()->title->browser->__toString() );
 
-        if ( ( $theme = presenter()->getItem( 'theme' ) ) instanceof Theme ) {
-            parser()->loadFile( $theme->getLayout() );
+        if ( ( $theme = presenter()->getVariable( 'theme' ) ) instanceof Theme ) {
+            $themeLayout = $theme->getLayout()->getRealPath();
+
+            // Import body tag attributes
+            if ( preg_match( '#<body(.*?)>#is', file_get_contents( $themeLayout ), $matches ) ) {
+                $bodyXml = simplexml_load_string( str_replace( '>', '/>', $matches[ 0 ] ) );
+
+                foreach ( $bodyXml->attributes() as $name => $value ) {
+                    $this->document->body->setAttribute( $name, $value );
+                }
+            }
+
+            $this->document->body->setAttribute( 'data-module', modules()->current()->getParameter() );
+            $this->document->body->setAttribute( 'data-controller', router()->getController()->getParameter() );
+
+            parser()->loadFile( $themeLayout );
             $this->document->loadHTML( parser()->parse() );
         } else {
             $this->document->find( 'body' )->append( presenter()->partials->__get( 'content' ) );
         }
 
         if ( input()->env( 'DEBUG_STAGE' ) === 'DEVELOPER' ) {
-            $this->document->find( 'body' )->prepend( ( new Toolbar() )->__toString() );
+            $this->document->find( 'body' )->append( ( new Toolbar() )->__toString() );
         }
 
         if ( $return === true ) {
             return $this->document->saveHTML();
         }
 
-        output()->show( $this->document->saveHTML() );
+        output()->send( $this->document->saveHTML() );
     }
 }

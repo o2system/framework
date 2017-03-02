@@ -13,8 +13,8 @@
 namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
-use O2System\Framework\Http\Message\Request;
-use O2System\Framework\Http\Router\Maps;
+
+use O2System\Framework\Http\Message;
 use O2System\Framework\Http\Router\Registries\Route;
 
 /**
@@ -29,7 +29,7 @@ class Router
      *
      * @var array
      */
-    protected $segments = [ ];
+    protected $segments = [];
 
     protected $request;
 
@@ -37,61 +37,142 @@ class Router
 
     // ------------------------------------------------------------------------
 
-    final public function parseRequest ( Request $request )
-    {
-        $this->request = $request;
+    final public function parseRequest () {
+        $uri = request()->getUri();
 
-        $uriSegments = $request->getUri()->getSegments();
-        $uriString = $request->getUri()->getString();
+        // Load default routes config
+        $routes = config()->loadFile('routes', true);
 
-        if ( false !== ( $moduleUriSegments = $this->parseModuleSegments( $uriSegments ) ) ) {
-            $uriSegments = $moduleUriSegments;
-            $uriSegments = array_unique( $uriSegments );
+        $this->segments = $uriSegments = $uri->getSegments()->getParts();
+        $uriString = $uri->getSegments()->getString();
 
-            $uriString = str_replace( modules()->current()->getParameter() . '/', '', $uriString );
+        // Domain routing
+        if (null !== ($domain = $routes->getDomain())) {
+            if (is_array($domain)) {
+                $this->segments = $uriSegments = array_merge($domain, $uriSegments);
+                $uriString = implode('/', array_map('dash', $uriSegments));
+            } else {
+                if (false !== ($domainAppModule = modules()->getApp($domain))) {
+                    // Register Domain App Module Namespace
+                    loader()->addNamespace($domainAppModule->getNamespace(), $domainAppModule->getRealPath());
+
+                    // Push Domain App Module
+                    modules()->push($domainAppModule);
+                } elseif (false !== ($module = modules()->getModule($domain))) {
+                    // Register Path Module Namespace
+                    loader()->addNamespace($module->getNamespace(), $module->getRealPath());
+
+                    // Push Path Module
+                    modules()->push($module);
+                }
+            }
+        } elseif (false !== ($subdomain = $uri->getSubdomain())) {
+            if (false !== ($subdomainAppModule = modules()->getApp($subdomain))) {
+                // Register Subdomain App Module Namespace
+                loader()->addNamespace($subdomainAppModule->getNamespace(), $subdomainAppModule->getRealPath());
+
+                // Push Subdomain App Module
+                modules()->push($subdomainAppModule);
+            }
         }
 
-        $routes = config( 'routes' );
-        $routeDefault = null;
+        // Path to Module automatic routing
+        if ( $uriTotalSegments = count( $uriSegments ) ) {
+            for ($i = 0; $i <= $uriTotalSegments; $i++) {
+                $uriRoutedSegments = array_slice($uriSegments, 0, ($uriTotalSegments - $i));
 
-        if ( $routes instanceof Maps ) {
-            // Check route by mapped uri string
-            if ( null !== ( $route = $routes->getItem( $uriString ) ) ) {
-                if ( $route->isValidHttpMethod( $request->getMethod() ) AND $route->isValidUriString( $uriString ) ) {
-                    if ( $this->parseRoute( $route ) !== false ) {
-                        return;
-                    }
-                }
-            } else {
-                // Check route by mapped regex uri string
-                foreach ( $routes as $key => $route ) {
+                if (false !== ($module = modules()->getModule($uriRoutedSegments))) {
+                    $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
+                    $this->segments = $uriSegments = empty($uriSegments)
+                        ? [$module->getParameter()]
+                        : $uriSegments;
 
-                    if ( $key === '/' ) {
-                        $routeDefault = $route;
-                    }
+                    // Register Path Module Namespace
+                    loader()->addNamespace($module->getNamespace(), $module->getRealPath());
 
-                    if ( $route->isValidHttpMethod( $request->getMethod() ) AND $route->isValidUriString(
-                            $uriString
-                        )
-                    ) {
-                        if ( $this->parseRoute( $route ) !== false ) {
-                            return;
+                    // Push Path Module
+                    modules()->push($module);
 
-                            break;
-                        }
-                    }
+                    break;
                 }
             }
         }
 
-        // Automatic routing
-        $this->parseSegments( $uriSegments );
+        // Load routes config
+        $configDir = modules()->current()->getDir('config', true);
+        if ( is_file(
+            $filePath = $configDir . ucfirst(
+                    strtolower( ENVIRONMENT )
+                ) . DIRECTORY_SEPARATOR . 'Routes.php'
+        ) ) {
+            unset($routes);
+            include( $filePath );
+        } elseif ( is_file(
+            $filePath = $configDir . 'Routes.php'
+        ) ) {
+            unset($routes);
+            include( $filePath );
+        } elseif( $module = modules()->current() ) {
+            $controllerClassName = $module->getNamespace() . 'Controllers\\' . studlycapcase( $module->getParameter() );
+            if( class_exists( $controllerClassName ) ) {
+                $routeModuleDefault = $routes->any('/', function() use( $controllerClassName ) {
+                    return new $controllerClassName();
+                })->getMap( '/' );
+            }
+        }
 
-        if( empty( $this->controller) and isset( $routeDefault ) ) {
+        if( ! isset( $routes ) or ! $routes instanceof Router\Routes ) {
+            // @todo: throw config route exception
+            return;
+        }
+
+        // Define default route
+        $routeMapDefault = $routes->getMap( '/' );
+        if ( $routeMapDefault === false ) {
+            if( isset( $routeModuleDefault ) ) {
+                $routeDefault = $routeModuleDefault;
+            } else {
+                $controllerClassName = modules()->current()->getNamespace() . 'Controllers\\' . studlycapcase( modules()->current()->getParameter() );
+                if( class_exists( $controllerClassName ) ) {
+                    $routeDefault = $routes->any('/', function() use( $controllerClassName ) {
+                        return new $controllerClassName();
+                    })->getMap( '/' );
+                }
+            }
+        } else {
+            $routeDefault = $routeMapDefault;
+        }
+
+        if ( empty( $uriString ) and empty( $this->controller ) and isset( $routeDefault ) ) {
             if ( $this->parseRoute( $routeDefault, $uriSegments ) !== false ) {
                 return;
             }
+        } elseif ( false !== ( $route = $routes->getMap( $uriString ) ) ) {
+            if ( $route->isValidUriString( $uriString ) ) {
+                if( ! $route->isValidHttpMethod( request()->getMethod() ) and
+                    ! $route->isAnyHttpMethod() ) {
+                    output()->sendError( 405 );
+                } elseif ( $this->parseRoute( $route ) !== false ) {
+                    return;
+                }
+            }
+        } elseif( count( $maps = $routes->getMaps() ) ) {
+            foreach ( $maps as $key => $route ) {
+                if ( $route->isValidHttpMethod( request()->getMethod() ) and $route->isValidUriString(
+                        $uriString
+                    )
+                ) {
+                    if ( $this->parseRoute( $route ) !== false ) {
+                        return;
+
+                        break;
+                    }
+                }
+            }
         }
+
+        // Try to parse the uri segments to perform automatic routing
+        $this->parseSegments( $uriSegments );
 
         // Let's the framework do the rest when there is no controller found
         // the framework will redirect to PAGE 404
@@ -99,53 +180,29 @@ class Router
 
     // ------------------------------------------------------------------------
 
-    final private function parseModuleSegments ( array $segments )
-    {
-        $numSegments = count( $segments );
-
-        for ( $i = 0; $i <= $numSegments; $i++ ) {
-            $routedSegments = array_slice( $segments, 0, ( $numSegments - $i ) );
-
-            if ( false !== ( $module = modules()->getModule( $routedSegments ) ) ) {
-                $uriSegments = array_diff( $segments, $routedSegments );
-                $uriSegments = empty( $uriSegments )
-                    ? [ $module->getParameter() ]
-                    : $uriSegments;
-
-                // Register Module Namespace
-                loader()->addNamespace( $module->getNamespace(), $module->getRealPath() );
-
-                // Push Module
-                modules()->push( $module );
-
-                return $uriSegments;
-
-                break;
-            }
-        }
-
-        return false;
-    }
-
     final private function parseRoute ( Route $route, array $uriSegments = [] )
     {
         if ( $closure = $route->getClosure() ) {
             if ( $closure instanceof Controller ) {
                 $controllerRegistry = new Router\Registries\Controller( $closure );
-                $uriSegments = empty( $uriSegments ) ? $route->getClosureParameters() : $uriSegments;
+                $uriSegments = empty( $uriSegments )
+                    ? $route->getClosureParameters()
+                    : $uriSegments;
                 $this->setController( $controllerRegistry, $uriSegments );
             } elseif ( $closure instanceof Router\Registries\Controller ) {
                 $this->setController( $closure, $route->getClosureParameters() );
             } elseif ( is_array( $closure ) ) {
                 $this->parseSegments( $closure );
             } elseif ( is_string( $closure ) ) {
-                $this->sendOutput( $closure );
-            } elseif ( is_null( $closure ) ) {
-                exit( EXIT_SUCCESS );
+                if( strpos($closure, '/') !== false ) {
+                    $this->parseSegments( explode('/', $closure) );
+                } else {
+                    output()->send( $closure );
+                }
             }
+        } else {
+            output()->sendError( 204 );
         }
-
-        return false;
     }
 
     final private function parseSegments ( array $segments )
@@ -165,21 +222,6 @@ class Router
         }
     }
 
-    final protected function sendOutput ( $output )
-    {
-        echo $output;
-        exit( EXIT_SUCCESS );
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function getRequest ()
-    {
-        return $this->request;
-    }
-
-    // ------------------------------------------------------------------------
-
     /**
      * getController
      *
@@ -192,10 +234,10 @@ class Router
 
     // ------------------------------------------------------------------------
 
-    final protected function setController ( Router\Registries\Controller $controller, array $uriSegments = [ ] )
+    final protected function setController ( Router\Registries\Controller $controller, array $uriSegments = [] )
     {
         if ( is_null( $controller->name ) ) {
-            output()->showError( 400, 'BAD_REQUEST_HEADER', 'BAD_REQUEST_MESSAGE' );
+            output()->sendError( 400 );
         }
 
         // Add Controller PSR4 Namespace
@@ -239,13 +281,13 @@ class Router
                         ->setRequestMethod( 'index' )
                         ->setRequestMethodArgs( $controllerMethodParams );
                 } else {
-                    output()->showError( 404, 'NOT_FOUND_HEADER', 'NOT_FOUND_MESSAGE' );
+                    output()->sendError( 404 );
                 }
             }
         } elseif ( $controller->hasMethod( 'reroute' ) ) {
             $controller
                 ->setRequestMethod( 'reroute' )
-                ->setRequestMethodArgs( [ 'index', [ ] ] );
+                ->setRequestMethodArgs( [ 'index', [] ] );
         } elseif ( $controller->hasMethod( 'index' ) ) {
             $controller
                 ->setRequestMethod( 'index' );
@@ -324,7 +366,7 @@ class Router
     {
         $numSegments = count( $segments );
         $controllerRegistry = null;
-        $uriSegments = [ ];
+        $uriSegments = [];
         $controllersDirectories = modules()->getDirs( 'Controllers' );
 
         for ( $i = 0; $i <= $numSegments; $i++ ) {
@@ -338,7 +380,6 @@ class Router
                     if ( is_file( $controllerFilePath = $controllerDirectory . $controllerFilename ) ) {
                         $uriSegments = array_diff( $segments, $routedSegments );
                         $controllerRegistry = new Router\Registries\Controller( $controllerFilePath );
-
                         break;
                     }
                 }
@@ -346,7 +387,6 @@ class Router
                 $this->setController( $controllerRegistry, $uriSegments );
 
                 return true;
-
                 break;
             }
         }

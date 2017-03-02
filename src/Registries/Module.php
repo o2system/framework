@@ -1,19 +1,27 @@
 <?php
 /**
- * v6.0.0-svn
+ * This file is part of the O2System PHP Framework package.
  *
- * @author      Steeve Andrian Salim
- * @created     14/11/2016 21:11
- * @copyright   Copyright (c) 2016 Steeve Andrian Salim
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author         Steeve Andrian Salim
+ * @copyright      Copyright (c) Steeve Andrian Salim
  */
+// ------------------------------------------------------------------------
 
 namespace O2System\Framework\Registries;
 
+// ------------------------------------------------------------------------
 
 use O2System\Framework\Registries\Module\Theme;
 use O2System\Spl\Datastructures\SplArrayObject;
 use O2System\Spl\Info\SplDirectoryInfo;
 
+/**
+ * Class Module
+ * @package O2System\Framework\Registries
+ */
 class Module extends SplDirectoryInfo
 {
     private $type = 'MODULE';
@@ -57,7 +65,7 @@ class Module extends SplDirectoryInfo
     {
         parent::__construct( $dir );
 
-        $this->namespace = prepare_namespace( str_replace( PATH_ROOT, '', $dir ) );
+        $this->namespace = prepare_namespace( str_replace( PATH_ROOT, '', $dir ), false );
     }
 
     public function getType ()
@@ -84,6 +92,24 @@ class Module extends SplDirectoryInfo
         $this->parentSegments = is_array( $parentSegments ) ? implode( '/', $parentSegments ) : $parentSegments;
 
         return $this;
+    }
+
+    public function getSegments( $returnArray = true )
+    {
+        if( $returnArray ) {
+            return explode( '/', $this->segments );
+        }
+
+        return $this->segments;
+    }
+
+    public function getParentSegments( $returnArray = true )
+    {
+        if( $returnArray ) {
+            return explode( '/', $this->parentSegments );
+        }
+
+        return $this->parentSegments;
     }
 
     public function getParameter ()
@@ -157,6 +183,18 @@ class Module extends SplDirectoryInfo
                     return $themeObject;
                 }
             }
+        }
+
+        return false;
+    }
+
+    public function getDir( $dirname, $psrDir = false )
+    {
+        $dirname = $psrDir === true ? prepare_class_name( $dirname ) : $dirname;
+        $dirname = str_replace( [ '/', '\\' ], DIRECTORY_SEPARATOR, $dirname );
+
+        if( is_dir( $dirpath = $this->getRealPath() . $dirname ) ) {
+            return $dirpath . DIRECTORY_SEPARATOR;
         }
 
         return false;

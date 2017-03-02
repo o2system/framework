@@ -84,7 +84,7 @@ abstract class AbstractModel extends AbstractSingletonPattern
         // Set database connection
         if ( method_exists( database(), 'loadConnection' ) ) {
             if ( $db = database()->loadConnection( 'default' ) ) {
-                $this->db =& $db;
+                $this->db = $db->getQueryBuilder();
             }
         }
 

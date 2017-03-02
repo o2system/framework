@@ -29,18 +29,18 @@ class Language extends \O2System\Kernel\Services\Language
 
     public function loadRegistry ()
     {
-        $cacheHandler = cache()->get( 'default' );
+        $cacheItemPool = cache()->getItemPool( 'default' );
 
-        if ( cache()->has( 'registry' ) ) {
-            $cacheHandler = cache()->get( 'registry' );
+        if ( cache()->hasItemPool( 'registry' ) ) {
+            $cacheItemPool = cache()->getItemPool( 'registry' );
         }
 
-        if ( $cacheHandler instanceof CacheItemPoolInterface ) {
-            if ( $cacheHandler->hasItem( 'o2languages' ) ) {
-                $this->registry = $cacheHandler->getItem( 'o2languages' )->get();
+        if ( $cacheItemPool instanceof CacheItemPoolInterface ) {
+            if ( $cacheItemPool->hasItem( 'o2languages' ) ) {
+                $this->registry = $cacheItemPool->getItem( 'o2languages' )->get();
             } else {
                 $this->registry = $this->fetchRegistry();
-                $cacheHandler->save( new Item( 'o2languages', $this->registry, false ) );
+                $cacheItemPool->save( new Item( 'o2languages', $this->registry, false ) );
             }
         } else {
             $this->registry = $this->fetchRegistry();
@@ -89,28 +89,28 @@ class Language extends \O2System\Kernel\Services\Language
 
     public function updateRegistry ()
     {
-        $cacheHandler = cache()->get( 'default' );
+        $cacheItemPool = cache()->getObject( 'default' );
 
-        if ( cache()->has( 'registry' ) ) {
-            $cacheHandler = cache()->get( 'registry' );
+        if ( cache()->exists( 'registry' ) ) {
+            $cacheItemPool = cache()->getObject( 'registry' );
         }
 
-        if ( $cacheHandler instanceof CacheItemPoolInterface ) {
+        if ( $cacheItemPool instanceof CacheItemPoolInterface ) {
             $this->registry = $this->fetchRegistry();
-            $cacheHandler->save( new Item( 'o2languages', $this->registry, false ) );
+            $cacheItemPool->save( new Item( 'o2languages', $this->registry, false ) );
         }
     }
 
     public function flushRegistry ()
     {
-        $cacheHandler = cache()->get( 'default' );
+        $cacheItemPool = cache()->getItemPool( 'default' );
 
-        if ( cache()->has( 'registry' ) ) {
-            $cacheHandler = cache()->get( 'registry' );
+        if ( cache()->exists( 'registry' ) ) {
+            $cacheItemPool = cache()->getItemPool( 'registry' );
         }
 
-        if ( $cacheHandler instanceof CacheItemPoolInterface ) {
-            $cacheHandler->deleteItem( 'o2languages' );
+        if ( $cacheItemPool instanceof CacheItemPoolInterface ) {
+            $cacheItemPool->deleteItem( 'o2languages' );
         }
     }
 }

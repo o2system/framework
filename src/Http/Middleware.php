@@ -15,19 +15,19 @@ namespace O2System\Framework\Http;
 // ------------------------------------------------------------------------
 
 use O2System\Psr\Http\Middleware\MiddlewareServiceInterface;
-use O2System\Psr\Patterns\AbstractRegistryPattern;
+use O2System\Psr\Patterns\AbstractObjectRegistryPattern;
 
 /**
  * Class Middleware
  *
  * @package O2System
  */
-class Middleware extends AbstractRegistryPattern
+class Middleware extends AbstractObjectRegistryPattern
 {
     public function __construct ()
     {
-        $this->register( 'environment', new Middleware\Environment() );
-        $this->register( 'cache', new Middleware\Cache() );
+        $this->register(new Middleware\Environment(),  'environment' );
+        $this->register(new Middleware\Cache(), 'cache' );
     }
 
     /**
@@ -37,11 +37,11 @@ class Middleware extends AbstractRegistryPattern
      */
     public function run ()
     {
-        if ( $this->isEmpty() === false ) {
+        if ( $this->count() ) {
             
-            $request = router()->getRequest();
+            $request = request();
 
-            foreach ( $this->getArrayCopy() as $offset => $service ) {
+            foreach ( $this as $offset => $service ) {
                 if ( $service instanceof MiddlewareServiceInterface ) {
                     if ( $service->validate( $request ) ) {
                         $service->handle( $request );

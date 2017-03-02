@@ -1,18 +1,25 @@
 <?php
 /**
- * v6.0.0-dev
+ * This file is part of the O2System PHP Framework package.
  *
- * @author      Steeve Andrian Salim
- * @created     23/10/2016 18:54
- * @copyright   Copyright (c) 2016 Steeve Andrian Salim
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author         Steeve Andrian Salim
+ * @copyright      Copyright (c) Steeve Andrian Salim
  */
+// ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Middleware;
-
 
 use O2System\Psr\Http\Message\RequestInterface;
 use O2System\Psr\Http\Middleware\MiddlewareServiceInterface;
 
+/**
+ * Class Environment
+ *
+ * @package O2System\Framework\Http\Middleware
+ */
 class Environment implements MiddlewareServiceInterface
 {
     /**
@@ -25,8 +32,6 @@ class Environment implements MiddlewareServiceInterface
     public function validate ( RequestInterface $request )
     {
         $clientIpAddress = $request->getClientIpAddress();
-        $clientIpAddress = $clientIpAddress === '::1' ? '127.0.0.1' : $clientIpAddress;
-
         $debugIpAddresses = config( 'ipAddresses' )->offsetGet( 'debug' );
 
         if ( in_array( $clientIpAddress, $debugIpAddresses ) ) {
@@ -48,7 +53,7 @@ class Environment implements MiddlewareServiceInterface
                 ini_set( 'display_errors', 1 );
 
                 if ( isset( $_REQUEST[ 'PHP_INFO' ] ) ) {
-                    echo phpinfo();
+                    phpinfo();
                     exit( EXIT_SUCCESS );
                 }
 

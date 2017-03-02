@@ -16,7 +16,6 @@ namespace O2System\Framework\Http\Message;
 
 use O2System\Kernel\Http\Message;
 use O2System\Psr\Http\Message\UriInterface;
-use O2System\Security\Filters\Validation;
 use Traversable;
 
 /**
@@ -27,15 +26,6 @@ use Traversable;
 class Request extends Message\Request implements \IteratorAggregate
 {
     /**
-     * Request::$clientIpAddress
-     *
-     * Client IPv4 Address.
-     *
-     * @var string IPv4 Address.
-     */
-    protected $clientIpAddress;
-
-    /**
      * Request::$controller
      *
      * Requested Controller FilePath
@@ -45,6 +35,11 @@ class Request extends Message\Request implements \IteratorAggregate
     protected $controller;
 
     // ------------------------------------------------------------------------
+
+    public function __construct ()
+    {
+        $this->uri = new Uri();
+    }
 
     /**
      * RequestInterface::getUri
@@ -70,118 +65,7 @@ class Request extends Message\Request implements \IteratorAggregate
 
     public function getClientIpAddress ()
     {
-        $proxyIps = config( 'ipAddresses' )->offsetGet( 'proxy' );
-
-        if ( ! empty( $proxyIps ) && ! is_array( $proxyIps ) ) {
-            $proxyIps = array_map( 'trim', explode( ',', $proxyIps ) );
-        }
-
-        $this->clientIpAddress = $_SERVER[ 'REMOTE_ADDR' ];
-
-        if ( $proxyIps ) {
-            foreach ( [
-                          'HTTP_CLIENT_IP', 'HTTP_X_CLIENT_IP', 'HTTP_FORWARDED', 'HTTP_X_FORWARDED', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_CLUSTER_CLIENT_IP', 'REMOTE_ADDR',
-                      ] as $offset ) {
-                $spoof = isset( $_SERVER[ $offset ] ) ? $_SERVER[ $offset ] : null;
-                $spoof = empty( $spoof ) ? getenv( $offset ) : $spoof;
-
-                if ( $spoof !== null ) {
-                    // Some proxies typically list the whole chain of IP
-                    // addresses through which the client has reached us.
-                    // e.g. client_ip, proxy_ip1, proxy_ip2, etc.
-                    sscanf( $spoof, '%[^,]', $spoof );
-
-                    if ( ! Validation::isValidIp( $spoof ) ) {
-                        $spoof = null;
-                    } else {
-                        break;
-                    }
-                }
-            }
-
-            if ( $spoof ) {
-                for ( $i = 0, $c = count( $proxyIps ); $i < $c; $i++ ) {
-                    // Check if we have an IP address or a subnet
-                    if ( strpos( $proxyIps[ $i ], '/' ) === false ) {
-                        // An IP address (and not a subnet) is specified.
-                        // We can compare right away.
-                        if ( $proxyIps[ $i ] === $this->clientIpAddress ) {
-                            $this->clientIpAddress = $spoof;
-                            break;
-                        }
-
-                        continue;
-                    }
-
-                    // We have a subnet ... now the heavy lifting begins
-                    isset( $separator ) || $separator = Validation::isValidIp(
-                        $this->clientIpAddress,
-                        'ipv6'
-                    ) ? ':' : '.';
-
-                    // If the proxy entry doesn't match the IP protocol - skip it
-                    if ( strpos( $proxyIps[ $i ], $separator ) === false ) {
-                        continue;
-                    }
-
-                    // Convert the REMOTE_ADDR IP address to binary, if needed
-                    if ( ! isset( $ip, $sprintf ) ) {
-                        if ( $separator === ':' ) {
-                            // Make sure we're have the "full" IPv6 format
-                            $ip = explode(
-                                ':',
-                                str_replace(
-                                    '::',
-                                    str_repeat( ':', 9 - substr_count( $this->clientIpAddress, ':' ) ),
-                                    $this->clientIpAddress
-                                )
-                            );
-
-                            for ( $i = 0; $i < 8; $i++ ) {
-                                $ip[ $i ] = intval( $ip[ $i ], 16 );
-                            }
-
-                            $sprintf = '%016b%016b%016b%016b%016b%016b%016b%016b';
-                        } else {
-                            $ip = explode( '.', $this->clientIpAddress );
-                            $sprintf = '%08b%08b%08b%08b';
-                        }
-
-                        $ip = vsprintf( $sprintf, $ip );
-                    }
-
-                    // Split the netmask length off the network address
-                    sscanf( $proxyIps[ $i ], '%[^/]/%d', $netaddr, $masklen );
-
-                    // Again, an IPv6 address is most likely in a compressed form
-                    if ( $separator === ':' ) {
-                        $netaddr = explode(
-                            ':',
-                            str_replace( '::', str_repeat( ':', 9 - substr_count( $netaddr, ':' ) ), $netaddr )
-                        );
-                        for ( $i = 0; $i < 8; $i++ ) {
-                            $netaddr[ $i ] = intval( $netaddr[ $i ], 16 );
-                        }
-                    } else {
-                        $netaddr = explode( '.', $netaddr );
-                    }
-
-                    // Convert to binary and finally compare
-                    if ( strncmp( $ip, vsprintf( $sprintf, $netaddr ), $masklen ) === 0 ) {
-                        $this->clientIpAddress = $spoof;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if ( ! Validation::isValidIp( $this->clientIpAddress ) ) {
-            return $this->clientIpAddress = '0.0.0.0';
-        } elseif( $this->clientIpAddress === '::1') {
-            return $this->clientIpAddress = '127.0.0.1';
-        }
-
-        return $this->clientIpAddress;
+        return input()->ipAddress( config()->getItem('ipAddresses')->proxy );
     }
 
     // ------------------------------------------------------------------------
@@ -307,6 +191,13 @@ class Request extends Message\Request implements \IteratorAggregate
     public function count ()
     {
         return count( $_REQUEST );
+    }
+
+    //--------------------------------------------------------------------
+
+    public function setUri( UriInterface $uri )
+    {
+        $this->uri = $uri;
     }
 
     /**

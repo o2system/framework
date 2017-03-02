@@ -35,9 +35,9 @@ class Pages extends Controller
 
     /**
      * Pages::setPage
-     * 
+     *
      * @param \O2System\Framework\Http\Router\Registries\Page $page
-     * 
+     *
      * @return void
      */
     public function setPage ( Page $page )
@@ -46,19 +46,19 @@ class Pages extends Controller
 
         if ( false !== ( $settings = $this->page->getSettings() ) ) {
             if ( $settings->offsetExists( 'theme' ) ) {
-                $this->presenter->theme->set( $settings->theme );
+                presenter()->setTheme( $settings->theme );
             }
 
             if ( $settings->offsetExists( 'title' ) ) {
-                $this->presenter->title->addTitle( $settings->title );
+                presenter()->title->add( $settings->title );
             }
 
             if ( $settings->offsetExists( 'pageTitle' ) ) {
-                $this->presenter->title->addTitlePage( $settings->pageTitle );
+                presenter()->title->addTitlePage( $settings->pageTitle );
             }
 
             if ( $settings->offsetExists( 'browserTitle' ) ) {
-                $this->presenter->title->addTitleBrowser( $settings->browserTitle );
+                presenter()->title->addTitleBrowser( $settings->browserTitle );
             }
         }
     }
@@ -67,11 +67,11 @@ class Pages extends Controller
 
     /**
      * Pages::index
-     * 
+     *
      * @return void
      */
     public function index ()
     {
-        $this->view->page( $this->page->getRealPath(), $this->page->getVars() );
+        view()->page( $this->page );
     }
 }

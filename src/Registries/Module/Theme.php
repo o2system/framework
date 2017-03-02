@@ -128,24 +128,22 @@ class Theme extends SplDirectoryInfo
         $extensions = [ '.php', '.phtml', '.html', '.tpl' ];
 
         if ( isset( $this->config[ 'extensions' ] ) ) {
-            $extensions = $this->config[ 'extensions' ];
+            array_unshift( $partialsExtensions, $this->config['extension'] );
         } elseif ( isset( $this->config[ 'extension' ] ) ) {
             array_unshift( $extensions, $this->config[ 'extension' ] );
         }
 
         foreach ( $extensions as $extension ) {
-            $layoutFilePath = $this->getRealPath() . dash( $layout ) . '.' . trim( $extension, '.' );
-            $layoutsFilePath = $this->getRealPath() . 'layouts/' . dash( $layout ) . 'layout.' . trim(
-                    $extension,
-                    '.'
-                );
+            if( $layout === 'theme' ) {
+                $layoutFilePath = $this->getRealPath() . 'theme.' . trim( $extension, '.' );
+            } else {
+                $layoutFilePath = $this->getRealPath() . 'layouts' . DIRECTORY_SEPARATOR . dash( $layout ) . DIRECTORY_SEPARATOR . 'layout.' . trim( $extension, '.' );
+            }
 
             if ( is_file( $layoutFilePath ) ) {
                 $this->layout = new SplFileInfo( $layoutFilePath );
+                $this->loadPartials();
 
-                break;
-            } elseif ( is_file( $layoutsFilePath ) ) {
-                $this->layout = new SplFileInfo( $layoutsFilePath );
                 break;
             }
         }
@@ -154,8 +152,6 @@ class Theme extends SplDirectoryInfo
         if ( empty( $this->layout ) ) {
             // @todo throw new exception layout not found
         }
-
-        $this->loadPartials();
 
         return $this;
     }
@@ -167,6 +163,7 @@ class Theme extends SplDirectoryInfo
 
     protected function loadPartials ()
     {
+        $this->partials = [];
         if( ! $this->layout instanceof SplFileInfo) {
             return;
         }
@@ -178,25 +175,20 @@ class Theme extends SplDirectoryInfo
             $partialsExtensions = [ '.php', '.phtml', '.html', '.tpl' ];
 
             if ( isset( $this->config[ 'extension' ] ) ) {
-                $partialsExtensions = [ $this->config[ 'extension' ] ];
+                array_unshift( $partialsExtensions, $this->config['extension'] );
             } elseif ( isset( $this->config[ 'extensions' ] ) ) {
                 $partialsExtensions = $this->config[ 'extensions' ];
             }
 
-            $partialsFiles = new \DirectoryIterator( $partialsFilePath );
+            $partialsFiles = scandir( $partialsFilePath );
+            $partialsFiles = array_slice( $partialsFiles, 2 );
 
             foreach ( $partialsFiles as $partialsFile ) {
-                if ( $partialsFile->isFile() ) {
+                $filePath = $partialsFilePath . $partialsFile;
 
-                    $filename = str_replace(
-                        '.' . pathinfo( $partialsFile->getRealPath(), PATHINFO_EXTENSION ),
-                        '',
-                        pathinfo( $partialsFile->getRealPath(), PATHINFO_BASENAME )
-                    );
-
-                    $this->partials[ $filename ] = new SplFileInfo(
-                        $partialsFile->getRealPath()
-                    );
+                if( is_file( $filePath ) and in_array( '.' . pathinfo( $filePath, PATHINFO_EXTENSION ), $partialsExtensions ) ) {
+                    $fileKey = str_replace( $partialsExtensions, '', $partialsFile );
+                    $this->partials[ $fileKey ] = new SplFileInfo( $filePath );
                 }
             }
         }
