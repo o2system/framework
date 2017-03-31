@@ -11,10 +11,10 @@
 // ------------------------------------------------------------------------
 
 if ( ! function_exists( 'base_url' ) ) {
-    function base_url ( $segments = null, $query = null )
+    function base_url( $segments = null, $query = null )
     {
-        return (new \O2System\Framework\Http\Message\Uri())
-            ->withQuery($query)
+        return ( new \O2System\Framework\Http\Message\Uri() )
+            ->withQuery( $query )
             ->withSegments( new O2System\Framework\Http\Message\Uri\Segments( $segments ) )
             ->__toString();
     }
@@ -22,10 +22,10 @@ if ( ! function_exists( 'base_url' ) ) {
 
 if ( ! function_exists( 'current_url' ) ) {
 
-    function current_url ( $segments = null, $query = null )
+    function current_url( $segments = null, $query = null )
     {
-        return (new \O2System\Framework\Http\Message\Uri())
-            ->withQuery($query)
+        return ( new \O2System\Framework\Http\Message\Uri() )
+            ->withQuery( $query )
             ->addSegments( new O2System\Framework\Http\Message\Uri\Segments( $segments ) )
             ->__toString();
     }
@@ -36,9 +36,10 @@ if ( ! function_exists( 'assets_url' ) ) {
      * assets_url
      *
      * @param string $path Uri path.
+     *
      * @return string
      */
-    function assets_url ( $path )
+    function assets_url( $path )
     {
         return presenter()->assets->getUrl( $path );
     }
@@ -54,15 +55,27 @@ if ( ! function_exists( 'prepare_url' ) ) {
      *
      * @return    string
      */
-    function prepare_url ( $uri = '' )
+    function prepare_url( $uri = '' )
     {
-        if ( $uri === 'http://' OR $uri === 'https://' OR $uri === '' ) {
+        if ( $uri === 'http://' or $uri === 'https://' or $uri === '' ) {
             return '';
         }
 
+        /**
+         * Converts double slashes in a string to a single slash,
+         * except those found in http://
+         *
+         * http://www.some-site.com//index.php
+         *
+         * becomes:
+         *
+         * http://www.some-site.com/index.php
+         */
+        $uri = preg_replace( '#(^|[^:])//+#', '\\1/', $uri );
+
         $url = parse_url( $uri );
 
-        if ( ! $url OR ! isset( $url[ 'scheme' ] ) ) {
+        if ( ! $url or ! isset( $url[ 'scheme' ] ) ) {
             return ( is_https() ? 'https://' : 'http://' ) . $uri;
         }
 
@@ -72,7 +85,7 @@ if ( ! function_exists( 'prepare_url' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'redirect' ) ) {
+if ( ! function_exists( 'redirect_url' ) ) {
     /**
      * Header Redirect
      *
@@ -87,32 +100,17 @@ if ( ! function_exists( 'redirect' ) ) {
      *
      * @return    void
      */
-    function redirect ( $uri = '', $method = 'auto', $code = null )
+    function redirect_url( $uri = '', $method = 'auto', $code = null )
     {
-        if ( substr_count( $uri, '.' ) > 1 ) {
-            $segments = explode( '/', $uri );
-            $domain = reset( $segments );
-
-            array_shift( $segments );
-
-            $uri = isset( $_SERVER[ 'REQUEST_SCHEME' ] ) ? $_SERVER[ 'REQUEST_SCHEME' ] : 'http';
-            $uri .= '://' . $domain;
-
-            // Add server port if needed
-            $uri .= $_SERVER[ 'SERVER_PORT' ] !== '80' ? ':' . $_SERVER[ 'SERVER_PORT' ] : '';
-
-            $uri .= empty( $segments ) ? '' : '/' . implode( '/', $segments );
-        } else {
-            if ( ! preg_match( '#^(\w+:)?//#i', $uri ) ) {
-                $uri = base_url( $uri );
-            }
+        if ( strpos( $uri, 'http' ) === false ) {
+            $uri = base_url( $uri );
         }
 
         // IIS environment likely? Use 'refresh' for better compatibility
         if ( $method === 'auto' && isset( $_SERVER[ 'SERVER_SOFTWARE' ] ) && strpos(
-                                                                                 $_SERVER[ 'SERVER_SOFTWARE' ],
-                                                                                 'Microsoft-IIS'
-                                                                             ) !== false
+                $_SERVER[ 'SERVER_SOFTWARE' ],
+                'Microsoft-IIS'
+            ) !== false
         ) {
             $method = 'refresh';
         } elseif ( $method !== 'refresh' && ( empty( $code ) OR ! is_numeric( $code ) ) ) {
@@ -124,8 +122,6 @@ if ( ! function_exists( 'redirect' ) ) {
                 $code = 302;
             }
         }
-
-        $uri = str_replace( [ 'http://http://', 'https://https://' ], [ 'http://', 'https://' ], $uri );
 
         switch ( $method ) {
             case 'refresh':

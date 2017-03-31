@@ -10,90 +10,64 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Cli\Commands;
+namespace O2System\Framework\Cli\Commanders;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Cli\Command;
-use O2System\Kernel\Cli\Writers\Formatter;
+use O2System\Framework\Cli\Commander;
+use O2System\Kernel\Cli\Writers\Format;
 use O2System\Kernel\Cli\Writers\Table;
 
 /**
  * Class Registry
  *
- * @package O2System\Framework\Cli\Commands
+ * @package O2System\Framework\Cli\Commanders
  */
-class Registry extends Command
+class Registry extends Commander
 {
-    protected $version = '1.0.0';
-
     /**
-     * Registry::$name
+     * Make::$commandVersion
      *
-     * Command name.
+     * Command version.
      *
      * @var string
      */
-    protected $caller = 'registry';
+    protected $commandVersion = '1.0.0';
 
     /**
-     * Registry::$description
+     * Make::$commandDescription
      *
      * Command description.
      *
      * @var string
      */
-    protected $description = 'Registry management console';
+    protected $commandDescription = 'DESC_CLI_REGISTRY';
 
     /**
-     * Registry::$options
+     * Make::$commandOptions
      *
      * Command options.
      *
      * @var array
      */
-    protected $options = [
-        'fetch'  => [
-            'description' => 'Fetch applications registry',
+    protected $commandOptions = [
+        'update'   => [
+            'description' => 'Update application registry',
+            'help'        => 'H_CLI_REGISTRY_UPDATE',
         ],
-        'update' => [
-            'description' => 'Update applications registry',
+        'flush'    => [
+            'description' => 'Flush application registry',
         ],
-        'flush'  => [
-            'description' => 'Flush applications registry',
+        'info'     => [
+            'description' => 'Application registry info',
         ],
-        'info'   => [
-            'description' => 'Applications registry info',
+        'metadata' => [
+            'description' => 'Application registry metadata',
+            'help'        => 'H_CLI_REGISTRY_METADATA',
         ],
     ];
 
-    public function optionFetch ( $type = null )
-    {
-        if ( in_array( $type, [ 'modules', 'languages' ] ) ) {
-            switch ( $type ) {
-                case 'modules':
-                    $line = PHP_EOL . print_r( modules()->fetchRegistry(), true );
-                    break;
-
-                case 'languages':
-                    $line = PHP_EOL . print_r( language()->fetchRegistry(), true );
-                    break;
-            }
-        } else {
-            $output[ 'languages' ] = language()->fetchRegistry();
-            $output[ 'modules' ] = modules()->fetchRegistry();
-
-            $line = PHP_EOL . print_r( $output, true );
-        }
-
-        if ( isset( $line ) ) {
-            output()->writeln( $line );
-
-            exit( EXIT_SUCCESS );
-        }
-    }
-
-    public function optionUpdate ( $type = null )
+    public function optionUpdate( $type = null )
     {
         if ( in_array( $type, [ 'modules', 'languages' ] ) ) {
             switch ( $type ) {
@@ -113,7 +87,7 @@ class Registry extends Command
         exit( EXIT_SUCCESS );
     }
 
-    public function optionFlush ( $type = null )
+    public function optionFlush( $type = null )
     {
         if ( in_array( $type, [ 'modules', 'languages' ] ) ) {
             switch ( $type ) {
@@ -134,13 +108,9 @@ class Registry extends Command
         exit( EXIT_SUCCESS );
     }
 
-    public function optionInfo ()
+    public function optionInfo()
     {
-        $formatter = new Formatter();
-
         $table = new Table();
-
-        output()->writeln( PHP_EOL );
 
         $table
             ->addHeader( 'Metadata' )
@@ -156,19 +126,20 @@ class Registry extends Command
             ->addColumn( 'Language' )
             ->addColumn( language()->countRegistry() );
 
-        output()->writeln(
-            $formatter
-                ->setIndent( 1 )
-                ->format( PHP_EOL . $table->render() )
+        output()->write(
+            ( new Format() )
+                ->setString( $table->render() )
+                ->setNewLinesBefore( 1 )
+                ->setNewLinesAfter( 2 )
         );
 
         exit( EXIT_SUCCESS );
     }
 
-    public function optionMetadata ( $metadata )
+    public function optionMetadata( $type )
     {
-        if ( in_array( $metadata, [ 'modules', 'languages' ] ) ) {
-            switch ( $metadata ) {
+        if ( in_array( $type, [ 'modules', 'languages' ] ) ) {
+            switch ( $type ) {
                 case 'modules':
                     $line = PHP_EOL . print_r( modules()->getRegistry(), true );
                     break;
@@ -184,10 +155,5 @@ class Registry extends Command
                 exit( EXIT_SUCCESS );
             }
         }
-    }
-
-    protected function execute ()
-    {
-
     }
 }

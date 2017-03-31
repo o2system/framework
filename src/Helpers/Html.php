@@ -30,7 +30,7 @@ if ( ! function_exists( 'html' ) ) {
      *
      * @return string
      */
-    function html ( $tag = '', $attr = [ ], $content = '' )
+    function html( $tag = '', $attr = [], $content = '' )
     {
         if ( strpos( $tag, '/' ) === false ) {
             $open_tag = "<" . $tag;
@@ -67,7 +67,7 @@ if ( ! function_exists( 'strip_comments' ) ) {
      *
      * @return  string
      */
-    function strip_comments ( $html )
+    function strip_comments( $html )
     {
         $expr = '/<!--[\s\S]*?-->/';
         $func = 'rhc';
@@ -86,13 +86,13 @@ if ( ! function_exists( 'strip_js' ) ) {
      *
      * @return  string
      */
-    function strip_js ( $html )
+    function strip_js( $html )
     {
         $html = htmlspecialchars_decode( $html );
         $search_arr = [ '<script', '</script>' ];
         $html = str_ireplace( $search_arr, $search_arr, $html );
         $split_arr = explode( '<script', $html );
-        $remove_jscode_arr = [ ];
+        $remove_jscode_arr = [];
         foreach ( $split_arr as $key => $val ) {
             $newarr = explode( '</script>', $split_arr[ $key ] );
             $remove_jscode_arr[] = ( $key == 0 ) ? $newarr[ 0 ] : $newarr[ 1 ];
@@ -113,9 +113,9 @@ if ( ! function_exists( 'video' ) ) {
      *
      * @return string
      */
-    function video (
-        $attr = [ ],
-        $sources = [ ],
+    function video(
+        $attr = [],
+        $sources = [],
         $no_support_message = 'Your browser does not support the HTML5 video tag'
     ) {
 
@@ -135,7 +135,7 @@ if ( ! function_exists( 'canvas' ) ) {
      *
      * @return  string
      */
-    function canvas ( $attr = [ ], $no_support_message = 'Your browser does not support the HTML5 canvas tag' )
+    function canvas( $attr = [], $no_support_message = 'Your browser does not support the HTML5 canvas tag' )
     {
         return html( 'canvas', $attr, $no_support_message );
     }
@@ -154,9 +154,9 @@ if ( ! function_exists( 'audio' ) ) {
      *
      * @return  string
      */
-    function audio (
-        $attr = [ ],
-        $sources = [ ],
+    function audio(
+        $attr = [],
+        $sources = [],
         $no_support_message = 'Your browser does not support the HTML5 audio tag'
     ) {
         return html( 'audio', $attr, $no_support_message );
@@ -177,7 +177,7 @@ if ( ! function_exists( 'parse_attributes' ) ) {
      * @access  private
      * @return  string
      */
-    function parse_attributes ( $attr )
+    function parse_attributes( $attr )
     {
         if ( is_string( $attr ) ) {
             if ( is_html( $attr ) ) {
@@ -186,16 +186,16 @@ if ( ! function_exists( 'parse_attributes' ) ) {
                 $xml = simplexml_load_string( '<tag ' . $attr . '/>' );
             }
 
-            $attr = [ ];
+            $attr = [];
 
             foreach ( $xml->attributes() as $key => $node ) {
-                $attr[ $key ] = (string) $node;
+                $attr[ $key ] = (string)$node;
             }
 
             return $attr;
         }
 
-        return [ ];
+        return [];
     }
 }
 
@@ -213,7 +213,7 @@ if ( ! function_exists( 'parse_sources' ) ) {
      * @access  private
      * @return  string
      */
-    function parse_sources ( $sources = [ ] )
+    function parse_sources( $sources = [] )
     {
         if ( empty( $sources ) ) {
             return null;
@@ -251,7 +251,7 @@ if ( ! function_exists( 'strip_image_tags' ) ) {
      *
      * @return  string
      */
-    function strip_image_tags ( $html )
+    function strip_image_tags( $html )
     {
         $html = preg_replace( "#<img\s+.*?src\s*=\s*[\"'](.+?)[\"'].*?\>#", "\\1", $html );
         $html = preg_replace( "#<img\s+.*?src\s*=\s*(.+?).*?\>#", "\\1", $html );
@@ -271,7 +271,7 @@ if ( ! function_exists( 'strip_cdata' ) ) {
      *
      * @return  string
      */
-    function strip_cdata ( $html )
+    function strip_cdata( $html )
     {
         preg_match_all( '/<!\[cdata\[(.*?)\]\]>/is', $html, $matches );
 
@@ -288,7 +288,7 @@ if ( ! function_exists( 'strips_all_tags' ) ) {
      *
      * @return  string
      */
-    function strips_all_tags ( $html )
+    function strips_all_tags( $html )
     {
         $search = [
             '@<script[^>]*?>.*?</script>@si', // Strip out javascript
@@ -312,7 +312,7 @@ if ( ! function_exists( 'strip_word_doc' ) ) {
      *
      * @return  string
      */
-    function strip_word_doc ( $html, $allowed_tags = '' )
+    function strip_word_doc( $html, $allowed_tags = '' )
     {
         mb_regex_encoding( 'UTF-8' );
 
@@ -410,7 +410,7 @@ if ( ! function_exists( 'remove_tags' ) ) {
      *
      * @return  string
      */
-    function remove_tags ( $html, $tags, $strip_content = false )
+    function remove_tags( $html, $tags, $strip_content = false )
     {
         $content = '';
         if ( ! is_array( $tags ) ) {
@@ -443,11 +443,11 @@ if ( ! function_exists( 'extract_tag' ) ) {
      *
      * @return  string
      */
-    function extract_tag ( $html, $tag = 'div' )
+    function extract_tag( $html, $tag = 'div' )
     {
         $html = preg_match_all( "/(\<" . $tag . ")(.*?)(" . $tag . ">)/si", $html, $matches );
 
-        $result = [ ];
+        $result = [];
         foreach ( $matches[ 0 ] as $item ) {
             $result[] = preg_replace( "/\<[\/]?" . $tag . "\>/", '', $item );
         }
@@ -470,7 +470,7 @@ if ( ! function_exists( 'strips_tags' ) ) {
      *
      * @return  string
      */
-    function strips_tags ( $html, $disallowed_tag = 'script|style|noframes|select|option', $allowed_tag = '' )
+    function strips_tags( $html, $disallowed_tag = 'script|style|noframes|select|option', $allowed_tag = '' )
     {
         //prep the string
         $html = ' ' . $html;
@@ -534,7 +534,7 @@ if ( ! function_exists( 'clean_white_space' ) ) {
      *
      * @return  string
      */
-    function clean_white_space ( $html = '' )
+    function clean_white_space( $html = '' )
     {
         $html = str_replace( [ "\n", "\r", '&nbsp;', "\t" ], '', $html );
 
@@ -554,7 +554,7 @@ if ( ! function_exists( 'heading' ) ) {
      *
      * @return    string
      */
-    function heading ( $data = '', $h = '1', $attributes = '' )
+    function heading( $data = '', $h = '1', $attributes = '' )
     {
         return '<h' . $h . stringify_attributes( $attributes ) . '>' . $data . '</h' . $h . '>';
     }
@@ -573,7 +573,7 @@ if ( ! function_exists( 'ul' ) ) {
      *
      * @return    string
      */
-    function ul ( $list, $attributes = '' )
+    function ul( $list, $attributes = '' )
     {
         return _list( 'ul', $list, $attributes );
     }
@@ -592,7 +592,7 @@ if ( ! function_exists( 'ol' ) ) {
      *
      * @return    string
      */
-    function ol ( $list, $attributes = '' )
+    function ol( $list, $attributes = '' )
     {
         return _list( 'ol', $list, $attributes );
     }
@@ -613,7 +613,7 @@ if ( ! function_exists( '_list' ) ) {
      *
      * @return    string
      */
-    function _list ( $type = 'ul', $list = [ ], $attributes = '', $depth = 0 )
+    function _list( $type = 'ul', $list = [], $attributes = '', $depth = 0 )
     {
         // If an array wasn't submitted there's nothing to do...
         if ( ! is_array( $list ) ) {
@@ -622,8 +622,8 @@ if ( ! function_exists( '_list' ) ) {
 
         // Set the indentation based on the depth
         $out = str_repeat( ' ', $depth )
-               // Write the opening list tag
-               . '<' . $type . stringify_attributes( $attributes ) . ">\n";
+            // Write the opening list tag
+            . '<' . $type . stringify_attributes( $attributes ) . ">\n";
 
 
         // Cycle through the list elements.  If an array is
@@ -663,7 +663,7 @@ if ( ! function_exists( 'img' ) ) {
      *
      * @return    string
      */
-    function img ( $src = '', $index_page = false, $attributes = '' )
+    function img( $src = '', $index_page = false, $attributes = '' )
     {
         if ( ! is_array( $src ) ) {
             $src = [ 'src' => $src ];
@@ -709,7 +709,7 @@ if ( ! function_exists( 'link_tag' ) ) {
      *
      * @return    string
      */
-    function link_tag (
+    function link_tag(
         $href = '',
         $rel = 'stylesheet',
         $type = 'text/css',
@@ -768,7 +768,7 @@ if ( ! function_exists( 'meta' ) ) {
      *
      * @return    string
      */
-    function meta ( $name = '', $content = '', $type = 'name', $newline = "\n" )
+    function meta( $name = '', $content = '', $type = 'name', $newline = "\n" )
     {
         // Since we allow the data to be passes as a string, a simple array
         // or a multidimensional one, we need to do a little prepping.
@@ -805,7 +805,7 @@ if ( ! function_exists( 'br' ) ) {
      *
      * @return    string
      */
-    function br ( $count = 1 )
+    function br( $count = 1 )
     {
         return str_repeat( '<br />', $count );
     }
@@ -823,7 +823,7 @@ if ( ! function_exists( 'nbs' ) ) {
      *
      * @return    string
      */
-    function nbs ( $num = 1 )
+    function nbs( $num = 1 )
     {
         return str_repeat( '&nbsp;', $num );
     }
@@ -839,7 +839,7 @@ if ( ! function_exists( 'highlight_code' ) ) {
      *
      * @return    string
      */
-    function highlight_code ( $str )
+    function highlight_code( $str )
     {
         /* The highlight string function encodes and highlights
          * brackets so we need them to start raw.

@@ -10,56 +10,6 @@
  */
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_capitalize' ) ) {
-    /**
-     * String Capitalize
-     *
-     * Capitalize a string
-     *
-     * @param    string $string     Source String
-     * @param    bool   $first_word First Word Only
-     *
-     * @return    string
-     */
-    function str_capitalize ( $string, $first_word = false )
-    {
-        if ( ! empty( $string ) ) {
-            if ( $first_word ) {
-                return ucfirst( $string );
-            } else {
-                $string = explode( ' ', $string );
-
-                $strings = array_map(
-                    function ( $string ) {
-                        return ucfirst( $string );
-                    },
-                    $string
-                );
-
-                return implode( ' ', $strings );
-            }
-        }
-
-        return null;
-    }
-}
-
-// ------------------------------------------------------------------------
-
-if ( ! function_exists( 'is_html' ) ) {
-    /**
-     * Determine if string is HTML
-     *
-     * @param $string
-     *
-     * @return bool
-     */
-    function is_html ( $string )
-    {
-        return $string != strip_tags( $string ) ? true : false;
-    }
-}
-
 if ( ! function_exists( 'str_echo' ) ) {
     /**
      * str_echo
@@ -70,7 +20,7 @@ if ( ! function_exists( 'str_echo' ) ) {
      *
      * @return string
      */
-    function str_echo ( $string, $before = null, $after = null )
+    function str_echo( $string, $before = null, $after = null )
     {
         if ( ! empty( $string ) OR $string !== '' ) {
             return implode( ' ', func_get_args() );
@@ -93,7 +43,7 @@ if ( ! function_exists( 'str_email' ) ) {
      *
      * @return    string
      */
-    function str_email ( $string )
+    function str_email( $string )
     {
         if ( ! empty( $string ) or $string != '' ) {
             return str_replace(
@@ -126,7 +76,7 @@ if ( ! function_exists( 'str_alphanumeric' ) ) {
      *
      * @return    string
      */
-    function str_alphanumeric ( $string )
+    function str_alphanumeric( $string )
     {
         if ( ! empty( $string ) or $string != '' ) {
             $string = preg_replace( "/[^a-zA-Z0-9\s]/", "", $string );
@@ -149,7 +99,7 @@ if ( ! function_exists( 'str_numeric' ) ) {
      *
      * @return    string
      */
-    function str_numeric ( $string )
+    function str_numeric( $string )
     {
         if ( ! empty( $string ) or $string != '' ) {
             $string = preg_replace( "/[^0-9\s]/", "", $string );
@@ -171,7 +121,7 @@ if ( ! function_exists( 'str_truncate' ) ) {
      *
      * @return string
      */
-    function str_truncate ( $string, $limit = 25, $ending = '' )
+    function str_truncate( $string, $limit = 25, $ending = '' )
     {
         if ( strlen( $string ) > $limit ) {
             $string = strip_tags( $string );
@@ -195,7 +145,7 @@ if ( ! function_exists( 'str_shorten' ) ) {
      *
      * @return string
      */
-    function str_shorten ( $string, $limit = 25 )
+    function str_shorten( $string, $limit = 25 )
     {
         if ( strlen( $string ) > $limit ) {
             $pre = substr( $string, 0, ( $limit / 2 ) );
@@ -217,7 +167,7 @@ if ( ! function_exists( 'str_obfuscate' ) ) {
      *
      * @return string
      */
-    function str_obfuscate ( $string )
+    function str_obfuscate( $string )
     {
         $length = strlen( $string );
         $scrambled = '';
@@ -231,7 +181,7 @@ if ( ! function_exists( 'str_obfuscate' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'symbols_to_entities' ) ) {
+if ( ! function_exists( 'str_symbol_to_entities' ) ) {
 
     /**
      * Converts high-character symbols into their respective html entities.
@@ -240,11 +190,42 @@ if ( ! function_exists( 'symbols_to_entities' ) ) {
      *
      * @param  string $string
      */
-    function symbols_to_entities ( $string )
+    function str_symbol_to_entities( $string )
     {
         static $symbols = [
-            '‚', 'ƒ', '"', '…', '†', '‡', 'ˆ', '‰', 'Š', '‹', 'Œ', "'", "'", '"', '"', '•', '–', '—', '˜',
-            '™', 'š', '›', 'œ', 'Ÿ', '€', 'Æ', 'Á', 'Â', 'À', 'Å', 'Ã', 'Ä', 'Ç',
+            '‚',
+            'ƒ',
+            '"',
+            '…',
+            '†',
+            '‡',
+            'ˆ',
+            '‰',
+            'Š',
+            '‹',
+            'Œ',
+            "'",
+            "'",
+            '"',
+            '"',
+            '•',
+            '–',
+            '—',
+            '˜',
+            '™',
+            'š',
+            '›',
+            'œ',
+            'Ÿ',
+            '€',
+            'Æ',
+            'Á',
+            'Â',
+            'À',
+            'Å',
+            'Ã',
+            'Ä',
+            'Ç',
             'Ð',
             'É',
             'Ê',
@@ -466,161 +447,7 @@ if ( ! function_exists( 'symbols_to_entities' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'is_parse_string' ) ) {
-    /**
-     * Is Parse String
-     *
-     * @return string
-     *
-     * @params string $string
-     */
-    function is_parse_string ( $string )
-    {
-        if ( preg_match( '[=]', $string ) ) {
-            return true;
-        }
-
-        return false;
-    }
-}
-
-// ------------------------------------------------------------------------
-
-if ( ! function_exists( 'parse_string' ) ) {
-    /**
-     * Is Parse String
-     *
-     * @return string
-     *
-     * @params string $string
-     */
-    function parse_string ( $string )
-    {
-        if ( preg_match( '[=]', $string ) ) {
-            parse_str( html_entity_decode( $string ), $string );
-        }
-
-        return $string;
-    }
-}
-
-// ------------------------------------------------------------------------
-
-if ( ! function_exists( 'mb_stripos_all' ) ) {
-    /**
-     * mb_stripos all occurences
-     * based on http://www.php.net/manual/en/function.strpos.php#87061
-     *
-     * Find all occurrences of a needle in a haystack
-     *
-     * @param string $haystack
-     * @param string $needle
-     *
-     * @return array or false
-     */
-    function mb_stripos_all ( $haystack, $needle )
-    {
-
-        $s = 0;
-        $i = 0;
-
-        while ( is_integer( $i ) ) {
-
-            $i = mb_stripos( $haystack, $needle, $s );
-
-            if ( is_integer( $i ) ) {
-                $aStrPos[] = $i;
-                $s = $i + mb_strlen( $needle );
-            }
-        }
-
-        if ( isset( $aStrPos ) ) {
-            return $aStrPos;
-        } else {
-            return false;
-        }
-    }
-}
-
-// ------------------------------------------------------------------------
-
-if ( ! function_exists( 'is_serialized' ) ) {
-    /**
-     * Is Serialized
-     *
-     * Check is the string is serialized array
-     *
-     * @param   string $string Source string
-     *
-     * @return  bool
-     */
-    function is_serialized ( $string )
-    {
-        if ( ! is_string( $string ) ) {
-            return false;
-        }
-        if ( trim( $string ) == '' ) {
-            return false;
-        }
-        if ( preg_match( "/^(i|s|a|o|d)(.*);/si", $string ) ) {
-            $is_valid = @unserialize( $string );
-
-            if ( empty( $is_valid ) ) {
-                return false;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-}
-// ------------------------------------------------------------------------
-
-if ( ! function_exists( 'is_json' ) ) {
-    /**
-     * Is JSON
-     *
-     * Check is the string is json array or object
-     *
-     * @item    string or array
-     * @return  boolean (true or false)
-     */
-    function is_json ( $string )
-    {
-        // make sure provided input is of type string
-        if ( ! is_string( $string ) ) {
-            return false;
-        }
-        // trim white spaces
-        $string = trim( $string );
-        // get first character
-        $first_char = substr( $string, 0, 1 );
-        // get last character
-        $last_char = substr( $string, -1 );
-        // check if there is a first and last character
-        if ( ! $first_char || ! $last_char ) {
-            return false;
-        }
-        // make sure first character is either { or [
-        if ( $first_char !== '{' && $first_char !== '[' ) {
-            return false;
-        }
-        // make sure last character is either } or ]
-        if ( $last_char !== '}' && $last_char !== ']' ) {
-            return false;
-        }
-        // let's leave the rest to PHP.
-        // try to decode string
-        json_decode( $string );
-        // check if error occurred
-        $is_valid = json_last_error() === JSON_ERROR_NONE;
-
-        return $is_valid;
-    }
-}
-
-if ( ! function_exists( 'strip_slashes' ) ) {
+if ( ! function_exists( 'str_strip_slashes' ) ) {
     /**
      * Strip Slashes
      *
@@ -630,23 +457,23 @@ if ( ! function_exists( 'strip_slashes' ) ) {
      *
      * @return    mixed    string or array
      */
-    function strip_slashes ( $str )
+    function str_strip_slashes( $string )
     {
-        if ( ! is_array( $str ) ) {
-            return stripslashes( $str );
+        if ( ! is_array( $string ) ) {
+            return stripslashes( $string );
         }
 
-        foreach ( $str as $key => $val ) {
-            $str[ $key ] = strip_slashes( $val );
+        foreach ( $string as $key => $val ) {
+            $string[ $key ] = str_strip_slashes( $val );
         }
 
-        return $str;
+        return $string;
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'strip_quotes' ) ) {
+if ( ! function_exists( 'str_quote_strip' ) ) {
     /**
      * Strip Quotes
      *
@@ -656,7 +483,7 @@ if ( ! function_exists( 'strip_quotes' ) ) {
      *
      * @return    string
      */
-    function strip_quotes ( $str )
+    function str_quote_strip( $str )
     {
         return str_replace( [ '"', "'" ], '', $str );
     }
@@ -664,7 +491,7 @@ if ( ! function_exists( 'strip_quotes' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'quotes_to_entities' ) ) {
+if ( ! function_exists( 'str_quote_to_entities' ) ) {
     /**
      * Quotes to Entities
      *
@@ -674,38 +501,15 @@ if ( ! function_exists( 'quotes_to_entities' ) ) {
      *
      * @return    string
      */
-    function quotes_to_entities ( $str )
+    function str_quote_to_entities( $string )
     {
-        return str_replace( [ "\'", "\"", "'", '"' ], [ "&#39;", "&quot;", "&#39;", "&quot;" ], $str );
+        return str_replace( [ "\'", "\"", "'", '"' ], [ "&#39;", "&quot;", "&#39;", "&quot;" ], $string );
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_filter_slashes' ) ) {
-    /**
-     * str_remove_slashes
-     *
-     * Converts double slashes in a string to a single slash,
-     * except those found in http://
-     *
-     * http://www.some-site.com//index.php
-     *
-     * becomes:
-     *
-     * http://www.some-site.com/index.php
-     *
-     * @param    string
-     *
-     * @return    string
-     */
-    function str_filter_slashes ( $str )
-    {
-        return preg_replace( '#(^|[^:])//+#', '\\1/', $str );
-    }
-}
 
-// ------------------------------------------------------------------------
 
 if ( ! function_exists( 'str_filter_char' ) ) {
     /**
@@ -725,7 +529,7 @@ if ( ! function_exists( 'str_filter_char' ) ) {
      *
      * @return    string
      */
-    function str_filter_char ( $str, $character = ',', $trim = false )
+    function str_filter_char( $str, $character = ',', $trim = false )
     {
         $str = preg_replace( '#' . preg_quote( $character, '#' ) . '{2,}#', $character, $str );
 
@@ -746,7 +550,7 @@ if ( ! function_exists( 'str_rand' ) ) {
      *
      * @return    string
      */
-    function str_rand ( $type = 'alnum', $len = 8 )
+    function str_rand( $type = 'alnum', $len = 8 )
     {
         switch ( $type ) {
             case 'basic':
@@ -793,7 +597,7 @@ if ( ! function_exists( 'str_inc' ) ) {
      *
      * @return    string
      */
-    function str_inc ( $str, $separator = '_', $first = 1 )
+    function str_inc( $str, $separator = '_', $first = 1 )
     {
         preg_match( '/(.+)' . $separator . '([0-9]+)$/', $str, $match );
 
@@ -813,7 +617,7 @@ if ( ! function_exists( 'str_alt' ) ) {
      *
      * @return    string
      */
-    function str_alt ( $args )
+    function str_alt( $args )
     {
         static $i;
 
@@ -836,7 +640,7 @@ if ( ! function_exists( 'str_char_to_ascii' ) ) {
      *
      * @return    string
      */
-    function str_chars_to_ascii ( $string )
+    function str_chars_to_ascii( $string )
     {
         static $array_from, $array_to;
 
@@ -955,7 +759,7 @@ if ( ! function_exists( 'str_entities_to_ascii' ) ) {
      *
      * @return    string
      */
-    function str_entities_to_ascii ( $string, $all = true )
+    function str_entities_to_ascii( $string, $all = true )
     {
         if ( preg_match_all( '/\&#(\d+)\;/', $string, $matches ) ) {
             for ( $i = 0, $s = count( $matches[ 0 ] ); $i < $s; $i++ ) {
@@ -969,8 +773,8 @@ if ( ! function_exists( 'str_entities_to_ascii' ) ) {
                     $out .= chr( 192 + ( ( $digits - ( $digits % 64 ) ) / 64 ) ) . chr( 128 + ( $digits % 64 ) );
                 } else {
                     $out .= chr( 224 + ( ( $digits - ( $digits % 4096 ) ) / 4096 ) )
-                            . chr( 128 + ( ( ( $digits % 4096 ) - ( $digits % 64 ) ) / 64 ) )
-                            . chr( 128 + ( $digits % 64 ) );
+                        . chr( 128 + ( ( ( $digits % 4096 ) - ( $digits % 64 ) ) / 64 ) )
+                        . chr( 128 + ( $digits % 64 ) );
                 }
 
                 $string = str_replace( $matches[ 0 ][ $i ], $out, $string );
@@ -1002,10 +806,10 @@ if ( ! function_exists( 'str_ascii_to_entities' ) ) {
      *
      * @return    string
      */
-    function str_ascii_to_entities ( $string )
+    function str_ascii_to_entities( $string )
     {
         $out = '';
-        for ( $i = 0, $s = strlen( $string ) - 1, $count = 1, $temp = [ ]; $i <= $s; $i++ ) {
+        for ( $i = 0, $s = strlen( $string ) - 1, $count = 1, $temp = []; $i <= $s; $i++ ) {
             $ordinal = ord( $string[ $i ] );
 
             if ( $ordinal < 128 ) {
@@ -1033,7 +837,7 @@ if ( ! function_exists( 'str_ascii_to_entities' ) ) {
 
                     $out .= '&#' . $number . ';';
                     $count = 1;
-                    $temp = [ ];
+                    $temp = [];
                 } // If this is the last iteration, just output whatever we have
                 elseif ( $i === $s ) {
                     $out .= '&#' . implode( ';', $temp ) . ';';
@@ -1044,5 +848,3 @@ if ( ! function_exists( 'str_ascii_to_entities' ) ) {
         return $out;
     }
 }
-
-// ------------------------------------------------------------------------

@@ -25,13 +25,13 @@ class Title
 
     protected $page;
 
-    public function __construct ()
+    public function __construct()
     {
         $this->browser = new Title\Browser();
         $this->page = new Title\Page();
     }
 
-    public function &__get ( $property )
+    public function &__get( $property )
     {
         $get[ $property ] = null;
 
@@ -42,7 +42,7 @@ class Title
         return $get[ $property ];
     }
 
-    public function setSeparator ( $separator )
+    public function setSeparator( $separator )
     {
         $this->page->setSeparator( $separator );
         $this->browser->setSeparator( $separator );
@@ -52,7 +52,7 @@ class Title
 
     // ------------------------------------------------------------------------
 
-    public function set ( $title )
+    public function set( $title )
     {
         $this->setPageTitle( $title );
         $this->setBrowserTitle( $title );
@@ -62,7 +62,7 @@ class Title
 
     // ------------------------------------------------------------------------
 
-    public function setPageTitle ( $title )
+    public function setPageTitle( $title )
     {
         $this->page = new Title\Page();
         $this->page[] = $title;
@@ -72,7 +72,7 @@ class Title
 
     // ------------------------------------------------------------------------
 
-    public function setBrowserTitle ( $title )
+    public function setBrowserTitle( $title )
     {
         $this->browser = new Title\Browser();
         $this->browser[] = $title;
@@ -89,7 +89,7 @@ class Title
      *
      * @return $this
      */
-    public function add ( $title )
+    public function add( $title )
     {
         $this->page[] = $title;
         $this->browser[] = $title;
@@ -99,14 +99,14 @@ class Title
 
     // ------------------------------------------------------------------------
 
-    public function addTitlePage ( $title )
+    public function addTitlePage( $title )
     {
         $this->page[] = $title;
 
         return $this->page;
     }
 
-    public function addTitleBrowser ( $title )
+    public function addTitleBrowser( $title )
     {
         $this->browser[] = $title;
 

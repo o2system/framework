@@ -26,7 +26,7 @@ class Presenter extends AbstractVariableStoragePattern
     /**
      * Presenter::__construct
      */
-    public function __construct ()
+    public function __construct()
     {
         $this->store( 'title', new Presenter\Title() );
         $this->store( 'partials', new Presenter\Partials() );
@@ -42,6 +42,14 @@ class Presenter extends AbstractVariableStoragePattern
             if ( $config->offsetExists( 'theme' ) ) {
                 $this->setTheme( $config->offsetGet( 'theme' ) );
             }
+
+            if ( $config->offsetExists( 'debugToolBar' ) ) {
+                $this->setDebugToolBar( $config->offsetGet( 'debugToolBar' ) );
+            } elseif ( input()->env( 'DEBUG_STAGE' ) === 'DEVELOPER' ) {
+                $this->setDebugToolBar( true );
+            } else {
+                $this->setDebugToolBar( false );
+            }
         }
 
         // Load Module Assets
@@ -50,7 +58,7 @@ class Presenter extends AbstractVariableStoragePattern
         }
     }
 
-    public function setTheme ( $themeName )
+    public function setTheme( $themeName )
     {
         if ( is_bool( $themeName ) ) {
             $this->remove( 'theme' );
@@ -78,9 +86,27 @@ class Presenter extends AbstractVariableStoragePattern
         }
     }
 
+    public function setDebugToolBar( $debugToolBar )
+    {
+        if ( is_bool( $debugToolBar ) ) {
+            $this->addItem( 'debugToolBar', $debugToolBar );
+        }
+
+        return $this;
+    }
+
+    public function addItem( $offset, $item )
+    {
+        if ( $item instanceof \Closure ) {
+            parent::store( $offset, call_user_func( $item, $this ) );
+        } else {
+            parent::store( $offset, $item );
+        }
+    }
+
     public function setThemeLayout( $themeLayout )
     {
-        if ( false !== ($theme = $this->offsetGet('theme')) ) {
+        if ( false !== ( $theme = $this->offsetGet( 'theme' ) ) ) {
 
             $theme->setLayout( $themeLayout );
 
@@ -104,16 +130,7 @@ class Presenter extends AbstractVariableStoragePattern
         }
     }
 
-    public function addItem ( $offset, $item )
-    {
-        if ( $item instanceof \Closure ) {
-            parent::store( $offset, call_user_func( $item, $this ) );
-        } else {
-            parent::store( $offset, $item );
-        }
-    }
-
-    public function loadModel ( $model )
+    public function loadModel( $model )
     {
         if ( is_string( $model ) ) {
             if ( class_exists( $model ) ) {
@@ -124,7 +141,7 @@ class Presenter extends AbstractVariableStoragePattern
         }
     }
 
-    public function getArrayCopy ()
+    public function getArrayCopy()
     {
         $storage = $this->storage;
 
@@ -140,7 +157,7 @@ class Presenter extends AbstractVariableStoragePattern
         return $storage;
     }
 
-    public function &__get ( $property )
+    public function &__get( $property )
     {
         if ( o2system()->hasService( $property ) ) {
             return o2system()->getService( $property );
@@ -155,7 +172,7 @@ class Presenter extends AbstractVariableStoragePattern
 
     // ------------------------------------------------------------------------
 
-    public function __call ( $method, array $args = [] )
+    public function __call( $method, array $args = [] )
     {
         if ( method_exists( $this, $method ) ) {
             return call_user_func_array( [ $this, $method ], $args );

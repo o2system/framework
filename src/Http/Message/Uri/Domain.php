@@ -31,7 +31,7 @@ class Domain
     protected $tlds = [];
     protected $path;
 
-    public function __construct ( $string = null )
+    public function __construct( $string = null )
     {
         $this->origin = isset( $_SERVER[ 'HTTP_HOST' ] )
             ? $_SERVER[ 'HTTP_HOST' ]
@@ -113,9 +113,9 @@ class Domain
             array_pop( $this->subDomains );
 
             $this->parentDomain = implode( '.', array_slice( $this->subDomains, 1 ) )
-                                  . '.'
-                                  . $this->parentDomain
-                                  . $this->tld;
+                . '.'
+                . $this->parentDomain
+                . $this->tld;
             $this->parentDomain = ltrim( $this->parentDomain, '.' );
 
             if ( count( $this->subDomains ) > 0 ) {
@@ -156,42 +156,42 @@ class Domain
         }
     }
 
-    public function getString ()
+    public function getString()
     {
         return $this->string;
     }
 
-    public function getOrigin ()
+    public function getOrigin()
     {
         return $this->origin;
     }
 
-    public function getScheme ()
+    public function getScheme()
     {
         return $this->scheme;
     }
 
-    public function isWWW ()
+    public function isWWW()
     {
         return $this->www;
     }
 
-    public function getIpAddress ()
+    public function getIpAddress()
     {
         return gethostbyname( $this->origin );
     }
 
-    public function getPort ()
+    public function getPort()
     {
         return $this->port;
     }
 
-    public function getParentDomain ()
+    public function getParentDomain()
     {
         return $this->parentDomain;
     }
 
-    public function getSubDomain ( $level = '3rd' )
+    public function getSubDomain( $level = '3rd' )
     {
         if ( isset( $this->subDomains[ $level ] ) ) {
             return $this->subDomains[ $level ];
@@ -200,17 +200,17 @@ class Domain
         return false;
     }
 
-    public function getSubDomains ()
+    public function getSubDomains()
     {
         return $this->subDomains;
     }
 
-    public function getTotalSubDomains ()
+    public function getTotalSubDomains()
     {
         return count( $this->subDomains );
     }
 
-    public function getTld ( $level = null )
+    public function getTld( $level = null )
     {
         if ( is_null( $level ) ) {
             return implode( '.', $this->tlds );
@@ -221,12 +221,12 @@ class Domain
         return false;
     }
 
-    public function getTlds ()
+    public function getTlds()
     {
         return $this->tlds;
     }
 
-    public function getTotalTlds ()
+    public function getTotalTlds()
     {
         return count( $this->tlds );
     }

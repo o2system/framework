@@ -47,7 +47,7 @@ abstract class AbstractModel extends AbstractSingletonPattern
      * @access  public
      * @type    array
      */
-    public $fields = [ ];
+    public $fields = [];
 
     /**
      * Model Table Primary Key
@@ -63,7 +63,7 @@ abstract class AbstractModel extends AbstractSingletonPattern
      * @access  public
      * @type    array
      */
-    public $primaryKeys = [ ];
+    public $primaryKeys = [];
 
     /**
      * List of library valid sub models
@@ -72,12 +72,12 @@ abstract class AbstractModel extends AbstractSingletonPattern
      *
      * @type    array   driver classes list
      */
-    protected $validSubModels = [ ];
+    protected $validSubModels = [];
 
     /**
      * AbstractModel::__construct
      */
-    public function __construct ()
+    public function __construct()
     {
         parent::__construct();
 
@@ -100,7 +100,7 @@ abstract class AbstractModel extends AbstractSingletonPattern
      *
      * @return void
      */
-    final protected function fetchSubModels ()
+    final protected function fetchSubModels()
     {
         $reflection = new \ReflectionClass( get_called_class() );
 
@@ -134,7 +134,7 @@ abstract class AbstractModel extends AbstractSingletonPattern
 
     // ------------------------------------------------------------------------
 
-    final public static function __callStatic ( $method, array $arguments = [ ] )
+    final public static function __callStatic( $method, array $arguments = [] )
     {
         if ( method_exists( self::$instance, $method ) ) {
             return call_user_func_array( [ &self::$instance, $method ], $arguments );
@@ -145,7 +145,7 @@ abstract class AbstractModel extends AbstractSingletonPattern
 
     // ------------------------------------------------------------------------
 
-    public function &__get ( $property )
+    public function &__get( $property )
     {
         $get[ $property ] = false;
 
@@ -162,7 +162,7 @@ abstract class AbstractModel extends AbstractSingletonPattern
 
     // ------------------------------------------------------------------------
 
-    final protected function loadSubModel ( $model )
+    final protected function loadSubModel( $model )
     {
         if ( is_file( $this->validSubModels[ $model ] ) ) {
             $className = '\\' . get_called_class() . '\\' . ucfirst( $model );

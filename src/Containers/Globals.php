@@ -31,7 +31,7 @@ class Globals implements \ArrayAccess, \IteratorAggregate
      *        <b>Traversable</b>
      * @since 5.0.0
      */
-    public function getIterator ()
+    public function getIterator()
     {
         return new \ArrayIterator( $GLOBALS );
     }
@@ -48,7 +48,7 @@ class Globals implements \ArrayAccess, \IteratorAggregate
      *
      * @return bool
      */
-    public function __isset ( $offset )
+    public function __isset( $offset )
     {
         return $this->offsetExists( $offset );
     }
@@ -70,7 +70,7 @@ class Globals implements \ArrayAccess, \IteratorAggregate
      * The return value will be casted to boolean if non-boolean was returned.
      * @since 5.0.0
      */
-    public function offsetExists ( $offset )
+    public function offsetExists( $offset )
     {
         return isset( $GLOBALS[ $offset ] );
     }
@@ -87,7 +87,7 @@ class Globals implements \ArrayAccess, \IteratorAggregate
      *
      * @return mixed
      */
-    public function &__get ( $offset )
+    public function &__get( $offset )
     {
         return ( isset( $GLOBALS[ $offset ] ) ) ? $GLOBALS[ $offset ] : $GLOBALS[ $offset ] = null;
     }
@@ -103,7 +103,7 @@ class Globals implements \ArrayAccess, \IteratorAggregate
      * @param mixed $offset PHP native GLOBALS offset.
      * @param mixed $value  PHP native GLOBALS offset value to set.
      */
-    public function __set ( $offset, $value )
+    public function __set( $offset, $value )
     {
         $this->offsetSet( $offset, $value );
     }
@@ -125,7 +125,7 @@ class Globals implements \ArrayAccess, \IteratorAggregate
      * @return void
      * @since 5.0.0
      */
-    public function offsetSet ( $offset, $value )
+    public function offsetSet( $offset, $value )
     {
         $GLOBALS[ $offset ] = $value;
     }
@@ -144,7 +144,7 @@ class Globals implements \ArrayAccess, \IteratorAggregate
      * @return mixed Can return all value types.
      * @since 5.0.0
      */
-    public function offsetGet ( $offset )
+    public function offsetGet( $offset )
     {
         return ( isset( $GLOBALS[ $offset ] ) ) ? $GLOBALS[ $offset ] : false;
     }
@@ -161,7 +161,7 @@ class Globals implements \ArrayAccess, \IteratorAggregate
      *
      * @return void
      */
-    public function __unset ( $offset )
+    public function __unset( $offset )
     {
         $this->offsetUnset( $offset );
     }
@@ -180,7 +180,7 @@ class Globals implements \ArrayAccess, \IteratorAggregate
      * @return void
      * @since 5.0.0
      */
-    public function offsetUnset ( $offset )
+    public function offsetUnset( $offset )
     {
         if ( isset( $GLOBALS[ $offset ] ) ) {
             unset( $GLOBALS[ $offset ] );

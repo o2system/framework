@@ -14,8 +14,13 @@ namespace O2System\Framework\Cli;
 
 // ------------------------------------------------------------------------
 
-use O2System\Kernel\Cli\Writers\Formatter;
+use O2System\Kernel\Cli\Abstracts\AbstractCommander;
+use O2System\Kernel\Cli\Abstracts\AbstractCommandersPool;
+use O2System\Kernel\Cli\Writers\Form;
+use O2System\Kernel\Cli\Writers\Format;
+use O2System\Kernel\Cli\Writers\ProgressBar;
 use O2System\Kernel\Cli\Writers\Table;
+use O2System\Kernel\Cli\Writers\Text;
 
 /**
  * Class App
@@ -24,21 +29,21 @@ use O2System\Kernel\Cli\Writers\Table;
  *
  * @package O2System\Kernel\Cli
  */
-class App
+class App extends AbstractCommandersPool
 {
     /**
      * App::$logo
      *
-     * Command line interface (cli) application logo.
+     * Cli-App welcome note.
      *
      * @var string
      */
-    protected $logo;
+    protected $welcomeNote;
 
     /**
      * App::$name
      *
-     * Command line interface (cli) application name.
+     * Cli-App name.
      *
      * @var string
      */
@@ -47,7 +52,7 @@ class App
     /**
      * App::$version
      *
-     * Command line interface (cli) application version.
+     * Cli-App version.
      *
      * @var string
      */
@@ -56,29 +61,20 @@ class App
     /**
      * App::$description
      *
-     * Command line interface (cli) application description.
+     * Cli-App description.
      *
      * @var string
      */
     protected $description;
-
-    /**
-     * App::$commands
-     *
-     * Array of application commands line interface.
-     *
-     * @var array
-     */
-    protected $commands = [];
 
     // ------------------------------------------------------------------------
 
     /**
      * App::__construct
      *
-     * Command line interface (cli) application constructor.
+     * Cli-App constructor.
      */
-    public function __construct ()
+    public function __construct()
     {
         language()->loadFile( 'cli' );
     }
@@ -86,59 +82,109 @@ class App
     // ------------------------------------------------------------------------
 
     /**
-     * App::hasCommand
+     * App::addCommander
      *
-     * Check whether the application has a command that you're looking for.
+     * Add new commander to the pool.
      *
-     * @param string $command Command array offset key.
-     *
-     * @return bool
+     * @param AbstractCommander $commander
      */
-    public function hasCommand ( $command )
+    public function addCommander( AbstractCommander $commander )
     {
-        return (bool) array_key_exists( $command, $this->commands );
+        if ( method_exists( $commander, 'setApp' ) ) {
+            $commander->setApp( $this );
+        }
+
+        $this->commandersPool[ $commander->getCommandName() ] = $commander;
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function getWelcomeNote()
+    {
+        return $this->welcomeNote;
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * App::registerCommand
+     * App::setWelcomeNote
      *
-     * @param Command $command
+     * Sets cli-app welcome note.
+     *
+     * @param string $welcomeNote
+     *
+     * @return static
      */
-    public function addCommand ( Command $command )
+    public function setWelcomeNote( $welcomeNote )
     {
-        $this->commands[ $command->getCaller() ] = $command;
-    }
-
-    public function setAppLogo ( $logo )
-    {
-        $this->logo = $logo;
+        $this->welcomeNote = $welcomeNote;
 
         return $this;
     }
 
+    public function getName()
+    {
+        return $this->name;
+    }
+
     // ------------------------------------------------------------------------
 
-    public function setAppName ( $name )
+    /**
+     * App::setName
+     *
+     * Sets cli-app name.
+     *
+     * @param string $name
+     *
+     * @return static
+     */
+    public function setName( $name )
     {
         $this->name = trim( $name );
 
         return $this;
     }
 
+    /**
+     * App::getVersion
+     *
+     * Gets cli-app version.
+     *
+     * @return string
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
     // ------------------------------------------------------------------------
 
-    public function setAppVersion ( $version )
+    /**
+     * App::setVersion
+     *
+     * Sets cli-app version.
+     *
+     * @param string $version
+     *
+     * @return static
+     */
+    public function setVersion( $version )
     {
         $this->version = trim( $version );
 
         return $this;
     }
 
-    // ------------------------------------------------------------------------
-
-    public function setPoolsDescription ( $description )
+    /**
+     * App::setDescription
+     *
+     * Sets cli-app description.
+     *
+     * @param string $description
+     *
+     * @return static
+     */
+    public function setDescription( $description )
     {
         $this->description = trim( $description );
 
@@ -147,91 +193,131 @@ class App
 
     // ------------------------------------------------------------------------
 
-    public function loadCommands ( $namespace, $commandsPath )
+    /**
+     * App::run
+     *
+     * Run cli-app
+     *
+     * @return static
+     */
+    public function run()
     {
-        if ( is_dir( $commandsPath ) ) {
-            $namespace = $namespace . rtrim( '\\', $namespace ) . '\\';
-            $commandsPath = rtrim( $commandsPath, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR;
+        $command = new \ReflectionClass( $this );
+        $options = input()->get();
 
-            foreach ( glob( $commandsPath . '*.php' ) as $filePath ) {
-                if ( is_file( $filePath ) ) {
-                    $commandClassName = $namespace . pathinfo( $filePath, PATHINFO_FILENAME );
-                    $this->addCommand( new $commandClassName );
-                }
-            }
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function run ()
-    {
-        $argv = input()->argv();
-
-        if ( count( $argv ) == 0 ) {
-            // Show Logo
-            if ( ! empty( $this->logo ) ) {
-                output()->writeln( PHP_EOL . $this->logo );
+        if ( empty( $options ) ) {
+            if ( $this->welcomeNote instanceof Format or $this->welcomeNote instanceof Text ) {
+                output()->write( $this->welcomeNote );
+            } elseif ( is_string( $this->welcomeNote ) and $this->welcomeNote !== '' ) {
+                output()->write(
+                    ( new Format() )
+                        ->setString( language()->getLine( $this->welcomeNote ) )
+                        ->setNewLinesAfter( 1 )
+                );
             }
 
-            // Show Name & Version Line
-            output()->writeln( PHP_EOL . $this->name . ' v' . $this->version . PHP_EOL );
+            output()->write(
+                ( new Format() )
+                    ->setString( $this->name . ' v' . $this->version )
+                    ->setNewLinesBefore( 2 )
+                    ->setNewLinesAfter( 1 )
+            );
 
+            // Run help option
             $this->optionHelp();
         } else {
-            $command = input()->getCommand();
 
-            if ( $this->hasCommand( $command ) ) {
-                if ( input()->getOptions( 'version' ) or input()->getOptions( 'v' ) ) {
-                    $this->commands[ $command ]->optionVersion();
-                    exit( EXIT_SUCCESS );
-                } elseif ( input()->getOptions( 'help' ) or input()->getOptions( 'h' ) ) {
-                    $this->commands[ $command ]->optionHelp();
-                    exit( EXIT_SUCCESS );
+            foreach ( $options as $method => $arguments ) {
+
+                if ( $method === 'h' ) {
+                    $method = 'help';
+                } elseif ( $method === 'v' ) {
+                    $method = 'version';
+                } elseif ( $method === 'vv' ) {
+                    $method = 'verbose';
                 }
-                call_user_func_array( [ &$this->commands[ $command ], 'callOptions' ], [ input()->getOptions() ] );
-            } elseif ( $command === '--help' or $command === '-h' ) {
-                output()->writeln( PHP_EOL );
-                $this->optionHelp();
-                exit( EXIT_SUCCESS );
-            } elseif ( $command === '--version' or $command === '-v' ) {
-                $this->optionVersion();
-                exit( EXIT_SUCCESS );
-            } elseif ( $command === '--serve' or $command === '-sv' ) {
-                $this->optionServe();
-                exit( EXIT_SUCCESS );
+
+                $optionMethod = camelcase( 'option-' . $method );
+
+                if ( $command->hasMethod( $optionMethod ) ) {
+
+                    $commandMethod = $command->getMethod( $optionMethod );
+
+                    if ( $commandMethod->getNumberOfRequiredParameters() == 0 ) {
+                        call_user_func( [ &$this, $optionMethod ] );
+                    } else {
+                        $optionArguments = is_array( $arguments )
+                            ? $arguments
+                            : [ $arguments ];
+
+                        call_user_func_array( [ &$this, $optionMethod ], $optionArguments );
+                    }
+                }
             }
         }
     }
 
     // ------------------------------------------------------------------------
 
-    final public function optionVersion ()
+    /**
+     * App::optionHelp
+     *
+     * @return void
+     */
+    final public function optionHelp()
     {
-        if ( property_exists( $this, 'version' ) ) {
-            if ( ! empty( $this->version ) ) {
-                // Show Name & Version Line
-                output()->writeln( PHP_EOL . ' v' . $this->version );
-            }
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    final public function optionHelp ()
-    {
-        $formatter = new Formatter();
-
         // Show Usage
-        output()->writeln( language()->getLine( 'CLI_USAGE' ) . ':' );
-        output()->writeln(
-            $formatter
-                ->setIndent( 1 )
-                ->format( 'command --option argument' . PHP_EOL )
+        output()->write(
+            ( new Format() )
+                ->setContextualClass( Format::INFO )
+                ->setString( language()->getLine( 'CLI_USAGE' ) . ':' )
+                ->setNewLinesBefore( 1 )
+                ->setNewLinesAfter( 1 )
         );
 
+        output()->write(
+            ( new Format() )
+                ->setContextualClass( Format::INFO )
+                ->setString( 'command:action --option=value' )
+                ->setNewLinesAfter( 2 )
+        );
+
+        // Show Commanders
+        $this->loadCommanders();
+
+        if ( count( $this->commandersPool ) ) {
+            output()->write(
+                ( new Format() )
+                    ->setString( language()->getLine( 'CLI_COMMANDS' ) . ':' )
+                    ->setNewLinesAfter( 1 )
+            );
+
+            $table = new Table();
+            $table->isShowBorder = false;
+
+            foreach ( $this->commandersPool as $commander ) {
+
+                if ( $commander instanceof AbstractCommander ) {
+                    $table
+                        ->addRow()
+                        ->addColumn( $commander->getCommandName() )
+                        ->addColumn( language()->getLine( $commander->getCommandDescription() ) );
+                }
+            }
+
+            output()->write(
+                ( new Format() )
+                    ->setString( $table->render() )
+                    ->setNewLinesAfter( 2 )
+            );
+        }
+
         // Show Options
-        output()->writeln( language()->getLine( 'CLI_OPTIONS' ) . ':' );
+        output()->write(
+            ( new Format() )
+                ->setString( language()->getLine( 'CLI_OPTIONS' ) . ':' )
+                ->setNewLinesAfter( 1 )
+        );
 
         $table = new Table();
         $table->isShowBorder = false;
@@ -240,74 +326,74 @@ class App
             ->addRow()
             ->addColumn( '--version' )
             ->addColumn( '-v' )
-            ->addColumn( 'display version' )
+            ->addColumn( language()->getLine( 'H_CLI_OPTION_VERSION' ) )
             ->addRow()
             ->addColumn( '--help' )
             ->addColumn( '-h' )
-            ->addColumn( 'display help' )
+            ->addColumn( language()->getLine( 'H_CLI_OPTION_HELP' ) )
             ->addRow()
             ->addColumn( '--verbose' )
             ->addColumn( '-vv' )
-            ->addColumn( 'display with verbose' )
-            ->addColumn( '--serve' )
-            ->addColumn( '-sv' )
-            ->addColumn( 'php web-server launcher' );
+            ->addColumn( language()->getLine( 'H_CLI_OPTION_VERBOSE' ) );
 
-        output()->writeln(
-            $formatter
-                ->setIndent( 1 )
-                ->format( $table->render() . PHP_EOL )
+        output()->write(
+            ( new Format() )
+                ->setString( $table->render() )
+                ->setNewLinesAfter( 2 )
         );
 
-        // Show Commands
-        output()->writeln( language()->getLine( 'CLI_COMMANDS' ) . ':' );
-
-        $table = new Table();
-        $table->isShowBorder = false;
-
-        foreach ( $this->commands as $command ) {
-            $table
-                ->addRow()
-                ->addColumn( $command->getCaller() )
-                ->addColumn( $command->getDescription() );
-        }
-
-        output()->writeln(
-            $formatter
-                ->setIndent( 1 )
-                ->format( $table->render() . PHP_EOL )
-        );
+        exit( EXIT_SUCCESS );
     }
 
     // ------------------------------------------------------------------------
 
-    public function optionServe ()
+    /**
+     * App::optionVersion
+     *
+     * @return void
+     */
+    final public function optionVersion()
     {
-        /*
-         * Collect any user-supplied options and apply them
-         */
-        $options['host'] = input()->getOptions( 'host' );
-        $options['port'] = input()->getOptions( 'port' );
+        if ( property_exists( $this, 'version' ) ) {
+            if ( ! empty( $this->version ) ) {
+                output()->write(
+                    ( new Format() )
+                        ->setString( $this->name . ' v' . $this->version . ' Copyright (c) 2011 - ' . date( 'Y' ) . ' Steeve Andrian Salim' )
+                        ->setNewLinesAfter( 1 )
+                );
 
-        $host = empty( $options['host'] )
-            ? 'localhost'
-            : $options['host'];
+                output()->write(
+                    ( new Format() )
+                        ->setIndent( 2 )
+                        ->setString( 'this framework is trademark of Steeve Andrian Salim' )
+                        ->setNewLinesAfter( 1 )
+                );
+            }
+        }
+    }
 
-        $port = empty( $options['port'] )
-            ? 8080
-            : $options['port'];
+    public function optionForm()
+    {
+        $form = new Form();
+        $form->text( 'full_name', 'What is your name?', true );
+        $form->confirm( 'sure', 'Are you sure?', true );
+        $form->options( 'choose', 'What is your favorite color', [ 'red' => 'Red', 'green' => 'Green' ], true );
 
-        output()->writeln( "O2System Framework development server started on http://{$host}:{$port}" );
+        print_out( input()->post() );
+    }
 
-        $_SERVER['DOCUMENT_ROOT'] = PATH_PUBLIC;
-        output()->writeln( "Document Root on " . $_SERVER['DOCUMENT_ROOT'] );
-        output()->writeln( "Press Control-C to stop." );
+    public function optionProgress()
+    {
+        // example
 
-        /*
-         * Call PHP's built-in webserver, making sure to set our
-         * base path to the public folder, and to use the rewrite file
-         * to ensure our environment is set and it simulates basic mod_rewrite.
-         */
-        passthru( 'php -S ' . $host . ':' . $port . ' -t ' . str_replace( '\\', '/', DIR_PUBLIC ) . '/' );
+        $tasks = rand() % 700 + 600;
+        $done = 0;
+
+        $progress = new ProgressBar();
+
+        for ( $done = 0; $done <= $tasks; $done++ ) {
+            usleep( ( rand() % 127 ) * 100 );
+            $progress->update( $done, $tasks );
+        }
     }
 }

@@ -15,7 +15,7 @@ namespace O2System\Framework\Http\Controllers;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Http\Controller;
-use O2System\Framework\Http\Router\Registries\Page;
+use O2System\Framework\Http\Router\Datastructures\Page;
 
 /**
  * Class Pages
@@ -36,11 +36,11 @@ class Pages extends Controller
     /**
      * Pages::setPage
      *
-     * @param \O2System\Framework\Http\Router\Registries\Page $page
+     * @param \O2System\Framework\Http\Router\Datastructures\Page $page
      *
      * @return void
      */
-    public function setPage ( Page $page )
+    public function setPage( Page $page )
     {
         $this->page = $page;
 
@@ -70,7 +70,7 @@ class Pages extends Controller
      *
      * @return void
      */
-    public function index ()
+    public function index()
     {
         view()->page( $this->page );
     }

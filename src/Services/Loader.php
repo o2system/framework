@@ -34,7 +34,7 @@ class Loader implements AutoloadInterface
      *
      * @var array
      */
-    protected $namespaceDirs = [ ];
+    protected $namespaceDirs = [];
 
     /**
      * Loader::$namespaceDirsMap
@@ -43,7 +43,7 @@ class Loader implements AutoloadInterface
      *
      * @var array
      */
-    protected $namespaceDirsMap = [ ];
+    protected $namespaceDirsMap = [];
 
     /**
      * Loader::$loadedHelpers
@@ -52,14 +52,14 @@ class Loader implements AutoloadInterface
      *
      * @var array
      */
-    protected $loadedHelpers = [ ];
+    protected $loadedHelpers = [];
 
     // ------------------------------------------------------------------------
 
     /**
      * Loader::__construct
      */
-    public function __construct ()
+    public function __construct()
     {
         $this->register();
 
@@ -78,7 +78,7 @@ class Loader implements AutoloadInterface
      *
      * @return void
      */
-    public function register ()
+    public function register()
     {
         // Prepend the PSR4 autoloader for maximum performance.
         spl_autoload_register( [ &$this, 'loadClass' ], true, true );
@@ -101,7 +101,7 @@ class Loader implements AutoloadInterface
      *
      * @return void
      */
-    public function addNamespace ( $namespace, $baseDirectory, $prepend = false )
+    public function addNamespace( $namespace, $baseDirectory, $prepend = false )
     {
         // normalize namespace prefix
         $namespace = trim( $namespace, '\\' ) . '\\';
@@ -117,7 +117,7 @@ class Loader implements AutoloadInterface
         if ( is_dir( $baseDirectory ) ) {
             // initialize the namespace prefix array
             if ( isset( $this->namespaceDirs[ $namespace ] ) === false ) {
-                $this->namespaceDirs[ $namespace ] = [ ];
+                $this->namespaceDirs[ $namespace ] = [];
             }
 
             // retain the base directory for the namespace prefix
@@ -155,7 +155,7 @@ class Loader implements AutoloadInterface
      *
      * @return string|bool
      */
-    public function getDirNamespace ( $dir )
+    public function getDirNamespace( $dir )
     {
         $dir = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $dir );
 
@@ -178,7 +178,7 @@ class Loader implements AutoloadInterface
      *
      * @return string|null
      */
-    public function getClassNamespaceDirs ( $className )
+    public function getClassNamespaceDirs( $className )
     {
         $className = ltrim( $className, '\\' );
         $namespace = null;
@@ -199,7 +199,7 @@ class Loader implements AutoloadInterface
      *
      * @return string
      */
-    public function getNamespaceDirs ( $namespace )
+    public function getNamespaceDirs( $namespace )
     {
         $namespace = trim( $namespace, '\\' ) . '\\';
 
@@ -212,14 +212,14 @@ class Loader implements AutoloadInterface
 
     // ------------------------------------------------------------------------
 
-    public function loadHelpers ( array $helpers )
+    public function loadHelpers( array $helpers )
     {
         foreach ( $helpers as $helper ) {
             $this->loadHelper( $helper );
         }
     }
 
-    public function loadHelper ( $helper )
+    public function loadHelper( $helper )
     {
         if ( array_key_exists( $helper, $this->loadedHelpers ) ) {
 
@@ -243,12 +243,12 @@ class Loader implements AutoloadInterface
         }
 
         if ( ! array_key_exists( $helper, $this->loadedHelpers ) ) {
-            $this->loadedHelpers[ $helper ] = [ ];
+            $this->loadedHelpers[ $helper ] = [];
         }
 
         foreach ( $helperDirectories as $helperDirectory ) {
 
-            $helperFilePath = $helperDirectory . studlycapcase( $helper ) . '.php';
+            $helperFilePath = $helperDirectory . studlycase( $helper ) . '.php';
 
             if ( in_array( $helperFilePath, $this->loadedHelpers[ $helper ] ) ) {
                 continue;
@@ -259,6 +259,26 @@ class Loader implements AutoloadInterface
     }
 
     /**
+     * If a file exists, require it from the file system.
+     *
+     * @param string $file The file to require.
+     *
+     * @return bool True if the file exists, false if not.
+     */
+    public function requireFile( $file )
+    {
+        if ( is_file( $file ) ) {
+            require_once $file;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
      * Loads the class file for a given class name.
      *
      * @param string $class The fully-qualified class name.
@@ -266,7 +286,7 @@ class Loader implements AutoloadInterface
      * @return mixed The mapped file name on success, or boolean false on
      * failure.
      */
-    public function loadClass ( $class )
+    public function loadClass( $class )
     {
         // the current namespace prefix
         $namespace = $class;
@@ -295,6 +315,43 @@ class Loader implements AutoloadInterface
         return false;
     }
 
+    /**
+     * Load the mapped file for a namespace prefix and relative class.
+     *
+     * @param string $namespace     The namespace prefix.
+     * @param string $relativeClass The relative class name.
+     *
+     * @return mixed Boolean false if no mapped file can be loaded, or the
+     * name of the mapped file that was loaded.
+     */
+    public function loadMappedFile( $namespace, $relativeClass )
+    {
+        // are there any base directories for this namespace prefix?
+        if ( isset( $this->namespaceDirs[ $namespace ] ) === false ) {
+            return false;
+        }
+
+        // look through base directories for this namespace prefix
+        foreach ( $this->namespaceDirs[ $namespace ] as $namespaceDirectory ) {
+
+            // replace the namespace prefix with the base directory,
+            // replace namespace separators with directory separators
+            // in the relative class name, append with .php
+            $file = $namespaceDirectory
+                . str_replace( '\\', '/', $relativeClass )
+                . '.php';
+
+            // if the mapped file exists, require it
+            if ( $this->requireFile( $file ) ) {
+                // yes, we're done
+                return $file;
+            }
+        }
+
+        // never found it
+        return false;
+    }
+
     // ------------------------------------------------------------------------
 
     public function loadModuleClass( $class )
@@ -305,12 +362,12 @@ class Loader implements AutoloadInterface
         // the current namespace prefix
         $namespace = $class;
 
-        if(strpos($class, 'Testing') !== false) {
-            if( empty( $namespaceDirs ) and empty( $namespaceDirsMap ) ) {
+        if ( strpos( $class, 'Testing' ) !== false ) {
+            if ( empty( $namespaceDirs ) and empty( $namespaceDirsMap ) ) {
                 $modules = modules()->getRegistry();
-                foreach($modules as $module) {
+                foreach ( $modules as $module ) {
                     $namespaceDirs[ $module->getNamespace() ] = [
-                        $module->getRealPath()
+                        $module->getRealPath(),
                     ];
 
                     $namespaceDirsMap[ $module->getRealPath() ] = $module->getNamespace();
@@ -326,10 +383,10 @@ class Loader implements AutoloadInterface
                 // the rest is the relative class name
                 $relativeClass = substr( $class, $pos + 1 );
 
-                $namespaceParts = explode('\\', trim( $namespace, '\\'  ) );
+                $namespaceParts = explode( '\\', trim( $namespace, '\\' ) );
                 $namespaceTotalParts = count( $namespaceParts );
 
-                if( isset( $namespaceDirs[ $namespace ] ) ) {
+                if ( isset( $namespaceDirs[ $namespace ] ) ) {
                     // look through base directories for this namespace prefix
                     foreach ( $namespaceDirs[ $namespace ] as $namespaceDirectory ) {
 
@@ -357,63 +414,6 @@ class Loader implements AutoloadInterface
         }
 
         // never found a mapped file
-        return false;
-    }
-
-    /**
-     * Load the mapped file for a namespace prefix and relative class.
-     *
-     * @param string $namespace     The namespace prefix.
-     * @param string $relativeClass The relative class name.
-     *
-     * @return mixed Boolean false if no mapped file can be loaded, or the
-     * name of the mapped file that was loaded.
-     */
-    public function loadMappedFile ( $namespace, $relativeClass )
-    {
-        // are there any base directories for this namespace prefix?
-        if ( isset( $this->namespaceDirs[ $namespace ] ) === false ) {
-            return false;
-        }
-
-        // look through base directories for this namespace prefix
-        foreach ( $this->namespaceDirs[ $namespace ] as $namespaceDirectory ) {
-
-            // replace the namespace prefix with the base directory,
-            // replace namespace separators with directory separators
-            // in the relative class name, append with .php
-            $file = $namespaceDirectory
-                    . str_replace( '\\', '/', $relativeClass )
-                    . '.php';
-
-            // if the mapped file exists, require it
-            if ( $this->requireFile( $file ) ) {
-                // yes, we're done
-                return $file;
-            }
-        }
-
-        // never found it
-        return false;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * If a file exists, require it from the file system.
-     *
-     * @param string $file The file to require.
-     *
-     * @return bool True if the file exists, false if not.
-     */
-    public function requireFile ( $file )
-    {
-        if ( is_file( $file ) ) {
-            require_once $file;
-
-            return true;
-        }
-
         return false;
     }
 }

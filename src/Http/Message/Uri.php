@@ -40,12 +40,13 @@ class Uri extends Message\Uri
     protected $segments;
     protected $suffix;
 
-    public function __construct ()
+    public function __construct()
     {
         parent::__construct();
         $this->segments = new Uri\Segments();
         $this->setSuffix( config( 'uri' )->offsetGet( 'suffix' ) );
     }
+
     // ------------------------------------------------------------------------
 
     public function addPath( $path )
@@ -72,6 +73,7 @@ class Uri extends Message\Uri
      * Uri::withSegments
      *
      * @param Segments $segments
+     *
      * @return Uri
      */
     public function withSegments( Segments $segments )
@@ -81,6 +83,7 @@ class Uri extends Message\Uri
 
         return $uri;
     }
+
     // ------------------------------------------------------------------------
 
     public function addSegments( Segments $segments )
@@ -99,6 +102,17 @@ class Uri extends Message\Uri
         return $this->suffix;
     }
 
+    protected function setSuffix( $suffix )
+    {
+        if ( is_null( $suffix ) or is_bool( $suffix ) ) {
+            $this->suffix = null;
+        } elseif ( $suffix === '/' ) {
+            $this->suffix = $suffix;
+        } else {
+            $this->suffix = '.' . trim( $suffix, '.' );
+        }
+    }
+
     public function withSuffix( $suffix )
     {
         $uri = clone $this;
@@ -107,23 +121,12 @@ class Uri extends Message\Uri
         return $uri;
     }
 
-    protected function setSuffix( $suffix )
-    {
-        if( is_null( $suffix ) or is_bool( $suffix ) ) {
-            $this->suffix = null;
-        } elseif( $suffix === '/' ) {
-            $this->suffix = $suffix;
-        } else {
-            $this->suffix = '.' . trim( $suffix, '.' );
-        }
-    }
-
     /**
      * Uri::__toString
      *
      * @return string
      */
-    public function __toString ()
+    public function __toString()
     {
         $uriString = $this->scheme . '://';
 
@@ -151,7 +154,7 @@ class Uri extends Message\Uri
 
         $uriPath = '/' . trim( $uriPath, '/' );
 
-        if( $uriPath !== '/' and
+        if ( $uriPath !== '/' and
             $this->suffix !== '' and
             pathinfo( $uriPath, PATHINFO_EXTENSION ) === ''
         ) {

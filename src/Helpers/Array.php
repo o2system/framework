@@ -23,7 +23,7 @@ if ( ! function_exists( 'array_get_value' ) ) {
      *
      * @return mixed
      */
-    function array_get_value ( $key, array $array, $default = null )
+    function array_get_value( $key, array $array, $default = null )
     {
         return array_key_exists( $key, $array ) ? $array[ $key ] : $default;
     }
@@ -44,9 +44,9 @@ if ( ! function_exists( 'array_get_values' ) ) {
      *
      * @return array
      */
-    function array_get_values ( array $keys, array $array, $default = null )
+    function array_get_values( array $keys, array $array, $default = null )
     {
-        $return = [ ];
+        $return = [];
 
         is_array( $keys ) OR $keys = [ $keys ];
 
@@ -61,75 +61,6 @@ if ( ! function_exists( 'array_get_values' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'array_is_multidimensional' ) ) {
-    /**
-     * array_is_multidimensional
-     *
-     * Checks if the given array is multidimensional.
-     *
-     * @param array $array
-     *
-     * @return bool
-     */
-    function array_is_multidimensional ( array $array )
-    {
-        if ( count( $array ) != count( $array, COUNT_RECURSIVE ) ) {
-            return true;
-        }
-
-        return false;
-    }
-}
-
-// ------------------------------------------------------------------------
-
-if ( ! function_exists( 'array_is_associative' ) ) {
-    /**
-     * array_is_associative
-     *
-     * Check if the given array is associative.
-     *
-     * @param array $array
-     *
-     * @return bool
-     */
-    function array_is_associative ( array $array )
-    {
-        if ( $array == [ ] ) {
-            return true;
-        }
-        $keys = array_keys( $array );
-        if ( array_keys( $keys ) !== $keys ) {
-            foreach ( $keys as $key ) {
-                if ( ! is_numeric( $key ) ) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-}
-if ( ! function_exists( 'array_is_indexed' ) ) {
-    /**
-     * array_is_indexed
-     *
-     * Check if an array has a numeric index.
-     *
-     * @param array $array
-     *
-     * @return bool
-     */
-    function array_is_indexed ( array $array )
-    {
-        if ( $array == [ ] ) {
-            return true;
-        }
-
-        return ! array_is_associative( $array );
-    }
-}
-
 if ( ! function_exists( 'array_combines' ) ) {
     /**
      * array_combines
@@ -141,9 +72,9 @@ if ( ! function_exists( 'array_combines' ) ) {
      *
      * @return array
      */
-    function array_combines ( array $keys, array $values )
+    function array_combines( array $keys, array $values )
     {
-        $combine_array = [ ];
+        $combine_array = [];
 
         foreach ( $keys as $index => $key ) {
             $combine_array[ $key ][] = $values[ $index ];
@@ -172,16 +103,16 @@ if ( ! function_exists( 'array_group' ) ) {
      *
      * @return array
      */
-    function array_group ( array $array, $flip = true )
+    function array_group( array $array, $flip = true )
     {
-        $group_array = [ ];
+        $group_array = [];
 
         if ( $flip ) {
             array_walk_recursive(
                 $array,
                 function ( $value, $key ) use ( &$group_array ) {
                     if ( ! isset( $group_array[ $value ] ) || ! is_array( $group_array[ $value ] ) ) {
-                        $group_array[ $value ] = [ ];
+                        $group_array[ $value ] = [];
                     }
                     $group_array[ $value ][] = $key;
                 }
@@ -211,7 +142,7 @@ if ( ! function_exists( 'array_filter_recursive' ) ) {
      *
      * @return  array
      */
-    function array_filter_recursive ( &$array, $value, $limit = 0 )
+    function array_filter_recursive( &$array, $value, $limit = 0 )
     {
         if ( is_array( $value ) ) {
             foreach ( $value as $remove ) {
@@ -221,7 +152,7 @@ if ( ! function_exists( 'array_filter_recursive' ) ) {
             return $array;
         }
 
-        $result = [ ];
+        $result = [];
         $count = 0;
 
         foreach ( $array as $key => $value ) {
@@ -262,7 +193,7 @@ if ( ! function_exists( 'array_search_recursive' ) ) {
      *
      * @return bool|int|string
      */
-    function array_search_recursive ( $needle, array $haystack, $strict = false )
+    function array_search_recursive( $needle, array $haystack, $strict = false )
     {
         $result = '';
         foreach ( $haystack as $key => $value ) {
@@ -302,7 +233,7 @@ if ( ! function_exists( 'array_unique_recursive' ) ) {
      *
      * @return  array
      */
-    function array_unique_recursive ( array $array )
+    function array_unique_recursive( array $array )
     {
         $serialized = array_map( 'serialize', $array );
         $unique = array_unique( $serialized );
@@ -322,9 +253,9 @@ if ( ! function_exists( 'array_flatten' ) ) {
      *
      * @return array
      */
-    function array_flatten ( array $array = [ ] )
+    function array_flatten( array $array = [] )
     {
-        $flat_array = [ ];
+        $flat_array = [];
 
         foreach ( $array as $key => $value ) {
             if ( is_array( $value ) ) {

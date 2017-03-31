@@ -34,7 +34,7 @@ if ( ! function_exists( 'currency_format' ) ) {
      *
      * @return  string
      */
-    function currency_format ( $price, $currency = null, $decimal = 0, $accounting = false )
+    function currency_format( $price, $currency = null, $decimal = 0, $accounting = false )
     {
         $currency = isset( $currency ) && ! empty( $currency ) ? $currency : o2system()->config->units[ 'currency' ];
         $currency = trim( $currency );
@@ -45,15 +45,15 @@ if ( ! function_exists( 'currency_format' ) ) {
         }
 
         if ( $accounting == true ) {
-            return '<span data-role="price-currency" data-currency="' . $currency . '" class="pull-left">' . $currency . '</span> <span data-role="price-nominal" data-price="' . (int) $price . '" class="pull-right">' . number_format(
-                (int) $price,
-                (int) $decimal,
-                ',',
-                '.'
-            ) . '</span>';
+            return '<span data-role="price-currency" data-currency="' . $currency . '" class="pull-left">' . $currency . '</span> <span data-role="price-nominal" data-price="' . (int)$price . '" class="pull-right">' . number_format(
+                    (int)$price,
+                    (int)$decimal,
+                    ',',
+                    '.'
+                ) . '</span>';
         }
 
-        return $currency . ' ' . number_format( (int) $price, (int) $decimal, ',', '.' );
+        return $currency . ' ' . number_format( (int)$price, (int)$decimal, ',', '.' );
     }
 }
 // ------------------------------------------------------------------------
@@ -71,7 +71,7 @@ if ( ! function_exists( 'unit_format' ) ) {
      *
      * @return  string
      */
-    function unit_format ( $amount, $unit, $decimal = 0, $accounting = false )
+    function unit_format( $amount, $unit, $decimal = 0, $accounting = false )
     {
         $unit = trim( $unit );
 
@@ -81,15 +81,15 @@ if ( ! function_exists( 'unit_format' ) ) {
         }
 
         if ( $accounting == true ) {
-            return '<span data-role="number-amount" class="pull-left" data-amount="' . (int) $amount . '">' . number_format(
-                (int) $amount,
-                (int) $decimal,
-                ',',
-                '.'
-            ) . '</span> <span data-role="number-unit" class="pull-right">&nbsp;' . $unit . '</span>';
+            return '<span data-role="number-amount" class="pull-left" data-amount="' . (int)$amount . '">' . number_format(
+                    (int)$amount,
+                    (int)$decimal,
+                    ',',
+                    '.'
+                ) . '</span> <span data-role="number-unit" class="pull-right">&nbsp;' . $unit . '</span>';
         }
 
-        return number_format( (int) $amount, (int) $decimal, ',', '.' ) . ' ' . $unit;
+        return number_format( (int)$amount, (int)$decimal, ',', '.' ) . ' ' . $unit;
     }
 }
 // ------------------------------------------------------------------------
@@ -104,7 +104,7 @@ if ( ! function_exists( 'is_positive' ) ) {
      *
      * @return  bool
      */
-    function is_positive ( $number )
+    function is_positive( $number )
     {
         if ( $number > 0 ) {
             return true;
@@ -125,7 +125,7 @@ if ( ! function_exists( 'is_negative' ) ) {
      *
      * @return  bool
      */
-    function is_negative ( $number )
+    function is_negative( $number )
     {
         if ( $number < 0 ) {
             return true;
@@ -146,7 +146,7 @@ if ( ! function_exists( 'is_odd' ) ) {
      *
      * @return  bool
      */
-    function is_odd ( $number )
+    function is_odd( $number )
     {
         if ( $number % 2 == 0 ) {
             return true;
@@ -167,7 +167,7 @@ if ( ! function_exists( 'is_even' ) ) {
      *
      * @return  bool
      */
-    function is_even ( $number )
+    function is_even( $number )
     {
         if ( $number % 2 == 0 ) {
             return false;
@@ -188,7 +188,7 @@ if ( ! function_exists( 'prices_ranges' ) ) {
      *
      * @return  array
      */
-    function prices_ranges ( $start_price, $end_price, $multiply = 0 )
+    function prices_ranges( $start_price, $end_price, $multiply = 0 )
     {
         $start_price = str_replace( '.', '', $start_price );
         $end_price = str_replace( '.', '', $end_price );
@@ -197,7 +197,7 @@ if ( ! function_exists( 'prices_ranges' ) ) {
         $num_range = $end_price / $start_price;
         $num_step = $multiplier / $start_price / 100;
 
-        $ranges = [ ];
+        $ranges = [];
         foreach ( range( 0, $num_range, $num_step ) as $num_price ) {
             if ( $num_price == 0 ) {
                 $ranges[] = $start_price;
@@ -206,7 +206,7 @@ if ( ! function_exists( 'prices_ranges' ) ) {
             }
         }
 
-        $prices = [ ];
+        $prices = [];
         for ( $i = 0; $i < count( $ranges ); $i++ ) {
             if ( $ranges[ $i ] == $end_price ) {
                 break;
@@ -231,7 +231,7 @@ if ( ! function_exists( 'words_format' ) ) {
      *
      * @return  string
      */
-    function words_format ( $number, $decimal = 4 )
+    function words_format( $number, $decimal = 4 )
     {
         $stext = [
             "Nol",
@@ -277,8 +277,8 @@ if ( ! function_exists( 'words_format' ) ) {
                             $w .= $stext[ substr( $number, 1 ) ] . " Belas";
                         } else {
                             $w .= $stext[ substr( $number, 0, 1 ) ] . " Puluh " . ( intval(
-                                                                                        substr( $number, 1 )
-                                                                                    ) == 0
+                                    substr( $number, 1 )
+                                ) == 0
                                     ? ""
                                     : $stext[ substr(
                                         $number,
@@ -291,11 +291,11 @@ if ( ! function_exists( 'words_format' ) ) {
                     break;
                 case 3 :
                     $w .= ( $isone ? "Seratus" : words_format( substr( $number, 0, 1 ) ) . " Ratus" ) . " " . ( intval(
-                                                                                                                    substr(
-                                                                                                                        $number,
-                                                                                                                        1
-                                                                                                                    )
-                                                                                                                ) == 0
+                            substr(
+                                $number,
+                                1
+                            )
+                        ) == 0
                             ? ""
                             : words_format(
                                 substr( $number, 1 )
@@ -303,11 +303,11 @@ if ( ! function_exists( 'words_format' ) ) {
                     break;
                 case 4 :
                     $w .= ( $isone ? "Seribu" : words_format( substr( $number, 0, 1 ) ) . " Ribu" ) . " " . ( intval(
-                                                                                                                  substr(
-                                                                                                                      $number,
-                                                                                                                      1
-                                                                                                                  )
-                                                                                                              ) == 0
+                            substr(
+                                $number,
+                                1
+                            )
+                        ) == 0
                             ? ""
                             : words_format(
                                 substr( $number, 1 )
@@ -350,7 +350,7 @@ if ( ! function_exists( 'calculate' ) ) {
      *
      * @return  string
      */
-    function calculate ( $formula )
+    function calculate( $formula )
     {
         static $function_map = [
             'floor'   => 'floor',
@@ -432,7 +432,7 @@ if ( ! function_exists( 'hertz_format' ) ) {
      *
      * @return  string
      */
-    function hertz_format ( $num, $precision = 1 )
+    function hertz_format( $num, $precision = 1 )
     {
         if ( $num >= 1000000000000 ) {
             $num = round( $num / 1099511627776, $precision );
@@ -468,7 +468,7 @@ if ( ! function_exists( 'roman_format' ) ) {
      *
      * @return  string
      */
-    function roman_format ( $num )
+    function roman_format( $num )
     {
         $romans = [
             'M'  => 1000,
@@ -503,7 +503,7 @@ if ( ! function_exists( 'roman_format' ) ) {
 }
 
 if ( ! function_exists( 'short_format' ) ) {
-    function short_format ( $num, $precision = 0, $divisors = null )
+    function short_format( $num, $precision = 0, $divisors = null )
     {
         // Setup default $divisors if not provided
         if ( ! isset( $divisors ) ) {
@@ -534,7 +534,7 @@ if ( ! function_exists( 'short_format' ) ) {
 }
 
 if ( ! function_exists( 'ordinal_format' ) ) {
-    function ordinal_format ( $number )
+    function ordinal_format( $number )
     {
         $ends = [ 'th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th' ];
 
@@ -555,7 +555,7 @@ if ( ! function_exists( 'byte_format' ) ) {
      *
      * @return    string
      */
-    function byte_format ( $num, $precision = 1 )
+    function byte_format( $num, $precision = 1 )
     {
         language()->loadFile( 'number' );
 

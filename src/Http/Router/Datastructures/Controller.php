@@ -10,7 +10,7 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Http\Router\Registries;
+namespace O2System\Framework\Http\Router\Datastructures;
 
 // ------------------------------------------------------------------------
 
@@ -23,9 +23,9 @@ use O2System\Spl\Info\SplClassInfo;
  */
 class Controller extends SplClassInfo
 {
-    private $requestMethod     = null;
+    private $requestMethod = null;
 
-    private $requestMethodArgs = [ ];
+    private $requestMethodArgs = [];
 
     private $properties;
 
@@ -33,7 +33,7 @@ class Controller extends SplClassInfo
 
     // ------------------------------------------------------------------------
 
-    public function __construct ( $filePath )
+    public function __construct( $filePath )
     {
         if ( is_object( $filePath ) ) {
             if ( $filePath instanceof \O2System\Framework\Http\Controller ) {
@@ -51,27 +51,29 @@ class Controller extends SplClassInfo
 
             if ( class_exists( $className ) ) {
                 parent::__construct( $className );
+            } elseif ( class_exists( '\O2System\Framework\Http\\' . $className ) ) {
+                parent::__construct( '\O2System\Framework\Http\\' . $className );
             }
         }
     }
 
     // ------------------------------------------------------------------------
 
-    public function setProperties ( array $properties )
+    public function setProperties( array $properties )
     {
         $this->properties = $properties;
     }
 
     // ------------------------------------------------------------------------
 
-    public function getParameter ()
+    public function getParameter()
     {
         return strtolower( get_class_name( $this->name ) );
     }
 
     // ------------------------------------------------------------------------
 
-    public function &getInstance ()
+    public function &getInstance()
     {
         if ( empty( $this->instance ) ) {
             $className = $this->name;
@@ -93,14 +95,14 @@ class Controller extends SplClassInfo
         return $this->instance;
     }
 
-    public function getRequestMethod ()
+    public function getRequestMethod()
     {
         return $this->requestMethod;
     }
 
     // ------------------------------------------------------------------------
 
-    public function setRequestMethod ( $method )
+    public function setRequestMethod( $method )
     {
         $this->requestMethod = $method;
 
@@ -109,12 +111,12 @@ class Controller extends SplClassInfo
 
     // ------------------------------------------------------------------------
 
-    public function getRequestMethodArgs ()
+    public function getRequestMethodArgs()
     {
         return $this->requestMethodArgs;
     }
 
-    public function setRequestMethodArgs ( array $arguments )
+    public function setRequestMethodArgs( array $arguments )
     {
         $arguments = array_values( $arguments );
         array_unshift( $arguments, null );
@@ -123,5 +125,14 @@ class Controller extends SplClassInfo
         $this->requestMethodArgs = $arguments;
 
         return $this;
+    }
+
+    public function isValid()
+    {
+        if ( ! empty( $this->name ) and $this->hasMethod( '__call' ) and $this->isSubclassOf( '\O2System\Framework\Http\Controller' ) ) {
+            return true;
+        }
+
+        return false;
     }
 }

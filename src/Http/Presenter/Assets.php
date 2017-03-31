@@ -13,7 +13,7 @@
 namespace O2System\Framework\Http\Presenter;
 
 use O2System\Framework\Http\Message\Uri;
-use O2System\Kernel\Registries\Config;
+use O2System\Kernel\Datastructures\Config;
 use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
 
 /**
@@ -25,26 +25,26 @@ class Assets
 {
     use FilePathCollectorTrait;
 
-    public  $isCombine  = false;
+    public $isCombine = false;
 
     private $iconAssets = [];
 
     private $fontAssets = [];
 
-    private $cssAssets  = [];
+    private $cssAssets = [];
 
-    private $jsAssets   = [];
+    private $jsAssets = [];
 
     /**
      * Assets::__construct
      */
-    public function __construct ()
+    public function __construct()
     {
         $this->setFileDirName( 'assets' );
         $this->addFilePath( PATH_PUBLIC );
     }
 
-    public function loadFiles ( $assets )
+    public function loadFiles( $assets )
     {
         if ( $assets instanceof Config ) {
             $assets = $assets->getArrayCopy();
@@ -59,7 +59,7 @@ class Assets
         }
     }
 
-    public function addJs ( $js )
+    public function addJs( $js )
     {
         $js = is_string( $js ) ? [ $js ] : $js;
 
@@ -83,7 +83,7 @@ class Assets
         }
     }
 
-    public function getUrl ( $realPath )
+    public function getUrl( $realPath )
     {
         return ( new Uri() )
             ->withQuery( null )
@@ -99,7 +99,7 @@ class Assets
             ->__toString();
     }
 
-    public function addCss ( $css )
+    public function addCss( $css )
     {
         $css = is_string( $css ) ? [ $css ] : $css;
 
@@ -123,12 +123,12 @@ class Assets
         }
     }
 
-    public function addIcon ( $icon )
+    public function addIcon( $icon )
     {
         $this->addIcons( $icon );
     }
 
-    public function addIcons ( $icons )
+    public function addIcons( $icons )
     {
         $icons = is_string( $icons ) ? [ $icons ] : $icons;
 
@@ -154,12 +154,12 @@ class Assets
         }
     }
 
-    public function addFont ( $font )
+    public function addFont( $font )
     {
         $this->addFonts( $font );
     }
 
-    public function addFonts ( $fonts )
+    public function addFonts( $fonts )
     {
         $fonts = is_string( $fonts ) ? [ $fonts ] : $fonts;
 
@@ -183,12 +183,12 @@ class Assets
         }
     }
 
-    public function addPackage ( $package )
+    public function addPackage( $package )
     {
         $this->addPackages( $package );
     }
 
-    public function addPackages ( $packages )
+    public function addPackages( $packages )
     {
         $packages = is_string( $packages ) ? [ $packages ] : $packages;
 
@@ -281,7 +281,7 @@ class Assets
         }
     }
 
-    public function __get ( $position )
+    public function __get( $position )
     {
         switch ( $position ) {
             case 'header':
@@ -297,7 +297,7 @@ class Assets
         }
     }
 
-    private function getHeaderOutput ()
+    private function getHeaderOutput()
     {
         $headerOutput = [];
 
@@ -312,7 +312,7 @@ class Assets
         return implode( PHP_EOL, $headerOutput );
     }
 
-    private function getFooterOutput ()
+    private function getFooterOutput()
     {
         $footerOutput = [];
 
@@ -323,7 +323,7 @@ class Assets
         return implode( PHP_EOL, $footerOutput );
     }
 
-    public function image ( $image )
+    public function image( $image )
     {
         $image = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $image );
 

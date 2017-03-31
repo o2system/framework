@@ -54,7 +54,7 @@ class Path
      * @access  protected
      * @return  string
      */
-    protected function parseRequestURI ()
+    protected function parseRequestURI()
     {
         if ( ! isset( $_SERVER[ 'REQUEST_URI' ], $_SERVER[ 'SCRIPT_NAME' ] ) ) {
             return '';
@@ -70,9 +70,9 @@ class Path
 
         if ( isset( $_SERVER[ 'SCRIPT_NAME' ][ 0 ] ) ) {
             if ( strpos( $uri, $_SERVER[ 'SCRIPT_NAME' ] ) === 0 ) {
-                $uri = (string) substr( $uri, strlen( $_SERVER[ 'SCRIPT_NAME' ] ) );
+                $uri = (string)substr( $uri, strlen( $_SERVER[ 'SCRIPT_NAME' ] ) );
             } elseif ( strpos( $uri, dirname( $_SERVER[ 'SCRIPT_NAME' ] ) ) === 0 ) {
-                $uri = (string) substr( $uri, strlen( dirname( $_SERVER[ 'SCRIPT_NAME' ] ) ) );
+                $uri = (string)substr( $uri, strlen( dirname( $_SERVER[ 'SCRIPT_NAME' ] ) ) );
             }
         }
 
@@ -109,7 +109,7 @@ class Path
      * @access  protected
      * @return  string
      */
-    protected function removeRelativeDirectory ( $uri )
+    protected function removeRelativeDirectory( $uri )
     {
         $segments = [];
         $segment = strtok( $uri, '/' );
@@ -142,7 +142,7 @@ class Path
      * @access  protected
      * @return  string
      */
-    protected function parseQueryString ()
+    protected function parseQueryString()
     {
         $uri = isset( $_SERVER[ 'QUERY_STRING' ] )
             ? $_SERVER[ 'QUERY_STRING' ]
@@ -165,7 +165,7 @@ class Path
 
     // --------------------------------------------------------------------
 
-    public function setSegments ( array $segments )
+    public function setSegments( array $segments )
     {
         $validSegments = [];
 
@@ -205,7 +205,7 @@ class Path
      * @return mixed
      * @throws HttpRequestUriException
      */
-    protected function filterSegment ( $segment )
+    protected function filterSegment( $segment )
     {
         $config = config( 'uri' );
 
@@ -225,7 +225,8 @@ class Path
         );
     }
 
-    public function getTotalSegments() {
+    public function getTotalSegments()
+    {
         return count( $this->segments );
     }
 }

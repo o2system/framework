@@ -24,10 +24,10 @@ use O2System\Psr\Patterns\AbstractObjectRegistryPattern;
  */
 class Middleware extends AbstractObjectRegistryPattern
 {
-    public function __construct ()
+    public function __construct()
     {
-        $this->register(new Middleware\Environment(),  'environment' );
-        $this->register(new Middleware\Cache(), 'cache' );
+        $this->register( new Middleware\Environment(), 'environment' );
+        $this->register( new Middleware\Cache(), 'cache' );
     }
 
     /**
@@ -35,10 +35,10 @@ class Middleware extends AbstractObjectRegistryPattern
      *
      * @return void
      */
-    public function run ()
+    public function run()
     {
         if ( $this->count() ) {
-            
+
             $request = request();
 
             foreach ( $this as $offset => $service ) {
@@ -62,7 +62,7 @@ class Middleware extends AbstractObjectRegistryPattern
      *
      * @return bool
      */
-    protected function isValid ( $service )
+    protected function isValid( $service )
     {
         if ( $service instanceof MiddlewareServiceInterface ) {
             return true;

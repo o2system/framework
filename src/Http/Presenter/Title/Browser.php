@@ -39,7 +39,7 @@ class Browser extends SplArrayQueue
      *
      * @return Browser
      */
-    public function setSeparator ( $separator )
+    public function setSeparator( $separator )
     {
         $this->separator = $separator;
 
@@ -55,7 +55,7 @@ class Browser extends SplArrayQueue
      *
      * @return string
      */
-    public function __toString ()
+    public function __toString()
     {
         return implode( ' ' . $this->separator . ' ', $this->getArrayCopy() );
     }

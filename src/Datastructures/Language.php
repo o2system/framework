@@ -7,7 +7,7 @@
  * @copyright   Copyright (c) 2016 Steeve Andrian Salim
  */
 
-namespace O2System\Framework\Registries;
+namespace O2System\Framework\Datastructures;
 
 
 use O2System\Spl\Datastructures\SplArrayObject;
@@ -20,9 +20,9 @@ class Language extends SplDirectoryInfo
      *
      * @var array
      */
-    private $properties = [ ];
+    private $properties = [];
 
-    public function __construct ( $dir )
+    public function __construct( $dir )
     {
         parent::__construct( $dir );
 
@@ -36,7 +36,7 @@ class Language extends SplDirectoryInfo
         }
     }
 
-    public function isValid ()
+    public function isValid()
     {
         if ( count( $this->properties ) ) {
             return true;
@@ -45,22 +45,22 @@ class Language extends SplDirectoryInfo
         return false;
     }
 
-    public function getParameter ()
+    public function getParameter()
     {
         return $this->getDirName();
     }
 
-    public function getCode ()
+    public function getCode()
     {
         return strtoupper( substr( md5( $this->getDirName() ), 2, 7 ) );
     }
 
-    public function getChecksum ()
+    public function getChecksum()
     {
         return md5( $this->getMTime() );
     }
 
-    public function getProperties ()
+    public function getProperties()
     {
         return new SplArrayObject( $this->properties );
     }

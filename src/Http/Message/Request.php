@@ -36,7 +36,7 @@ class Request extends Message\Request implements \IteratorAggregate
 
     // ------------------------------------------------------------------------
 
-    public function __construct ()
+    public function __construct()
     {
         $this->uri = new Uri();
     }
@@ -52,7 +52,7 @@ class Request extends Message\Request implements \IteratorAggregate
      * @return Uri Returns a UriInterface instance
      *     representing the URI of the request.
      */
-    public function &getUri ()
+    public function &getUri()
     {
         if ( empty( $this->uri ) ) {
             $this->uri = new Uri();
@@ -63,9 +63,9 @@ class Request extends Message\Request implements \IteratorAggregate
 
     // ------------------------------------------------------------------------
 
-    public function getClientIpAddress ()
+    public function getClientIpAddress()
     {
-        return input()->ipAddress( config()->getItem('ipAddresses')->proxy );
+        return input()->ipAddress( config()->getItem( 'ipAddresses' )->proxy );
     }
 
     // ------------------------------------------------------------------------
@@ -75,7 +75,7 @@ class Request extends Message\Request implements \IteratorAggregate
      *
      * @return bool
      */
-    public function isCLI ()
+    public function isCLI()
     {
         return ( PHP_SAPI === 'cli' || defined( 'STDIN' ) );
     }
@@ -87,10 +87,10 @@ class Request extends Message\Request implements \IteratorAggregate
      *
      * @return bool
      */
-    public function isAJAX ()
+    public function isAJAX()
     {
         return ( ! empty( $_SERVER[ 'HTTP_X_REQUESTED_WITH' ] ) &&
-                 strtolower( $_SERVER[ 'HTTP_X_REQUESTED_WITH' ] ) === 'xmlhttprequest' );
+            strtolower( $_SERVER[ 'HTTP_X_REQUESTED_WITH' ] ) === 'xmlhttprequest' );
     }
 
     //--------------------------------------------------------------------
@@ -101,15 +101,15 @@ class Request extends Message\Request implements \IteratorAggregate
      *
      * @return bool
      */
-    public function isSecure ()
+    public function isSecure()
     {
         if ( ! empty( $_SERVER[ 'HTTPS' ] ) && strtolower( $_SERVER[ 'HTTPS' ] ) !== 'off' ) {
             return true;
         } elseif ( isset( $_SERVER[ 'HTTP_X_FORWARDED_PROTO' ] ) && $_SERVER[ 'HTTP_X_FORWARDED_PROTO' ] === 'https' ) {
             return true;
         } elseif ( ! empty( $_SERVER[ 'HTTP_FRONT_END_HTTPS' ] ) && strtolower(
-                                                                        $_SERVER[ 'HTTP_FRONT_END_HTTPS' ]
-                                                                    ) !== 'off'
+                $_SERVER[ 'HTTP_FRONT_END_HTTPS' ]
+            ) !== 'off'
         ) {
             return true;
         }
@@ -126,7 +126,7 @@ class Request extends Message\Request implements \IteratorAggregate
      *
      * @return bool|mixed|string
      */
-    public function getTime ( $format = null )
+    public function getTime( $format = null )
     {
         return isset( $format )
             ? date( $format, $_SERVER[ 'REQUEST_TIME' ] )
@@ -140,7 +140,7 @@ class Request extends Message\Request implements \IteratorAggregate
      *
      * @return \O2System\Kernel\Http\Message\ServerRequest
      */
-    public function getServer ()
+    public function getServer()
     {
         static $serverRequest;
 
@@ -158,7 +158,7 @@ class Request extends Message\Request implements \IteratorAggregate
      *
      * @return string
      */
-    public function getLanguage ()
+    public function getLanguage()
     {
         return 'en-US';
     }
@@ -171,7 +171,7 @@ class Request extends Message\Request implements \IteratorAggregate
      *        <b>Traversable</b>
      * @since 5.0.0
      */
-    public function getIterator ()
+    public function getIterator()
     {
         return new \ArrayIterator( $_REQUEST );
     }
@@ -188,7 +188,7 @@ class Request extends Message\Request implements \IteratorAggregate
      *        The return value is cast to an integer.
      * @since 5.1.0
      */
-    public function count ()
+    public function count()
     {
         return count( $_REQUEST );
     }
@@ -208,7 +208,7 @@ class Request extends Message\Request implements \IteratorAggregate
      *
      * @return \O2System\Framework\Http\Message\Request|static
      */
-    public function withUri ( UriInterface $uri, $preserveHost = false )
+    public function withUri( UriInterface $uri, $preserveHost = false )
     {
         $request = clone $this;
         $request->uri = $uri;

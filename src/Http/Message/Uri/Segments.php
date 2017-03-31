@@ -15,11 +15,11 @@ namespace O2System\Framework\Http\Message\Uri;
 class Segments
 {
     protected $string;
-	protected $parts;
+    protected $parts;
 
-	public function __construct( $string = null )
-	{
-	    if( empty( $string ) ) {
+    public function __construct( $string = null )
+    {
+        if ( empty( $string ) ) {
             $protocol = strtoupper( config( 'uri' )->offsetGet( 'protocol' ) );
 
             empty( $protocol ) && $protocol = 'REQUEST_URI';
@@ -40,15 +40,15 @@ class Segments
                     break;
             }
 
-        } elseif( is_array( $string ) ) {
-	        $string = implode( '/', $string );
+        } elseif ( is_array( $string ) ) {
+            $string = implode( '/', $string );
         }
 
         $string = trim( remove_invisible_characters( $string, false ), '/' );
-        $this->setParts( explode('/', $string) );
-	}
+        $this->setParts( explode( '/', $string ) );
+    }
 
-	/**
+    /**
      * Parse REQUEST_URI
      *
      * Will parse REQUEST_URI and automatically detect the URI from it,
@@ -57,7 +57,7 @@ class Segments
      * @access  protected
      * @return  string
      */
-    protected function parseRequestURI ()
+    protected function parseRequestURI()
     {
         if ( ! isset( $_SERVER[ 'REQUEST_URI' ], $_SERVER[ 'SCRIPT_NAME' ] ) ) {
             return '';
@@ -73,9 +73,9 @@ class Segments
 
         if ( isset( $_SERVER[ 'SCRIPT_NAME' ][ 0 ] ) ) {
             if ( strpos( $uri, $_SERVER[ 'SCRIPT_NAME' ] ) === 0 ) {
-                $uri = (string) substr( $uri, strlen( $_SERVER[ 'SCRIPT_NAME' ] ) );
+                $uri = (string)substr( $uri, strlen( $_SERVER[ 'SCRIPT_NAME' ] ) );
             } elseif ( strpos( $uri, dirname( $_SERVER[ 'SCRIPT_NAME' ] ) ) === 0 ) {
-                $uri = (string) substr( $uri, strlen( dirname( $_SERVER[ 'SCRIPT_NAME' ] ) ) );
+                $uri = (string)substr( $uri, strlen( dirname( $_SERVER[ 'SCRIPT_NAME' ] ) ) );
             }
         }
 
@@ -112,7 +112,7 @@ class Segments
      * @access  protected
      * @return  string
      */
-    protected function removeRelativeDirectory ( $uri )
+    protected function removeRelativeDirectory( $uri )
     {
         $segments = [];
         $segment = strtok( $uri, '/' );
@@ -121,11 +121,11 @@ class Segments
 
         while ( $segment !== false ) {
             if ( ( ! empty( $segment ) || $segment === '0' ) AND
-                 $segment !== '..' AND
-                 ! in_array(
-                     $segment,
-                     $base_dirs
-                 )
+                $segment !== '..' AND
+                ! in_array(
+                    $segment,
+                    $base_dirs
+                )
             ) {
                 $segments[] = $segment;
             }
@@ -145,7 +145,7 @@ class Segments
      * @access  protected
      * @return  string
      */
-    protected function parseQueryString ()
+    protected function parseQueryString()
     {
         $uri = isset( $_SERVER[ 'QUERY_STRING' ] )
             ? $_SERVER[ 'QUERY_STRING' ]
@@ -175,7 +175,7 @@ class Segments
      *
      * @return string
      */
-    public function getString ()
+    public function getString()
     {
         return empty( $this->string )
             ? '/'
@@ -184,23 +184,23 @@ class Segments
 
     // ------------------------------------------------------------------------
 
-    public function withString ( $string )
+    public function addString( $string )
     {
-        $string = trim( remove_invisible_characters( $string, false ), '/' );
+        $string = $this->string . '/' . trim( $string, '/' );
 
-        return $this->withParts( explode('/', $string) );
+        return $this->withString( $string );
     }
 
     // ------------------------------------------------------------------------
 
-    public function addString( $string )
+    public function withString( $string )
     {
-        $string = $this->string . '/' . trim( $string, '/');
+        $string = trim( remove_invisible_characters( $string, false ), '/' );
 
-        return $this->withString($string);
+        return $this->withParts( explode( '/', $string ) );
     }
 
-    public function withParts ( array $parts )
+    public function withParts( array $parts )
     {
         $uri = clone $this;
         $uri->setParts( $parts );
@@ -224,7 +224,7 @@ class Segments
      *
      * @return mixed
      */
-    public function getPart ($n )
+    public function getPart( $n )
     {
         return isset( $this->parts[ $n ] )
             ? $this->parts[ $n ]
@@ -236,47 +236,20 @@ class Segments
      *
      * @return array
      */
-    public function getParts ()
+    public function getParts()
     {
         return $this->parts;
     }
 
     // ------------------------------------------------------------------------
 
-    /**
-     * Has Segment
-     *
-     * @param string $part
-     * @param bool   $isCaseSensitive
-     *
-     * @return bool
-     */
-    public function hasPart ($part, $isCaseSensitive = false )
-    {
-        return (bool) in_array( $part, $this->parts, $isCaseSensitive );
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Get Total Segments
-     *
-     * @return int
-     */
-    public function getTotalParts ()
-    {
-        return count( $this->parts );
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function setParts(array $parts )
+    protected function setParts( array $parts )
     {
         if ( count( $parts ) ) {
             $validSegments = [];
 
             if ( count( $parts ) ) {
-                foreach ($parts as $part ) {
+                foreach ( $parts as $part ) {
                     // Filter segments for security
                     if ( $part = trim( $this->filterPart( $part ) ) ) {
 
@@ -300,7 +273,43 @@ class Segments
             $this->string = implode( '/', $this->parts );
         }
     }
-    
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Has Segment
+     *
+     * @param string $part
+     * @param bool   $isCaseSensitive
+     *
+     * @return bool
+     */
+    public function hasPart( $part, $isCaseSensitive = false )
+    {
+        return (bool)in_array( $part, $this->parts, $isCaseSensitive );
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Get Total Segments
+     *
+     * @return int
+     */
+    public function getTotalParts()
+    {
+        return count( $this->parts );
+    }
+
+    public function __toString()
+    {
+        if ( empty( $this->parts ) ) {
+            return implode( '/', $this->parts );
+        }
+
+        return '';
+    }
+
     /**
      * Filter Segment
      *
@@ -311,14 +320,14 @@ class Segments
      * @return mixed
      * @throws HttpRequestUriException
      */
-    protected function filterPart ($string )
+    protected function filterPart( $string )
     {
         $config = config( 'uri' );
 
         if ( ! empty( $string ) AND
-             ! empty( $config->offsetGet( 'permittedChars' ) ) AND
-             ! preg_match( '/^[' . $config->offsetGet( 'permittedChars' ) . ']+$/i', $string ) AND
-             ! is_cli()
+            ! empty( $config->offsetGet( 'permittedChars' ) ) AND
+            ! preg_match( '/^[' . $config->offsetGet( 'permittedChars' ) . ']+$/i', $string ) AND
+            ! is_cli()
         ) {
             throw new HttpRequestUriException( 'E_URI_HAS_DISALLOWED_CHARACTERS', 105 );
         }
@@ -329,14 +338,5 @@ class Segments
             [ '&#36;', '&#40;', '&#41;', '&#40;', '&#41;', '' ],    // Good
             $string
         );
-    }
-
-    public function __toString()
-    {
-        if( empty( $this->parts ) ) {
-            return implode( '/', $this->parts );
-        }
-
-        return '';
     }
 }

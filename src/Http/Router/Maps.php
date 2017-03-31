@@ -14,7 +14,7 @@ namespace O2System\Framework\Http\Router;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Router\Registries\Route;
+use O2System\Framework\Http\Router\Datastructures\Route;
 use O2System\Psr\Patterns\AbstractCollectorPattern;
 
 /**
@@ -24,7 +24,7 @@ use O2System\Psr\Patterns\AbstractCollectorPattern;
  */
 class Maps extends AbstractCollectorPattern
 {
-    public function hasItem ( $offset )
+    public function hasItem( $offset )
     {
         $offset = '/' . trim( $offset, '/' );
 
@@ -38,57 +38,57 @@ class Maps extends AbstractCollectorPattern
      *
      * @return Route
      */
-    public function &getItem ( $offset )
+    public function &getItem( $offset )
     {
         $offset = '/' . trim( $offset, '/' );
 
         return parent::getItem( $offset );
     }
 
-    public function get ( $path, \Closure $closure )
+    public function get( $path, \Closure $closure )
     {
-        $this->addItem( $path, new Registries\Route( 'GET', $path, $closure ) );
+        $this->addItem( $path, new Datastructures\Route( 'GET', $path, $closure ) );
     }
 
-    public function addItem ( $offset, $item )
+    public function addItem( $offset, $item )
     {
         $offset = '/' . trim( $offset, '/' );
 
         parent::addItem( $offset, $item );
     }
 
-    public function post ( $path, \Closure $closure )
+    public function post( $path, \Closure $closure )
     {
-        $this->addItem( $path, new Registries\Route( 'POST', $path, $closure ) );
+        $this->addItem( $path, new Datastructures\Route( 'POST', $path, $closure ) );
     }
 
-    public function head ( $path, \Closure $closure )
+    public function head( $path, \Closure $closure )
     {
-        $this->addItem( $path, new Registries\Route( 'HEAD', $path, $closure ) );
+        $this->addItem( $path, new Datastructures\Route( 'HEAD', $path, $closure ) );
     }
 
-    public function put ( $path, \Closure $closure )
+    public function put( $path, \Closure $closure )
     {
-        $this->addItem( $path, new Registries\Route( 'PUT', $path, $closure ) );
+        $this->addItem( $path, new Datastructures\Route( 'PUT', $path, $closure ) );
     }
 
-    public function delete ( $path, \Closure $closure )
+    public function delete( $path, \Closure $closure )
     {
-        $this->addItem( $path, new Registries\Route( 'DELETE', $path, $closure ) );
+        $this->addItem( $path, new Datastructures\Route( 'DELETE', $path, $closure ) );
     }
 
-    public function options ( $path, \Closure $closure )
+    public function options( $path, \Closure $closure )
     {
-        $this->addItem( $path, new Registries\Route( 'OPTIONS', $path, $closure ) );
+        $this->addItem( $path, new Datastructures\Route( 'OPTIONS', $path, $closure ) );
     }
 
-    public function trace ( $path, \Closure $closure )
+    public function trace( $path, \Closure $closure )
     {
-        $this->addItem( $path, new Registries\Route( 'TRACE', $path, $closure ) );
+        $this->addItem( $path, new Datastructures\Route( 'TRACE', $path, $closure ) );
     }
 
-    public function connect ( $path, \Closure $closure )
+    public function connect( $path, \Closure $closure )
     {
-        $this->addItem( $path, new Registries\Route( 'CONNECT', $path, $closure ) );
+        $this->addItem( $path, new Datastructures\Route( 'CONNECT', $path, $closure ) );
     }
 }

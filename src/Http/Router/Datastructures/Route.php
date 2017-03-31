@@ -10,7 +10,7 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Http\Router\Registries;
+namespace O2System\Framework\Http\Router\Datastructures;
 
 // ------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ class Route
      * @param \Closure $closure The route closure.
      * @param string   $domain  The route domain.
      */
-    public function __construct ( $method, $path, \Closure $closure, $domain = null )
+    public function __construct( $method, $path, \Closure $closure, $domain = null )
     {
         $this->methods = explode( '|', $method );
         $this->methods = array_map( 'strtoupper', $this->methods );
@@ -90,56 +90,56 @@ class Route
 
     // ------------------------------------------------------------------------
 
-    public function getMethods ()
+    public function getMethods()
     {
         return $this->methods;
     }
 
     // ------------------------------------------------------------------------
 
-    public function getDomain ()
+    public function getDomain()
     {
         return $this->domain;
     }
 
     // ------------------------------------------------------------------------
 
-    public function getPath ()
+    public function getPath()
     {
         return $this->path;
     }
 
     // ------------------------------------------------------------------------
 
-    public function getClosure ()
+    public function getClosure()
     {
         return call_user_func_array( $this->closure, $this->closureParameters );
     }
 
     // ------------------------------------------------------------------------
 
-    public function setClosureParameters ( array $parameters )
-    {
-        $this->closureParameters = $parameters;
-
-        return $this;
-    }
-
-    public function addClosureParameters ( $value )
+    public function addClosureParameters( $value )
     {
         $this->closureParameters[] = $value;
 
         return $this;
     }
 
-    public function getClosureParameters ()
+    public function getClosureParameters()
     {
         return $this->closureParameters;
     }
 
+    public function setClosureParameters( array $parameters )
+    {
+        $this->closureParameters = $parameters;
+
+        return $this;
+    }
+
     // ------------------------------------------------------------------------
 
-    public function isValidDomain ()
+    public function isValidDomain()
     {
         $domain = isset( $_SERVER[ 'HTTP_HOST' ] )
             ? $_SERVER[ 'HTTP_HOST' ]
@@ -154,7 +154,7 @@ class Route
 
     // ------------------------------------------------------------------------
 
-    public function isValidUriString ( $uriString )
+    public function isValidUriString( $uriString )
     {
         if ( strtolower( $uriString ) === $this->path ) {
             $this->closureParameters = array_merge(
@@ -174,7 +174,7 @@ class Route
 
     // ------------------------------------------------------------------------
 
-    public function getParseUriString ( $string )
+    public function getParseUriString( $string )
     {
         $string = '/' . trim( $string, '/' );
         $regex = str_replace( [ ':any', ':num' ], [ '[^/]+', '[0-9]+' ], $this->path );
@@ -191,7 +191,7 @@ class Route
 
     // ------------------------------------------------------------------------
 
-    public function isValidHttpMethod ( $method )
+    public function isValidHttpMethod( $method )
     {
         $method = strtoupper( $method );
 
@@ -199,13 +199,13 @@ class Route
             return true;
         }
 
-        return (bool) in_array( $method, $this->methods );
+        return (bool)in_array( $method, $this->methods );
     }
 
     // ------------------------------------------------------------------------
 
     public function isAnyHttpMethod()
     {
-        return (bool) in_array( 'ANY', $this->methods );
+        return (bool)in_array( 'ANY', $this->methods );
     }
 }

@@ -23,25 +23,25 @@ use O2System\Psr\Patterns\AbstractItemStoragePattern;
  */
 class Partials extends AbstractItemStoragePattern
 {
-    public function hasPartial($partialOffset)
+    public function hasPartial( $partialOffset )
     {
-        return $this->__isset($partialOffset);
+        return $this->__isset( $partialOffset );
     }
 
-    public function addPartial($partialOffset, $partialFilePath)
+    public function addPartial( $partialOffset, $partialFilePath )
     {
-        $this->store($partialOffset, $partialFilePath);
+        $this->store( $partialOffset, $partialFilePath );
     }
 
-    public function __get($partial)
+    public function __get( $partial )
     {
-        $partialContent = parent::__get($partial);
+        $partialContent = parent::__get( $partial );
 
-        if (is_file($partialContent)) {
-            parser()->loadFile($partialContent);
+        if ( is_file( $partialContent ) ) {
+            parser()->loadFile( $partialContent );
 
             return parser()->parse();
-        } elseif (is_string($partialContent)) {
+        } elseif ( is_string( $partialContent ) ) {
             return $partialContent;
         }
 

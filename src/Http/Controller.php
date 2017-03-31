@@ -21,7 +21,7 @@ namespace O2System\Framework\Http;
  */
 class Controller
 {
-    public function &__get ( $property )
+    public function &__get( $property )
     {
         $get[ $property ] = false;
 
@@ -36,14 +36,14 @@ class Controller
 
     // ------------------------------------------------------------------------
 
-    public function __call ( $method, array $args = [ ] )
+    public function __call( $method, array $args = [] )
     {
         if ( method_exists( $this, $method ) ) {
             return call_user_func_array( [ $this, $method ], $args );
         }
     }
 
-    public function loadModel ( $model )
+    public function loadModel( $model )
     {
         if ( is_string( $model ) ) {
             if ( class_exists( $model ) ) {
@@ -54,7 +54,7 @@ class Controller
         }
     }
 
-    public function loadPresenter ( $presenter, $importVars = true )
+    public function loadPresenter( $presenter, $importVars = true )
     {
         if ( is_string( $presenter ) ) {
             $presenter = new $presenter();

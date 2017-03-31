@@ -10,7 +10,7 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Registries\Module;
+namespace O2System\Framework\Datastructures\Module;
 
 // ------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ use O2System\Spl\Info\SplFileInfo;
 /**
  * Class Theme
  *
- * @package O2System\Framework\Registries\Metadata
+ * @package O2System\Framework\Datastructures\Metadata
  */
 class Theme extends SplDirectoryInfo
 {
@@ -30,14 +30,14 @@ class Theme extends SplDirectoryInfo
      *
      * @var array
      */
-    private $properties = [ ];
+    private $properties = [];
 
     /**
      * Theme Config
      *
      * @var array
      */
-    private $config = [ ];
+    private $config = [];
 
     /**
      * Theme Layout
@@ -51,14 +51,14 @@ class Theme extends SplDirectoryInfo
      *
      * @var array
      */
-    private $partials = [ ];
+    private $partials = [];
 
     /**
      * Theme::__construct
      *
      * @param string $dir
      */
-    public function __construct ( $dir )
+    public function __construct( $dir )
     {
         parent::__construct( $dir );
 
@@ -84,7 +84,7 @@ class Theme extends SplDirectoryInfo
         $this->setLayout( 'theme' );
     }
 
-    public function isValid ()
+    public function isValid()
     {
         if ( count( $this->properties ) ) {
             return true;
@@ -93,51 +93,52 @@ class Theme extends SplDirectoryInfo
         return false;
     }
 
-    public function getParameter ()
+    public function getParameter()
     {
         return $this->getDirName();
     }
 
-    public function getCode ()
+    public function getCode()
     {
         return strtoupper( substr( md5( $this->getDirName() ), 2, 7 ) );
     }
 
-    public function getChecksum ()
+    public function getChecksum()
     {
         return md5( $this->getMTime() );
     }
 
-    public function getProperties ()
+    public function getProperties()
     {
         return new SplArrayObject( $this->properties );
     }
 
-    public function getConfig ()
+    public function getConfig()
     {
         return new SplArrayObject( $this->config );
     }
 
-    public function getLayout ()
+    public function getLayout()
     {
         return $this->layout;
     }
 
-    public function setLayout ( $layout )
+    public function setLayout( $layout )
     {
         $extensions = [ '.php', '.phtml', '.html', '.tpl' ];
 
         if ( isset( $this->config[ 'extensions' ] ) ) {
-            array_unshift( $partialsExtensions, $this->config['extension'] );
+            array_unshift( $partialsExtensions, $this->config[ 'extension' ] );
         } elseif ( isset( $this->config[ 'extension' ] ) ) {
             array_unshift( $extensions, $this->config[ 'extension' ] );
         }
 
         foreach ( $extensions as $extension ) {
-            if( $layout === 'theme' ) {
+            if ( $layout === 'theme' ) {
                 $layoutFilePath = $this->getRealPath() . 'theme.' . trim( $extension, '.' );
             } else {
-                $layoutFilePath = $this->getRealPath() . 'layouts' . DIRECTORY_SEPARATOR . dash( $layout ) . DIRECTORY_SEPARATOR . 'layout.' . trim( $extension, '.' );
+                $layoutFilePath = $this->getRealPath() . 'layouts' . DIRECTORY_SEPARATOR . dash( $layout ) . DIRECTORY_SEPARATOR . 'layout.' . trim( $extension,
+                        '.' );
             }
 
             if ( is_file( $layoutFilePath ) ) {
@@ -156,18 +157,18 @@ class Theme extends SplDirectoryInfo
         return $this;
     }
 
-    public function getPartials ()
+    public function getPartials()
     {
         return new SplArrayObject( $this->partials );
     }
 
-    protected function loadPartials ()
+    protected function loadPartials()
     {
         $this->partials = [];
-        if( ! $this->layout instanceof SplFileInfo) {
+        if ( ! $this->layout instanceof SplFileInfo ) {
             return;
         }
-        
+
         if ( is_dir(
             $partialsFilePath = $this->layout->getPath() . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR
         ) ) {
@@ -175,7 +176,7 @@ class Theme extends SplDirectoryInfo
             $partialsExtensions = [ '.php', '.phtml', '.html', '.tpl' ];
 
             if ( isset( $this->config[ 'extension' ] ) ) {
-                array_unshift( $partialsExtensions, $this->config['extension'] );
+                array_unshift( $partialsExtensions, $this->config[ 'extension' ] );
             } elseif ( isset( $this->config[ 'extensions' ] ) ) {
                 $partialsExtensions = $this->config[ 'extensions' ];
             }
@@ -186,7 +187,9 @@ class Theme extends SplDirectoryInfo
             foreach ( $partialsFiles as $partialsFile ) {
                 $filePath = $partialsFilePath . $partialsFile;
 
-                if( is_file( $filePath ) and in_array( '.' . pathinfo( $filePath, PATHINFO_EXTENSION ), $partialsExtensions ) ) {
+                if ( is_file( $filePath ) and in_array( '.' . pathinfo( $filePath, PATHINFO_EXTENSION ),
+                        $partialsExtensions )
+                ) {
                     $fileKey = str_replace( $partialsExtensions, '', $partialsFile );
                     $this->partials[ $fileKey ] = new SplFileInfo( $filePath );
                 }

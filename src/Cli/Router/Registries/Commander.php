@@ -34,7 +34,7 @@ class Commander extends SplClassInfo
 
     // ------------------------------------------------------------------------
 
-    public function __construct ( $filePath )
+    public function __construct( $filePath )
     {
         if ( is_object( $filePath ) ) {
             if ( $filePath instanceof \O2System\Framework\Cli\Commander ) {
@@ -43,36 +43,37 @@ class Commander extends SplClassInfo
             }
         } elseif ( is_string( $filePath ) && is_file( $filePath ) ) {
             $className = prepare_class_name( pathinfo( $filePath, PATHINFO_FILENAME ) );
-            @list( $namespaceDirectory, $subNamespace ) = explode( 'Controllers', dirname( $filePath ) );
-
+            @list( $namespaceDirectory, $subNamespace ) = explode( 'Commanders', dirname( $filePath ) );
             $classNamespace = loader()->getDirNamespace(
                     $namespaceDirectory
-                ) . 'Controllers' . ( empty( $subNamespace ) ? null : str_replace( '/', '\\', $subNamespace ) ) . '\\';
+                ) . 'Commanders' . ( empty( $subNamespace ) ? null : str_replace( '/', '\\', $subNamespace ) ) . '\\';
             $className = $classNamespace . $className;
 
             if ( class_exists( $className ) ) {
                 parent::__construct( $className );
+            } elseif ( class_exists( '\O2System\Framework\Cli\\' . $className ) ) {
+                parent::__construct( '\O2System\Framework\Cli\\' . $className );
             }
         }
     }
 
     // ------------------------------------------------------------------------
 
-    public function setProperties ( array $properties )
+    public function setProperties( array $properties )
     {
         $this->properties = $properties;
     }
 
     // ------------------------------------------------------------------------
 
-    public function getParameter ()
+    public function getParameter()
     {
         return strtolower( get_class_name( $this->name ) );
     }
 
     // ------------------------------------------------------------------------
 
-    public function &getInstance ()
+    public function &getInstance()
     {
         if ( empty( $this->instance ) ) {
             $className = $this->name;
@@ -94,14 +95,14 @@ class Commander extends SplClassInfo
         return $this->instance;
     }
 
-    public function getRequestMethod ()
+    public function getRequestMethod()
     {
         return $this->requestMethod;
     }
 
     // ------------------------------------------------------------------------
 
-    public function setRequestMethod ( $method )
+    public function setRequestMethod( $method )
     {
         $this->requestMethod = $method;
 
@@ -110,12 +111,12 @@ class Commander extends SplClassInfo
 
     // ------------------------------------------------------------------------
 
-    public function getRequestMethodArgs ()
+    public function getRequestMethodArgs()
     {
         return $this->requestMethodArgs;
     }
 
-    public function setRequestMethodArgs ( array $arguments )
+    public function setRequestMethodArgs( array $arguments )
     {
         $arguments = array_values( $arguments );
         array_unshift( $arguments, null );

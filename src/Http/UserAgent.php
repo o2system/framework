@@ -17,28 +17,28 @@ class UserAgent
      *
      * @var array
      */
-    public static $platforms = [ ];
+    public static $platforms = [];
 
     /**
      * List of browsers to compare against current user agent
      *
      * @var array
      */
-    public static $browsers = [ ];
+    public static $browsers = [];
 
     /**
      * List of mobile browsers to compare against current user agent
      *
      * @var array
      */
-    public static $mobiles = [ ];
+    public static $mobiles = [];
 
     /**
      * List of robots to compare against current user agent
      *
      * @var array
      */
-    public static $robots = [ ];
+    public static $robots = [];
 
     /**
      * Current user-agent
@@ -73,14 +73,14 @@ class UserAgent
      *
      * @var array
      */
-    public $languages = [ ];
+    public $languages = [];
 
     /**
      * Character sets accepted by the current user agent
      *
      * @var array
      */
-    public $charsets = [ ];
+    public $charsets = [];
 
     /**
      * Current user-agent platform
@@ -140,7 +140,7 @@ class UserAgent
      *
      * @return    void
      */
-    public function __construct ()
+    public function __construct()
     {
         if ( isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) ) {
             $this->string = trim( $_SERVER[ 'HTTP_USER_AGENT' ] );
@@ -158,7 +158,7 @@ class UserAgent
      *
      * @return    bool
      */
-    protected function loadAgentFile ()
+    protected function loadAgentFile()
     {
         if ( ( $found = is_file( PATH_FRAMEWORK . 'Config/UserAgents.php' ) ) ) {
             include( PATH_FRAMEWORK . 'Config/UserAgents.php' );
@@ -204,7 +204,7 @@ class UserAgent
      *
      * @return    bool
      */
-    protected function compileData ()
+    protected function compileData()
     {
         $this->setPlatform();
 
@@ -222,7 +222,7 @@ class UserAgent
      *
      * @return    bool
      */
-    protected function setPlatform ()
+    protected function setPlatform()
     {
         if ( is_array( static::$platforms ) && count( static::$platforms ) > 0 ) {
             foreach ( static::$platforms as $key => $val ) {
@@ -248,7 +248,7 @@ class UserAgent
      *
      * @return    bool
      */
-    public function isBrowser ( $key = null )
+    public function isBrowser( $key = null )
     {
         if ( ! $this->isBrowser ) {
             return false;
@@ -272,7 +272,7 @@ class UserAgent
      *
      * @return    bool
      */
-    public function isRobot ( $key = null )
+    public function isRobot( $key = null )
     {
         if ( ! $this->isRobot ) {
             return false;
@@ -296,7 +296,7 @@ class UserAgent
      *
      * @return    bool
      */
-    public function isMobile ( $key = null )
+    public function isMobile( $key = null )
     {
         if ( ! $this->isMobile ) {
             return false;
@@ -318,7 +318,7 @@ class UserAgent
      *
      * @return    bool
      */
-    public function isReferral ()
+    public function isReferral()
     {
         if ( ! isset( $this->referer ) ) {
             if ( empty( $_SERVER[ 'HTTP_REFERER' ] ) ) {
@@ -341,7 +341,7 @@ class UserAgent
      *
      * @return    string
      */
-    public function agentString ()
+    public function agentString()
     {
         return $this->string;
     }
@@ -353,7 +353,7 @@ class UserAgent
      *
      * @return    string
      */
-    public function platform ()
+    public function platform()
     {
         return $this->platform;
     }
@@ -365,7 +365,7 @@ class UserAgent
      *
      * @return    string
      */
-    public function browser ()
+    public function browser()
     {
         return $this->browser;
     }
@@ -377,7 +377,7 @@ class UserAgent
      *
      * @return    string
      */
-    public function version ()
+    public function version()
     {
         return $this->version;
     }
@@ -389,7 +389,7 @@ class UserAgent
      *
      * @return    string
      */
-    public function robot ()
+    public function robot()
     {
         return $this->robot;
     }
@@ -401,7 +401,7 @@ class UserAgent
      *
      * @return    string
      */
-    public function mobile ()
+    public function mobile()
     {
         return $this->mobile;
     }
@@ -413,7 +413,7 @@ class UserAgent
      *
      * @return    bool
      */
-    public function referrer ()
+    public function referrer()
     {
         return empty( $_SERVER[ 'HTTP_REFERER' ] ) ? '' : trim( $_SERVER[ 'HTTP_REFERER' ] );
     }
@@ -427,7 +427,7 @@ class UserAgent
      *
      * @return    bool
      */
-    public function acceptLang ( $lang = 'en' )
+    public function acceptLang( $lang = 'en' )
     {
         return in_array( strtolower( $lang ), $this->languages(), true );
     }
@@ -439,7 +439,7 @@ class UserAgent
      *
      * @return    array
      */
-    public function languages ()
+    public function languages()
     {
         if ( count( $this->languages ) === 0 ) {
             $this->setLanguages();
@@ -455,7 +455,7 @@ class UserAgent
      *
      * @return    void
      */
-    protected function setLanguages ()
+    protected function setLanguages()
     {
         if ( ( count( $this->languages ) === 0 ) && ! empty( $_SERVER[ 'HTTP_ACCEPT_LANGUAGE' ] ) ) {
             $this->languages = explode(
@@ -481,7 +481,7 @@ class UserAgent
      *
      * @return    bool
      */
-    public function acceptCharset ( $charset = 'utf-8' )
+    public function acceptCharset( $charset = 'utf-8' )
     {
         return in_array( strtolower( $charset ), $this->charsets(), true );
     }
@@ -493,7 +493,7 @@ class UserAgent
      *
      * @return    array
      */
-    public function charsets ()
+    public function charsets()
     {
         if ( count( $this->charsets ) === 0 ) {
             $this->setCharsets();
@@ -509,7 +509,7 @@ class UserAgent
      *
      * @return    void
      */
-    protected function setCharsets ()
+    protected function setCharsets()
     {
         if ( ( count( $this->charsets ) === 0 ) && ! empty( $_SERVER[ 'HTTP_ACCEPT_CHARSET' ] ) ) {
             $this->charsets = explode(
@@ -536,7 +536,7 @@ class UserAgent
      *
      * @return    void
      */
-    public function parse ( $string )
+    public function parse( $string )
     {
         // Reset values
         $this->isBrowser = false;
@@ -562,7 +562,7 @@ class UserAgent
      *
      * @return    bool
      */
-    protected function setBrowser ()
+    protected function setBrowser()
     {
         if ( is_array( static::$browsers ) && count( static::$browsers ) > 0 ) {
             foreach ( static::$browsers as $key => $val ) {
@@ -587,7 +587,7 @@ class UserAgent
      *
      * @return    bool
      */
-    protected function setMobile ()
+    protected function setMobile()
     {
         if ( is_array( static::$mobiles ) && count( static::$mobiles ) > 0 ) {
             foreach ( static::$mobiles as $key => $val ) {
@@ -610,7 +610,7 @@ class UserAgent
      *
      * @return    bool
      */
-    protected function setRobot ()
+    protected function setRobot()
     {
         if ( is_array( static::$robots ) && count( static::$robots ) > 0 ) {
             foreach ( static::$robots as $key => $val ) {

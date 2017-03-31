@@ -12,34 +12,83 @@
 
 namespace O2System\Framework\Cli;
 
+// ------------------------------------------------------------------------
+
+use O2System\Framework\Cli\Router\Registries\Commander;
+
+/**
+ * Class Router
+ *
+ * @package O2System\Framework\Cli
+ */
 class Router
 {
+    /**
+     * Router::$string
+     *
+     * Router request string.
+     *
+     * @var string
+     */
     protected $string;
 
+    /**
+     * Router::$segments
+     *
+     * Router request segments.
+     *
+     * @var array
+     */
     protected $segments = [];
 
-    protected $options  = [];
-
+    /**
+     * Router::$commander
+     *
+     * Router request commander.
+     *
+     * @var Commander
+     */
     protected $commander;
 
-    public function parseRequest ()
+    // -----------------------------------------------------------------------
+
+    /**
+     * Router::parseRequest
+     *
+     * Parse server argv to determine requested commander.
+     *
+     * @return void
+     */
+    public function parseRequest()
     {
         $argv = $_SERVER[ 'argv' ];
 
         if ( $_SERVER[ 'SCRIPT_NAME' ] === $_SERVER[ 'argv' ][ 0 ] ) {
             array_shift( $argv );
+
+            if ( empty( $argv ) ) {
+                return;
+            }
         }
 
-        $this->string = str_replace( [ '/', '\\' ], '/', $argv[ 0 ] );
+        $this->string = str_replace( [ '/', '\\', ':' ], '/', $argv[ 0 ] );
         $this->segments = explode( '/', $this->string );
 
-        $options = array_slice( $argv, 1 );
+        if ( strpos( $this->segments[ 0 ], '--' ) !== false
+            || strpos( $this->segments[ 0 ], '-' ) !== false
+        ) {
+            $options = $this->segments;
+            $this->segments = [];
+        } else {
+            $options = array_slice( $argv, 1 );
+        }
 
         foreach ( $options as $option ) {
             if ( strpos( $option, '--' ) !== false
-                 || strpos( $option, '-' ) !== false
+                || strpos( $option, '-' ) !== false
             ) {
                 $option = str_replace( [ '-', '--' ], '', $option );
+                $option = str_replace( ':', '=', $option );
                 $value = null;
 
                 if ( strpos( $option, '=' ) !== false ) {
@@ -57,17 +106,32 @@ class Router
                 }
 
                 if ( strpos( $value, '--' ) === false
-                     || strpos( $value, '-' ) === false
+                    || strpos( $value, '-' ) === false
                 ) {
-                    $this->options[ $option ] = $value;
+                    $_GET[ $option ] = $value;
+                } else {
+                    $_GET[ $option ] = null;
                 }
             }
+        }
+
+        if ( array_key_exists( 'verbose', $_GET ) or array_key_exists( 'v', $_GET ) ) {
+            $_ENV[ 'VERBOSE' ] = true;
         }
 
         $this->parseSegments( $this->segments );
     }
 
-    final private function parseSegments ( array $segments )
+    // ------------------------------------------------------------------------
+
+    /**
+     * Router::parseSegments
+     *
+     * Parse and validate requested segments.
+     *
+     * @param array $segments
+     */
+    final private function parseSegments( array $segments )
     {
         static $reflection;
 
@@ -84,17 +148,32 @@ class Router
         }
     }
 
-    public function getCommander ()
+    // ------------------------------------------------------------------------
+
+    /**
+     * Router::getCommander
+     *
+     * Gets requested commander.
+     *
+     * @return \O2System\Framework\Cli\Router\Registries\Commander
+     */
+    public function getCommander()
     {
         return $this->commander;
     }
 
-    final protected function setCommander ( Router\Registries\Commander $commander, array $uriSegments = [] )
-    {
-        if ( is_null( $commander->name ) ) {
-            output()->sendError( 400 );
-        }
+    // ------------------------------------------------------------------------
 
+    /**
+     * Router::setCommander
+     *
+     * Sets requested commander.
+     *
+     * @param \O2System\Framework\Cli\Router\Registries\Commander $commander
+     * @param array                                               $uriSegments
+     */
+    final protected function setCommander( Router\Registries\Commander $commander, array $uriSegments = [] )
+    {
         // Add Commander PSR4 Namespace
         loader()->addNamespace( $commander->getNamespaceName(), $commander->getFileInfo()->getPath() );
 
@@ -125,15 +204,15 @@ class Router
                         ->setRequestMethod( $commanderMethod )
                         ->setRequestMethodArgs( $commanderMethodParams );
                 }
-            } elseif ( $commander->hasMethod( 'index' ) ) {
-                $index = $commander->getMethod( 'index' );
+            } elseif ( $commander->hasMethod( 'execute' ) ) {
+                $execute = $commander->getMethod( 'execute' );
 
-                if ( $index->getNumberOfParameters() > 0 ) {
+                if ( $execute->getNumberOfParameters() > 0 ) {
 
                     array_unshift( $commanderMethodParams, $commanderMethod );
 
                     $commander
-                        ->setRequestMethod( 'index' )
+                        ->setRequestMethod( 'execute' )
                         ->setRequestMethodArgs( $commanderMethodParams );
                 } else {
                     output()->sendError( 404 );
@@ -142,10 +221,10 @@ class Router
         } elseif ( $commander->hasMethod( 'reroute' ) ) {
             $commander
                 ->setRequestMethod( 'reroute' )
-                ->setRequestMethodArgs( [ 'index', [] ] );
-        } elseif ( $commander->hasMethod( 'index' ) ) {
+                ->setRequestMethodArgs( [ 'execute', [] ] );
+        } elseif ( $commander->hasMethod( 'execute' ) ) {
             $commander
-                ->setRequestMethod( 'index' );
+                ->setRequestMethod( 'execute' );
         }
 
         // Set Router Commander
@@ -154,14 +233,19 @@ class Router
 
     // ------------------------------------------------------------------------
 
-    final private function validateSegmentsCommander ( array $segments )
+    /**
+     * Router::validateSegmentsCommander
+     *
+     * @param array $segments
+     *
+     * @return bool
+     */
+    final private function validateSegmentsCommander( array $segments )
     {
         $numSegments = count( $segments );
         $commanderRegistry = null;
         $uriSegments = [];
         $commandersDirectories = modules()->getDirs( 'Commanders' );
-
-        print_out($commandersDirectories);
 
         for ( $i = 0; $i <= $numSegments; $i++ ) {
             $routedSegments = array_slice( $segments, 0, ( $numSegments - $i ) );
@@ -173,9 +257,9 @@ class Router
                 foreach ( $commandersDirectories as $commanderDirectory ) {
                     if ( is_file( $commanderFilePath = $commanderDirectory . $commanderFilename ) ) {
                         $uriSegments = array_diff( $segments, $routedSegments );
-                        $commanderRegistry = new Router\Registries\Commander( $commanderFilePath );
-                        break;
                     }
+                    $commanderRegistry = new Router\Registries\Commander( $commanderFilePath );
+                    break;
                 }
             } elseif ( $commanderRegistry instanceof Router\Registries\Commander ) {
                 $this->setCommander( $commanderRegistry, $uriSegments );

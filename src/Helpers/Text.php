@@ -20,7 +20,7 @@ if ( ! function_exists( 'text_split' ) ) {
      *
      * @return string
      */
-    function text_split ( $text, $splitter = '<---text-split--->', $limit = 100 )
+    function text_split( $text, $splitter = '<---text-split--->', $limit = 100 )
     {
         $wrap_text = wordwrap( $text, $limit, $splitter );
 
@@ -38,7 +38,7 @@ if ( ! function_exists( 'text_columns' ) ) {
      *
      * @return array
      */
-    function text_columns ( $text, $cols )
+    function text_columns( $text, $cols )
     {
         $col_length = ceil( strlen( $text ) / $cols ) + 3;
         $return = explode( "\n", wordwrap( strrev( $text ), $col_length ) );
@@ -66,7 +66,7 @@ if ( ! function_exists( 'text_wrap' ) ) {
      *
      * @return string
      */
-    function text_wrap ( $text, $chars = 10, $lines = false )
+    function text_wrap( $text, $chars = 10, $lines = false )
     {
         # the simple case - return wrapped words
         if ( ! $lines ) {
@@ -94,7 +94,7 @@ if ( ! function_exists( 'text_trim' ) ) {
      *
      * @return string
      */
-    function text_trim ( $text, $limit, $break = '.', $ending = '.' )
+    function text_trim( $text, $limit, $break = '.', $ending = '.' )
     {
         // return with no change if string is shorter than $limit
         if ( strlen( $text ) <= $limit ) {
@@ -111,9 +111,9 @@ if ( ! function_exists( 'text_trim' ) ) {
     }
 }
 
-if ( ! function_exists( 'text_words_limiter' ) ) {
+if ( ! function_exists( 'text_word_limiter' ) ) {
     /**
-     * Word Limiter
+     * text_word_limiter
      *
      * Limits a string to X number of words.
      *
@@ -123,13 +123,13 @@ if ( ! function_exists( 'text_words_limiter' ) ) {
      *
      * @return    string
      */
-    function text_words_limiter ( $str, $limit = 100, $end_char = '&#8230;' )
+    function text_word_limiter( $str, $limit = 100, $end_char = '&#8230;' )
     {
         if ( trim( $str ) === '' ) {
             return $str;
         }
 
-        preg_match( '/^\s*+(?:\S++\s*+){1,' . (int) $limit . '}/', $str, $matches );
+        preg_match( '/^\s*+(?:\S++\s*+){1,' . (int)$limit . '}/', $str, $matches );
 
         if ( strlen( $str ) === strlen( $matches[ 0 ] ) ) {
             $end_char = '';
@@ -141,9 +141,9 @@ if ( ! function_exists( 'text_words_limiter' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'text_characters_limiter' ) ) {
+if ( ! function_exists( 'text_character_limiter' ) ) {
     /**
-     * Character Limiter
+     * text_character_limiter
      *
      * Limits the string based on the character count.  Preserves complete words
      * so the character count may not be exactly as specified.
@@ -154,27 +154,27 @@ if ( ! function_exists( 'text_characters_limiter' ) ) {
      *
      * @return    string
      */
-    function text_characters_limiter ( $str, $n = 500, $end_char = '&#8230;' )
+    function text_character_limiter( $string, $n = 500, $end_char = '&#8230;' )
     {
-        if ( mb_strlen( $str ) < $n ) {
-            return $str;
+        if ( mb_strlen( $string ) < $n ) {
+            return $string;
         }
 
         // a bit complicated, but faster than preg_replace with \s+
-        $str = preg_replace( '/ {2,}/', ' ', str_replace( [ "\r", "\n", "\t", "\x0B", "\x0C" ], ' ', $str ) );
+        $string = preg_replace( '/ {2,}/', ' ', str_replace( [ "\r", "\n", "\t", "\x0B", "\x0C" ], ' ', $string ) );
 
-        if ( mb_strlen( $str ) <= $n ) {
-            return $str;
+        if ( mb_strlen( $string ) <= $n ) {
+            return $string;
         }
 
         $out = '';
-        foreach ( explode( ' ', trim( $str ) ) as $val ) {
+        foreach ( explode( ' ', trim( $string ) ) as $val ) {
             $out .= $val . ' ';
 
             if ( mb_strlen( $out ) >= $n ) {
                 $out = trim( $out );
 
-                return ( mb_strlen( $out ) === mb_strlen( $str ) ) ? $out : $out . $end_char;
+                return ( mb_strlen( $out ) === mb_strlen( $string ) ) ? $out : $out . $end_char;
             }
         }
     }
@@ -196,13 +196,13 @@ if ( ! function_exists( 'text_censored' ) ) {
      *
      * @return    string
      */
-    function text_censored ( $str, $censored, $replacement = '' )
+    function text_censored( $string, $censored, $replacement = '' )
     {
         if ( ! is_array( $censored ) ) {
-            return $str;
+            return $string;
         }
 
-        $str = ' ' . $str . ' ';
+        $string = ' ' . $string . ' ';
 
         // \w, \b and a few others do not match on a unicode character
         // set for performance reasons. As a result words like �ber
@@ -212,114 +212,114 @@ if ( ! function_exists( 'text_censored' ) ) {
 
         foreach ( $censored as $badword ) {
             if ( $replacement !== '' ) {
-                $str = preg_replace(
+                $string = preg_replace(
                     "/({$delim})(" . str_replace( '\*', '\w*?', preg_quote( $badword, '/' ) ) . ")({$delim})/i",
                     "\\1{$replacement}\\3",
-                    $str
+                    $string
                 );
             } else {
-                $str = preg_replace(
+                $string = preg_replace(
                     "/({$delim})(" . str_replace( '\*', '\w*?', preg_quote( $badword, '/' ) ) . ")({$delim})/ie",
                     "'\\1'.str_repeat('#', strlen('\\2')).'\\3'",
-                    $str
+                    $string
                 );
             }
         }
 
-        return trim( $str );
+        return trim( $string );
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'highlight_phrase' ) ) {
+if ( ! function_exists( 'text_highlight_phrase' ) ) {
     /**
-     * Phrase Highlighter
+     * text_highlight_phrase
      *
-     * Highlights a phrase within a text string
+     * Highlights a phrase within a text string.
      *
-     * @param    string $str       the text string
+     * @param    string $string    the text string
      * @param    string $phrase    the phrase you'd like to highlight
      * @param    string $tag_open  the openging tag to precede the phrase with
      * @param    string $tag_close the closing tag to end the phrase with
      *
      * @return    string
      */
-    function text_highlight_phrase ( $str, $phrase, $tag_open = '<mark>', $tag_close = '</mark>' )
+    function text_highlight_phrase( $string, $phrase, $tag_open = '<mark>', $tag_close = '</mark>' )
     {
-        return ( $str !== '' && $phrase !== '' )
+        return ( $string !== '' && $phrase !== '' )
             ? preg_replace(
                 '/(' . preg_quote( $phrase, '/' ) . ')/i' . ( 'UTF8_ENABLED' ? 'u' : '' ),
                 $tag_open . '\\1' . $tag_close,
-                $str
+                $string
             )
-            : $str;
+            : $string;
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'word_wrap' ) ) {
+if ( ! function_exists( 'text_word_wrap' ) ) {
     /**
-     * Word Wrap
+     * text_word_wrap
      *
      * Wraps text at the specified character. Maintains the integrity of words.
      * Anything placed between {unwrap}{/unwrap} will not be word wrapped, nor
      * will URLs.
      *
-     * @param    string $str     the text string
-     * @param    int    $charlim = 76    the number of characters to wrap at
+     * @param    string $string the text string
+     * @param    int    $limit  = 76    the number of characters to wrap at
      *
      * @return    string
      */
-    function word_wrap ( $str, $charlim = 76 )
+    function text_word_wrap( $string, $limit = 76 )
     {
         // Set the character limit
-        is_numeric( $charlim ) OR $charlim = 76;
+        is_numeric( $limit ) OR $limit = 76;
 
         // Reduce multiple spaces
-        $str = preg_replace( '| +|', ' ', $str );
+        $string = preg_replace( '| +|', ' ', $string );
 
         // Standardize newlines
-        if ( strpos( $str, "\r" ) !== false ) {
-            $str = str_replace( [ "\r\n", "\r" ], "\n", $str );
+        if ( strpos( $string, "\r" ) !== false ) {
+            $string = str_replace( [ "\r\n", "\r" ], "\n", $string );
         }
 
         // If the current word is surrounded by {unwrap} tags we'll
         // strip the entire chunk and replace it with a marker.
-        $unwrap = [ ];
-        if ( preg_match_all( '|\{unwrap\}(.+?)\{/unwrap\}|s', $str, $matches ) ) {
+        $unwrap = [];
+        if ( preg_match_all( '|\{unwrap\}(.+?)\{/unwrap\}|s', $string, $matches ) ) {
             for ( $i = 0, $c = count( $matches[ 0 ] ); $i < $c; $i++ ) {
                 $unwrap[] = $matches[ 1 ][ $i ];
-                $str = str_replace( $matches[ 0 ][ $i ], '{{unwrapped' . $i . '}}', $str );
+                $string = str_replace( $matches[ 0 ][ $i ], '{{unwrapped' . $i . '}}', $string );
             }
         }
 
         // Use PHP's native function to do the initial wordwrap.
         // We set the cut flag to FALSE so that any individual words that are
         // too long get left alone. In the next step we'll deal with them.
-        $str = wordwrap( $str, $charlim, "\n", false );
+        $string = wordwrap( $string, $limit, "\n", false );
 
         // Split the string into individual lines of text and cycle through them
         $output = '';
-        foreach ( explode( "\n", $str ) as $line ) {
+        foreach ( explode( "\n", $string ) as $line ) {
             // Is the line within the allowed character count?
             // If so we'll join it to the output and continue
-            if ( mb_strlen( $line ) <= $charlim ) {
+            if ( mb_strlen( $line ) <= $limit ) {
                 $output .= $line . "\n";
                 continue;
             }
 
             $temp = '';
-            while ( mb_strlen( $line ) > $charlim ) {
+            while ( mb_strlen( $line ) > $limit ) {
                 // If the over-length word is a URL we won't wrap it
                 if ( preg_match( '!\[url.+\]|://|www\.!', $line ) ) {
                     break;
                 }
 
                 // Trim the word down
-                $temp .= mb_substr( $line, 0, $charlim - 1 );
-                $line = mb_substr( $line, $charlim - 1 );
+                $temp .= mb_substr( $line, 0, $limit - 1 );
+                $line = mb_substr( $line, $limit - 1 );
             }
 
             // If $temp contains data it means we had to split up an over-length
@@ -344,38 +344,89 @@ if ( ! function_exists( 'word_wrap' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'text_ellipsize' ) ) {
+if ( ! function_exists( 'text_ellipsis' ) ) {
     /**
-     * Ellipsize String
+     * text_ellipsis
      *
-     * This function will strip tags from a string, split it at its max_length and ellipsize
+     * This function will strip tags from a string, split it at its max_length and ellipsis
      *
      * @param    string    string to ellipsize
      * @param    int       max length of string
      * @param    mixed     int (1|0) or float, .5, .2, etc for position to split
      * @param    string    ellipsis ; Default '...'
      *
-     * @return    string    ellipsized string
+     * @return    string    ellipsis string
      */
-    function text_ellipsize ( $str, $max_length, $position = 1, $ellipsis = '&hellip;' )
+    function text_ellipsis( $string, $max_length, $position = 1, $ellipsis = '&hellip;' )
     {
         // Strip tags
-        $str = trim( strip_tags( $str ) );
+        $string = trim( strip_tags( $string ) );
 
-        // Is the string long enough to ellipsize?
-        if ( mb_strlen( $str ) <= $max_length ) {
-            return $str;
+        // Is the string long enough to ellipsis?
+        if ( mb_strlen( $string ) <= $max_length ) {
+            return $string;
         }
 
-        $beg = mb_substr( $str, 0, floor( $max_length * $position ) );
+        $beg = mb_substr( $string, 0, floor( $max_length * $position ) );
         $position = ( $position > 1 ) ? 1 : $position;
 
         if ( $position === 1 ) {
-            $end = mb_substr( $str, 0, -( $max_length - mb_strlen( $beg ) ) );
+            $end = mb_substr( $string, 0, -( $max_length - mb_strlen( $beg ) ) );
         } else {
-            $end = mb_substr( $str, -( $max_length - mb_strlen( $beg ) ) );
+            $end = mb_substr( $string, -( $max_length - mb_strlen( $beg ) ) );
         }
 
         return $beg . $ellipsis . $end;
+    }
+}
+
+// ------------------------------------------------------------------------
+
+if ( ! function_exists( 'text_excerpt' ) ) {
+    /**
+     * text_excerpt
+     *
+     * Allows to extract a piece of text surrounding a word or phrase.
+     *
+     * @param   string $string   String to search the phrase
+     * @param   string $phrase   Phrase that will be searched for.
+     * @param   int    $radius   The amount of characters returned arround the phrase.
+     * @param   string $ellipsis Ending that will be appended
+     *
+     * @return  string
+     *
+     * If no $phrase is passed, will generate an excerpt of $radius characters
+     * from the begining of $text.
+     */
+    function text_excerpt( $string, $phrase = null, $radius = 100, $ellipsis = '...' )
+    {
+        if ( isset( $phrase ) ) {
+            $phrase_pos = strpos( strtolower( $string ), strtolower( $phrase ) );
+            $phrase_len = strlen( $phrase );
+        } elseif ( ! isset( $phrase ) ) {
+            $phrase_pos = $radius / 2;
+            $phrase_len = 1;
+        }
+        $pre = explode( ' ', substr( $string, 0, $phrase_pos ) );
+        $pos = explode( ' ', substr( $string, $phrase_pos + $phrase_len ) );
+        $prev = ' ';
+        $post = ' ';
+        $count = 0;
+        foreach ( array_reverse( $pre ) as $pr => $e ) {
+            if ( ( strlen( $e ) + $count + 1 ) < $radius ) {
+                $prev = ' ' . $e . $prev;
+            }
+            $count = ++$count + strlen( $e );
+        }
+        $count = 0;
+        foreach ( $pos as $po => $s ) {
+            if ( ( strlen( $s ) + $count + 1 ) < $radius ) {
+                $post .= $s . ' ';
+            }
+            $count = ++$count + strlen( $s );
+        }
+        $ellPre = $phrase ? $ellipsis : '';
+
+        return $ellPre . $prev . $phrase . $post . $ellipsis;
     }
 }

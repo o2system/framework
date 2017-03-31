@@ -31,17 +31,17 @@ class Cache implements MiddlewareServiceInterface
      *
      * @return mixed
      */
-    public function validate ( RequestInterface $request )
+    public function validate( RequestInterface $request )
     {
         // TODO: Implement validate() method.
     }
 
-    public function handle ( RequestInterface $request )
+    public function handle( RequestInterface $request )
     {
         // TODO: Implement handle() method.
     }
 
-    public function terminate ( RequestInterface $request )
+    public function terminate( RequestInterface $request )
     {
         // TODO: Implement terminate() method.
     }

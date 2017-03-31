@@ -14,9 +14,6 @@ namespace O2System\Framework\Http\Message;
 
 // ------------------------------------------------------------------------
 
-use O2System\Kernel\Http\Message\ServerRequest;
-use O2System\Spl\Datastructures\SplArrayObject;
-
 /**
  * Class Input
  *
@@ -32,15 +29,15 @@ class Input extends \O2System\Kernel\Http\Input
      * @access  public
      * @return  boolean
      */
-    public function isPostInsert ()
+    public function isPostInsert()
     {
         if ( empty( $_POST[ 'id' ] ) AND
-             (
-                 isset( $_POST[ 'add' ] ) OR
-                 isset( $_POST[ 'add_new' ] ) OR
-                 isset( $_POST[ 'add_as_new' ] ) OR
-                 isset( $_POST[ 'save' ] )
-             )
+            (
+                isset( $_POST[ 'add' ] ) OR
+                isset( $_POST[ 'add_new' ] ) OR
+                isset( $_POST[ 'add_as_new' ] ) OR
+                isset( $_POST[ 'save' ] )
+            )
         ) {
             return true;
         }
@@ -58,13 +55,13 @@ class Input extends \O2System\Kernel\Http\Input
      * @access  public
      * @return  boolean
      */
-    public function isPostUpdate ()
+    public function isPostUpdate()
     {
         if ( ! empty( $_POST[ 'id' ] ) AND
-             (
-                 isset( $_POST[ 'update' ] ) OR
-                 isset( $_POST[ 'save' ] )
-             )
+            (
+                isset( $_POST[ 'update' ] ) OR
+                isset( $_POST[ 'save' ] )
+            )
         ) {
             return true;
         }

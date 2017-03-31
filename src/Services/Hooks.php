@@ -19,11 +19,11 @@ namespace O2System\Framework\Services;
  */
 class Hooks
 {
-    const PRE_SYSTEM      = 'PRE_SYSTEM';
+    const PRE_SYSTEM = 'PRE_SYSTEM';
 
-    const POST_SYSTEM     = 'POST_SYSTEM';
+    const POST_SYSTEM = 'POST_SYSTEM';
 
-    const PRE_CONTROLLER  = 'PRE_CONTROLLER';
+    const PRE_CONTROLLER = 'PRE_CONTROLLER';
 
     const POST_CONTROLLER = 'POST_CONTROLLER';
 
@@ -32,9 +32,9 @@ class Hooks
      *
      * @var array
      */
-    private $closures = [ ];
+    private $closures = [];
 
-    public function __construct ()
+    public function __construct()
     {
         if ( is_file(
             $filePath = PATH_APP . 'Config' . DIRECTORY_SEPARATOR . strtolower(
@@ -61,7 +61,7 @@ class Hooks
         }
     }
 
-    public function addClosure ( \Closure $closure, $event )
+    public function addClosure( \Closure $closure, $event )
     {
         $event = strtoupper( $event );
 
@@ -70,7 +70,7 @@ class Hooks
         }
     }
 
-    public function callEvent ( $event )
+    public function callEvent( $event )
     {
         if ( array_key_exists( $event, $this->closures ) ) {
             foreach ( $this->closures[ $event ] as $closure ) {

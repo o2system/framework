@@ -12,8 +12,30 @@
 
 namespace O2System\Framework\Http\Controllers;
 
+// ------------------------------------------------------------------------
 
-class Error
+use O2System\Framework\Http\Controller;
+
+/**
+ * Class Error
+ *
+ * @package O2System\Framework\Http\Controllers
+ */
+class Error extends Controller
 {
+    /**
+     * Error::index
+     *
+     * @param int $code
+     */
+    public function index( $code = 500 )
+    {
+        $codeString = $code . error_code_string( $code );
 
+        view( 'error/code', [
+            'code'    => $code,
+            'title'   => language()->getLine( $codeString . '_TITLE' ),
+            'message' => language()->getLine( $codeString . '_MESSAGE' ),
+        ] );
+    }
 }

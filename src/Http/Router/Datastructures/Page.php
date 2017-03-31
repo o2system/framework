@@ -10,12 +10,18 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Http\Router\Registries;
+namespace O2System\Framework\Http\Router\Datastructures;
 
+// ------------------------------------------------------------------------
 
 use O2System\Spl\Datastructures\SplArrayObject;
 use O2System\Spl\Info\SplFileInfo;
 
+/**
+ * Class Page
+ *
+ * @package O2System\Framework\Http\Router\Datastructures
+ */
 class Page extends SplFileInfo
 {
     /**
@@ -23,7 +29,7 @@ class Page extends SplFileInfo
      *
      * @var SplArrayObject
      */
-    private $vars = [ ];
+    private $vars = [];
 
     /**
      * Page Settings
@@ -32,7 +38,14 @@ class Page extends SplFileInfo
      */
     private $settings;
 
-    public function __construct ( $filename )
+    // ------------------------------------------------------------------------
+
+    /**
+     * Page::__construct
+     *
+     * @param string $filename
+     */
+    public function __construct( $filename )
     {
         parent::__construct( $filename );
 
@@ -56,12 +69,30 @@ class Page extends SplFileInfo
         }
     }
 
-    public function getVars ()
+    // ------------------------------------------------------------------------
+
+    /**
+     * Page::getVars
+     *
+     * Gets page variables.
+     *
+     * @return \O2System\Spl\Datastructures\SplArrayObject
+     */
+    public function getVars()
     {
         return $this->vars;
     }
 
-    public function getSettings ()
+    // ------------------------------------------------------------------------
+
+    /**
+     * Page::getSettings
+     *
+     * Gets page settings.
+     *
+     * @return bool|\O2System\Spl\Datastructures\SplArrayObject
+     */
+    public function getSettings()
     {
         if ( $this->settings instanceof SplArrayObject ) {
             return $this->settings;

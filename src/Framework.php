@@ -172,7 +172,7 @@ class Framework extends Kernel
      *
      * @return Framework
      */
-    protected function __construct ()
+    protected function __construct()
     {
         parent::__construct();
 
@@ -188,10 +188,10 @@ class Framework extends Kernel
 
         foreach ( [ 'Loader', 'Config' ] as $serviceClassName ) {
             if ( class_exists( 'App\Kernel\Services\\' . $serviceClassName ) ) {
-                $this->addService( new Kernel\Registries\Service( 'App\Kernel\Services\\' . $serviceClassName ) );
+                $this->addService( new Kernel\Datastructures\Service( 'App\Kernel\Services\\' . $serviceClassName ) );
             } elseif ( class_exists( 'O2System\Framework\Services\\' . $serviceClassName ) ) {
                 $this->addService(
-                    new Kernel\Registries\Service( 'O2System\Framework\Services\\' . $serviceClassName )
+                    new Kernel\Datastructures\Service( 'O2System\Framework\Services\\' . $serviceClassName )
                 );
             }
         }
@@ -209,7 +209,7 @@ class Framework extends Kernel
                 profiler()->watch( 'INSTANTIATE_DATABASE_CONNECTION_POOLS' );
 
                 $this->database = new Database\Connections(
-                    new Database\Registries\Config(
+                    new Database\Datastructures\Config(
                         $config->getArrayCopy()
                     )
                 );
@@ -230,9 +230,9 @@ class Framework extends Kernel
      *
      * @return bool
      */
-    public function __isset ( $property )
+    public function __isset( $property )
     {
-        return (bool) isset( $this->{$property} );
+        return (bool)isset( $this->{$property} );
     }
 
     // ------------------------------------------------------------------------
@@ -244,7 +244,7 @@ class Framework extends Kernel
      *
      * @return mixed
      */
-    public function &__get ( $property )
+    public function &__get( $property )
     {
         $get[ $property ] = false;
 
@@ -261,7 +261,7 @@ class Framework extends Kernel
      * Framework::__reconstruct
      *
      */
-    protected function __reconstruct ()
+    protected function __reconstruct()
     {
         // Instantiate Modules Container
         profiler()->watch( 'INSTANTIATE_MODULES_CONTAINER' );
@@ -297,7 +297,7 @@ class Framework extends Kernel
      *
      * @return void
      */
-    private function cliHandler ()
+    private function cliHandler()
     {
         // Instantiate CLI Router Service
         profiler()->watch( 'INSTANTIATE_CLI_ROUTER_SERVICE' );
@@ -307,7 +307,15 @@ class Framework extends Kernel
         router()->parseRequest();
 
         if ( $commander = router()->getCommander() ) {
+            if ( $commander instanceof Framework\Cli\Router\Registries\Commander ) {
+                profiler()->watch( 'INSTANTIATE_REQUESTED_COMMANDER' );
+                $requestCommander = $commander->getInstance();
 
+                profiler()->watch( 'EXECUTE_REQUESTED_COMMANDER' );
+                $requestCommander->execute();
+
+                exit( EXIT_SUCCESS );
+            }
         }
     }
 
@@ -318,7 +326,7 @@ class Framework extends Kernel
      *
      * @return void
      */
-    private function httpHandler ()
+    private function httpHandler()
     {
         // Instantiate Session Service
         profiler()->watch( 'INSTANTIATE_SESSION_SERVICE' );
@@ -341,7 +349,7 @@ class Framework extends Kernel
         // Instantiate Http Presenter Service
         $this->addService( 'O2System\Framework\Http\Presenter' );
 
-        $this->addService('O2System\Framework\Http\Message\Request');
+        $this->addService( 'O2System\Framework\Http\Message\Request' );
 
         // Instantiate Http Middleware Service
         profiler()->watch( 'INSTANTIATE_HTTP_MIDDLEWARE_SERVICE' );
@@ -359,10 +367,10 @@ class Framework extends Kernel
 
         if ( $controller = router()->getController() ) {
 
-            if ( $controller instanceof Framework\Http\Router\Registries\Controller ) {
+            if ( $controller instanceof Framework\Http\Router\Datastructures\Controller ) {
 
                 // Autoload Model and Assets
-                $controllerAssets = [ ];
+                $controllerAssets = [];
 
                 foreach ( modules() as $module ) {
                     if ( in_array( $module->getType(), [ 'KERNEL', 'FRAMEWORK' ] ) ) {
@@ -387,7 +395,7 @@ class Framework extends Kernel
                 }
 
                 // Decamelcase assets file names
-                $controllerAssets = array_map( 'decamelcase', $controllerAssets );
+                $controllerAssets = array_map( 'snakecase', $controllerAssets );
 
                 // Dashed assets file names
                 $controllerAssets = array_map( 'dash', $controllerAssets );

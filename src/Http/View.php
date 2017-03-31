@@ -14,8 +14,9 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Router\Registries\Page;
-use O2System\Framework\Registries\Module\Theme;
+use O2System\Framework\Http\Presenter\Title;
+use O2System\Framework\Http\Router\Datastructures\Page;
+use O2System\Framework\Datastructures\Module\Theme;
 use O2System\Gear\Toolbar;
 use O2System\HTML;
 use O2System\Spl\Exceptions\ErrorException;
@@ -35,7 +36,7 @@ class View
     /**
      * View Config
      *
-     * @var \O2System\Kernel\Registries\Config
+     * @var \O2System\Kernel\Datastructures\Config
      */
     protected $config;
 
@@ -53,7 +54,7 @@ class View
      *
      * @return View
      */
-    public function __construct ()
+    public function __construct()
     {
         $this->setFileDirName( 'Views' );
         $this->addFilePath( PATH_APP );
@@ -83,7 +84,7 @@ class View
      *
      * @return Parser|bool   Returns FALSE when property is not set.
      */
-    public function &__get ( $property )
+    public function &__get( $property )
     {
         $get[ $property ] = false;
 
@@ -94,14 +95,14 @@ class View
         return $get[ $property ];
     }
 
-    public function parse ( $string, array $vars = [] )
+    public function parse( $string, array $vars = [] )
     {
         parser()->loadString( $string );
 
         return parser()->parse( $vars );
     }
 
-    public function with ( $vars, $value = null )
+    public function with( $vars, $value = null )
     {
         if ( isset( $value ) ) {
             $vars = [ $vars => $value ];
@@ -112,7 +113,7 @@ class View
         return $this;
     }
 
-    public function load ( $filename, array $vars = [], $return = false )
+    public function load( $filename, array $vars = [], $return = false )
     {
         if ( $filename instanceof Page ) {
             return $this->page( $filename->getRealPath(), array_merge( $vars, $filename->getVars() ) );
@@ -176,7 +177,7 @@ class View
         }
     }
 
-    public function page ( $filename, array $vars = [], $return = false )
+    public function page( $filename, array $vars = [], $return = false )
     {
         if ( $filename instanceof Page ) {
             return $this->page( $filename->getRealPath(), array_merge( $vars, $filename->getVars() ) );
@@ -197,7 +198,7 @@ class View
         }
     }
 
-    private function getFilePath ( $filename )
+    private function getFilePath( $filename )
     {
         $filename = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $filename );
 
@@ -209,13 +210,13 @@ class View
 
             if ( ( $theme = presenter()->getItem( 'theme' ) ) instanceof Theme ) {
                 $moduleReplacementPath = $theme->getPathName()
-                                         . DIRECTORY_SEPARATOR
-                                         . 'modules'
-                                         . DIRECTORY_SEPARATOR
-                                         . dash(
-                                             modules()->current()->getDirName()
-                                         )
-                                         . DIRECTORY_SEPARATOR;
+                    . DIRECTORY_SEPARATOR
+                    . 'modules'
+                    . DIRECTORY_SEPARATOR
+                    . dash(
+                        modules()->current()->getDirName()
+                    )
+                    . DIRECTORY_SEPARATOR;
 
                 if ( is_dir( $moduleReplacementPath ) ) {
                     array_unshift( $viewsDirectories, $moduleReplacementPath );
@@ -261,11 +262,13 @@ class View
         return false;
     }
 
-    public function render ( $return = false )
+    public function render( $return = false )
     {
         parser()->loadVars( presenter()->getArrayCopy() );
 
-        $this->document->title->text( presenter()->title->browser->__toString() );
+        if( presenter()->title instanceof Title ) {
+            $this->document->title->text( presenter()->title->browser->__toString() );
+        }
 
         if ( ( $theme = presenter()->getVariable( 'theme' ) ) instanceof Theme ) {
             $themeLayout = $theme->getLayout()->getRealPath();
@@ -288,7 +291,7 @@ class View
             $this->document->find( 'body' )->append( presenter()->partials->__get( 'content' ) );
         }
 
-        if ( input()->env( 'DEBUG_STAGE' ) === 'DEVELOPER' ) {
+        if ( input()->env( 'DEBUG_STAGE' ) === 'DEVELOPER' and presenter()->debugToolBar === true ) {
             $this->document->find( 'body' )->append( ( new Toolbar() )->__toString() );
         }
 

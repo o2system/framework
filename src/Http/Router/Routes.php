@@ -130,6 +130,20 @@ class Routes
 
     // ------------------------------------------------------------------------
 
+    public function getMap( $path, $domain = null )
+    {
+        $path = '/' . ltrim( $path, '/' );
+        $maps = $this->getMaps( $domain );
+
+        if ( isset( $maps[ $path ] ) ) {
+            return $maps[ $path ];
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
     /**
      * Routes::getMaps
      *
@@ -139,11 +153,11 @@ class Routes
      *
      * @return array Returns array of domain routes maps.
      */
-    public function getMaps ( $domain = null )
+    public function getMaps( $domain = null )
     {
         $hostDomain = new Domain();
 
-        if( is_null( $domain ) ) {
+        if ( is_null( $domain ) ) {
             $domain = $hostDomain->getOrigin();
         }
 
@@ -151,26 +165,26 @@ class Routes
 
         if ( isset( $this->maps[ $domain ] ) ) {
             $maps = $this->maps[ $domain ];
-        } elseif( $module = modules()->getModule( $hostDomain->getSubDomains() ) ) {
+        } elseif ( $module = modules()->getModule( $hostDomain->getSubDomains() ) ) {
             // remove autoload routes
-            config()->remove('routes');
+            config()->remove( 'routes' );
 
             // autoload module
             modules()->push( $module );
 
             // get module routes
-            $routes = config()->getItem('routes');
+            $routes = config()->getItem( 'routes' );
 
-            if( $routes instanceof  Routes ) {
+            if ( $routes instanceof Routes ) {
                 $maps = $routes->getMaps( $hostDomain->getOrigin() );
             } else {
                 $routes = new Routes();
                 $controllerClassName = $module->getNamespace() . 'Controllers\\' . camelcase( $module->getParameter() );
 
-                if( class_exists( $controllerClassName ) ) {
-                    $routes->any('/', function() use( $controllerClassName ) {
+                if ( class_exists( $controllerClassName ) ) {
+                    $routes->any( '/', function () use ( $controllerClassName ) {
                         return new $controllerClassName();
-                    });
+                    } );
 
                     return $routes->getMaps( $hostDomain->getOrigin() );
                 }
@@ -185,7 +199,7 @@ class Routes
                         $domainRoute = new Domain( $domainRoute );
 
                         if ( $domain->getParentDomain() === $domainRoute->getParentDomain() AND
-                             $domain->getTotalSubDomains() == $domainRoute->getTotalSubDomains()
+                            $domain->getTotalSubDomains() == $domainRoute->getTotalSubDomains()
                         ) {
                             if ( isset( $domainMap[ $domainRoute->getSubDomain() ] ) ) {
                                 $maps = $domainMap;
@@ -202,7 +216,7 @@ class Routes
                                         : $closureParameters;
 
                                     foreach ( $maps as $map ) {
-                                        $map->setClosureParameters( (array) $closureParameters );
+                                        $map->setClosureParameters( (array)$closureParameters );
                                     }
                                 }
                             }
@@ -217,21 +231,27 @@ class Routes
 
     // ------------------------------------------------------------------------
 
-    public function getMap ( $path, $domain = null )
+    /**
+     * Routes::any
+     *
+     * @param string $path   The URI string path.
+     * @param mixed  $map    The routing map of the URI:
+     *                       [string]: string of controller name.
+     *                       [array]: array of URI segment.
+     *                       [\Closure]: the closure map of URI.
+     *
+     * @return static
+     */
+    public function any( $path, $map )
     {
-        $path = '/' . ltrim($path, '/');
-        $maps = $this->getMaps( $domain );
+        $this->addMap( $path, $map, self::HTTP_ANY );
 
-        if ( isset( $maps[ $path ] ) ) {
-            return $maps[ $path ];
-        }
-
-        return false;
+        return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function addMap ( $path, $map, $method = self::HTTP_GET )
+    public function addMap( $path, $map, $method = self::HTTP_GET )
     {
         if ( $map instanceof \Closure ) {
             $closure = $map;
@@ -265,7 +285,7 @@ class Routes
             $path = '/' . trim( trim( $prefix, '/' ) . '/' . trim( $path, '/' ), '/' );
         }
 
-        $route = new Registries\Route( $method, $path, $closure, $domain );
+        $route = new Datastructures\Route( $method, $path, $closure, $domain );
 
         $this->maps[ $route->getDomain() ][ $route->getPath() ] = $route;
 
@@ -274,7 +294,7 @@ class Routes
 
     // ------------------------------------------------------------------------
 
-    public function group ( $attributes, \Closure $closure )
+    public function group( $attributes, \Closure $closure )
     {
         $parentAttributes = $this->attributes;
         $this->attributes = $attributes;
@@ -284,20 +304,19 @@ class Routes
         $this->attributes = $parentAttributes;
     }
 
-    // ------------------------------------------------------------------------
-
     public function domains( array $domains )
     {
-        foreach($domains as $domain => $map ) {
+        foreach ( $domains as $domain => $map ) {
             $this->domain( $domain, $map );
         }
     }
 
-    public function domain($domain, $map )
+    public function domain( $domain, $map )
     {
-        if( $domain !== '*' ) {
+        if ( $domain !== '*' ) {
             $hostDomain = new Domain();
-            $domain = str_replace('.' . $hostDomain->getParentDomain(), '', $domain) . '.' . $hostDomain->getParentDomain();
+            $domain = str_replace( '.' . $hostDomain->getParentDomain(), '',
+                    $domain ) . '.' . $hostDomain->getParentDomain();
         }
 
         $this->domains[ $domain ] = $map;
@@ -311,39 +330,38 @@ class Routes
                 : $_SERVER[ 'SERVER_NAME' ]
             : $domain;
 
-        if( array_key_exists( $domain, $this->domains ) )
-        {
-            if( is_callable( $this->domains[$domain])) {
-                return call_user_func($this->domains[$domain]);
+        if ( array_key_exists( $domain, $this->domains ) ) {
+            if ( is_callable( $this->domains[ $domain ] ) ) {
+                return call_user_func( $this->domains[ $domain ] );
             }
 
-            return $this->domains[$domain];
-        } elseif( count( $this->domains ) ) {
+            return $this->domains[ $domain ];
+        } elseif ( count( $this->domains ) ) {
 
             // check wildcard domain closure
-            if( isset( $this->domains['*'] ) and is_callable( $this->domains['*'] ) ) {
-                if( false !== ( $map = call_user_func( $this->domains['*'], $domain ) ) ) {
+            if ( isset( $this->domains[ '*' ] ) and is_callable( $this->domains[ '*' ] ) ) {
+                if ( false !== ( $map = call_user_func( $this->domains[ '*' ], $domain ) ) ) {
                     return $map;
                 }
             }
 
             // check pregmatch domain closure
-            foreach( $this->domains as $map => $closure ) {
-                if( $map === '*' ) {
+            foreach ( $this->domains as $map => $closure ) {
+                if ( $map === '*' ) {
                     continue;
                 } elseif ( preg_match( '/[{][a-zA-Z0-9$_]+[}]/', $map ) and $closure instanceof \Closure ) {
                     $mapDomain = new Domain( $map );
                     $checkDomain = new Domain( $domain );
                     $parameters = [];
 
-                    if( $mapDomain->getTotalSubDomains() === $checkDomain->getTotalSubDomains() ) {
-                        foreach($mapDomain->getSubDomains() as $level => $name) {
-                            if( false !== ( $checkDomainName = $checkDomain->getSubDomain( $level ) ) ) {
+                    if ( $mapDomain->getTotalSubDomains() === $checkDomain->getTotalSubDomains() ) {
+                        foreach ( $mapDomain->getSubDomains() as $level => $name ) {
+                            if ( false !== ( $checkDomainName = $checkDomain->getSubDomain( $level ) ) ) {
                                 $parameters[] = $checkDomainName;
                             }
                         }
 
-                        if( false !== ( $map = call_user_func_array( $closure, $parameters ) ) ) {
+                        if ( false !== ( $map = call_user_func_array( $closure, $parameters ) ) ) {
                             return $map;
                             break;
                         }
@@ -354,6 +372,8 @@ class Routes
 
         return null;
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * Routes::get
@@ -366,7 +386,7 @@ class Routes
      *
      * @return static
      */
-    public function get ( $path, $map )
+    public function get( $path, $map )
     {
         $this->addMap( $path, $map, self::HTTP_GET );
 
@@ -386,7 +406,7 @@ class Routes
      *
      * @return static
      */
-    public function post ( $path, $map )
+    public function post( $path, $map )
     {
         $this->addMap( $path, $map, self::HTTP_POST );
 
@@ -406,7 +426,7 @@ class Routes
      *
      * @return static
      */
-    public function put ( $path, $map )
+    public function put( $path, $map )
     {
         $this->addMap( $path, $map, self::HTTP_PUT );
 
@@ -426,7 +446,7 @@ class Routes
      *
      * @return static
      */
-    public function connect ( $path, $map )
+    public function connect( $path, $map )
     {
         $this->addMap( $path, $map, self::HTTP_CONNECT );
 
@@ -446,7 +466,7 @@ class Routes
      *
      * @return static
      */
-    public function delete ( $path, $map )
+    public function delete( $path, $map )
     {
         $this->addMap( $path, $map, self::HTTP_DELETE );
 
@@ -466,7 +486,7 @@ class Routes
      *
      * @return static
      */
-    public function head ( $path, $map )
+    public function head( $path, $map )
     {
         $this->addMap( $path, $map, self::HTTP_HEAD );
 
@@ -486,7 +506,7 @@ class Routes
      *
      * @return static
      */
-    public function options ( $path, $map )
+    public function options( $path, $map )
     {
         $this->addMap( $path, $map, self::HTTP_OPTIONS );
 
@@ -506,29 +526,9 @@ class Routes
      *
      * @return static
      */
-    public function trace ( $path, $map )
+    public function trace( $path, $map )
     {
         $this->addMap( $path, $map, self::HTTP_TRACE );
-
-        return $this;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Routes::any
-     *
-     * @param string $path   The URI string path.
-     * @param mixed  $map    The routing map of the URI:
-     *                       [string]: string of controller name.
-     *                       [array]: array of URI segment.
-     *                       [\Closure]: the closure map of URI.
-     *
-     * @return static
-     */
-    public function any ( $path, $map )
-    {
-        $this->addMap( $path, $map, self::HTTP_ANY );
 
         return $this;
     }

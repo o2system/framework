@@ -29,7 +29,7 @@ class Environment implements MiddlewareServiceInterface
      *
      * @return mixed
      */
-    public function validate ( RequestInterface $request )
+    public function validate( RequestInterface $request )
     {
         $clientIpAddress = $request->getClientIpAddress();
         $debugIpAddresses = config( 'ipAddresses' )->offsetGet( 'debug' );
@@ -43,7 +43,7 @@ class Environment implements MiddlewareServiceInterface
         return false;
     }
 
-    public function handle ( RequestInterface $request )
+    public function handle( RequestInterface $request )
     {
         switch ( strtoupper( $_ENV[ 'DEBUG_STAGE' ] ) ) {
             default:
@@ -68,7 +68,7 @@ class Environment implements MiddlewareServiceInterface
         }
     }
 
-    public function terminate ( RequestInterface $request )
+    public function terminate( RequestInterface $request )
     {
         // TODO: Implement terminate() method.
     }

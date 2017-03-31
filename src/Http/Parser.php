@@ -23,7 +23,7 @@ use O2System\Parser\Drivers;
  */
 class Parser extends Drivers
 {
-    public function __construct ()
+    public function __construct()
     {
         $config = config()->loadFile( 'parser', true );
 

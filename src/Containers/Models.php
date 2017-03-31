@@ -16,7 +16,7 @@ namespace O2System\Framework\Containers;
 
 use O2System\Framework\Abstracts\AbstractModel as FrameworkModel;
 use O2System\Orm\Abstracts\AbstractModel as OrmModel;
-use O2System\Spl\Containers\Registries\SplServiceRegistry;
+use O2System\Spl\Containers\Datastructures\SplServiceRegistry;
 use O2System\Spl\Containers\SplServiceContainer;
 
 /**
@@ -32,7 +32,7 @@ class Models extends SplServiceContainer
      * @param string                  $offset
      * @param FrameworkModel|OrmModel $model
      */
-    public function register ( $offset, $model )
+    public function register( $offset, $model )
     {
         if ( $model instanceof FrameworkModel OR $model instanceof OrmModel ) {
 

@@ -12,7 +12,11 @@
 
 namespace O2System\Framework\Http\Controllers;
 
-
+/**
+ * Class Images
+ *
+ * @package O2System\Framework\Http\Controllers
+ */
 class Images
 {
 
