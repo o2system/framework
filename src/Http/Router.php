@@ -16,6 +16,8 @@ namespace O2System\Framework\Http;
 
 use O2System\Framework\Http\Router\Datastructures\Route;
 
+// ------------------------------------------------------------------------
+
 /**
  * Class Router
  *
@@ -24,7 +26,9 @@ use O2System\Framework\Http\Router\Datastructures\Route;
 class Router
 {
     /**
-     * Router segments
+     * Router::$segments
+     *
+     * Router segments.
      *
      * @var array
      */

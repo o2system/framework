@@ -17,7 +17,7 @@ namespace O2System\Framework\Http\Router\Datastructures;
 /**
  * Class Route
  *
- * @package O2System\Router\Registries
+ * @package O2System\Router\Datastructures
  */
 class Route
 {

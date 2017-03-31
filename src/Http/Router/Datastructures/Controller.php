@@ -19,7 +19,7 @@ use O2System\Spl\Info\SplClassInfo;
 /**
  * Class Controller
  *
- * @package O2System\Registries
+ * @package O2System\Datastructures
  */
 class Controller extends SplClassInfo
 {

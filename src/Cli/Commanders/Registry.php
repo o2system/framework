@@ -119,12 +119,12 @@ class Registry extends Commander
         $table
             ->addRow()
             ->addColumn( 'Modules' )
-            ->addColumn( modules()->countRegistry() );
+            ->addColumn( modules()->getTotalRegistry() );
 
         $table
             ->addRow()
             ->addColumn( 'Language' )
-            ->addColumn( language()->countRegistry() );
+            ->addColumn( language()->getTotalRegistry() );
 
         output()->write(
             ( new Format() )

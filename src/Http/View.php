@@ -18,7 +18,7 @@ use O2System\Framework\Http\Presenter\Title;
 use O2System\Framework\Http\Router\Datastructures\Page;
 use O2System\Framework\Datastructures\Module\Theme;
 use O2System\Gear\Toolbar;
-use O2System\HTML;
+use O2System\Html;
 use O2System\Spl\Exceptions\ErrorException;
 use O2System\Spl\Traits\Collectors\FileExtensionCollectorTrait;
 use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
@@ -43,7 +43,7 @@ class View
     /**
      * View HTML Document
      *
-     * @var HTML\Document
+     * @var Html\Document
      */
     protected $document;
 
@@ -74,7 +74,7 @@ class View
             $this->setFileExtensions( $this->config[ 'extensions' ] );
         }
 
-        $this->document = new HTML\Document();
+        $this->document = new Html\Document();
     }
 
     /**

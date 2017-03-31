@@ -10,7 +10,7 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Cli\Router\Registries;
+namespace O2System\Framework\Cli\Router\Datastructures;
 
 // ------------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ use O2System\Spl\Info\SplClassInfo;
 /**
  * Class Controller
  *
- * @package O2System\Registries
+ * @package O2System\Datastructures
  */
 class Commander extends SplClassInfo
 {

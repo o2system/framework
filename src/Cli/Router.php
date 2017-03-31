@@ -14,7 +14,7 @@ namespace O2System\Framework\Cli;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Cli\Router\Registries\Commander;
+use O2System\Framework\Cli\Router\Datastructures\Commander;
 
 /**
  * Class Router
@@ -155,7 +155,7 @@ class Router
      *
      * Gets requested commander.
      *
-     * @return \O2System\Framework\Cli\Router\Registries\Commander
+     * @return \O2System\Framework\Cli\Router\Datastructures\Commander
      */
     public function getCommander()
     {
@@ -169,10 +169,10 @@ class Router
      *
      * Sets requested commander.
      *
-     * @param \O2System\Framework\Cli\Router\Registries\Commander $commander
+     * @param \O2System\Framework\Cli\Router\Datastructures\Commander $commander
      * @param array                                               $uriSegments
      */
-    final protected function setCommander( Router\Registries\Commander $commander, array $uriSegments = [] )
+    final protected function setCommander( Router\Datastructures\Commander $commander, array $uriSegments = [] )
     {
         // Add Commander PSR4 Namespace
         loader()->addNamespace( $commander->getNamespaceName(), $commander->getFileInfo()->getPath() );
@@ -258,10 +258,10 @@ class Router
                     if ( is_file( $commanderFilePath = $commanderDirectory . $commanderFilename ) ) {
                         $uriSegments = array_diff( $segments, $routedSegments );
                     }
-                    $commanderRegistry = new Router\Registries\Commander( $commanderFilePath );
+                    $commanderRegistry = new Router\Datastructures\Commander( $commanderFilePath );
                     break;
                 }
-            } elseif ( $commanderRegistry instanceof Router\Registries\Commander ) {
+            } elseif ( $commanderRegistry instanceof Router\Datastructures\Commander ) {
                 $this->setCommander( $commanderRegistry, $uriSegments );
 
                 return true;

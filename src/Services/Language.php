@@ -12,15 +12,34 @@
 
 namespace O2System\Framework\Services;
 
+// ------------------------------------------------------------------------
+
 use O2System\Cache\Item;
 use O2System\Framework\Datastructures;
 use O2System\Kernel\Cli\Writers\Format;
 use O2System\Psr\Cache\CacheItemPoolInterface;
 
+/**
+ * Class Language
+ *
+ * @package O2System\Framework\Services
+ */
 class Language extends \O2System\Kernel\Services\Language
 {
+    /**
+     * Language::$registry
+     *
+     * Language registries.
+     *
+     * @var array
+     */
     private $registry = [];
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::__construct
+     */
     public function __construct()
     {
         parent::__construct();
@@ -28,6 +47,15 @@ class Language extends \O2System\Kernel\Services\Language
         $this->addFilePaths( [ PATH_FRAMEWORK, PATH_APP ] );
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::loadRegistry
+     *
+     * Load language registry.
+     *
+     * @return void
+     */
     public function loadRegistry()
     {
         $cacheItemPool = cache()->getItemPool( 'default' );
@@ -48,6 +76,15 @@ class Language extends \O2System\Kernel\Services\Language
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::fetchRegistry
+     *
+     * Fetch language registry.
+     *
+     * @return array
+     */
     public function fetchRegistry()
     {
         $registry = [];
@@ -66,27 +103,31 @@ class Language extends \O2System\Kernel\Services\Language
                     continue;
                 }
 
-                output()->verbose(
-                    ( new Format() )
-                        ->setString( language()->getLine( 'V_CLI_FETCH_LANGUAGE_MANIFEST',
-                            [ str_replace( PATH_ROOT, '/', $packageFileProperties ) ] ) )
-                        ->setNewLinesAfter( 1 )
-                );
+                if( is_cli() ) {
+                    output()->verbose(
+                        ( new Format() )
+                            ->setString( language()->getLine( 'V_CLI_FETCH_LANGUAGE_MANIFEST',
+                                [ str_replace( PATH_ROOT, '/', $packageFileProperties ) ] ) )
+                            ->setNewLinesAfter( 1 )
+                    );
+                }
 
-                $package = new Registries\Language( dirname( $packageFileProperties ) );
+                $package = new Datastructures\Language( dirname( $packageFileProperties ) );
 
                 if ( $package->isValid() ) {
 
-                    output()->verbose(
-                        ( new Format() )
-                            ->setContextualClass( Format::SUCCESS )
-                            ->setString( language()->getLine( 'V_CLI_FETCH_LANGUAGE_MANIFEST_SUCCESS' ) )
-                            ->setIndent( 2 )
-                            ->setNewLinesAfter( 1 )
-                    );
+                    if( is_cli() ) {
+                        output()->verbose(
+                            ( new Format() )
+                                ->setContextualClass( Format::SUCCESS )
+                                ->setString( language()->getLine( 'V_CLI_FETCH_LANGUAGE_MANIFEST_SUCCESS' ) )
+                                ->setIndent( 2 )
+                                ->setNewLinesAfter( 1 )
+                        );
+                    }
 
                     $registry[ $package->getDirName() ] = $package;
-                } else {
+                } elseif( is_cli() ) {
                     output()->verbose(
                         ( new Format() )
                             ->setContextualClass( Format::DANGER )
@@ -103,30 +144,68 @@ class Language extends \O2System\Kernel\Services\Language
         return $registry;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::isPackageExists
+     *
+     * @param $package
+     *
+     * @return bool
+     */
     public function isPackageExists( $package )
     {
         return (bool)array_key_exists( $package, $this->packages );
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::getRegistry
+     *
+     * Gets language registries.
+     *
+     * @return array
+     */
     public function getRegistry()
     {
         return $this->registry;
     }
 
-    public function countRegistry()
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::getTotalRegistry
+     *
+     * Gets num of registries.
+     *
+     * @return int
+     */
+    public function getTotalRegistry()
     {
         return count( $this->registry );
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::updateRegistry
+     *
+     * Update language registry.
+     *
+     * @return void
+     */
     public function updateRegistry()
     {
-        output()->verbose(
-            ( new Format() )
-                ->setContextualClass( Format::WARNING )
-                ->setString( language()->getLine( 'V_CLI_START_UPDATE_LANGUAGE_REGISTRY' ) )
-                ->setNewLinesBefore( 1 )
-                ->setNewLinesAfter( 2 )
-        );
+        if( is_cli() ) {
+            output()->verbose(
+                ( new Format() )
+                    ->setContextualClass( Format::WARNING )
+                    ->setString( language()->getLine( 'V_CLI_START_UPDATE_LANGUAGE_REGISTRY' ) )
+                    ->setNewLinesBefore( 1 )
+                    ->setNewLinesAfter( 2 )
+            );
+        }
 
         $cacheItemPool = cache()->getObject( 'default' );
 
@@ -139,7 +218,7 @@ class Language extends \O2System\Kernel\Services\Language
             $cacheItemPool->save( new Item( 'o2languages', $this->registry, false ) );
         }
 
-        if ( count( $this->registry ) ) {
+        if ( count( $this->registry ) and is_cli() ) {
             output()->verbose(
                 ( new Format() )
                     ->setContextualClass( Format::SUCCESS )
@@ -147,7 +226,7 @@ class Language extends \O2System\Kernel\Services\Language
                     ->setNewLinesBefore( 1 )
                     ->setNewLinesAfter( 2 )
             );
-        } else {
+        } elseif( is_cli() ) {
             output()->verbose(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
@@ -158,6 +237,15 @@ class Language extends \O2System\Kernel\Services\Language
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::flushRegistry
+     *
+     * Flush language registry.
+     *
+     * @return void
+     */
     public function flushRegistry()
     {
         $cacheItemPool = cache()->getItemPool( 'default' );

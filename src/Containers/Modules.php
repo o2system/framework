@@ -31,6 +31,13 @@ use O2System\Spl\Info\SplNamespaceInfo;
  */
 class Modules extends SplArrayStack
 {
+    /**
+     * Modules::$types
+     *
+     * List of module types.
+     *
+     * @var array
+     */
     private $types = [
         'apps',
         'modules',
@@ -38,8 +45,20 @@ class Modules extends SplArrayStack
         'plugins',
     ];
 
+    /**
+     * Modules::$registry
+     *
+     * Modules registries.
+     *
+     * @var array
+     */
     private $registry = [];
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::__construct
+     */
     public function __construct()
     {
         parent::__construct(
@@ -57,6 +76,15 @@ class Modules extends SplArrayStack
         );
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::push
+     *
+     * Replacement of SplArrayStack push method.
+     *
+     * @param mixed $module
+     */
     public function push( $module )
     {
         // Register Framework\Services\Loader Namespace
@@ -86,6 +114,15 @@ class Modules extends SplArrayStack
         parent::push( $module );
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::autoloadHelpers
+     *
+     * Autoload modules helpers.
+     *
+     * @param \O2System\Framework\Datastructures\Module $module
+     */
     private function autoloadHelpers( Datastructures\Module $module )
     {
         if ( is_file(
@@ -103,6 +140,15 @@ class Modules extends SplArrayStack
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::autoloadConfig
+     *
+     * Autoload modules config.
+     *
+     * @param \O2System\Framework\Datastructures\Module $module
+     */
     private function autoloadConfig( Datastructures\Module $module )
     {
         if ( is_file(
@@ -132,6 +178,15 @@ class Modules extends SplArrayStack
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::autoloadRoutes
+     *
+     * Autoload modules routes.
+     *
+     * @param \O2System\Framework\Datastructures\Module $module
+     */
     private function autoloadRoutes( Datastructures\Module $module )
     {
         // Routes is not available on cli
@@ -156,6 +211,15 @@ class Modules extends SplArrayStack
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::autoloadHooks
+     *
+     * Autoload modules hooks.
+     *
+     * @param \O2System\Framework\Datastructures\Module $module
+     */
     private function autoloadHooks( Datastructures\Module $module )
     {
         if ( is_file(
@@ -188,6 +252,15 @@ class Modules extends SplArrayStack
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::autoloadModels
+     *
+     * Autoload modules models.
+     *
+     * @param \O2System\Framework\Datastructures\Module $module
+     */
     private function autoloadModels( Datastructures\Module $module )
     {
         if ( is_file(
@@ -215,6 +288,15 @@ class Modules extends SplArrayStack
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::autoloadServices
+     *
+     * Autoload modules services.
+     *
+     * @param \O2System\Framework\Datastructures\Module $module
+     */
     private function autoloadServices( Datastructures\Module $module )
     {
         if ( is_file(
@@ -236,6 +318,15 @@ class Modules extends SplArrayStack
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::loadRegistry
+     *
+     * Load modules registry
+     *
+     * @return void
+     */
     public function loadRegistry()
     {
         $cacheItemPool = cache()->getItemPool( 'default' );
@@ -261,6 +352,15 @@ class Modules extends SplArrayStack
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::fetchRegistry
+     *
+     * Fetch modules registry.
+     *
+     * @return array
+     */
     public function fetchRegistry()
     {
         $Datastructures = [];
@@ -284,16 +384,18 @@ class Modules extends SplArrayStack
                     continue;
                 }
 
-                output()->verbose(
-                    ( new Format() )
-                        ->setString( language()->getLine( 'V_CLI_FETCH_MODULE_MANIFEST',
-                            [ str_replace( PATH_ROOT, '/', $propertiesFile ) ] ) )
-                        ->setNewLinesAfter( 1 )
-                );
+                if( is_cli() ) {
+                    output()->verbose(
+                        ( new Format() )
+                            ->setString( language()->getLine( 'V_CLI_FETCH_MODULE_MANIFEST',
+                                [ str_replace( PATH_ROOT, '/', $propertiesFile ) ] ) )
+                            ->setNewLinesAfter( 1 )
+                    );
+                }
 
                 $propertiesMetadata = json_decode( file_get_contents( $propertiesFile ), true );
 
-                if ( json_last_error() !== JSON_ERROR_NONE ) {
+                if ( json_last_error() !== JSON_ERROR_NONE and is_cli() ) {
                     output()->verbose(
                         ( new Format() )
                             ->setContextualClass( Format::DANGER )
@@ -368,13 +470,15 @@ class Modules extends SplArrayStack
                     ->setParentSegments( $moduleParentSegments )
                     ->setProperties( $propertiesMetadata );
 
-                output()->verbose(
-                    ( new Format() )
-                        ->setContextualClass( Format::SUCCESS )
-                        ->setString( language()->getLine( 'V_CLI_FETCH_MODULE_MANIFEST_SUCCESS' ) )
-                        ->setIndent( 2 )
-                        ->setNewLinesAfter( 1 )
-                );
+                if( is_cli() ) {
+                    output()->verbose(
+                        ( new Format() )
+                            ->setContextualClass( Format::SUCCESS )
+                            ->setString( language()->getLine( 'V_CLI_FETCH_MODULE_MANIFEST_SUCCESS' ) )
+                            ->setIndent( 2 )
+                            ->setNewLinesAfter( 1 )
+                    );
+                }
             }
         }
 
@@ -383,6 +487,17 @@ class Modules extends SplArrayStack
         return $Datastructures;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::addType
+     *
+     * Add module type.
+     *
+     * @param string $type
+     *
+     * @return string
+     */
     public function addType( $type )
     {
         $pluralTypes = plural( strtolower( $type ) );
@@ -394,25 +509,54 @@ class Modules extends SplArrayStack
         return $pluralTypes;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::getRegistry
+     *
+     * Gets modules registries.
+     *
+     * @return array
+     */
     public function getRegistry()
     {
         return $this->registry;
     }
 
-    public function countRegistry()
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::getTotalRegistry
+     *
+     * Gets total module registry.
+     *
+     * @return int
+     */
+    public function getTotalRegistry()
     {
         return count( $this->registry );
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::updateRegistry
+     *
+     * Update module registry
+     *
+     * @return void
+     */
     public function updateRegistry()
     {
-        output()->verbose(
-            ( new Format() )
-                ->setContextualClass( Format::WARNING )
-                ->setString( language()->getLine( 'V_CLI_START_UPDATE_MODULES_REGISTRY' ) )
-                ->setNewLinesBefore( 1 )
-                ->setNewLinesAfter( 2 )
-        );
+        if( is_cli() ) {
+            output()->verbose(
+                ( new Format() )
+                    ->setContextualClass( Format::WARNING )
+                    ->setString( language()->getLine( 'V_CLI_START_UPDATE_MODULES_REGISTRY' ) )
+                    ->setNewLinesBefore( 1 )
+                    ->setNewLinesAfter( 2 )
+            );
+        }
 
         $cacheItemPool = cache()->getObject( 'default' );
 
@@ -425,7 +569,7 @@ class Modules extends SplArrayStack
             $cacheItemPool->save( new Item( 'o2modules', $this->registry, false ) );
         }
 
-        if ( count( $this->registry ) ) {
+        if ( count( $this->registry ) and is_cli() ) {
             output()->verbose(
                 ( new Format() )
                     ->setContextualClass( Format::SUCCESS )
@@ -433,7 +577,7 @@ class Modules extends SplArrayStack
                     ->setNewLinesBefore( 1 )
                     ->setNewLinesAfter( 2 )
             );
-        } else {
+        } elseif( is_cli() ) {
             output()->verbose(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
@@ -444,6 +588,15 @@ class Modules extends SplArrayStack
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::flushRegistry
+     *
+     * Flush modules registry.
+     *
+     * @return void
+     */
     public function flushRegistry()
     {
         $cacheItemPool = cache()->getObject( 'default' );
@@ -457,10 +610,12 @@ class Modules extends SplArrayStack
         }
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * getApp
+     * Modules::getApp
      *
-     * @param $segments
+     * @param string $segment
      *
      * @return bool|Datastructures\Module
      */
@@ -475,6 +630,15 @@ class Modules extends SplArrayStack
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::isExists
+     *
+     * @param string|array $segments
+     *
+     * @return bool
+     */
     public function isExists( $segments )
     {
         $segments = is_array( $segments ) ? implode( '/', $segments ) : $segments;
@@ -482,10 +646,12 @@ class Modules extends SplArrayStack
         return (bool)array_key_exists( $segments, $this->registry );
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * getModule
+     * Modules::getModule
      *
-     * @param $segments
+     * @param string|array $segments
      *
      * @return bool|Datastructures\Module
      */
@@ -500,16 +666,15 @@ class Modules extends SplArrayStack
         return false;
     }
 
-    /**
-     * current
-     *
-     * @return Datastructures\Module
-     */
-    public function current()
-    {
-        return parent::current();
-    }
+    // ------------------------------------------------------------------------
 
+    /**
+     * Modules::getNamespaces
+     *
+     * Gets module namespaces.
+     *
+     * @return array
+     */
     public function getNamespaces()
     {
         $namespaces = [];
@@ -523,6 +688,18 @@ class Modules extends SplArrayStack
         return $namespaces;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::getDirs
+     *
+     * Gets module directories
+     *
+     * @param string $dirName
+     * @param bool   $reverse
+     *
+     * @return array
+     */
     public function getDirs( $dirName, $reverse = false )
     {
         $dirs = [];

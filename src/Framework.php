@@ -272,11 +272,11 @@ class Framework extends Kernel
         $cache = new Cache\Adapters( config( 'cache', true ) );
         $this->addService( $cache, 'cache' );
 
-        // Modules Service Load Registries
+        // Modules Service Load Datastructures
         profiler()->watch( 'MODULES_SERVICE_LOAD_REGISTRIES' );
         modules()->loadRegistry();
 
-        // Languages Service Load Registries
+        // Languages Service Load Datastructures
         profiler()->watch( 'LANGUAGES_SERVICE_LOAD_REGISTRIES' );
         language()->loadRegistry();
 
@@ -307,7 +307,7 @@ class Framework extends Kernel
         router()->parseRequest();
 
         if ( $commander = router()->getCommander() ) {
-            if ( $commander instanceof Framework\Cli\Router\Registries\Commander ) {
+            if ( $commander instanceof Framework\Cli\Router\Datastructures\Commander ) {
                 profiler()->watch( 'INSTANTIATE_REQUESTED_COMMANDER' );
                 $requestCommander = $commander->getInstance();
 
