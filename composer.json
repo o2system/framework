@@ -2,7 +2,7 @@
   "name": "o2system/framework",
   "description": "O2System Framework",
   "license": "MIT",
-  "type": "php-libraries",
+  "type": "package",
   "keywords": [
     "utilities",
     "php",
@@ -49,5 +49,6 @@
     "files": [
       "src/Framework.php"
     ]
-  }
+  },
+  "minimum-stability": "dev"
 }
