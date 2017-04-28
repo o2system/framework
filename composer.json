@@ -50,5 +50,5 @@
       "src/Framework.php"
     ]
   },
-  "minimum-stability": "dev"
+  "minimum-stability": "stable"
 }
