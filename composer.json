@@ -31,16 +31,16 @@
   },
   "require": {
     "php": ">=5.6.0",
-    "o2system/kernel": "*",
-    "o2system/filesystem": "*",
-    "o2system/cache": "*",
-    "o2system/html": "*",
-    "o2system/parser": "*",
-    "o2system/image": "*",
-    "o2system/security": "*",
-    "o2system/orm": "*",
-    "o2system/curl": "*",
-    "o2system/bootstrap": "*"
+    "o2system/kernel": "@dev",
+    "o2system/filesystem": "@dev",
+    "o2system/cache": "@dev",
+    "o2system/html": "@dev",
+    "o2system/parser": "@dev",
+    "o2system/image": "@dev",
+    "o2system/security": "@dev",
+    "o2system/orm": "@dev",
+    "o2system/curl": "@dev",
+    "o2system/bootstrap": "@dev"
   },
   "autoload": {
     "psr-4": {
@@ -50,5 +50,5 @@
       "src/Framework.php"
     ]
   },
-  "minimum-stability": "stable"
+  "minimum-stability": "dev"
 }
