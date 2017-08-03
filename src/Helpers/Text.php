@@ -1,16 +1,20 @@
 <?php
 /**
- * v6.0.0-svn
+ * This file is part of the O2System PHP Framework package.
  *
- * @author      Steeve Andrian Salim
- * @created     17/11/2016 00:14
- * @copyright   Copyright (c) 2016 Steeve Andrian Salim
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author         Steeve Andrian Salim
+ * @copyright      Copyright (c) Steeve Andrian Salim
  */
-
+// ------------------------------------------------------------------------
 
 if ( ! function_exists( 'text_split' ) ) {
     /**
-     * Split text into array without lossing any word
+     * text_split
+     *
+     * Split text into array without losing any words.
      *
      * @params string $text
      *
@@ -23,15 +27,18 @@ if ( ! function_exists( 'text_split' ) ) {
     function text_split( $text, $splitter = '<---text-split--->', $limit = 100 )
     {
         $wrap_text = wordwrap( $text, $limit, $splitter );
+        $wrap_text = preg_split( '[' . $splitter . ']', $wrap_text, -1, PREG_SPLIT_NO_EMPTY );
 
-        return preg_split( '[' . $splitter . ']', $wrap_text, -1, PREG_SPLIT_NO_EMPTY );
+        return implode( '', $wrap_text );
     }
 }
 // ------------------------------------------------------------------------
 
 if ( ! function_exists( 'text_columns' ) ) {
     /**
-     * Split a block of strings or text evenly across a number of columns
+     * text_columns
+     *
+     * Split a block of strings or text evenly across a number of columns.
      *
      * @param  string $text Text Source
      * @param  int    $cols Number of columns
@@ -57,8 +64,9 @@ if ( ! function_exists( 'text_columns' ) ) {
 
 if ( ! function_exists( 'text_wrap' ) ) {
     /**
-     * Wrap the given string to a certain chars length and lines
+     * text_wrap
      *
+     * Wrap the given string to a certain chars length and lines.
      *
      * @param  string   $text  Text Source
      * @param  int      $chars 10 means wrap at 40 chars
@@ -110,6 +118,8 @@ if ( ! function_exists( 'text_trim' ) ) {
         return $text;
     }
 }
+
+// ------------------------------------------------------------------------
 
 if ( ! function_exists( 'text_word_limiter' ) ) {
     /**
@@ -184,7 +194,7 @@ if ( ! function_exists( 'text_character_limiter' ) ) {
 
 if ( ! function_exists( 'text_censored' ) ) {
     /**
-     * Word Censoring Function
+     * text_censored
      *
      * Supply a string and an array of disallowed words and any
      * matched words will be converted to #### or to the replacement

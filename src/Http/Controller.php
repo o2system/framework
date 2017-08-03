@@ -14,6 +14,8 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
+use O2System\Spl\Info\SplClassInfo;
+
 /**
  * Class Controller
  *
@@ -21,6 +23,13 @@ namespace O2System\Framework\Http;
  */
 class Controller
 {
+    public function getClassInfo()
+    {
+        $classInfo = new SplClassInfo( $this );
+
+        return $classInfo;
+    }
+
     public function &__get( $property )
     {
         $get[ $property ] = false;
@@ -40,34 +49,6 @@ class Controller
     {
         if ( method_exists( $this, $method ) ) {
             return call_user_func_array( [ $this, $method ], $args );
-        }
-    }
-
-    public function loadModel( $model )
-    {
-        if ( is_string( $model ) ) {
-            if ( class_exists( $model ) ) {
-                models()->register( strtolower( get_class_name( $model ) ), new $model() );
-            }
-        } else {
-            models()->register( strtolower( get_class_name( $model ) ), $model );
-        }
-    }
-
-    public function loadPresenter( $presenter, $importVars = true )
-    {
-        if ( is_string( $presenter ) ) {
-            $presenter = new $presenter();
-        }
-
-        // Merge presenter variables
-        if ( $presenter instanceof Presenter ) {
-            if ( $importVars ) {
-                $presenter->mergeItems( presenter()->getArrayCopy() );
-            }
-
-            // replace current presenter
-            o2system()->addService( $presenter, 'presenter' );
         }
     }
 }

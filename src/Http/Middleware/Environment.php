@@ -12,6 +12,8 @@
 
 namespace O2System\Framework\Http\Middleware;
 
+// ------------------------------------------------------------------------
+
 use O2System\Psr\Http\Message\RequestInterface;
 use O2System\Psr\Http\Middleware\MiddlewareServiceInterface;
 

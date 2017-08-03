@@ -9,6 +9,12 @@
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
 // ------------------------------------------------------------------------
+/**
+ * Array Helper
+ *
+ * A collection of helper function to work with array.
+ */
+// ------------------------------------------------------------------------
 
 if ( ! function_exists( 'array_get_value' ) ) {
     /**
@@ -61,9 +67,9 @@ if ( ! function_exists( 'array_get_values' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'array_combines' ) ) {
+if ( ! function_exists( 'array_combine' ) ) {
     /**
-     * array_combines
+     * array_combine
      *
      * Creates an array by using one array for keys and another for its values and keep all the values.
      *
@@ -72,7 +78,7 @@ if ( ! function_exists( 'array_combines' ) ) {
      *
      * @return array
      */
-    function array_combines( array $keys, array $values )
+    function array_combine( array $keys, array $values )
     {
         $combine_array = [];
 
@@ -91,6 +97,8 @@ if ( ! function_exists( 'array_combines' ) ) {
     }
 
 }
+
+// ------------------------------------------------------------------------
 
 if ( ! function_exists( 'array_group' ) ) {
     /**
@@ -132,11 +140,11 @@ if ( ! function_exists( 'array_group' ) ) {
 
 if ( ! function_exists( 'array_filter_recursive' ) ) {
     /**
-     * Recursive Filter Array Value
+     * array_filter_recursive
      *
-     * Remove element by the value of array
+     * Remove element by the value of array.
      *
-     * @param   array $array Array Source
+     * @param   array $array The array source.
      * @param   mixed $value
      * @param   int   $limit
      *
@@ -178,8 +186,8 @@ if ( ! function_exists( 'array_filter_recursive' ) ) {
         return $result;
     }
 }
-// ------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------
 
 if ( ! function_exists( 'array_search_recursive' ) ) {
     /**
@@ -221,6 +229,7 @@ if ( ! function_exists( 'array_search_recursive' ) ) {
         return ( $result == '' ) ? false : $result;
     }
 }
+
 // ------------------------------------------------------------------------
 
 if ( ! function_exists( 'array_unique_recursive' ) ) {
@@ -241,6 +250,7 @@ if ( ! function_exists( 'array_unique_recursive' ) ) {
         return array_intersect_key( $array, $unique );
     }
 }
+
 // ------------------------------------------------------------------------
 
 if ( ! function_exists( 'array_flatten' ) ) {
@@ -266,5 +276,75 @@ if ( ! function_exists( 'array_flatten' ) ) {
         }
 
         return $flat_array;
+    }
+}
+
+// ------------------------------------------------------------------------
+
+if ( ! function_exists( 'range_price' ) ) {
+    /**
+     * range_price
+     *
+     * Create an array containing a range of prices.
+     *
+     * @param   int $min        The minimum price numeric value.
+     * @param   int $max        The maximum price numeric value.
+     * @param   int $multiplier The multiplier used in the range, default is 0.
+     *
+     * @return  array
+     */
+    function range_price( $min, $max, $multiplier = 0 )
+    {
+        $multiplier = $multiplier * 20;
+        $num_range = $max / $min;
+        $num_step = $multiplier / $min / 100;
+
+        $ranges = [];
+        foreach ( range( 0, $num_range, $num_step ) as $num_price ) {
+            if ( $num_price == 0 ) {
+                $ranges[] = $min;
+            } else {
+                $ranges[] = $num_price * $min / 2 * 10;
+            }
+        }
+
+        $prices = [];
+        for ( $i = 0; $i < count( $ranges ); $i++ ) {
+            if ( $ranges[ $i ] == $max ) {
+                break;
+            } else {
+                $prices[ $ranges[ $i ] ] = ( $ranges[ $i + 1 ] == 0 ) ? $ranges[ $i ] * 2 : $ranges[ $i + 1 ];
+            }
+        }
+
+        return $prices;
+    }
+}
+
+// ------------------------------------------------------------------------
+
+if ( ! function_exists( 'range_year' ) ) {
+    /**
+     * range_year
+     *
+     * Create an array containing a range of years.
+     *
+     * @param int  $min   The minimum numeric year value.
+     * @param null $max   The maximum numeric year value.
+     * @param int  $step  The increment used in the range, default is 1.
+     *
+     * @return array
+     */
+    function range_year( $min = 1995, $max = null, $step = 1 )
+    {
+        $max = empty( $max ) ? date( 'Y' ) : $max;
+
+        $years = [];
+
+        foreach ( range( $min, $max, $step ) as $year ) {
+            $years[ $year ] = $year;
+        }
+
+        return $years;
     }
 }

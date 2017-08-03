@@ -95,6 +95,12 @@ class Modules extends SplArrayStack
 
         if ( ! in_array( $module->getType(), [ 'KERNEL', 'FRAMEWORK' ] ) ) {
 
+            // Add Public Dir
+            loader()->addPublicDir( $module->getPublicDir() );
+
+            // Autoload Module Language
+            language()->loadFile( $module->getParameter() );
+
             // Autoload Module Config
             $this->autoloadConfig( $module );
 
@@ -311,7 +317,13 @@ class Modules extends SplArrayStack
 
         if ( isset( $services ) AND is_array( $services ) ) {
             foreach ( $services as $offset => $service ) {
-                o2system()->addService( new SplServiceRegistry( $service ), $offset );
+                if( is_string( $service ) ) {
+                    if( ! class_exists( $service ) ) {
+                        continue;
+                    }
+                }
+
+                o2system()->addService( $service, $offset );
             }
 
             unset( $services );
@@ -326,6 +338,7 @@ class Modules extends SplArrayStack
      * Load modules registry
      *
      * @return void
+     * @throws \O2System\Psr\Cache\InvalidArgumentException
      */
     public function loadRegistry()
     {
@@ -596,6 +609,7 @@ class Modules extends SplArrayStack
      * Flush modules registry.
      *
      * @return void
+     * @throws \O2System\Psr\Cache\InvalidArgumentException
      */
     public function flushRegistry()
     {
@@ -624,7 +638,9 @@ class Modules extends SplArrayStack
         $segment = 'apps/' . dash( $segment );
 
         if ( $this->isExists( $segment ) ) {
-            return $this->registry[ $segment ];
+            if( $this->registry[ $segment ] instanceof Datastructures\Module ) {
+                return $this->registry[ $segment ];
+            }
         }
 
         return false;

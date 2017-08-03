@@ -14,7 +14,8 @@ namespace O2System\Framework\Abstracts;
 
 // ------------------------------------------------------------------------
 
-use O2System\Database\Abstracts\AbstractDriver;
+use O2System\Database\Abstracts\AbstractConnection;
+use O2System\Database\Abstracts\AbstractQueryBuilder;
 use O2System\Psr\Patterns\AbstractSingletonPattern;
 
 /**
@@ -25,11 +26,20 @@ use O2System\Psr\Patterns\AbstractSingletonPattern;
 abstract class AbstractModel extends AbstractSingletonPattern
 {
     /**
-     * AbstractModel::$db
+     * AbstractModel::$conn
      *
      * Database connection instance.
      *
-     * @var AbstractDriver
+     * @var AbstractConnection
+     */
+    public $connection = null;
+
+    /**
+     * AbstractModel::$db
+     *
+     * Database query builder instance.
+     *
+     * @var AbstractQueryBuilder
      */
     public $db = null;
 
@@ -83,8 +93,8 @@ abstract class AbstractModel extends AbstractSingletonPattern
 
         // Set database connection
         if ( method_exists( database(), 'loadConnection' ) ) {
-            if ( $db = database()->loadConnection( 'default' ) ) {
-                $this->db = $db->getQueryBuilder();
+            if ( $this->connection = database()->loadConnection( 'default' ) ) {
+                $this->db = $this->connection->getQueryBuilder();
             }
         }
 

@@ -12,6 +12,8 @@
 
 namespace O2System\Framework\Services;
 
+// ------------------------------------------------------------------------
+
 /**
  * Class Hooks
  *

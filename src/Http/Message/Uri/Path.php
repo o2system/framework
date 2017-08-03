@@ -12,7 +12,13 @@
 
 namespace O2System\Framework\Http\Message\Uri;
 
+// ------------------------------------------------------------------------
 
+/**
+ * Class Path
+ *
+ * @package O2System\Framework\Http\Message\Uri
+ */
 class Path
 {
     private $string;

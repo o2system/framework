@@ -14,9 +14,9 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Presenter\Title;
-use O2System\Framework\Http\Router\Datastructures\Page;
 use O2System\Framework\Datastructures\Module\Theme;
+use O2System\Framework\Http\Presenter\Meta;
+use O2System\Framework\Http\Router\Datastructures\Page;
 use O2System\Gear\Toolbar;
 use O2System\Html;
 use O2System\Spl\Exceptions\ErrorException;
@@ -157,7 +157,7 @@ class View
             unset( $backtrace );
 
             ob_start();
-            include PATH_KERNEL . 'Views' . DIRECTORY_SEPARATOR . 'http' . DIRECTORY_SEPARATOR . 'error.phtml';
+            include PATH_KERNEL . 'Views' . DIRECTORY_SEPARATOR . 'error.phtml';
             $content = ob_get_contents();
             ob_end_clean();
 
@@ -266,39 +266,90 @@ class View
     {
         parser()->loadVars( presenter()->getArrayCopy() );
 
-        if( presenter()->title instanceof Title ) {
-            $this->document->title->text( presenter()->title->browser->__toString() );
+        // set document meta title
+        if ( presenter()->meta->title instanceof Meta\Title ) {
+            $this->document->title->text( presenter()->meta->title->__toString() );
         }
 
-        if ( ( $theme = presenter()->getVariable( 'theme' ) ) instanceof Theme ) {
-            $themeLayout = $theme->getLayout()->getRealPath();
-
-            // Import body tag attributes
-            if ( preg_match( '#<body(.*?)>#is', file_get_contents( $themeLayout ), $matches ) ) {
-                $bodyXml = simplexml_load_string( str_replace( '>', '/>', $matches[ 0 ] ) );
-
-                foreach ( $bodyXml->attributes() as $name => $value ) {
-                    $this->document->body->setAttribute( $name, $value );
-                }
+        if ( presenter()->meta->opengraph instanceof Meta\Opengraph ) {
+            // set opengraph title
+            if ( presenter()->meta->title instanceof Meta\Title ) {
+                presenter()->meta->opengraph->setTitle( presenter()->meta->title->__toString() );
             }
 
-            $this->document->body->setAttribute( 'data-module', modules()->current()->getParameter() );
-            $this->document->body->setAttribute( 'data-controller', router()->getController()->getParameter() );
+            // set opengraph site name
+            if ( presenter()->exists( 'siteName' ) ) {
+                presenter()->meta->opengraph->setSiteName( presenter()->offsetGet( 'siteName' ) );
+            }
 
-            parser()->loadFile( $themeLayout );
-            $this->document->loadHTML( parser()->parse() );
+            if ( presenter()->meta->opengraph->count() ) {
+                $htmlElement = $this->document->getElementsByTagName( 'html' )->item( 0 );
+                $htmlElement->setAttribute( 'prefix', 'og: ' . presenter()->meta->opengraph->prefix );
+
+                if ( presenter()->meta->opengraph->exists( 'og:type' ) === false ) {
+                    presenter()->meta->opengraph->setType( 'website' );
+                }
+
+                $opengraph = presenter()->meta->opengraph->getArrayCopy();
+
+                foreach ( $opengraph as $tag ) {
+                    $this->document->metaNodes->createElement( $tag->attributes->getArrayCopy() );
+                }
+            }
+        }
+
+        // set module meta
+        presenter()->meta->offsetSet( 'module-parameter', modules()->current()->getParameter() );
+        presenter()->meta->offsetSet( 'module-controller', router()->getController()->getParameter() );
+
+        $meta = presenter()->meta->getArrayCopy();
+
+        foreach ( $meta as $tag ) {
+            $this->document->metaNodes->createElement( $tag->attributes->getArrayCopy() );
+        }
+
+        if ( presenter()->theme->use === true ) {
+            $layout = presenter()->theme->active->getLayout();
+            parser()->loadFile( $layout->getRealPath() );
+
+            $htmlOutput = parser()->parse();
+            $htmlOutput = str_replace(
+                [
+                    '"./assets/',
+                    "'./assets/",
+                ],
+                [
+                    '"' . base_url() . '/assets/',
+                    "'" . base_url() . '/assets/',
+                ],
+                $htmlOutput );
+
+            $htmlOutput = str_replace(
+                [
+                    '"assets/',
+                    "'assets/",
+                ],
+                [
+                    '"' . presenter()->theme->active->getUrl( 'assets/' ),
+                    "'" . presenter()->theme->active->getUrl( 'assets/' ),
+                ],
+                $htmlOutput );
+
+            $this->document->loadHTML( $htmlOutput );
         } else {
             $this->document->find( 'body' )->append( presenter()->partials->__get( 'content' ) );
         }
 
-        if ( input()->env( 'DEBUG_STAGE' ) === 'DEVELOPER' and presenter()->debugToolBar === true ) {
+        if ( input()->env( 'DEBUG_STAGE' ) === 'DEVELOPER' and config()->getItem( 'presenter' )->debugToolBar === true ) {
             $this->document->find( 'body' )->append( ( new Toolbar() )->__toString() );
         }
 
+        $htmlOutput = $this->document->saveHTML();
+
         if ( $return === true ) {
-            return $this->document->saveHTML();
+            return $htmlOutput;
         }
 
-        output()->send( $this->document->saveHTML() );
+        output()->send( $htmlOutput, [ 'eTag' => md5( $htmlOutput ) ] );
     }
 }

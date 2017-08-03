@@ -20,10 +20,14 @@ if ( ! function_exists( 'str_echo' ) ) {
      *
      * @return string
      */
-    function str_echo( $string, $before = null, $after = null )
+    function str_echo( $string, $before = null, $after = null, $glue = '' )
     {
         if ( ! empty( $string ) OR $string !== '' ) {
-            return implode( ' ', func_get_args() );
+            return implode( $glue, array_filter([
+                $before,
+                $string,
+                $after
+            ]) );
         }
 
         return '';
@@ -508,7 +512,6 @@ if ( ! function_exists( 'str_quote_to_entities' ) ) {
 }
 
 // ------------------------------------------------------------------------
-
 
 
 if ( ! function_exists( 'str_filter_char' ) ) {

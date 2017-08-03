@@ -28,6 +28,17 @@ use O2System\Psr\Loader\AutoloadInterface;
 class Loader implements AutoloadInterface
 {
     /**
+     * Loader::$publicDirs
+     *
+     * Loader Public Directories.
+     *
+     * @var array
+     */
+    protected $publicDirs = [
+        PATH_PUBLIC,
+    ];
+
+    /**
      * Loader::$namespaceDirs
      *
      * Loader Namespaces Directories.
@@ -85,6 +96,43 @@ class Loader implements AutoloadInterface
 
         // Append the custom modular PSR4 autoloader.
         spl_autoload_register( [ &$this, 'loadModuleClass' ], true, false );
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Loader::addPublicDir
+     *
+     * Adds a public directory for assets.
+     *
+     * @param string $publicDir
+     */
+    public function addPublicDir( $publicDir )
+    {
+        // normalize the public directory with a trailing separator
+        $publicDir = str_replace( [ '/', '\\' ], DIRECTORY_SEPARATOR, $publicDir );
+        $publicDir = PATH_PUBLIC . str_replace( PATH_PUBLIC, '', $publicDir );
+        $publicDir = rtrim( $publicDir, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR;
+
+        if ( is_dir( $publicDir ) and ! in_array( $publicDir, $this->publicDirs ) ) {
+            $this->publicDirs[] = $publicDir;
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Loader::getPublicDirs
+     *
+     * Gets all public directories
+     *
+     * @param bool $reverse
+     *
+     * @return array
+     */
+    public function getPublicDirs( $reverse = false )
+    {
+        return $reverse === true ? array_reverse( $this->publicDirs ) : $this->publicDirs;
     }
 
     // ------------------------------------------------------------------------

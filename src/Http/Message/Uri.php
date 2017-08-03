@@ -40,10 +40,16 @@ class Uri extends Message\Uri
     protected $segments;
     protected $suffix;
 
-    public function __construct()
+    public function __construct( $httpStringRequest = null )
     {
-        parent::__construct();
-        $this->segments = new Uri\Segments();
+        parent::__construct( $httpStringRequest );
+
+        if( isset( $httpStringRequest ) ) {
+            $this->segments = new Segments( '' );
+        } else {
+            $this->segments = new Segments();
+        }
+
         $this->setSuffix( config( 'uri' )->offsetGet( 'suffix' ) );
     }
 
@@ -52,7 +58,7 @@ class Uri extends Message\Uri
     public function addPath( $path )
     {
         $uri = clone $this;
-        $uri->path .= $path;
+        $uri->path .= '/' . ltrim( $path, '/' );
 
         return $uri;
     }
@@ -86,13 +92,38 @@ class Uri extends Message\Uri
 
     // ------------------------------------------------------------------------
 
-    public function addSegments( Segments $segments )
+    public function addSegments( $segments )
     {
+        if( ! $segments instanceof Segments ) {
+            $segments = new Segments( $segments );
+        }
+
         $currentSegments = $this->segments->getParts();
         $addSegments = $segments->getParts();
 
         $uri = clone $this;
         $uri->segments = new Segments( array_merge( $currentSegments, $addSegments ) );
+
+        return $uri;
+    }
+
+    public function addQuery( $query )
+    {
+        $uri = clone $this;
+        $query = is_array( $query ) ? http_build_query( $query, PHP_QUERY_RFC3986 ) : $query;
+
+        parse_str( $query, $newQuery );
+
+        if( ! empty( $uri->query ) ) {
+            parse_str( $uri->query, $oldQuery );
+            $query = array_merge( $oldQuery, $newQuery );
+        } else {
+            $query = $newQuery;
+        }
+
+        if( is_array( $query ) ) {
+            $uri->query = http_build_query( $query, PHP_QUERY_RFC3986 );
+        }
 
         return $uri;
     }
@@ -154,14 +185,16 @@ class Uri extends Message\Uri
 
         $uriPath = '/' . trim( $uriPath, '/' );
 
-        if ( $uriPath !== '/' and
-            $this->suffix !== '' and
-            pathinfo( $uriPath, PATHINFO_EXTENSION ) === ''
+        if ( $uriPath !== '/' &&
+            $this->suffix !== '' &&
+            pathinfo( $uriPath, PATHINFO_EXTENSION ) === '' &&
+            strpos( $uriPath, '#' ) === false &&
+            empty( $this->query )
         ) {
             $uriPath .= $this->suffix;
         }
 
-        $uriString .= $uriPath;
+        $uriString .= str_replace( '//', '/', $uriPath );
         $uriString .= empty( $this->query )
             ? ''
             : '/?' . $this->query;

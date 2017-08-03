@@ -1,18 +1,27 @@
 <?php
 /**
- * v6.0.0-svn
+ * This file is part of the O2System PHP Framework package.
  *
- * @author      Steeve Andrian Salim
- * @created     15/11/2016 15:02
- * @copyright   Copyright (c) 2016 Steeve Andrian Salim
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author         Steeve Andrian Salim
+ * @copyright      Copyright (c) Steeve Andrian Salim
  */
+// ------------------------------------------------------------------------
 
 namespace O2System\Framework\Datastructures;
 
+// ------------------------------------------------------------------------
 
 use O2System\Spl\Datastructures\SplArrayObject;
 use O2System\Spl\Info\SplDirectoryInfo;
 
+/**
+ * Class Language
+ *
+ * @package O2System\Framework\Datastructures
+ */
 class Language extends SplDirectoryInfo
 {
     /**

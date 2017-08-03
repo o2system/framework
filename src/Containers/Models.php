@@ -26,6 +26,23 @@ use O2System\Spl\Containers\SplServiceContainer;
  */
 class Models extends SplServiceContainer
 {
+    public function load( $model )
+    {
+        if( is_string( $model ) ) {
+            $service = new SplServiceRegistry( $model );
+        } elseif( $model instanceof SplServiceRegistry ) {
+            $service = $model;
+        }
+
+        $offset = strtolower( $service->getClassName() );
+
+        if ( $service->isSubclassOf( 'O2System\Framework\Abstracts\AbstractModel' ) OR
+            $service->isSubclassOf( 'O2System\Orm\Abstracts\AbstractModel' )
+        ) {
+            models()->attach( $offset, $service );
+        }
+    }
+
     /**
      * Models::register
      *

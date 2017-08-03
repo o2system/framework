@@ -29,16 +29,30 @@ class Cache implements MiddlewareServiceInterface
      *
      * @param \O2System\Psr\Http\Message\RequestInterface $request
      *
-     * @return mixed
+     * @return bool
      */
     public function validate( RequestInterface $request )
     {
-        // TODO: Implement validate() method.
+        $filename = md5( $request->getUri()->__toString() );
+
+        if ( null !== ( $cache = cache()->getItemPool( 'html' ) ) ) {
+            if ( null !== ( $html = $cache->getItem( $filename ) ) ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function handle( RequestInterface $request )
     {
-        // TODO: Implement handle() method.
+        $filename = md5( $request->getUri()->__toString() );
+        $cache = cache()->getItemPool( 'html' );
+
+        if ( null !== ( $html = $cache->getItem( $filename ) ) ) {
+            $etag = md5( $html );
+            output()->send( $html, [ 'ETag' => $etag ] );
+        }
     }
 
     public function terminate( RequestInterface $request )

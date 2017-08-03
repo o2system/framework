@@ -104,6 +104,7 @@ class Router
 
         // Load routes config
         $configDir = modules()->current()->getDir( 'config', true );
+
         if ( is_file(
             $filePath = $configDir . ucfirst(
                     strtolower( ENVIRONMENT )

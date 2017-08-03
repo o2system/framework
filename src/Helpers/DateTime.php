@@ -56,32 +56,7 @@ if ( ! function_exists( 'unix_timestamp' ) ) {
         return now();
     }
 }
-// ------------------------------------------------------------------------
 
-if ( ! function_exists( 'years_range' ) ) {
-    /**
-     * Years Range
-     *
-     * @access    public
-     *
-     * @param    number start year
-     * @param    number end of year
-     *
-     * @return    array
-     */
-    function years_range( $start_year = 1995, $end_year = '' )
-    {
-        if ( $end_year == '' ) {
-            $end_year = date( "Y" );
-        }
-
-        for ( $i = $end_year; $i >= $start_year; $i-- ) {
-            $years_range[ $i ] = $i;
-        }
-
-        return $years_range;
-    }
-}
 // ------------------------------------------------------------------------
 
 if ( ! function_exists( 'format_date' ) ) {
@@ -198,6 +173,7 @@ if ( ! function_exists( 'day_name' ) ) {
                 : strtotime(
                     $timestamp
                 ) ) );
+
         language()->loadFile( 'calendar' );
 
         return language()->getLine( strtoupper( 'CAL_' . date( $type, $timestamp ) ) );
@@ -288,7 +264,7 @@ if ( ! function_exists( 'string_time_elapsed' ) ) {
      * @param   bool    $full Full String
      *
      * @access  public
-     * @return  array
+     * @return  string
      */
     function string_time_elapsed( $time, $full = false )
     {
@@ -1413,7 +1389,7 @@ if ( ! function_exists( 'nice_date' ) ) {
 
 if ( ! function_exists( 'timezone_menu' ) ) {
     /**
-     * Timezone Menu
+     * Timezone Nav
      *
      * Generates a drop-down menu of timezones.
      *
@@ -1531,7 +1507,7 @@ if ( ! function_exists( 'date_range_unix' ) ) {
      *                     is a UNIX timestamp or a day interval
      *                     - TRUE or 'unix' for a timestamp
      *                     - FALSE or 'days' for an interval
-     * @param    string    date_format    Output date format, same as in date()
+     * @param    string    date_format    Browser date format, same as in date()
      *
      * @return    array
      */

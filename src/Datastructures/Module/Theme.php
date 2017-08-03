@@ -14,6 +14,7 @@ namespace O2System\Framework\Datastructures\Module;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Datastructures\Module\Theme\Layout;
 use O2System\Spl\Datastructures\SplArrayObject;
 use O2System\Spl\Info\SplDirectoryInfo;
 use O2System\Spl\Info\SplFileInfo;
@@ -47,13 +48,6 @@ class Theme extends SplDirectoryInfo
     private $layout;
 
     /**
-     * Theme Partials
-     *
-     * @var array
-     */
-    private $partials = [];
-
-    /**
      * Theme::__construct
      *
      * @param string $dir
@@ -79,9 +73,6 @@ class Theme extends SplDirectoryInfo
                 $this->config = $config;
             }
         }
-
-        // Set Default Theme Layout
-        $this->setLayout( 'theme' );
     }
 
     public function isValid()
@@ -118,13 +109,54 @@ class Theme extends SplDirectoryInfo
         return new SplArrayObject( $this->config );
     }
 
-    public function getLayout()
+    public function getUrl( $path = null )
     {
-        return $this->layout;
+        return path_to_url( $this->getRealPath() . $path );
     }
 
     public function setLayout( $layout )
     {
+        if( false !== ( $layout = $this->loadLayout( $layout ) ) ) {
+            $this->layout = $layout;
+
+            // add theme layout public directory
+            loader()->addPublicDir( $this->layout->getPath() . 'assets' );
+
+            presenter()->assets->autoload(
+                [
+                    'css' => [ 'layout' ],
+                    'js'  => [ 'layout' ],
+                ]
+            );
+
+            $partials = $this->layout->getPartials()->getArrayCopy();
+
+            foreach ( $partials as $offset => $partial ) {
+                presenter()->partials->addPartial( $offset, $partial->getPathName() );
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getLayout( $layout = null )
+    {
+        if( isset( $layout ) ) {
+            if( false !== ( $layout = $this->loadLayout( $layout ) ) ) {
+                return $layout;
+            }
+        }
+
+        if( $this->layout instanceof Layout ) {
+            return $this->layout;
+        }
+
+        return false;
+    }
+
+    protected function loadLayout( $layout ) {
         $extensions = [ '.php', '.phtml', '.html', '.tpl' ];
 
         if ( isset( $this->config[ 'extensions' ] ) ) {
@@ -134,66 +166,21 @@ class Theme extends SplDirectoryInfo
         }
 
         foreach ( $extensions as $extension ) {
+
+            $extension = trim( $extension, '.' );
+
             if ( $layout === 'theme' ) {
-                $layoutFilePath = $this->getRealPath() . 'theme.' . trim( $extension, '.' );
+                $layoutFilePath = $this->getRealPath() . 'theme.' . $extension;
             } else {
-                $layoutFilePath = $this->getRealPath() . 'layouts' . DIRECTORY_SEPARATOR . dash( $layout ) . DIRECTORY_SEPARATOR . 'layout.' . trim( $extension,
-                        '.' );
+                $layoutFilePath = $this->getRealPath() . 'layouts' . DIRECTORY_SEPARATOR . dash( $layout ) . DIRECTORY_SEPARATOR . 'layout.' . $extension;
             }
 
             if ( is_file( $layoutFilePath ) ) {
-                $this->layout = new SplFileInfo( $layoutFilePath );
-                $this->loadPartials();
-
+                return new Layout( $layoutFilePath );
                 break;
             }
         }
 
-        // Load Layout Partials
-        if ( empty( $this->layout ) ) {
-            // @todo throw new exception layout not found
-        }
-
-        return $this;
-    }
-
-    public function getPartials()
-    {
-        return new SplArrayObject( $this->partials );
-    }
-
-    protected function loadPartials()
-    {
-        $this->partials = [];
-        if ( ! $this->layout instanceof SplFileInfo ) {
-            return;
-        }
-
-        if ( is_dir(
-            $partialsFilePath = $this->layout->getPath() . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR
-        ) ) {
-
-            $partialsExtensions = [ '.php', '.phtml', '.html', '.tpl' ];
-
-            if ( isset( $this->config[ 'extension' ] ) ) {
-                array_unshift( $partialsExtensions, $this->config[ 'extension' ] );
-            } elseif ( isset( $this->config[ 'extensions' ] ) ) {
-                $partialsExtensions = $this->config[ 'extensions' ];
-            }
-
-            $partialsFiles = scandir( $partialsFilePath );
-            $partialsFiles = array_slice( $partialsFiles, 2 );
-
-            foreach ( $partialsFiles as $partialsFile ) {
-                $filePath = $partialsFilePath . $partialsFile;
-
-                if ( is_file( $filePath ) and in_array( '.' . pathinfo( $filePath, PATHINFO_EXTENSION ),
-                        $partialsExtensions )
-                ) {
-                    $fileKey = str_replace( $partialsExtensions, '', $partialsFile );
-                    $this->partials[ $fileKey ] = new SplFileInfo( $filePath );
-                }
-            }
-        }
+        return false;
     }
 }

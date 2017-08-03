@@ -18,7 +18,7 @@ if ( ! function_exists( 'o2system' ) ) {
      *
      * @return O2System\Framework
      */
-    function o2system()
+    function o2system ()
     {
         return O2System\Framework::getInstance();
     }
@@ -34,7 +34,7 @@ if ( ! function_exists( 'loader' ) ) {
      *
      * @return O2System\Framework\Services\Loader
      */
-    function loader()
+    function loader ()
     {
         return o2system()->getService( 'loader' );
     }
@@ -48,9 +48,9 @@ if ( ! function_exists( 'config' ) ) {
      *
      * Convenient shortcut for O2System Framework Config service.
      *
-     * @return O2System\Framework\Services\Config
+     * @return O2System\Framework\Services\Config|\O2System\Kernel\Datastructures\Config
      */
-    function config()
+    function config ()
     {
         $args = func_get_args();
 
@@ -78,7 +78,7 @@ if ( ! function_exists( 'cache' ) ) {
      *
      * @return O2System\Cache\Adapters
      */
-    function cache()
+    function cache ()
     {
         return o2system()->getService( 'cache' );
     }
@@ -94,7 +94,7 @@ if ( ! function_exists( 'hooks' ) ) {
      *
      * @return O2System\Framework\Services\Hooks
      */
-    function hooks()
+    function hooks ()
     {
         return o2system()->getService( 'hooks' );
     }
@@ -110,7 +110,7 @@ if ( ! function_exists( 'globals' ) ) {
      *
      * @return O2System\Framework\Containers\Globals
      */
-    function globals()
+    function globals ()
     {
         return o2system()->__get( 'globals' );
     }
@@ -126,9 +126,31 @@ if ( ! function_exists( 'database' ) ) {
      *
      * @return O2System\Database\Connections
      */
-    function database()
+    function database ()
     {
         return o2system()->__get( 'database' );
+    }
+}
+
+// ------------------------------------------------------------------------
+
+if ( ! function_exists( 'services' ) ) {
+    /**
+     * services
+     *
+     * Convenient shortcut for O2System Framework Services container.
+     *
+     * @return mixed
+     */
+    function services ()
+    {
+        $args = func_get_args();
+
+        if ( count( $args ) ) {
+            return o2system()->getService( $args[ 0 ], true );
+        }
+
+        return o2system();
     }
 }
 
@@ -140,10 +162,16 @@ if ( ! function_exists( 'models' ) ) {
      *
      * Convenient shortcut for O2System Framework Models container.
      *
-     * @return O2System\Framework\Containers\Models
+     * @return O2System\Framework\Containers\Models|O2System\Framework\Abstracts\AbstractModel|O2System\Orm\Abstracts\AbstractModel
      */
-    function models()
+    function &models ()
     {
+        $args = func_get_args();
+
+        if ( count( $args ) ) {
+            return o2system()->__get( 'models' )->get( $args[ 0 ] );
+        }
+
         return o2system()->__get( 'models' );
     }
 }
@@ -158,7 +186,7 @@ if ( ! function_exists( 'modules' ) ) {
      *
      * @return O2System\Framework\Containers\Modules
      */
-    function modules()
+    function modules ()
     {
         return o2system()->__get( 'modules' );
     }
@@ -174,7 +202,7 @@ if ( ! function_exists( 'request' ) ) {
      *
      * @return O2System\Kernel\Http\Message\Request
      */
-    function request()
+    function request ()
     {
         return o2system()->getService( 'request' );
     }
@@ -190,7 +218,7 @@ if ( ! function_exists( 'router' ) ) {
      *
      * @return O2System\Framework\Http\Router|O2System\Framework\Cli\Router
      */
-    function router()
+    function router ()
     {
         return o2system()->getService( 'router' );
     }
@@ -206,7 +234,7 @@ if ( ! function_exists( 'session' ) ) {
      *
      * @return O2System\Session
      */
-    function session()
+    function session ()
     {
         return o2system()->getService( 'session' );
     }
@@ -222,7 +250,7 @@ if ( ! function_exists( 'middleware' ) ) {
      *
      * @return O2System\Framework\Http\Middleware
      */
-    function middleware()
+    function middleware ()
     {
         return o2system()->getService( 'middleware' );
     }
@@ -238,7 +266,7 @@ if ( ! function_exists( 'view' ) ) {
      *
      * @return O2System\Framework\Http\View|string
      */
-    function view()
+    function view ()
     {
         $args = func_get_args();
 
@@ -262,7 +290,7 @@ if ( ! function_exists( 'parser' ) ) {
      *
      * @return O2System\Framework\Http\Parser
      */
-    function parser()
+    function parser ()
     {
         return o2system()->getService( 'parser' );
     }
@@ -278,7 +306,7 @@ if ( ! function_exists( 'presenter' ) ) {
      *
      * @return O2System\Framework\Http\Presenter|object
      */
-    function presenter()
+    function presenter ()
     {
         return o2system()->getService( 'presenter' );
     }
@@ -294,7 +322,7 @@ if ( ! function_exists( 'controller' ) ) {
      *
      * @return O2System\Framework\Http\Controller|bool
      */
-    function controller()
+    function controller ()
     {
         $args = func_get_args();
 

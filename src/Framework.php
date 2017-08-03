@@ -372,6 +372,19 @@ class Framework extends Kernel
                 // Autoload Model and Assets
                 $controllerAssets = [];
 
+                if ( false !== ( $presenter = config()->loadFile( 'presenter', true ) ) ) {
+
+                    // autoload presenter assets
+                    if ( $presenter->offsetExists( 'assets' ) ) {
+                        presenter()->assets->autoload( $presenter->offsetGet( 'assets' )->autoload->getArrayCopy() );
+                    }
+
+                    // autoload presenter theme
+                    if ( $presenter->offsetExists( 'theme' ) ) {
+                        presenter()->theme->load( $presenter->offsetGet( 'theme' ) );
+                    }
+                }
+
                 foreach ( modules() as $module ) {
                     if ( in_array( $module->getType(), [ 'KERNEL', 'FRAMEWORK' ] ) ) {
                         continue;

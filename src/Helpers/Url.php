@@ -13,10 +13,27 @@
 if ( ! function_exists( 'base_url' ) ) {
     function base_url( $segments = null, $query = null )
     {
-        return ( new \O2System\Framework\Http\Message\Uri() )
-            ->withQuery( $query )
-            ->withSegments( new O2System\Framework\Http\Message\Uri\Segments( $segments ) )
-            ->__toString();
+        $uri = ( new \O2System\Framework\Http\Message\Uri() )
+            ->withSegments( new \O2System\Framework\Http\Message\Uri\Segments( '' ) )
+            ->withQuery( '' );
+
+        if ( $uriConfig = config()->offsetGet( 'uri' ) ) {
+            if ( ! empty( $uriConfig[ 'base' ] ) ) {
+                $base = ( is_https() ? 'https' : 'http' ) . '://' . str_replace( [ 'http://', 'https://' ], '',
+                        $uriConfig[ 'base' ] );
+                $uri = new \O2System\Framework\Http\Message\Uri( $base );
+            }
+        }
+
+        if ( isset( $segments ) ) {
+            $uri = $uri->addSegments( $segments );
+        }
+
+        if ( isset( $query ) ) {
+            $uri = $uri->addQuery( $query );
+        }
+
+        return $uri->__toString();
     }
 }
 
@@ -24,10 +41,17 @@ if ( ! function_exists( 'current_url' ) ) {
 
     function current_url( $segments = null, $query = null )
     {
-        return ( new \O2System\Framework\Http\Message\Uri() )
-            ->withQuery( $query )
-            ->addSegments( new O2System\Framework\Http\Message\Uri\Segments( $segments ) )
-            ->__toString();
+        $uri = new \O2System\Framework\Http\Message\Uri();
+
+        if ( isset( $segments ) ) {
+            $uri = $uri->addSegments( $segments );
+        }
+
+        if ( isset( $query ) ) {
+            $uri = $uri->addQuery( $query );
+        }
+
+        return $uri->__toString();
     }
 }
 
@@ -41,7 +65,7 @@ if ( ! function_exists( 'assets_url' ) ) {
      */
     function assets_url( $path )
     {
-        return presenter()->assets->getUrl( $path );
+        return presenter()->assets->file( $path );
     }
 }
 
@@ -90,7 +114,7 @@ if ( ! function_exists( 'redirect_url' ) ) {
      * Header Redirect
      *
      * Header redirect in two flavors
-     * For very fine grained control over headers, you could use the Output
+     * For very fine grained control over headers, you could use the Browser
      * Library's set_header() function.
      *
      * @param    string $uri    URL

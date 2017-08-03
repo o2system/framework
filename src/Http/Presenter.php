@@ -28,71 +28,10 @@ class Presenter extends AbstractVariableStoragePattern
      */
     public function __construct()
     {
-        $this->store( 'title', new Presenter\Title() );
-        $this->store( 'partials', new Presenter\Partials() );
+        $this->store( 'meta', new Presenter\Meta() );
         $this->store( 'assets', new Presenter\Assets() );
-
-        if ( $config = config()->loadFile( 'presenter', true ) ) {
-
-            if ( $config->offsetExists( 'assets' ) ) {
-                $this->storage[ 'assets' ]->isCombine = $config->offsetGet( 'assets' )->combine;
-                $this->storage[ 'assets' ]->loadFiles( $config->offsetGet( 'assets' )->autoload );
-            }
-
-            if ( $config->offsetExists( 'theme' ) ) {
-                $this->setTheme( $config->offsetGet( 'theme' ) );
-            }
-
-            if ( $config->offsetExists( 'debugToolBar' ) ) {
-                $this->setDebugToolBar( $config->offsetGet( 'debugToolBar' ) );
-            } elseif ( input()->env( 'DEBUG_STAGE' ) === 'DEVELOPER' ) {
-                $this->setDebugToolBar( true );
-            } else {
-                $this->setDebugToolBar( false );
-            }
-        }
-
-        // Load Module Assets
-        if ( modules()->current()->getConfig()->offsetExists( 'assets' ) ) {
-            $this->storage[ 'assets' ]->loadFiles( modules()->current()->getConfig()->offsetGet( 'assets' ) );
-        }
-    }
-
-    public function setTheme( $themeName )
-    {
-        if ( is_bool( $themeName ) ) {
-            $this->remove( 'theme' );
-        } elseif ( false !== ( $theme = modules()->current()->getTheme( $themeName ) ) ) {
-            // Load Theme Assets
-            $this->storage[ 'assets' ]->addFilePath( $theme->getRealPath() );
-
-            if ( $theme->getConfig()->offsetExists( 'assets' ) ) {
-                $this->storage[ 'assets' ]->loadFiles( $theme->getConfig()->offsetGet( 'assets' ) );
-            }
-
-            $this->storage[ 'assets' ]->loadFiles(
-                [
-                    'css' => [ 'theme' ],
-                    'js'  => [ 'theme' ],
-                ]
-            );
-
-            $this->store( 'theme', $theme );
-
-            // Load Theme Partials
-            foreach ( $theme->getPartials() as $partialName => $partialFileInfo ) {
-                $this->storage[ 'partials' ]->addPartial( $partialName, $partialFileInfo->getPathName() );
-            }
-        }
-    }
-
-    public function setDebugToolBar( $debugToolBar )
-    {
-        if ( is_bool( $debugToolBar ) ) {
-            $this->addItem( 'debugToolBar', $debugToolBar );
-        }
-
-        return $this;
+        $this->store( 'partials', new Presenter\Partials() );
+        $this->store( 'theme', new Presenter\Theme() );
     }
 
     public function addItem( $offset, $item )
@@ -101,43 +40,6 @@ class Presenter extends AbstractVariableStoragePattern
             parent::store( $offset, call_user_func( $item, $this ) );
         } else {
             parent::store( $offset, $item );
-        }
-    }
-
-    public function setThemeLayout( $themeLayout )
-    {
-        if ( false !== ( $theme = $this->offsetGet( 'theme' ) ) ) {
-
-            $theme->setLayout( $themeLayout );
-
-            // Load Theme Layout Assets
-            $layoutFilePath = $theme->getRealPath() . 'layouts' . DIRECTORY_SEPARATOR . $themeLayout . DIRECTORY_SEPARATOR;
-            $this->storage[ 'assets' ]->addFilePath( $layoutFilePath );
-
-            $this->storage[ 'assets' ]->loadFiles(
-                [
-                    'css' => [ 'layout' ],
-                    'js'  => [ 'layout' ],
-                ]
-            );
-
-            $this->store( 'theme', $theme );
-
-            // Load Theme Partials
-            foreach ( $theme->getPartials() as $partialName => $partialFileInfo ) {
-                $this->storage[ 'partials' ]->addPartial( $partialName, $partialFileInfo->getPathName() );
-            }
-        }
-    }
-
-    public function loadModel( $model )
-    {
-        if ( is_string( $model ) ) {
-            if ( class_exists( $model ) ) {
-                models()->register( strtolower( get_class_name( $model ) ), new $model() );
-            }
-        } else {
-            models()->register( strtolower( get_class_name( $model ) ), $model );
         }
     }
 

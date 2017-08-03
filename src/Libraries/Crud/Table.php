@@ -854,8 +854,8 @@ class Table
         $search[] = ( new Button( [ 'data-toggle' => 'dropdown', 'aria-haspopup' => 'true', 'aria-expanded' => 'false' ] ) )->isDefault()->setIcon( 'fa fa-list-ul' );
         $search[] = ( new Lists( [ 'class' => 'dropdown-menu' ] ) )->addItems(
             [
-                ( new Input( 'checkbox', [ 'name' => 'table-filter-search-fields', 'value' => 'nama-field' ] ) )->setLabel( 'Nama Field' ),
-                ( new Input( 'checkbox', [ 'name' => 'table-filter-search-fields', 'value' => 'nama-field' ] ) )->setLabel( 'Nama Field' ),
+                ( new Input( 'checkbox', [ 'name' => 'table-filter-search-fields', 'value' => 'nama-field' ] ) )->setLabel( 'Nama Input' ),
+                ( new Input( 'checkbox', [ 'name' => 'table-filter-search-fields', 'value' => 'nama-field' ] ) )->setLabel( 'Nama Input' ),
             ] );
         $search[] = html( '/span' );
         $search[] = html( '/div' );

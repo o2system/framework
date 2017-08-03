@@ -12,6 +12,14 @@
 
 namespace O2System\Framework\Http\Message\Uri;
 
+// ------------------------------------------------------------------------
+use O2System\Spl\Exceptions\RuntimeException;
+
+/**
+ * Class Segments
+ *
+ * @package O2System\Framework\Http\Message\Uri
+ */
 class Segments
 {
     protected $string;
@@ -19,7 +27,7 @@ class Segments
 
     public function __construct( $string = null )
     {
-        if ( empty( $string ) ) {
+        if ( is_null( $string ) ) {
             $protocol = strtoupper( config( 'uri' )->offsetGet( 'protocol' ) );
 
             empty( $protocol ) && $protocol = 'REQUEST_URI';
@@ -257,7 +265,7 @@ class Segments
                             language()->setDefault( $part );
 
                             continue;
-                        } else {
+                        } elseif( ! in_array( $part, $validSegments ) ) {
                             $validSegments[] = $part;
                         }
                     }
@@ -318,7 +326,7 @@ class Segments
      * @param string $string URI String
      *
      * @return mixed
-     * @throws HttpRequestUriException
+     * @throws RuntimeException
      */
     protected function filterPart( $string )
     {
@@ -329,7 +337,7 @@ class Segments
             ! preg_match( '/^[' . $config->offsetGet( 'permittedChars' ) . ']+$/i', $string ) AND
             ! is_cli()
         ) {
-            throw new HttpRequestUriException( 'E_URI_HAS_DISALLOWED_CHARACTERS', 105 );
+            throw new RuntimeException( 'E_URI_HAS_DISALLOWED_CHARACTERS', 105 );
         }
 
         // Convert programatic characters to entities and return

@@ -12,9 +12,7 @@
 
 namespace O2System\Framework\Http\Presenter;
 
-use O2System\Framework\Http\Message\Uri;
-use O2System\Kernel\Datastructures\Config;
-use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
+// ------------------------------------------------------------------------
 
 /**
  * Class Assets
@@ -23,35 +21,127 @@ use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
  */
 class Assets
 {
-    use FilePathCollectorTrait;
-
-    public $isCombine = false;
-
-    private $iconAssets = [];
-
-    private $fontAssets = [];
-
-    private $cssAssets = [];
-
-    private $jsAssets = [];
+    protected $head;
+    protected $body;
 
     /**
      * Assets::__construct
      */
     public function __construct()
     {
-        $this->setFileDirName( 'assets' );
-        $this->addFilePath( PATH_PUBLIC );
+        loader()->addPublicDir( 'assets' );
+
+        $this->head = new Assets\Positions\Head();
+        $this->body = new Assets\Positions\Body();
+    }
+
+    public function __get( $property )
+    {
+        return isset( $this->{$property} ) ? $this->{$property} : null;
+    }
+
+    public function autoload( array $assets )
+    {
+        foreach ( $assets as $position => $collections ) {
+            if ( property_exists( $this, $position ) ) {
+
+                if ( $collections instanceof \ArrayObject ) {
+                    $collections = $collections->getArrayCopy();
+                }
+
+                $this->{$position}->loadCollections( $collections );
+            } elseif ( $position === 'packages' ) {
+                $this->loadPackages( $collections );
+            } elseif ( $position === 'css' ) {
+                $this->loadCss( $collections );
+            } elseif ( $position === 'js' ) {
+                $this->loadJs( $collections );
+            }
+        }
+    }
+
+    public function loadPackages( $packages )
+    {
+        foreach ( $packages as $package => $files ) {
+            if ( is_string( $files ) ) {
+                $this->loadPackage( $files );
+            } elseif ( is_array( $files ) ) {
+                $this->loadPackage( $package, $files );
+            }
+        }
+    }
+
+    public function loadPackage( $package, $subPackages = [] )
+    {
+        $packageDir = implode( DIRECTORY_SEPARATOR, [
+                'packages',
+                $package,
+            ] ) . DIRECTORY_SEPARATOR;
+
+        if ( count( $subPackages ) ) {
+
+            if ( array_key_exists( 'libraries', $subPackages ) ) {
+                foreach ( $subPackages[ 'libraries' ] as $subPackageFile ) {
+                    $pluginDir = $packageDir . 'libraries' . DIRECTORY_SEPARATOR;
+                    $pluginName = $subPackageFile;
+
+                    if ( $this->body->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.js' ) ) {
+                        $this->head->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.css' );
+                    } else {
+                        $this->body->loadFile( $pluginDir . $pluginName . '.js' );
+                    }
+                }
+
+                unset( $subPackages[ 'libraries' ] );
+            }
+
+            $this->head->loadFile( $packageDir . $package . '.css' );
+            $this->body->loadFile( $packageDir . $package . '.js' );
+
+            foreach ( $subPackages as $subPackage => $subPackageFiles ) {
+                if ( $subPackage === 'theme' or $subPackage === 'themes' ) {
+                    $themeDir = $packageDir . 'themes' . DIRECTORY_SEPARATOR;
+                    $themeName = $subPackageFiles;
+
+                    if ( $this->head->loadFile( $themeDir . $themeName . DIRECTORY_SEPARATOR . $themeName . '.css' ) ) {
+                        $this->body->loadFile( $themeDir . $themeName . DIRECTORY_SEPARATOR . $themeName . '.js' );
+                    } else {
+                        $this->head->loadFile( $themeDir . $themeName . '.css' );
+                    }
+                } elseif ( $subPackage === 'plugins' ) {
+                    foreach ( $subPackageFiles as $subPackageFile ) {
+                        $pluginDir = $packageDir . 'plugins' . DIRECTORY_SEPARATOR;
+                        $pluginName = $subPackageFile;
+
+                        if ( $this->body->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.js' ) ) {
+                            $this->head->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.css' );
+                        } else {
+                            $this->body->loadFile( $pluginDir . $pluginName . '.js' );
+                        }
+                    }
+                } elseif ( $subPackage === 'libraries' ) {
+                    foreach ( $subPackageFiles as $subPackageFile ) {
+                        $pluginDir = $packageDir . 'libraries' . DIRECTORY_SEPARATOR;
+                        $pluginName = $subPackageFile;
+
+                        if ( $this->body->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.js' ) ) {
+                            $this->head->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.css' );
+                        } else {
+                            $this->body->loadFile( $pluginDir . $pluginName . '.js' );
+                        }
+                    }
+                }
+            }
+        } else {
+            $this->head->loadFile( $packageDir . $package . '.css' );
+            $this->body->loadFile( $packageDir . $package . '.js' );
+        }
     }
 
     public function loadFiles( $assets )
     {
-        if ( $assets instanceof Config ) {
-            $assets = $assets->getArrayCopy();
-        }
-
         foreach ( $assets as $type => $item ) {
-            $addMethod = 'add' . ucfirst( $type );
+            $addMethod = 'load' . ucfirst( $type );
 
             if ( method_exists( $this, $addMethod ) ) {
                 call_user_func_array( [ &$this, $addMethod ], [ $item ] );
@@ -59,279 +149,69 @@ class Assets
         }
     }
 
-    public function addJs( $js )
+    public function unloadFiles( $assets )
     {
-        $js = is_string( $js ) ? [ $js ] : $js;
+        if ( $assets instanceof Config ) {
+            $assets = $assets->getArrayCopy();
+        }
 
-        foreach ( $js as $filename ) {
-            if ( strpos( $filename, '//' ) !== false ) {
-                $this->jsAssets[] = $filename;
-            } elseif ( is_file( $filename ) ) {
-                $this->jsAssets[] = path_to_url( $filename );
-            } else {
-                foreach ( $this->filePaths as $filePath ) {
-                    $filePath .= 'js' . DIRECTORY_SEPARATOR;
-                    if ( is_file( $filePath . $filename . '.min.js' ) ) {
-                        $this->jsAssets[] = $this->getUrl( $filePath . $filename . '.min.js' );
-                        break;
-                    } elseif ( is_file( $filePath . $filename . '.js' ) ) {
-                        $this->jsAssets[] = $this->getUrl( $filePath . $filename . '.js' );
-                        break;
+        foreach ( $assets as $type => $item ) {
+
+            if ( is_array( $item ) ) {
+                foreach ( $item as $filename ) {
+                    if ( array_key_exists( $filename, $this->{$type . 'Assets'} ) ) {
+                        unset( $this->{$type . 'Assets'}[ $filename ] );
                     }
+                }
+            } elseif ( is_string( $item ) ) {
+                if ( array_key_exists( $item, $this->{$type . 'Assets'} ) ) {
+                    unset( $this->{$type . 'Assets'}[ $item ] );
                 }
             }
         }
     }
 
-    public function getUrl( $realPath )
+    public function loadJs( $files, $position = 'body' )
     {
-        return ( new Uri() )
-            ->withQuery( null )
-            ->withSegments(
-                new Uri\Segments(
-                    str_replace(
-                        [ PATH_PUBLIC, DIRECTORY_SEPARATOR ],
-                        [ '', '/' ],
-                        $realPath
-                    )
-                )
-            )
-            ->__toString();
+        $files = is_string( $files ) ? [ $files ] : $files;
+        $this->{$position}->loadCollections( [ 'js' => $files ] );
     }
 
-    public function addCss( $css )
+    public function loadCss( $files )
     {
-        $css = is_string( $css ) ? [ $css ] : $css;
+        $files = is_string( $files ) ? [ $files ] : $files;
+        $this->head->loadCollections( [ 'css' => $files ] );
+    }
 
-        foreach ( $css as $filename ) {
-            if ( strpos( $filename, '//' ) !== false ) {
-                $this->cssAssets[] = $filename;
-            } elseif ( is_file( $filename ) ) {
-                $this->cssAssets[] = path_to_url( $filename );
-            } else {
-                foreach ( $this->filePaths as $filePath ) {
-                    $filePath .= 'css' . DIRECTORY_SEPARATOR;
-                    if ( is_file( $filePath . $filename . '.min.css' ) ) {
-                        $this->cssAssets[] = $this->getUrl( $filePath . $filename . '.min.css' );
-                        break;
-                    } elseif ( is_file( $filePath . $filename . '.css' ) ) {
-                        $this->cssAssets[] = $this->getUrl( $filePath . $filename . '.css' );
-                        break;
-                    }
-                }
-            }
+    public function theme( $path )
+    {
+        $path = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $path );
+
+        if ( is_file( $filePath = presenter()->theme->active->getRealPath() . $path ) ) {
+            return path_to_url( $filePath );
         }
     }
 
-    public function addIcon( $icon )
-    {
-        $this->addIcons( $icon );
-    }
+    public function file( $file ) {
+        $file = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $file );
 
-    public function addIcons( $icons )
-    {
-        $icons = is_string( $icons ) ? [ $icons ] : $icons;
-
-        foreach ( $icons as $filename ) {
-            if ( strpos( $filename, '//' ) !== false ) {
-                $this->iconAssets[] = $filename;
-            } elseif ( is_file( $filename ) ) {
-                $this->iconAssets[] = path_to_url( $filename );
-            } else {
-                foreach ( $this->filePaths as $filePath ) {
-                    $filePath .= 'icons' . DIRECTORY_SEPARATOR;
-                    if ( is_file( $filePath . $filename ) ) {
-                        $this->iconAssets[] = ( new Uri() )
-                            ->withQuery( null )
-                            ->addPath(
-                                str_replace( [ PATH_PUBLIC, DIRECTORY_SEPARATOR ], [ '', '/' ], $filePath . $filename )
-                            )
-                            ->__toString();
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    public function addFont( $font )
-    {
-        $this->addFonts( $font );
-    }
-
-    public function addFonts( $fonts )
-    {
-        $fonts = is_string( $fonts ) ? [ $fonts ] : $fonts;
-
-        foreach ( $fonts as $filename ) {
-            if ( strpos( $filename, '//' ) !== false ) {
-                $this->fontAssets[] = $filename;
-            } elseif ( is_file( $filename ) ) {
-                $this->fontAssets[] = path_to_url( $filename );
-            } else {
-                foreach ( $this->filePaths as $filePath ) {
-                    $filePath .= 'fonts' . DIRECTORY_SEPARATOR . $filename . DIRECTORY_SEPARATOR;
-                    if ( is_file( $filePath . $filename . '.min.css' ) ) {
-                        $this->fontAssets[] = $this->getUrl( $filePath . $filename . '.min.css' );
-                        break;
-                    } elseif ( is_file( $filePath . $filename . '.css' ) ) {
-                        $this->fontAssets[] = $this->getUrl( $filePath . $filename . '.css' );
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    public function addPackage( $package )
-    {
-        $this->addPackages( $package );
-    }
-
-    public function addPackages( $packages )
-    {
-        $packages = is_string( $packages ) ? [ $packages ] : $packages;
-
-        foreach ( $packages as $offset => $package ) {
-            if ( is_string( $package ) ) {
-                foreach ( $this->filePaths as $filePath ) {
-                    $filePath .= 'packages' . DIRECTORY_SEPARATOR . $package . DIRECTORY_SEPARATOR;
-
-                    // Add CSS
-                    if ( is_file( $filePath . $package . '.min.css' ) ) {
-                        $this->cssAssets[ $package ] = $this->getUrl( $filePath . $package . '.min.css' );
-                    } elseif ( is_file( $filePath . $package . '.css' ) ) {
-                        $this->cssAssets[ $package ] = $this->getUrl( $filePath . $package . '.css' );
-                    }
-
-                    // Add JS
-                    if ( is_file( $filePath . $package . '.min.js' ) ) {
-                        $this->jsAssets[ $package ] = $this->getUrl( $filePath . $package . '.min.js' );
-                    } elseif ( is_file( $filePath . $package . '.js' ) ) {
-                        $this->jsAssets[ $package ] = $this->getUrl( $filePath . $package . '.js' );
-                    }
-                }
-            } else {
-                if ( $package instanceof Config ) {
-                    $package = $package->getArrayCopy();
-                }
-
-                foreach ( $this->filePaths as $filePath ) {
-                    $packageName = $offset;
-                    $packagePath = $filePath . 'packages' . DIRECTORY_SEPARATOR . $packageName . DIRECTORY_SEPARATOR;
-
-                    if ( is_dir( $packagePath ) ) {
-
-                        // Add Css
-                        if ( is_file( $packagePath . $packageName . '.min.css' ) ) {
-                            $this->cssAssets[ $packageName ] = $this->getUrl(
-                                $packagePath . $packageName . '.min.css'
-                            );
-                        } elseif ( is_file( $packagePath . $packageName . '.css' ) ) {
-                            $this->cssAssets[ $packageName ] = $this->getUrl( $packagePath . $packageName . '.css' );
-                        }
-
-                        // Add Js
-                        if ( is_file( $packagePath . $packageName . '.min.js' ) ) {
-                            $this->jsAssets[ $packageName ] = $this->getUrl( $packagePath . $packageName . '.min.js' );
-                        } elseif ( is_file( $packagePath . $packageName . '.js' ) ) {
-                            $this->jsAssets[ $packageName ] = $this->getUrl( $packagePath . $packageName . '.js' );
-                        }
-
-                        // Add Package Theme
-                        if ( isset( $package[ 'themes' ] ) ) {
-                            $themeName = $package[ 'themes' ];
-                            $themeFilePath = $packagePath . 'themes' . DIRECTORY_SEPARATOR . $themeName . DIRECTORY_SEPARATOR;
-                            if ( is_file( $themeFilePath . $themeName . '.min.css' ) ) {
-                                $this->cssAssets[ $themeName ] = $this->getUrl(
-                                    $themeFilePath . $themeName . '.min.css'
-                                );
-                            } elseif ( is_file( $themeFilePath . $themeName . '.css' ) ) {
-                                $this->cssAssets[ $themeName ] = $this->getUrl( $themeFilePath . $themeName . '.css' );
-                            }
-                        }
-
-                        // Add Package Plugins
-                        if ( isset( $package[ 'plugins' ] ) ) {
-                            foreach ( $package[ 'plugins' ] as $plugin ) {
-                                $pluginFilePath = $packagePath . 'plugins' . DIRECTORY_SEPARATOR . $plugin . DIRECTORY_SEPARATOR;
-
-                                // Add Package Plugin Css
-                                if ( is_file( $pluginFilePath . $plugin . '.min.css' ) ) {
-                                    $this->cssAssets[ $plugin ] = $this->getUrl(
-                                        $pluginFilePath . $plugin . '.min.css'
-                                    );
-                                } elseif ( is_file( $pluginFilePath . $plugin . '.css' ) ) {
-                                    $this->cssAssets[ $plugin ] = $this->getUrl( $pluginFilePath . $plugin . '.css' );
-                                }
-
-                                // Add Package Plugin Js
-                                if ( is_file( $pluginFilePath . $plugin . '.min.js' ) ) {
-                                    $this->jsAssets[ $plugin ] = $this->getUrl( $pluginFilePath . $plugin . '.min.js' );
-                                } elseif ( is_file( $pluginFilePath . $plugin . '.js' ) ) {
-                                    $this->jsAssets[ $plugin ] = $this->getUrl( $pluginFilePath . $plugin . '.js' );
-                                }
-                            }
-                        }
-
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    public function __get( $position )
-    {
-        switch ( $position ) {
-            case 'header':
-
-                return $this->getHeaderOutput();
-
+        foreach ( loader()->getPublicDirs( true ) as $filePath ) {
+            if ( is_file( $filePath . $file ) ) {
+                return path_to_url( $filePath . $file );
                 break;
-            case 'footer':
-
-                return $this->getFooterOutput();
-
-                break;
+            }
         }
-    }
-
-    private function getHeaderOutput()
-    {
-        $headerOutput = [];
-
-        foreach ( $this->fontAssets as $fontAsset ) {
-            $headerOutput[] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"$fontAsset\">";
-        }
-
-        foreach ( $this->cssAssets as $cssAsset ) {
-            $headerOutput[] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"$cssAsset\">";
-        }
-
-        return implode( PHP_EOL, $headerOutput );
-    }
-
-    private function getFooterOutput()
-    {
-        $footerOutput = [];
-
-        foreach ( $this->jsAssets as $jsAsset ) {
-            $footerOutput[] = "<script type=\"text/javascript\" src=\"$jsAsset\"></script>";
-        }
-
-        return implode( PHP_EOL, $footerOutput );
     }
 
     public function image( $image )
     {
         $image = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $image );
 
-        foreach ( $this->filePaths as $filePath ) {
-            $filePath .= 'images' . DIRECTORY_SEPARATOR;
+        foreach ( loader()->getPublicDirs( true ) as $filePath ) {
+            $filePath .= 'img' . DIRECTORY_SEPARATOR;
 
             if ( is_file( $filePath . $image ) ) {
-                return $this->getUrl( $filePath . $image );
+                return path_to_url( $filePath . $image );
                 break;
             }
         }

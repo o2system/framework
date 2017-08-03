@@ -157,7 +157,7 @@ class Module extends SplDirectoryInfo
         $theme = dash( $theme );
 
         if ( $failover === false ) {
-            if ( is_dir( $themePath = $this->getThemesPath() . $theme . DIRECTORY_SEPARATOR ) ) {
+            if ( is_dir( $themePath = $this->getPublicDir() . 'themes' . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR ) ) {
                 $themeObject = new Theme( $themePath );
 
                 if ( $themeObject->isValid() ) {
@@ -204,6 +204,11 @@ class Module extends SplDirectoryInfo
         }
 
         return false;
+    }
+
+    public function getPublicDir()
+    {
+        return PATH_PUBLIC . strtolower( str_replace( PATH_APP, '', $this->getRealPath() ) );
     }
 
     public function hasTheme( $theme )

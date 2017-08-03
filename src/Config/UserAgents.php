@@ -1,5 +1,14 @@
 <?php
-defined( 'ROOTPATH' ) OR exit( 'No direct script access allowed' );
+/**
+ * This file is part of the O2System PHP Framework package.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author         Steeve Andrian Salim
+ * @copyright      Copyright (c) Steeve Andrian Salim
+ */
+// ------------------------------------------------------------------------
 
 /*
 | -------------------------------------------------------------------
@@ -10,7 +19,6 @@ defined( 'ROOTPATH' ) OR exit( 'No direct script access allowed' );
 | mobile device data. The array keys are used to identify the device
 | and the array values are used to set the actual name of the item.
 */
-
 $platforms = [
     'windows nt 10.0' => 'Windows 10',
     'windows nt 6.3'  => 'Windows 8.1',
