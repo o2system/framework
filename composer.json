@@ -31,17 +31,17 @@
   },
   "require": {
     "php": ">=5.6.0",
-    "o2system/kernel": "dev-master",
-    "o2system/filesystem": "dev-master",
-    "o2system/cache": "dev-master",
-    "o2system/html": "dev-master",
-    "o2system/parser": "dev-master",
-    "o2system/image": "dev-master",
-    "o2system/security": "dev-master",
-    "o2system/orm": "dev-master",
-    "o2system/curl": "dev-master",
-    "o2system/orm": "dev-master",
-    "o2system/email": "dev-master"
+    "o2system/kernel": "*",
+    "o2system/filesystem": "*",
+    "o2system/cache": "*",
+    "o2system/html": "*",
+    "o2system/parser": "*",
+    "o2system/image": "*",
+    "o2system/security": "*",
+    "o2system/orm": "*",
+    "o2system/curl": "*",
+    "o2system/orm": "*",
+    "o2system/email": "*"
   },
   "autoload": {
     "psr-4": {
