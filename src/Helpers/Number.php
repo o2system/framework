@@ -264,13 +264,12 @@ if ( ! function_exists( 'short_format' ) ) {
         foreach ( $divisors as $divisor => $shorthand ) {
             if ( $number < ( $divisor * 1000 ) ) {
                 // We found a match!
+                // We found our match, or there were no matches.
+                // Either way, use the last defined value for $divisor.
+                return number_format( $number / $divisor, $decimals ) . $shorthand;
                 break;
             }
         }
-
-        // We found our match, or there were no matches.
-        // Either way, use the last defined value for $divisor.
-        return number_format( $number / $divisor, $decimals ) . $shorthand;
     }
 }
 

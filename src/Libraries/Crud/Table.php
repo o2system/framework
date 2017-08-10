@@ -455,7 +455,7 @@ class Table
                     ->setLabel( 'Entries : ' )
                     ->setOptions( $entries_options )
                     ->addOn(
-                        ( new Dropdown( 'Fields' ) )
+                        ( new Dropdown( 'Columns' ) )
                             ->isDefault()
                             ->addItems(
                                 [
@@ -850,7 +850,7 @@ class Table
         $search[] = html( 'div', [ 'class' => 'input-group' ] );
         $search[] = html( 'input', [ 'class' => 'form-control', 'name' => 'search', 'placeholder' => 'search...', 'data-toggle' => 'tooltip', 'title' => 'Search' ] );
         $search[] = html( 'span', [ 'class' => 'input-group-btn' ] );
-        $search[] = ( new Button( 'Fields' ) )->isDefault();
+        $search[] = ( new Button( 'Columns' ) )->isDefault();
         $search[] = ( new Button( [ 'data-toggle' => 'dropdown', 'aria-haspopup' => 'true', 'aria-expanded' => 'false' ] ) )->isDefault()->setIcon( 'fa fa-list-ul' );
         $search[] = ( new Lists( [ 'class' => 'dropdown-menu' ] ) )->addItems(
             [

@@ -14,6 +14,7 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Http\Router\Datastructures\Page;
 use O2System\Framework\Http\Router\Datastructures\Route;
 
 // ------------------------------------------------------------------------
@@ -43,47 +44,53 @@ class Router
     final public function parseRequest()
     {
         $uri = request()->getUri();
-
-        // Load default routes config
-        $routes = config()->loadFile( 'routes', true );
-
         $this->segments = $uriSegments = $uri->getSegments()->getParts();
         $uriString = $uri->getSegments()->getString();
 
-        // Domain routing
-        if ( null !== ( $domain = $routes->getDomain() ) ) {
-            if ( is_array( $domain ) ) {
-                $this->segments = $uriSegments = array_merge( $domain, $uriSegments );
-                $uriString = implode( '/', array_map( 'dash', $uriSegments ) );
-            } else {
-                if ( false !== ( $domainAppModule = modules()->getApp( $domain ) ) ) {
-                    // Register Domain App Module Namespace
-                    loader()->addNamespace( $domainAppModule->getNamespace(), $domainAppModule->getRealPath() );
+        // Load app routes config
+        $routes = config()->loadFile( 'routes', true );
 
-                    // Push Domain App Module
-                    modules()->push( $domainAppModule );
-                } elseif ( false !== ( $module = modules()->getModule( $domain ) ) ) {
-                    // Register Path Module Namespace
-                    loader()->addNamespace( $module->getNamespace(), $module->getRealPath() );
+        if ( $routes instanceof Router\Routes ) {
 
-                    // Push Path Module
-                    modules()->push( $module );
+            // Domain routing
+            if ( null !== ( $domain = $routes->getDomain() ) ) {
+                if ( is_array( $domain ) ) {
+                    $this->segments = $uriSegments = array_merge( $domain, $uriSegments );
+                    $uriString = implode( '/', array_map( 'dash', $uriSegments ) );
+                } else {
+                    if ( false !== ( $domainAppModule = modules()->getApp( $domain ) ) ) {
+                        // Register Domain App Module Namespace
+                        loader()->addNamespace( $domainAppModule->getNamespace(), $domainAppModule->getRealPath() );
+
+                        // Push Domain App Module
+                        modules()->push( $domainAppModule );
+                    } elseif ( false !== ( $module = modules()->getModule( $domain ) ) ) {
+                        // Register Path Module Namespace
+                        loader()->addNamespace( $module->getNamespace(), $module->getRealPath() );
+
+                        // Push Path Module
+                        modules()->push( $module );
+                    }
                 }
-            }
-        } elseif ( false !== ( $subdomain = $uri->getSubdomain() ) ) {
-            if ( false !== ( $subdomainAppModule = modules()->getApp( $subdomain ) ) ) {
-                // Register Subdomain App Module Namespace
-                loader()->addNamespace( $subdomainAppModule->getNamespace(), $subdomainAppModule->getRealPath() );
+            } elseif ( false !== ( $subdomain = $uri->getSubdomain() ) ) {
+                if ( false !== ( $subdomainAppModule = modules()->getApp( $subdomain ) ) ) {
+                    // Register Subdomain App Module Namespace
+                    loader()->addNamespace( $subdomainAppModule->getNamespace(), $subdomainAppModule->getRealPath() );
 
-                // Push Subdomain App Module
-                modules()->push( $subdomainAppModule );
+                    // Push Subdomain App Module
+                    modules()->push( $subdomainAppModule );
+                }
             }
         }
 
-        // Path to Module automatic routing
+        // Define default route by app routes config
+        $route = $routes->getMap( '/' );
+
+        // Module routing
         if ( $uriTotalSegments = count( $uriSegments ) ) {
             for ( $i = 0; $i <= $uriTotalSegments; $i++ ) {
-                $uriRoutedSegments = array_slice( $uriSegments, 0, ( $uriTotalSegments - $i ) );
+                $uriRoutedSegments = array_diff( $uriSegments,
+                    array_slice( $uriSegments, ( $uriTotalSegments - $i ) ) );
 
                 if ( false !== ( $module = modules()->getModule( $uriRoutedSegments ) ) ) {
                     $uriSegments = array_diff( $uriSegments, $uriRoutedSegments );
@@ -97,62 +104,45 @@ class Router
                     // Push Path Module
                     modules()->push( $module );
 
+                    // Load modular routes config
+                    if ( false !== ( $configDir = $module->getDir( 'config', true ) ) ) {
+
+                        if ( is_file(
+                            $filePath = $configDir . ucfirst(
+                                    strtolower( ENVIRONMENT )
+                                ) . DIRECTORY_SEPARATOR . 'Routes.php'
+                        ) ) {
+                            include( $filePath );
+                        } elseif ( is_file(
+                            $filePath = $configDir . 'Routes.php'
+                        ) ) {
+                            include( $filePath );
+                        }
+
+                        if ( isset( $routes ) && $routes instanceof Router\Routes ) {
+                            $moduleRouteDefault = $routes->getMap( '/' );
+                        }
+                    }
+
+                    // Define default route by module routes config
+                    if ( empty( $moduleRouteDefault ) ) {
+                        $controllerClassName = $module->getNamespace() . 'Controllers\\' . studlycase( $module->getParameter() );
+                        if ( class_exists( $controllerClassName ) ) {
+                            $route = $routes->any( '/', function () use ( $controllerClassName ) {
+                                return new $controllerClassName();
+                            } )->getMap( '/' );
+
+                            $uriSegments = array_diff( $uriSegments, [ strtolower( $module->getParameter() ) ] );
+                        }
+                    }
+
                     break;
                 }
             }
         }
 
-        // Load routes config
-        $configDir = modules()->current()->getDir( 'config', true );
-
-        if ( is_file(
-            $filePath = $configDir . ucfirst(
-                    strtolower( ENVIRONMENT )
-                ) . DIRECTORY_SEPARATOR . 'Routes.php'
-        ) ) {
-            unset( $routes );
-            include( $filePath );
-        } elseif ( is_file(
-            $filePath = $configDir . 'Routes.php'
-        ) ) {
-            unset( $routes );
-            include( $filePath );
-        } elseif ( $module = modules()->current() ) {
-            $controllerClassName = $module->getNamespace() . 'Controllers\\' . studlycase( $module->getParameter() );
-            if ( class_exists( $controllerClassName ) ) {
-                $routeModuleDefault = $routes->any( '/', function () use ( $controllerClassName ) {
-                    return new $controllerClassName();
-                } )->getMap( '/' );
-            }
-        }
-
-        if ( ! isset( $routes ) or ! $routes instanceof Router\Routes ) {
-            // @todo: throw config route exception
-            return;
-        }
-
-        // Define default route
-        $routeMapDefault = $routes->getMap( '/' );
-        if ( $routeMapDefault === false ) {
-            if ( isset( $routeModuleDefault ) ) {
-                $routeDefault = $routeModuleDefault;
-            } else {
-                $controllerClassName = modules()->current()->getNamespace() . 'Controllers\\' . studlycase( modules()->current()->getParameter() );
-                if ( class_exists( $controllerClassName ) ) {
-                    $routeDefault = $routes->any( '/', function () use ( $controllerClassName ) {
-                        return new $controllerClassName();
-                    } )->getMap( '/' );
-                }
-            }
-        } else {
-            $routeDefault = $routeMapDefault;
-        }
-
-        if ( empty( $uriString ) and empty( $this->controller ) and isset( $routeDefault ) ) {
-            if ( $this->parseRoute( $routeDefault, $uriSegments ) !== false ) {
-                return;
-            }
-        } elseif ( false !== ( $route = $routes->getMap( $uriString ) ) ) {
+        // Try to get route from URI String
+        if ( false !== ( $route = $routes->getMap( $uriString ) ) ) {
             if ( $route->isValidUriString( $uriString ) ) {
                 if ( ! $route->isValidHttpMethod( request()->getMethod() ) and
                     ! $route->isAnyHttpMethod()
@@ -162,23 +152,57 @@ class Router
                     return;
                 }
             }
-        } elseif ( count( $maps = $routes->getMaps() ) ) {
-            foreach ( $maps as $key => $route ) {
-                if ( $route->isValidHttpMethod( request()->getMethod() ) and $route->isValidUriString(
-                        $uriString
-                    )
-                ) {
-                    if ( $this->parseRoute( $route ) !== false ) {
-                        return;
+        }
 
-                        break;
+        // Try to get route from controller & page
+        if ( $uriTotalSegments = count( $uriSegments ) ) {
+            for ( $i = 0; $i <= $uriTotalSegments; $i++ ) {
+                $uriRoutedSegments = array_slice( $uriSegments, 0, ( $uriTotalSegments - $i ) );
+
+                $controllerClassName = modules()->current()->getNamespace() . 'Controllers\\' . implode( '\\',
+                        array_map( 'studlycase', $uriRoutedSegments ) );
+
+                if ( class_exists( $controllerClassName ) ) {
+                    $route = $routes->any( '/', function () use ( $controllerClassName ) {
+                        return new $controllerClassName();
+                    } )->getMap( '/' );
+
+                    $uriSegments = array_diff( $uriSegments, $uriRoutedSegments );
+
+                    if ( $this->parseRoute( $route, $uriSegments ) !== false ) { // Try to parse route
+                        return;
+                    }
+
+                    break;
+                } elseif ( false !== ( $pagesDir = modules()->current()->getDir( 'pages', true ) ) ) {
+                    $pageFilePath = $pagesDir . implode( DIRECTORY_SEPARATOR,
+                            array_map( 'dash', $uriRoutedSegments ) ) . '.phtml';
+
+                    if ( is_file( $pageFilePath ) ) {
+                        if (  $this->setPage( new Page( $pageFilePath ) ) !== false ) {
+                            return;
+
+                            break;
+                        }
+                    }
+                }
+            }
+        } elseif ( count( $maps = $routes->getMaps() ) ) { // Try to parse route from route map
+            foreach ( $maps as $key => $route ) {
+                if ( $route instanceof Route ) {
+                    if ( $route->isValidHttpMethod( request()->getMethod() ) and $route->isValidUriString(
+                            $uriString
+                        )
+                    ) {
+                        if ( $this->parseRoute( $route ) !== false ) {
+                            return;
+
+                            break;
+                        }
                     }
                 }
             }
         }
-
-        // Try to parse the uri segments to perform automatic routing
-        $this->parseSegments( $uriSegments );
 
         // Let's the framework do the rest when there is no controller found
         // the framework will redirect to PAGE 404
@@ -197,42 +221,12 @@ class Router
                 $this->setController( $controllerRegistry, $uriSegments );
             } elseif ( $closure instanceof Router\Datastructures\Controller ) {
                 $this->setController( $closure, $route->getClosureParameters() );
-            } elseif ( is_array( $closure ) ) {
-                $this->parseSegments( $closure );
-            } elseif ( is_string( $closure ) ) {
-                if ( strpos( $closure, '/' ) !== false ) {
-                    $this->parseSegments( explode( '/', $closure ) );
-                } else {
-                    output()->send( $closure );
-                }
             }
         } else {
             output()->sendError( 204 );
         }
     }
 
-    final private function parseSegments( array $segments )
-    {
-        static $reflection;
-
-        if ( empty( $reflection ) ) {
-            $reflection = new \ReflectionClass( $this );
-        }
-
-        foreach ( $reflection->getMethods() as $method ) {
-            if ( strpos( $method->name, 'validateSegments' ) !== false ) {
-                if ( $this->{$method->name}( $segments ) ) {
-                    break;
-                }
-            }
-        }
-    }
-
-    /**
-     * getController
-     *
-     * @return Router\Datastructures\Controller
-     */
     final public function getController()
     {
         return $this->controller;
@@ -305,94 +299,29 @@ class Router
 
     // ------------------------------------------------------------------------
 
-    final private function validateSegmentsPage( array $segments )
+    final protected function setPage( Page $page )
     {
-        $languageDirectory = language()->getDefault();
+        foreach ( modules()->getNamespaces() as $controllersNamespace ) {
+            $controllerPagesClassName = $controllersNamespace->name . 'Controllers\Pages';
 
-        if ( language()->isExists( $languageIdeom = reset( $segments ) ) ) {
-            $languageDirectory = $languageIdeom;
-            array_shift( $segments );
-        }
-
-        $numSegments = count( $segments );
-        $pagesDirectories = modules()->getDirs( 'Pages' );
-
-        for ( $i = 0; $i <= $numSegments; $i++ ) {
-            $routedSegments = array_slice( $segments, 0, ( $numSegments - $i ) );
-
-            $pageFilename = implode( DIRECTORY_SEPARATOR, $routedSegments );
-            $pageFilename = strtolower( $pageFilename ) . '.phtml';
-
-            foreach ( $pagesDirectories as $pagesDirectory ) {
-                if ( is_file(
-                    $pageFilePath = $pagesDirectory . $languageDirectory . DIRECTORY_SEPARATOR . $pageFilename
-                ) ) {
-                    $page = new Router\Datastructures\Page( $pageFilePath );
-                    break;
-                } elseif ( is_file( $pageFilePath = $pagesDirectory . $pageFilename ) ) {
-                    $page = new Router\Datastructures\Page( $pageFilePath );
-                    break;
-                }
+            if ( $controllersNamespace->name === 'O2System\Framework\\' ) {
+                $controllerPagesClassName = 'O2System\Framework\Http\Controllers\Pages';
             }
 
-            if ( isset( $page ) ) {
-                foreach ( modules()->getNamespaces() as $controllersNamespace ) {
-                    $controllerPagesClassName = $controllersNamespace->name . 'Controllers\Pages';
+            if ( class_exists( $controllerPagesClassName ) ) {
+                $controller = new $controllerPagesClassName();
 
-                    if ( $controllersNamespace->name === 'O2System\Framework\\' ) {
-                        $controllerPagesClassName = 'O2System\Framework\Http\Controllers\Pages';
-                    }
+                if ( $controller instanceof Controllers\Pages ) {
+                    $controller->setPage( $page );
 
-                    if ( class_exists( $controllerPagesClassName ) ) {
-                        $controller = new $controllerPagesClassName();
+                    $this->setController(
+                        ( new Router\Datastructures\Controller( $controller ) )
+                            ->setRequestMethod( 'index' )
+                    );
 
-                        if ( $controller instanceof Controllers\Pages ) {
-                            $controller->setPage( $page );
-
-                            $this->setController(
-                                ( new Router\Datastructures\Controller( $controller ) )
-                                    ->setRequestMethod( 'index' )
-                            );
-                        }
-
-                        break;
-                    }
+                    return true;
                 }
 
-                return true;
-
-                break;
-            }
-        }
-
-        return false;
-    }
-
-    final private function validateSegmentsController( array $segments )
-    {
-        $numSegments = count( $segments );
-        $controllerRegistry = null;
-        $uriSegments = [];
-        $controllersDirectories = modules()->getDirs( 'Controllers' );
-
-        for ( $i = 0; $i <= $numSegments; $i++ ) {
-            $routedSegments = array_slice( $segments, 0, ( $numSegments - $i ) );
-
-            $controllerFilename = implode( DIRECTORY_SEPARATOR, $routedSegments );
-            $controllerFilename = prepare_filename( $controllerFilename ) . '.php';
-
-            if ( empty( $controllerRegistry ) ) {
-                foreach ( $controllersDirectories as $controllerDirectory ) {
-                    if ( is_file( $controllerFilePath = $controllerDirectory . $controllerFilename ) ) {
-                        $uriSegments = array_diff( $segments, $routedSegments );
-                        $controllerRegistry = new Router\Datastructures\Controller( $controllerFilePath );
-                        break;
-                    }
-                }
-            } elseif ( $controllerRegistry instanceof Router\Datastructures\Controller ) {
-                $this->setController( $controllerRegistry, $uriSegments );
-
-                return true;
                 break;
             }
         }

@@ -52,7 +52,7 @@ abstract class AbstractModel extends AbstractSingletonPattern
     public $table = null;
 
     /**
-     * Model Table Fields
+     * Model Table Columns
      *
      * @access  public
      * @type    array

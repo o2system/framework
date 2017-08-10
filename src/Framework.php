@@ -365,6 +365,22 @@ class Framework extends Kernel
         profiler()->watch( 'HTTP_RUN_MIDDLEWARE_SERVICE' );
         middleware()->run();
 
+        // Try to get from cache
+        $cacheKey = 'o2output_' . underscore( request()->getUri()->getSegments()->getString() );
+
+        $cacheItemPool = cache()->getItemPool( 'default' );
+
+        if ( cache()->hasItemPool( 'output' ) ) {
+            $cacheItemPool = cache()->getItemPool( 'output' );
+        }
+
+        if ( $cacheItemPool instanceof \O2System\Psr\Cache\CacheItemPoolInterface ) {
+            if ( $cacheItemPool->hasItem( $cacheKey ) ) {
+                $cacheOutput = $cacheItemPool->getItem( $cacheKey )->get();
+                output()->send( $cacheOutput );
+            }
+        }
+
         if ( $controller = router()->getController() ) {
 
             if ( $controller instanceof Framework\Http\Router\Datastructures\Controller ) {

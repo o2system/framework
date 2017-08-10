@@ -67,9 +67,9 @@ if ( ! function_exists( 'array_get_values' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'array_combine' ) ) {
+if ( ! function_exists( 'array_combines' ) ) {
     /**
-     * array_combine
+     * array_combines
      *
      * Creates an array by using one array for keys and another for its values and keep all the values.
      *
@@ -78,7 +78,7 @@ if ( ! function_exists( 'array_combine' ) ) {
      *
      * @return array
      */
-    function array_combine( array $keys, array $values )
+    function array_combines( array $keys, array $values )
     {
         $combine_array = [];
 
@@ -321,6 +321,32 @@ if ( ! function_exists( 'range_price' ) ) {
     }
 }
 
+// ------------------------------------------------------------------------
+
+
+if ( ! function_exists( 'range_date' ) ) {
+    /**
+     * range_date
+     *
+     * Creates an array containing a range of dates.
+     *
+     * @param   string|int $start_date Start Date
+     * @param   int        $days       Num of days
+     *
+     * @return  array
+     */
+    function range_date( $start_date, $days = 1 )
+    {
+        $start_date = ( is_string( $start_date ) ? strtotime( $start_date ) : $start_date );
+
+        $date_range = [];
+        for ( $i = 0; $i < $days; $i++ ) {
+            $date_range[ $i ] = $start_date + ( $i * 24 * 60 * 60 );
+        }
+
+        return $date_range;
+    }
+}
 // ------------------------------------------------------------------------
 
 if ( ! function_exists( 'range_year' ) ) {

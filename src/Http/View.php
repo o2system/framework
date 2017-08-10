@@ -14,11 +14,13 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
+use O2System\Cache\Item;
 use O2System\Framework\Datastructures\Module\Theme;
 use O2System\Framework\Http\Presenter\Meta;
 use O2System\Framework\Http\Router\Datastructures\Page;
 use O2System\Gear\Toolbar;
 use O2System\Html;
+use O2System\Psr\Cache\CacheItemPoolInterface;
 use O2System\Spl\Exceptions\ErrorException;
 use O2System\Spl\Traits\Collectors\FileExtensionCollectorTrait;
 use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
@@ -350,6 +352,22 @@ class View
             return $htmlOutput;
         }
 
-        output()->send( $htmlOutput, [ 'eTag' => md5( $htmlOutput ) ] );
+        if ( presenter()->offsetExists( 'cacheOutput' ) ) {
+            $cacheKey = 'o2output_' . underscore( request()->getUri()->getSegments()->getString() );
+
+            $cacheItemPool = cache()->getItemPool( 'default' );
+
+            if ( cache()->hasItemPool( 'output' ) ) {
+                $cacheItemPool = cache()->getItemPool( 'output' );
+            }
+
+            if ( $cacheItemPool instanceof CacheItemPoolInterface ) {
+                if( presenter()->cacheOutput > 0 ) {
+                    $cacheItemPool->save( new Item( $cacheKey, $htmlOutput, presenter()->cacheOutput ) );
+                }
+            }
+        }
+
+        output()->send( $htmlOutput );
     }
 }

@@ -266,16 +266,15 @@ if ( ! function_exists( 'string_time_elapsed' ) ) {
      * @access  public
      * @return  string
      */
-    function string_time_elapsed( $time, $full = false )
+    function string_time_elapsed( $time = null, $full = false )
     {
         language()->loadFile( 'date' );
 
-        if ( is_numeric( $time ) ) {
-            $time = date( 'Y-m-d H:m:s', $time );
-        }
+        $time = is_null( $time ) ? now() : $time;
+        $time = is_numeric( $time ) ? $time : strtotime( $time );
 
         $now = new DateTime;
-        $ago = new DateTime( $time );
+        $ago = new DateTime( date( 'r', $time ) );
         $diff = $now->diff( $ago );
 
         $diff->w = floor( $diff->d / 7 );
@@ -303,8 +302,8 @@ if ( ! function_exists( 'string_time_elapsed' ) ) {
             $string = array_slice( $string, 0, 1 );
         }
 
-        return $string ? strtolower( implode( ', ', $string ) ) . ' ' . language()->getLine( 'DATE_AGO' )
-            : language()->getLine( 'DATE_JUSTNOW' );
+        return $string ? implode( ', ',
+                $string ) . ' ' . language()->getLine( 'DATE_AGO' ) : language()->getLine( 'DATE_JUST_NOW' );
 
     }
 }
@@ -398,40 +397,9 @@ if ( ! function_exists( 'time_range' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'date_range' ) ) {
-    /**
-     * Date Range List
-     *
-     * Returns amount of days
-     *
-     * @param   time|date $start_date Start Date
-     * @param   int       $days       Num of days
-     * @param   string    $return     Return value array|date
-     *
-     * @return  int
-     */
-    function date_range( $start_date, $days = 1, $return = 'array' )
-    {
-        $start_date = ( is_string( $start_date ) ? strtotime( $start_date ) : $start_date );
-
-        if ( $return == 'array' ) {
-            for ( $i = 0; $i < $days; $i++ ) {
-                $date_range[ $i ] = $start_date + ( $i * 24 * 60 * 60 );
-            }
-
-            return $date_range;
-        } else {
-            $date_range = $start_date + ( $days * 24 * 60 * 60 );
-
-            return $date_range;
-        }
-    }
-}
-// ------------------------------------------------------------------------
-
 if ( ! function_exists( 'calculate_days' ) ) {
     /**
-     * Calculate Weeks
+     * calculate_days
      *
      * Returns amount of weeks
      *
@@ -463,7 +431,7 @@ if ( ! function_exists( 'calculate_days' ) ) {
 
 if ( ! function_exists( 'calculate_weeks' ) ) {
     /**
-     * Calculate Weeks
+     * calculate_weeks
      *
      * Returns amount of weeks
      *
@@ -1059,7 +1027,7 @@ if ( ! function_exists( 'timespan' ) ) {
         $years = floor( $seconds / 31557600 );
 
         if ( $years > 0 ) {
-            $str[] = $years . ' ' . language()->getLine( $years > 1 ? 'date_years' : 'date_year' );
+            $str[] = $years . ' ' . language()->getLine( $years > 1 ? 'DATE_YEARS' : 'DATE_YEAR' );
         }
 
         $seconds -= $years * 31557600;
