@@ -40,7 +40,8 @@
     "o2system/security": "dev-master",
     "o2system/orm": "dev-master",
     "o2system/curl": "dev-master",
-    "o2system/bootstrap": "dev-master"
+    "o2system/orm": "dev-master",
+    "o2system/email": "dev-master"
   },
   "autoload": {
     "psr-4": {
