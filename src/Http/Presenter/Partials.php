@@ -19,7 +19,7 @@ use O2System\Psr\Patterns\AbstractItemStoragePattern;
 /**
  * Class Partials
  *
- * @package O2System\Framework\Http\View\Presenter
+ * @package O2System\Framework\Http\Presenter
  */
 class Partials extends AbstractItemStoragePattern
 {

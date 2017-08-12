@@ -381,7 +381,7 @@ class Framework extends Kernel
             }
         }
 
-        if ( $controller = router()->getController() ) {
+        if ( false !== ( $controller = $this->getService( 'controller' ) ) ) {
 
             if ( $controller instanceof Framework\Http\Router\Datastructures\Controller ) {
 
@@ -410,18 +410,14 @@ class Framework extends Kernel
                     $module->loadModel();
                 }
 
-                $modelClassName = str_replace( 'Controllers', 'Models', $controller->getName() );
+                $modelClassName = str_replace( 'Presenters', 'Models', $controller->getName() );
 
                 if ( class_exists( $modelClassName ) ) {
                     models()->register( 'controller', new $modelClassName() );
                 }
 
-                if ( $controller = router()->getController() ) {
-                    $controllerAssets[] = $controller->getParameter();
-                    $controllerAssets[] = $controller->getRequestMethod();
-                } else {
-                    $controllerAssets[] = get_class_name( $this );
-                }
+                $controllerAssets[] = $controller->getParameter();
+                $controllerAssets[] = $controller->getRequestMethod();
 
                 // Decamelcase assets file names
                 $controllerAssets = array_map( 'snakecase', $controllerAssets );

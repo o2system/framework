@@ -26,25 +26,10 @@ use O2System\Framework\Http\Router\Datastructures\Route;
  */
 class Router
 {
-    /**
-     * Router::$segments
-     *
-     * Router segments.
-     *
-     * @var array
-     */
-    protected $segments = [];
-
-    protected $request;
-
-    protected $controller;
-
-    // ------------------------------------------------------------------------
-
     final public function parseRequest()
     {
         $uri = request()->getUri();
-        $this->segments = $uriSegments = $uri->getSegments()->getParts();
+        $uriSegments = $uri->getSegments()->getParts();
         $uriString = $uri->getSegments()->getString();
 
         // Load app routes config
@@ -55,7 +40,7 @@ class Router
             // Domain routing
             if ( null !== ( $domain = $routes->getDomain() ) ) {
                 if ( is_array( $domain ) ) {
-                    $this->segments = $uriSegments = array_merge( $domain, $uriSegments );
+                    $uriSegments = array_merge( $domain, $uriSegments );
                     $uriString = implode( '/', array_map( 'dash', $uriSegments ) );
                 } else {
                     if ( false !== ( $domainAppModule = modules()->getApp( $domain ) ) ) {
@@ -84,7 +69,7 @@ class Router
         }
 
         // Define default route by app routes config
-        $route = $routes->getMap( '/' );
+        $defaultRoute = $routes->getMap( '/' );
 
         // Module routing
         if ( $uriTotalSegments = count( $uriSegments ) ) {
@@ -94,7 +79,7 @@ class Router
 
                 if ( false !== ( $module = modules()->getModule( $uriRoutedSegments ) ) ) {
                     $uriSegments = array_diff( $uriSegments, $uriRoutedSegments );
-                    $this->segments = $uriSegments = empty( $uriSegments )
+                    $uriSegments = empty( $uriSegments )
                         ? [ $module->getParameter() ]
                         : $uriSegments;
 
@@ -128,12 +113,14 @@ class Router
                     if ( empty( $moduleRouteDefault ) ) {
                         $controllerClassName = $module->getNamespace() . 'Controllers\\' . studlycase( $module->getParameter() );
                         if ( class_exists( $controllerClassName ) ) {
-                            $route = $routes->any( '/', function () use ( $controllerClassName ) {
+                            $defaultRoute = $routes->any( '/', function () use ( $controllerClassName ) {
                                 return new $controllerClassName();
                             } )->getMap( '/' );
 
                             $uriSegments = array_diff( $uriSegments, [ strtolower( $module->getParameter() ) ] );
                         }
+                    } else {
+                        $defaultRoute = $moduleRouteDefault;
                     }
 
                     break;
@@ -142,13 +129,13 @@ class Router
         }
 
         // Try to get route from URI String
-        if ( false !== ( $route = $routes->getMap( $uriString ) ) ) {
-            if ( $route->isValidUriString( $uriString ) ) {
-                if ( ! $route->isValidHttpMethod( request()->getMethod() ) and
-                    ! $route->isAnyHttpMethod()
+        if ( false !== ( $uriRoute = $routes->getMap( $uriString ) ) ) {
+            if ( $uriRoute->isValidUriString( $uriString ) ) {
+                if ( ! $uriRoute->isValidHttpMethod( request()->getMethod() ) and
+                    ! $uriRoute->isAnyHttpMethod()
                 ) {
                     output()->sendError( 405 );
-                } elseif ( $this->parseRoute( $route ) !== false ) {
+                } elseif ( $this->parseRoute( $uriRoute ) !== false ) {
                     return;
                 }
             }
@@ -159,42 +146,49 @@ class Router
             for ( $i = 0; $i <= $uriTotalSegments; $i++ ) {
                 $uriRoutedSegments = array_slice( $uriSegments, 0, ( $uriTotalSegments - $i ) );
 
-                $controllerClassName = modules()->current()->getNamespace() . 'Controllers\\' . implode( '\\',
-                        array_map( 'studlycase', $uriRoutedSegments ) );
+                foreach ( modules()->getArrayCopy() as $module ) {
+                    $controllerClassName = $module->getNamespace() . 'Controllers\\' . implode( '\\',
+                            array_map( 'studlycase', $uriRoutedSegments ) );
 
-                if ( class_exists( $controllerClassName ) ) {
-                    $route = $routes->any( '/', function () use ( $controllerClassName ) {
-                        return new $controllerClassName();
-                    } )->getMap( '/' );
+                    if ( class_exists( $controllerClassName ) ) {
+                        $defaultRoute = $routes->any( '/', function () use ( $controllerClassName ) {
+                            return new $controllerClassName();
+                        } )->getMap( '/' );
 
-                    $uriSegments = array_diff( $uriSegments, $uriRoutedSegments );
+                        $uriSegments = array_diff( $uriSegments, $uriRoutedSegments );
 
-                    if ( $this->parseRoute( $route, $uriSegments ) !== false ) { // Try to parse route
-                        return;
-                    }
-
-                    break;
-                } elseif ( false !== ( $pagesDir = modules()->current()->getDir( 'pages', true ) ) ) {
-                    $pageFilePath = $pagesDir . implode( DIRECTORY_SEPARATOR,
-                            array_map( 'dash', $uriRoutedSegments ) ) . '.phtml';
-
-                    if ( is_file( $pageFilePath ) ) {
-                        if (  $this->setPage( new Page( $pageFilePath ) ) !== false ) {
+                        if ( $this->parseRoute( $defaultRoute, $uriSegments ) !== false ) { // Try to parse route
                             return;
+                        }
 
-                            break;
+                        break;
+                    } elseif ( false !== ( $pagesDir = $module->getDir( 'pages', true ) ) ) {
+                        $pageFilePath = $pagesDir . implode( DIRECTORY_SEPARATOR,
+                                array_map( 'dash', $uriRoutedSegments ) ) . '.phtml';
+
+                        if ( is_file( $pageFilePath ) ) {
+                            if ( $this->setPage( new Page( $pageFilePath ) ) !== false ) {
+                                return;
+
+                                break;
+                            }
                         }
                     }
+                }
+
+                // break the loop if the controller has been set
+                if ( ! empty( o2system()->hasService( 'controller' ) ) ) {
+                    break;
                 }
             }
         } elseif ( count( $maps = $routes->getMaps() ) ) { // Try to parse route from route map
-            foreach ( $maps as $key => $route ) {
-                if ( $route instanceof Route ) {
-                    if ( $route->isValidHttpMethod( request()->getMethod() ) and $route->isValidUriString(
+            foreach ( $maps as $map ) {
+                if ( $map instanceof Route ) {
+                    if ( $map->isValidHttpMethod( request()->getMethod() ) and $map->isValidUriString(
                             $uriString
                         )
                     ) {
-                        if ( $this->parseRoute( $route ) !== false ) {
+                        if ( $this->parseRoute( $map ) !== false ) {
                             return;
 
                             break;
@@ -202,6 +196,11 @@ class Router
                     }
                 }
             }
+        }
+
+        // try to get default route
+        if ( isset( $defaultRoute ) ) {
+            $this->parseRoute( $defaultRoute, $uriSegments );
         }
 
         // Let's the framework do the rest when there is no controller found
@@ -226,13 +225,6 @@ class Router
             output()->sendError( 204 );
         }
     }
-
-    final public function getController()
-    {
-        return $this->controller;
-    }
-
-    // ------------------------------------------------------------------------
 
     final protected function setController( Router\Datastructures\Controller $controller, array $uriSegments = [] )
     {
@@ -294,7 +286,7 @@ class Router
         }
 
         // Set Router Controller
-        $this->controller = $controller;
+        o2system()->addService( $controller, 'controller' );
     }
 
     // ------------------------------------------------------------------------

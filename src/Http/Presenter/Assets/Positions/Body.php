@@ -20,7 +20,7 @@ use O2System\Framework\Http\Presenter\Assets\Collections;
 /**
  * Class Body
  *
- * @package O2System\Framework\Http\Presenter\Assets
+ * @package O2System\Framework\Http\Presenter\Assets\Positions
  */
 class Body extends AbstractPosition
 {

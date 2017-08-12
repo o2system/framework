@@ -15,7 +15,6 @@ namespace O2System\Framework\Http;
 // ------------------------------------------------------------------------
 
 use O2System\Cache\Item;
-use O2System\Framework\Datastructures\Module\Theme;
 use O2System\Framework\Http\Presenter\Meta;
 use O2System\Framework\Http\Router\Datastructures\Page;
 use O2System\Gear\Toolbar;
@@ -210,39 +209,40 @@ class View
             $viewsFileExtensions = $this->fileExtensions;
             $viewsDirectories = modules()->getDirs( 'Views' );
 
-            if ( ( $theme = presenter()->getItem( 'theme' ) ) instanceof Theme ) {
-                $moduleReplacementPath = $theme->getPathName()
+            if ( presenter()->theme->use === true ) {
+
+                $moduleReplacementPath = presenter()->theme->active->getPathName()
                     . DIRECTORY_SEPARATOR
-                    . 'modules'
+                    . 'views'
                     . DIRECTORY_SEPARATOR
-                    . dash(
-                        modules()->current()->getDirName()
-                    )
-                    . DIRECTORY_SEPARATOR;
+                    . strtolower(
+                        str_replace( PATH_APP, '', modules()->current()->getRealpath() )
+                    );
 
                 if ( is_dir( $moduleReplacementPath ) ) {
                     array_unshift( $viewsDirectories, $moduleReplacementPath );
 
                     // Add Theme File Extensions
-                    if ( $theme->getConfig()->offsetExists( 'extension' ) ) {
-                        array_unshift( $viewsFileExtensions, $theme->getConfig()->offsetGet( 'extension' ) );
-                    } elseif ( $theme->getConfig()->offsetExists( 'extensions' ) ) {
+                    if ( presenter()->theme->active->getConfig()->offsetExists( 'extension' ) ) {
+                        array_unshift( $viewsFileExtensions,
+                            presenter()->theme->active->getConfig()->offsetGet( 'extension' ) );
+                    } elseif ( presenter()->theme->active->getConfig()->offsetExists( 'extensions' ) ) {
                         $viewsFileExtensions = array_merge(
-                            $theme->getConfig()->offsetGet( 'extensions' ),
+                            presenter()->theme->active->getConfig()->offsetGet( 'extensions' ),
                             $viewsFileExtensions
                         );
                     }
 
                     // Add Theme Parser Engine
-                    if ( $theme->getConfig()->offsetExists( 'driver' ) ) {
+                    if ( presenter()->theme->active->getConfig()->offsetExists( 'driver' ) ) {
                         $parserDriverClassName = '\O2System\Parser\Drivers\\' . camelcase(
-                                $theme->getConfig()->offsetGet( 'driver' )
+                                presenter()->theme->active->getConfig()->offsetGet( 'driver' )
                             );
 
                         if ( class_exists( $parserDriverClassName ) ) {
                             parser()->addDriver(
                                 new $parserDriverClassName(),
-                                $theme->getConfig()->offsetGet( 'driver' )
+                                presenter()->theme->active->getConfig()->offsetGet( 'driver' )
                             );
                         }
                     }
@@ -302,7 +302,7 @@ class View
 
         // set module meta
         presenter()->meta->offsetSet( 'module-parameter', modules()->current()->getParameter() );
-        presenter()->meta->offsetSet( 'module-controller', router()->getController()->getParameter() );
+        presenter()->meta->offsetSet( 'module-controller', controller()->getClassInfo()->getParameter() );
 
         $meta = presenter()->meta->getArrayCopy();
 
@@ -362,7 +362,7 @@ class View
             }
 
             if ( $cacheItemPool instanceof CacheItemPoolInterface ) {
-                if( presenter()->cacheOutput > 0 ) {
+                if ( presenter()->cacheOutput > 0 ) {
                     $cacheItemPool->save( new Item( $cacheKey, $htmlOutput, presenter()->cacheOutput ) );
                 }
             }

@@ -19,7 +19,7 @@ use O2System\Psr\Patterns\AbstractVariableStoragePattern;
 /**
  * Class Presenter
  *
- * @package O2System\Framework\Http\View
+ * @package O2System\Framework\Http
  */
 class Presenter extends AbstractVariableStoragePattern
 {
@@ -31,6 +31,7 @@ class Presenter extends AbstractVariableStoragePattern
         $this->store( 'meta', new Presenter\Meta() );
         $this->store( 'assets', new Presenter\Assets() );
         $this->store( 'partials', new Presenter\Partials() );
+        $this->store( 'widgets', new Presenter\Widgets() );
         $this->store( 'theme', new Presenter\Theme() );
     }
 
