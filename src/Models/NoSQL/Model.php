@@ -10,25 +10,16 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\Modules;
+namespace O2System\Framework\Models\NoSQL;
 
 // ------------------------------------------------------------------------
 
-use O2System\Orm\Abstracts\AbstractModel;
-
 /**
- * Class Settings
+ * Class Model
  *
- * @package O2System\Framework\Models
+ * @package O2System\Framework\Models\NoSQL
  */
-class Settings extends AbstractModel
+class Model
 {
-    /**
-     * Settings::$table
-     *
-     * System modules settings database table name.
-     *
-     * @var string
-     */
-    public $table = 'sys_modules_settings';
+
 }

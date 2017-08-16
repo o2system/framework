@@ -10,25 +10,27 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models;
+namespace O2System\Framework\Models\SQL\Relations;
 
 // ------------------------------------------------------------------------
 
-use O2System\Orm\Abstracts\AbstractModel;
+use O2System\Framework\Models\Abstracts\AbstractRelations;
+use O2System\Framework\Models\Metadata\Row;
 
 /**
- * Class Settings
+ * Class MorphToMany
  *
- * @package O2System\Framework\Models
+ * @package O2System\Framework\Models\SQL\Relations
  */
-class Settings extends AbstractModel
+class MorphToMany extends AbstractRelations
 {
     /**
-     * Settings::$table
+     * Get Result
      *
-     * O2System Framework Modules Settings Table Name.
-     *
-     * @var string
+     * @return Row|array|bool
      */
-    public $table = 'sys_modules_settings';
+    public function getResult()
+    {
+        // TODO: Implement result() method.
+    }
 }

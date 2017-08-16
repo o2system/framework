@@ -10,31 +10,24 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models;
+namespace O2System\Framework\SQL\Models\Users;
 
 // ------------------------------------------------------------------------
 
-use O2System\Orm\Abstracts\AbstractModel;
 use O2System\Framework\Libraries\Acl\Datastructures\Account;
+use O2System\Framework\SQL\Models\Users;
 
 /**
- * Class Users
+ * Class Role
  *
- * @package O2System\Framework\Models\Users
+ * @package O2System\Framework\SQL\Models\Users
  */
-class Users extends AbstractModel
+class Role extends Users
 {
-    public $table = 'sys_users';
+    public $table = 'sys_users_roles';
 
     public function insert( array $data )
     {
         return $this->db->table( $this->table )->insert( $data );
-    }
-
-    public function update( Account $account )
-    {
-        return $this->db->table( $this->table )
-                        ->where( 'username', $account->username )
-                        ->update( $account->getArrayCopy() );
     }
 }

@@ -10,23 +10,25 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\Users;
+namespace O2System\Framework\SQL\Models\Modules;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\Users;
+use O2System\Orm\Abstracts\AbstractModel;
 
 /**
- * Class Profile
+ * Class Settings
  *
- * @package O2System\Framework\Models\Users
+ * @package O2System\Framework\SQL\Models
  */
-class Profile extends Users
+class Settings extends AbstractModel
 {
-    public $table = 'sys_users_profiles';
-
-    public function insert( array $data )
-    {
-        return $this->db->table( $this->table )->insert( $data );
-    }
+    /**
+     * Settings::$table
+     *
+     * System modules settings database table name.
+     *
+     * @var string
+     */
+    public $table = 'sys_modules_settings';
 }

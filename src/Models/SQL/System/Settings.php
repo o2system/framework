@@ -10,24 +10,25 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\Users;
+namespace O2System\Framework\SQL\Models;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Acl\Datastructures\Account;
-use O2System\Framework\Models\Users;
+use O2System\Orm\Abstracts\AbstractModel;
 
 /**
- * Class Role
+ * Class Settings
  *
- * @package O2System\Framework\Models\Users
+ * @package O2System\Framework\SQL\Models
  */
-class Role extends Users
+class Settings extends AbstractModel
 {
-    public $table = 'sys_users_roles';
-
-    public function insert( array $data )
-    {
-        return $this->db->table( $this->table )->insert( $data );
-    }
+    /**
+     * Settings::$table
+     *
+     * O2System Framework Modules Settings Table Name.
+     *
+     * @var string
+     */
+    public $table = 'sys_modules_settings';
 }

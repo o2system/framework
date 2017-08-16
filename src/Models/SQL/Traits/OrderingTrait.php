@@ -10,25 +10,28 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\Modules;
+namespace O2System\Framework\Models\SQL\Traits;
 
 // ------------------------------------------------------------------------
 
-use O2System\Orm\Abstracts\AbstractModel;
-
 /**
- * Class UsersRoles
+ * Class OrderingTrait
  *
- * @package O2System\Framework\Models\Modules
+ * @package O2System\Framework\Models\SQL\Traits
  */
-class UsersRoles extends AbstractModel
+trait OrderingTrait
 {
     /**
-     * UsersRoles::$table
+     * Process Row Ordering
      *
-     * System modules users roles database table name.
-     *
-     * @var string
+     * @access  public
      */
-    public $table = 'sys_modules_users_roles';
+    protected function beforeProcessRowOrdering( array $row, $table = null )
+    {
+        $table = isset( $table ) ? $table : $this->table;
+
+        if ( ! isset( $row[ 'ordering' ] ) ) {
+            $row[ 'record_ordering' ] = $this->db->countAllResults( $table ) + 1;
+        }
+    }
 }

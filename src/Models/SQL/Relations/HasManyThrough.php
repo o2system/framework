@@ -10,25 +10,27 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models;
+namespace O2System\Framework\Models\SQL\Relations;
 
 // ------------------------------------------------------------------------
 
-use O2System\Orm\Abstracts\AbstractModel;
+use O2System\Framework\Models\Abstracts\AbstractRelations;
+use O2System\Framework\Models\Datastructures\Row;
 
 /**
- * Class Modules
+ * Class HasManyThrough
  *
- * @package O2System\Framework\Models
+ * @package O2System\Framework\Models\SQL\Relations
  */
-class Modules extends AbstractModel
+class HasManyThrough extends AbstractRelations
 {
     /**
-     * Modules::$table
+     * Get Result
      *
-     * System modules database table name.
-     *
-     * @var string
+     * @return Row|array|bool
      */
-    public $table = 'sys_modules';
+    public function getResult()
+    {
+        // TODO: Implement result() method.
+    }
 }

@@ -10,25 +10,25 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\Modules;
+namespace O2System\Framework\SQL\Models\Modules;
 
 // ------------------------------------------------------------------------
 
 use O2System\Orm\Abstracts\AbstractModel;
 
 /**
- * Class Navigations
+ * Class UsersRoles
  *
- * @package O2System\Framework\Models
+ * @package O2System\Framework\SQL\Models\Modules
  */
-class Navigations extends AbstractModel
+class UsersRoles extends AbstractModel
 {
     /**
-     * Navigations::$table
+     * UsersRoles::$table
      *
-     * System modules navigations database table name.
+     * System modules users roles database table name.
      *
      * @var string
      */
-    public $table = 'sys_modules_navigations';
+    public $table = 'sys_modules_users_roles';
 }

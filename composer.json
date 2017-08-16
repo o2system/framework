@@ -34,13 +34,12 @@
     "o2system/kernel": "*",
     "o2system/filesystem": "*",
     "o2system/cache": "*",
+    "o2system/database": "*",
     "o2system/html": "*",
     "o2system/parser": "*",
     "o2system/image": "*",
     "o2system/security": "*",
-    "o2system/orm": "*",
     "o2system/curl": "*",
-    "o2system/orm": "*",
     "o2system/email": "*"
   },
   "autoload": {

@@ -187,11 +187,14 @@ class Uri extends Message\Uri
 
         if ( $uriPath !== '/' &&
             $this->suffix !== '' &&
+            ( $uriPath . '/' !== $_SERVER['REQUEST_URI'] ) &&
             pathinfo( $uriPath, PATHINFO_EXTENSION ) === '' &&
             strpos( $uriPath, '#' ) === false &&
             empty( $this->query )
         ) {
             $uriPath .= $this->suffix;
+        } elseif( pathinfo( $uriPath, PATHINFO_EXTENSION ) === '' ) {
+            $uriPath .= '/';
         }
 
         $uriString .= str_replace( '//', '/', $uriPath );
