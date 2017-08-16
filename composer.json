@@ -44,7 +44,7 @@
   },
   "autoload": {
     "psr-4": {
-      "O2System\\Kernel\\": "src"
+      "O2System\\Framework\\": "src"
     },
     "files": [
       "src/Framework.php"
