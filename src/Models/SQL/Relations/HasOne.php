@@ -10,20 +10,19 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL\Relations;
+namespace O2System\Framework\Models\Sql\Relations;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\Abstracts\AbstractModel;
-use O2System\Framework\Models\Abstracts\AbstractRelations;
-use O2System\Framework\Models\Datastructures\Row;
+use O2System\Database\DataObjects\Result;
+use O2System\Framework\Models\Sql;
 
 /**
  * Class HasOne
  *
- * @package O2System\Framework\Models\SQL\Relations
+ * @package O2System\Framework\Models\Sql\Relations
  */
-class HasOne extends AbstractRelations
+class HasOne extends Sql\Relations\Abstracts\AbstractRelation
 {
     /**
      * Get Result
@@ -32,26 +31,32 @@ class HasOne extends AbstractRelations
      */
     public function getResult()
     {
-        if ( $this->mapper->relationModel instanceof AbstractModel ) {
-            if ( $this->mapper->referenceModel->row instanceof Row ) {
-                $criteria = $this->mapper->referenceModel->row->{$this->mapper->referencePrimaryKey};
+        if ( $this->map->referenceModel->row instanceof Sql\DataObjects\Result\Row ) {
 
-                return $this->mapper->relationModel->find( $criteria, $this->mapper->relationForeignKey );
-            }
-        } elseif ( isset( $this->mapper->relationTable ) ) {
-            if ( $this->mapper->referenceModel->row instanceof Row ) {
-                $criteria = $this->mapper->referenceModel->row->{$this->mapper->referencePrimaryKey};
+            $criteria = $this->map->referenceModel->row->offsetGet( $this->map->referenceModel->primaryKey );
+            $conditions = [ $this->map->relationForeignKey => $criteria ];
 
-                $result = $this->mapper->referenceModel->db->getWhere(
-                    $this->mapper->relationTable,
-                    [
-                        $this->mapper->relationForeignKey => $criteria,
-                    ],
-                    1
-                );
+            if ( $this->map->relationModel instanceof Sql\Model ) {
+                $result = $this->map->relationModel->db
+                    ->from( $this->map->relationTable )
+                    ->getWhere( $conditions, 1 );
 
-                if ( $result->count() > 0 ) {
-                    return $result->first();
+                if( $result instanceof Result ) {
+                    if ( $result->count() > 0 ) {
+                        $this->map->relationModel->result = new Sql\DataObjects\Result( $result, $this->map->relationModel );
+                        return $this->map->relationModel->row = $this->map->relationModel->result->first();
+                    }
+                }
+            } elseif( ! empty( $this->map->relationTable ) ) {
+                $result = $this->map->referenceModel->db
+                    ->from( $this->map->relationTable )
+                    ->getWhere( $conditions, 1 );
+
+                if( $result instanceof Result ) {
+                    if ( $result->count() > 0 ) {
+                        $result = new Sql\DataObjects\Result( $result, $this->map->referenceModel );
+                        return $result->first();
+                    }
                 }
             }
         }

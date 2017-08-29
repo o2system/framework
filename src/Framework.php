@@ -330,13 +330,16 @@ class Framework extends Kernel
     {
         // Instantiate Session Service
         profiler()->watch( 'INSTANTIATE_SESSION_SERVICE' );
-        $session = new Session( config( 'session', true ) );
 
-        if ( ! $session->isStarted() ) {
-            $session->start();
+        if ( config( 'session', true )->enabled === true ) {
+            $session = new Session( config( 'session', true ) );
+
+            if ( ! $session->isStarted() ) {
+                $session->start();
+            }
+
+            $this->addService( $session );
         }
-
-        $this->addService( $session );
 
         // Instantiate Http View Service
         profiler()->watch( 'INSTANTIATE_HTTP_PARSER_SERVICE' );

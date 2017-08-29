@@ -10,7 +10,7 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Libraries\Ui\Components\Card\Block;
+namespace O2System\Framework\Libraries\Ui\Components\Card\Body;
 
 // ------------------------------------------------------------------------
 
@@ -19,28 +19,21 @@ use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
 use O2System\Html\Element;
 
 /**
- * Class Testimonial
+ * Class Blockquote
  *
- * @package O2System\Framework\Libraries\Ui\Components\Card\Block
+ * @package O2System\Framework\Libraries\Ui\Components\Card\Body
  */
-class Testimonial extends Element
+class Blockquote extends Element
 {
     use ParagraphSetterTrait;
 
-    public $photo;
     public $author;
-    public $jobTitle;
-    public $company;
+    public $source;
 
     public function __construct()
     {
-        parent::__construct( 'div', 'testimonial' );
-        $this->attributes->addAttributeClass( 'card-testimonial' );
-    }
-
-    public function setPhoto( $photo )
-    {
-
+        parent::__construct( 'div', 'blockquote' );
+        $this->attributes->addAttributeClass( 'card-blockquote' );
     }
 
     public function setAuthor( $name, $href = null )
@@ -56,22 +49,14 @@ class Testimonial extends Element
         return $this;
     }
 
-    public function setJobTitle( $position )
+    public function setSource( $name, $href = null )
     {
-        $this->jobTitle = new Element( 'cite', 'source' );
-        $this->jobTitle->textContent->push( $position );
-
-        return $this;
-    }
-
-    public function setCompany( $company, $href = null )
-    {
-        $this->company = new Element( 'cite', 'source' );
+        $this->source = new Element( 'cite', 'source' );
 
         if ( isset( $href ) ) {
-            $this->company->childNodes->push( new Link( $company, $href ) );
+            $this->source->childNodes->push( new Link( $name, $href ) );
         } else {
-            $this->company->textContent->push( $company );
+            $this->source->textContent->push( $name );
         }
 
         return $this;
@@ -88,13 +73,13 @@ class Testimonial extends Element
         if ( $this->author instanceof Element ) {
             $footer->childNodes->push( $this->author );
 
-            if ( $this->author->tagName === 'small' && $this->jobTitle instanceof Element ) {
-                $this->author->childNodes->push( $this->jobTitle );
-            } elseif ( $this->jobTitle instanceof Element ) {
-                $footer->childNodes->push( $this->jobTitle );
+            if ( $this->author->tagName === 'small' && $this->source instanceof Element ) {
+                $this->author->childNodes->push( $this->source );
+            } elseif ( $this->source instanceof Element ) {
+                $footer->childNodes->push( $this->source );
             }
-        } elseif ( $this->jobTitle instanceof Element ) {
-            $footer->childNodes->push( $this->jobTitle );
+        } elseif ( $this->source instanceof Element ) {
+            $footer->childNodes->push( $this->source );
         }
 
         $this->childNodes->push( $footer );

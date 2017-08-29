@@ -122,9 +122,16 @@ trait ContextualClassSetterTrait
         return $this;
     }
 
-    public function contextNeutral()
+    public function contextLight()
     {
-        $this->setContextualClassSuffix( 'neutral' );
+        $this->setContextualClassSuffix( 'light' );
+
+        return $this;
+    }
+
+    public function contextDark()
+    {
+        $this->setContextualClassSuffix( 'dark' );
 
         return $this;
     }

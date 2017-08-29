@@ -10,16 +10,16 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\NoSQL\Traits;
+namespace O2System\Framework\Models\NoSql\Traits;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\DataObjects;
+use O2System\Database\DataObjects;
 
 /**
  * Class FinderTrait
  *
- * @package O2System\Framework\Models\NoSQL\Traits
+ * @package O2System\Framework\Models\NoSql\Traits
  */
 trait FinderTrait
 {
@@ -40,7 +40,7 @@ trait FinderTrait
             $this->db->select( $fields );
         }
 
-        $result = $this->db->from( $this->table )->get();
+        $result = $this->db->from( $this->collection )->get();
 
         if ( $result->count() > 0 ) {
             $this->result = new DataObjects\Result( $result, $this );
@@ -71,7 +71,7 @@ trait FinderTrait
         $field = isset( $field ) ? $field : $this->primaryKey;
 
         $result = $this->db
-            ->from( $this->table )
+            ->from( $this->collection )
             ->getWhere( [ $field => $criteria ], $limit );
 
         if ( $result->count() > 0 ) {
@@ -103,7 +103,7 @@ trait FinderTrait
         $field = isset( $field ) ? $field : $this->primaryKey;
 
         $result = $this->db
-            ->from( $this->table )
+            ->from( $this->collection )
             ->whereIn( $field, $inCriteria )
             ->get();
 
@@ -130,7 +130,7 @@ trait FinderTrait
     public function findWhere( array $conditions, $limit = null )
     {
         $result = $this->db
-            ->from( $this->table )
+            ->from( $this->collection )
             ->getWhere( $conditions, $limit );
 
         if ( $result->count() > 0 ) {
@@ -162,7 +162,7 @@ trait FinderTrait
         $field = isset( $field ) ? $field : $this->primaryKey;
 
         $result = $this->db
-            ->from( $this->table )
+            ->from( $this->collection )
             ->whereNotIn( $field, $notInCriteria )
             ->get();
 

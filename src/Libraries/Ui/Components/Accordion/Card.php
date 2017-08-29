@@ -14,7 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Components\Accordion;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Accordion\Card\Block;
+use O2System\Framework\Libraries\Ui\Components\Accordion\Card\Body;
 
 /**
  * Class Card
@@ -27,7 +27,7 @@ class Card extends \O2System\Framework\Libraries\Ui\Components\Card
 
     public function createBlock()
     {
-        $this->childNodes->push( new Block() );
+        $this->childNodes->push( new Body() );
 
         return $this->block = $this->childNodes->last();
     }

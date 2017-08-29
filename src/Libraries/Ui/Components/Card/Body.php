@@ -14,7 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Components\Card;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Card\Block\Blockquote;
+use O2System\Framework\Libraries\Ui\Components\Card\Body\Blockquote;
 use O2System\Framework\Libraries\Ui\Traits\Collectors\LinksCollectorTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\TitleSetterTrait;
@@ -22,11 +22,11 @@ use O2System\Html\Element;
 use O2System\Spl\Iterators\ArrayIterator;
 
 /**
- * Class Block
+ * Class Body
  *
  * @package O2System\Framework\Libraries\Ui\Components\Card
  */
-class Block extends Element
+class Body extends Element
 {
     use TitleSetterTrait;
     use ParagraphSetterTrait;
@@ -34,8 +34,8 @@ class Block extends Element
 
     public function __construct()
     {
-        parent::__construct( 'div', 'card-block' );
-        $this->attributes->addAttributeClass( 'card-block' );
+        parent::__construct( 'div', 'card-body' );
+        $this->attributes->addAttributeClass( 'card-body' );
     }
 
     public function createBlockquote( $text = null )

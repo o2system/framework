@@ -10,16 +10,17 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL;
+namespace O2System\Framework\Models\Sql;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\SQL\Traits\FinderTrait;
+use O2System\Framework\Models\Sql\DataObjects\Result\Row;
+use O2System\Framework\Models\Sql\Traits\FinderTrait;
 
 /**
  * Class Model
  *
- * @package O2System\Framework\Models\SQL
+ * @package O2System\Framework\Models\Sql
  */
 class Model
 {
@@ -30,16 +31,16 @@ class Model
      *
      * Database connection instance.
      *
-     * @var \O2System\Database\SQL\Abstracts\AbstractConnection|\O2System\Database\NoSQL\Abstracts\AbstractConnection
+     * @var \O2System\Database\Sql\Abstracts\AbstractConnection
      */
-    public $connection = null;
+    public $conn = null;
 
     /**
      * AbstractModel::$db
      *
      * Database query builder instance.
      *
-     * @var \O2System\Database\SQL\Abstracts\AbstractQueryBuilder|\O2System\Database\NoSQL\Abstracts\AbstractQueryBuilder
+     * @var \O2System\Database\Sql\Abstracts\AbstractQueryBuilder
      */
     public $db = null;
 
@@ -87,14 +88,14 @@ class Model
     /**
      * Model Result
      *
-     * @var \O2System\Framework\Models\DataObjects\Result
+     * @var \O2System\Framework\Models\Sql\DataObjects\Result
      */
     public $result;
 
     /**
      * Model Result Row
      *
-     * @var \O2System\Framework\Models\DataObjects\Result\Row
+     * @var \O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
     public $row;
 
@@ -107,9 +108,16 @@ class Model
     {
         // Set database connection
         if ( method_exists( database(), 'loadConnection' ) ) {
-            if ( $this->connection = database()->loadConnection( 'default' ) ) {
-                $this->db = $this->connection->getQueryBuilder();
+            if ( $this->conn = database()->loadConnection( 'default' ) ) {
+                $this->db = $this->conn->getQueryBuilder();
             }
+        }
+
+        // Set database table
+        if ( empty( $this->table ) ) {
+            $modelClassName = get_called_class();
+            $modelClassName = get_class_name( $modelClassName );
+            $this->table = underscore( $modelClassName );
         }
 
         // Fetch sub-models
@@ -162,7 +170,7 @@ class Model
     {
         static $modelInstance;
 
-        if( empty( $modelInstance ) ) {
+        if ( empty( $modelInstance ) ) {
             $modelClassName = get_called_class();
             $modelInstance = new $modelClassName();
         }
@@ -180,7 +188,11 @@ class Model
     {
         $get[ $property ] = false;
 
-        if ( o2system()->hasService( $property ) ) {
+        if ( $this->row instanceof Row ) {
+            if ( $this->row->offsetExists( $property ) ) {
+                $get[ $property ] = $this->row->offsetGet( $property );
+            }
+        } elseif ( o2system()->hasService( $property ) ) {
             $get[ $property ] = o2system()->getService( $property );
         } elseif ( array_key_exists( $property, $this->validSubModels ) ) {
             $get[ $property ] = $this->loadSubModel( $property );

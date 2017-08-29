@@ -22,7 +22,7 @@ use O2System\Spl\Iterators\ArrayIterator;
  *
  * @package O2System\Framework\Libraries\Ui\Components\Card
  */
-class Block extends \O2System\Framework\Libraries\Ui\Components\Card\Block
+class Body extends \O2System\Framework\Libraries\Ui\Components\Card\Body
 {
     public $collapse;
 
@@ -65,12 +65,12 @@ class Block extends \O2System\Framework\Libraries\Ui\Components\Card\Block
             $this->collapse->attributes->setAttributeId( $this->attributes->getAttributeId() );
             $this->attributes->removeAttribute( 'id' );
 
-            $block = new Element( 'div', 'block' );
-            $block->attributes = $this->attributes;
-            $block->textContent = $this->textContent;
-            $block->childNodes = $this->childNodes;
+            $body = new Element( 'div', 'body' );
+            $body->attributes = $this->attributes;
+            $body->textContent = $this->textContent;
+            $body->childNodes = $this->childNodes;
 
-            $this->collapse->childNodes->push( $block );
+            $this->collapse->childNodes->push( $body );
 
             return $this->collapse->render();
         }

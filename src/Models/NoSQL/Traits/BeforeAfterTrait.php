@@ -10,14 +10,14 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\NoSQL\Traits;
+namespace O2System\Framework\Models\NoSql\Traits;
 
 // ------------------------------------------------------------------------
 
 /**
  * Class BeforeAfterTrait
  *
- * @package O2System\Framework\Models\NoSQL\Traits
+ * @package O2System\Framework\Models\NoSql\Traits
  */
 trait BeforeAfterTrait
 {

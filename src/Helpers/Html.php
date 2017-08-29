@@ -406,9 +406,9 @@ if ( ! function_exists( 'extract_tag' ) ) {
     {
         $html = preg_match_all( "/(\<" . $tag . ")(.*?)(" . $tag . ">)/si", $html, $matches );
 
-        $result = [];
+        $result = '';
         foreach ( $matches[ 0 ] as $item ) {
-            $result[] = preg_replace( "/\<[\/]?" . $tag . "\>/", '', $item );
+            $result = preg_replace( "/\<[\/]?" . $tag . "\>/", '', $item );
         }
 
         return $result;

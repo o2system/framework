@@ -10,27 +10,48 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL\Relations;
+namespace O2System\Framework\Models\Sql\Relations;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\Abstracts\AbstractRelations;
-use O2System\Framework\Models\Datastructures\Row;
+use O2System\Database\DataObjects\Result;
+use O2System\Framework\Models\Sql;
 
 /**
  * Class HasManyThrough
  *
- * @package O2System\Framework\Models\SQL\Relations
+ * @package O2System\Framework\Models\Sql\Relations
  */
-class HasManyThrough extends AbstractRelations
+class HasManyThrough extends Sql\Relations\Abstracts\AbstractRelation
 {
     /**
      * Get Result
      *
-     * @return Row|array|bool
+     * @return Sql\DataObjects\Result|bool
      */
     public function getResult()
     {
-        // TODO: Implement result() method.
+        // print_out($this->map);
+        if ( $this->map->pivotModel->row instanceof Sql\DataObjects\Result\Row ) {
+            $result = $this->map->pivotModel->db
+                ->from( $this->map->relationTable )
+                ->join( $this->map->referenceTable, implode( ' = ', [
+                    $this->map->referencePrimaryKey,
+                    $this->map->relationForeignKey,
+                ] ) )
+                ->getWhere( [ $this->map->referencePrimaryKey => $this->map->pivotModel->row->offsetGet( $this->map->pivotForeignKey ) ] );
+
+            if ( $result instanceof Result ) {
+                if ( $result->count() > 0 ) {
+                    if ( $this->map->relationModel instanceof Sql\Model ) {
+                        return new Sql\DataObjects\Result( $result, $this->map->relationModel );
+                    }
+
+                    return new Sql\DataObjects\Result( $result, $this->map->pivotModel );
+                }
+            }
+        }
+
+        return false;
     }
 }

@@ -37,6 +37,8 @@ if ( ! function_exists( 'base_url' ) ) {
     }
 }
 
+// ------------------------------------------------------------------------
+
 if ( ! function_exists( 'current_url' ) ) {
 
     function current_url( $segments = null, $query = null )
@@ -68,6 +70,8 @@ if ( ! function_exists( 'assets_url' ) ) {
         return presenter()->assets->file( $path );
     }
 }
+
+// ------------------------------------------------------------------------
 
 if ( ! function_exists( 'prepare_url' ) ) {
     /**

@@ -81,7 +81,7 @@ class Partials extends AbstractItemStoragePattern
         return $this->__isset( $partialOffset );
     }
 
-    public function __get( $partial )
+    public function &__get( $partial )
     {
         $partialContent = parent::__get( $partial );
 

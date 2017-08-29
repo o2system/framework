@@ -10,14 +10,14 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\NoSQL\Traits;
+namespace O2System\Framework\Models\NoSql\Traits;
 
 // ------------------------------------------------------------------------
 
 /**
  * Class TraitRecord
  *
- * @package O2System\Framework\Models\NoSQL\Traits
+ * @package O2System\Framework\Models\NoSql\Traits
  */
 trait RecordTrait
 {
@@ -81,8 +81,8 @@ trait RecordTrait
             $sets[ 'record_status' ] = $this->recordStatus;
         }
 
-        if ( empty( $this->primary_keys ) ) {
-            $primary_key = isset( $this->primary_key ) ? $this->primary_key : 'id';
+        if ( empty( $this->primaryKeys ) ) {
+            $primary_key = isset( $this->primaryKey ) ? $this->primaryKey : 'id';
 
             if ( empty( $sets[ $primary_key ] ) ) {
                 if ( ! isset( $sets[ 'record_create_user' ] ) ) {
@@ -94,7 +94,7 @@ trait RecordTrait
                 }
             }
         } else {
-            foreach ( $this->primary_keys as $primary_key ) {
+            foreach ( $this->primaryKeys as $primary_key ) {
                 if ( empty( $sets[ $primary_key ] ) ) {
                     if ( ! isset( $sets[ 'record_create_user' ] ) ) {
                         $sets[ 'record_create_user' ] = $this->recordUser;

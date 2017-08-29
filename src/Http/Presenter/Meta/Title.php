@@ -76,6 +76,6 @@ class Title extends SplArrayQueue
      */
     public function __toString()
     {
-        return implode( ' ' . $this->separator . ' ', $this->getArrayCopy() );
+        return implode( ' ' . $this->separator . ' ', array_unique( $this->getArrayCopy() ) );
     }
 }

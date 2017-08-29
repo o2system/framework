@@ -10,36 +10,37 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL\Traits;
+namespace O2System\Framework\Models\Sql\Traits;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\SQL\DataObjects;
+use O2System\Database\DataObjects\Result;
+use O2System\Framework\Models\Sql\DataObjects;
 
 /**
  * Class FinderTrait
  *
- * @package O2System\Framework\Models\SQL\Traits
+ * @package O2System\Framework\Models\Sql\Traits
  */
 trait FinderTrait
 {
     /**
-     * Find
-     *
-     * Find single or many record base on criteria by specific field
-     *
-     * @param   string      $criteria Criteria value
-     * @param   string|null $field    Table column field name | set to primary key by default
-     *
-     * @access  protected
-     * @return  DataObjects\Result|bool Returns FALSE if failed.
+     * FinderTrait::all
+     * 
+     * @param null $fields
+     * @param null $limit
+     * @return bool|DataObjects\Result
      */
-    public function all( $fields = null )
+    public function all( $fields = null, $limit = null )
     {
         if ( isset( $fields ) ) {
             $this->db->select( $fields );
         }
 
+        if( isset( $limit ) ) {
+            $this->db->limit( $limit );
+        }
+        
         $result = $this->db->from( $this->table )->get();
 
         if ( $result->count() > 0 ) {
@@ -60,7 +61,7 @@ trait FinderTrait
      * @param   string      $criteria Criteria value
      * @param   string|null $field    Table column field name | set to primary key by default
      *
-     * @return  DataObjects\Result|bool Returns FALSE if failed.
+     * @return  DataObjects\Result|DataObjects\Result\Row|bool Returns FALSE if failed.
      */
     public function find( $criteria, $field = null, $limit = null )
     {
@@ -74,14 +75,16 @@ trait FinderTrait
             ->from( $this->table )
             ->getWhere( [ $field => $criteria ], $limit );
 
-        if ( $result->count() > 0 ) {
-            $this->result = new DataObjects\Result( $result, $this );
+        if( $result instanceof Result ) {
+            if ( $result->count() > 0 ) {
+                $this->result = new DataObjects\Result( $result, $this );
 
-            if( $result->count() == 1 ) {
-                return $this->result->first();
+                if( $this->result->count() == 1 ) {
+                    return $this->result->first();
+                }
+
+                return $this->result;
             }
-
-            return $this->result;
         }
 
         return false;

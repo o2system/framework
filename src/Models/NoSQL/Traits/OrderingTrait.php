@@ -10,14 +10,14 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\NoSQL\Traits;
+namespace O2System\Framework\Models\NoSql\Traits;
 
 // ------------------------------------------------------------------------
 
 /**
  * Class OrderingTrait
  *
- * @package O2System\Framework\Models\NoSQL\Traits
+ * @package O2System\Framework\Models\NoSql\Traits
  */
 trait OrderingTrait
 {
@@ -28,7 +28,7 @@ trait OrderingTrait
      */
     protected function beforeProcessRowOrdering( array $row, $table = null )
     {
-        $table = isset( $table ) ? $table : $this->table;
+        $table = isset( $table ) ? $table : $this->collection;
 
         if ( ! isset( $row[ 'ordering' ] ) ) {
             $row[ 'record_ordering' ] = $this->db->countAllResults( $table ) + 1;

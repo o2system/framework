@@ -10,19 +10,18 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL\DataObjects\Result;
+namespace O2System\Framework\Models\Sql\DataObjects\Result;
 
 // ------------------------------------------------------------------------
 
 use O2System\Database;
-use O2System\Framework\Models\Abstracts\AbstractModel;
-use O2System\Framework\Models\SQL\Model;
+use O2System\Framework\Models\Sql\Model;
 use O2System\Spl\Datastructures\SplArrayObject;
 
 /**
  * Class Row
  *
- * @package O2System\Framework\Models\SQL\DataObjects
+ * @package O2System\Framework\Models\Sql\DataObjects
  */
 class Row extends SplArrayObject
 {
@@ -54,17 +53,13 @@ class Row extends SplArrayObject
 
     // ------------------------------------------------------------------------
 
-    public function &__get( $method )
+    public function offsetGet( $offset )
     {
-        $returnValue = null;
-
-        if ( method_exists( self::$model, $method ) ) {
-            $returnValue = $this->__call( $method );
-        } else {
-            $returnValue = parent::__get( $method );
+        if( method_exists( self::$model, $offset ) ) {
+            return $this->__call( $offset );
         }
 
-        return $returnValue;
+        return parent::offsetGet( $offset );
     }
 
     // ------------------------------------------------------------------------
@@ -85,7 +80,6 @@ class Row extends SplArrayObject
     {
         if ( method_exists( self::$model, $method ) ) {
             self::$model->row = $this;
-
             return call_user_func_array( [ &self::$model, $method ], $args );
         }
 

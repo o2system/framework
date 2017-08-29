@@ -10,14 +10,14 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\NoSQL\Traits;
+namespace O2System\Framework\Models\NoSql\Traits;
 
 // ------------------------------------------------------------------------
 
 /**
  * Class TraitModifier
  *
- * @package O2System\Framework\Models\NoSQL\Traits
+ * @package O2System\Framework\Models\NoSql\Traits
  */
 trait ModifierTrait
 {
@@ -40,11 +40,11 @@ trait ModifierTrait
      */
     final public function insert( array $sets, $table = null )
     {
-        $table = isset( $table ) ? $table : $this->table;
+        $table = isset( $table ) ? $table : $this->collection;
 
         $sets = $this->beforeProcess( $sets, $table );
 
-        if ( $this->db->table( $table )->insert( $sets ) ) {
+        if ( $this->db->collection( $table )->insert( $sets ) ) {
             if ( empty( $this->afterProcess ) ) {
                 return true;
             }
@@ -71,7 +71,7 @@ trait ModifierTrait
      */
     final public function update( array $sets, $table = null )
     {
-        $table = isset( $table ) ? $table : $this->table;
+        $table = isset( $table ) ? $table : $this->collection;
         $primaryKey = isset( $this->primaryKey ) ? $this->primaryKey : 'id';
 
         $where = [];
@@ -90,7 +90,7 @@ trait ModifierTrait
 
         $sets = $this->beforeProcess( $sets, $table );
 
-        if ( $this->db->table( $table )->update( $sets, $where ) ) {
+        if ( $this->db->collection( $table )->update( $sets, $where ) ) {
 
             if ( empty( $this->afterProcess ) ) {
                 return true;
@@ -104,11 +104,11 @@ trait ModifierTrait
 
     protected function insertMany( array $sets )
     {
-        $table = isset( $table ) ? $table : $this->table;
+        $table = isset( $table ) ? $table : $this->collection;
 
         $sets = $this->beforeProcess( $sets, $table );
 
-        if ( $this->db->table( $table )->insertBatch( $sets ) ) {
+        if ( $this->db->collection( $table )->insertBatch( $sets ) ) {
             if ( empty( $this->afterProcess ) ) {
                 return true;
             }
@@ -123,7 +123,7 @@ trait ModifierTrait
 
     protected function updateMany( array $sets )
     {
-        $table = isset( $table ) ? $table : $this->table;
+        $table = isset( $table ) ? $table : $this->collection;
         $primaryKey = isset( $this->primaryKey ) ? $this->primaryKey : 'id';
 
         $where = [];
@@ -142,7 +142,7 @@ trait ModifierTrait
 
         $sets = $this->beforeProcess( $sets, $table );
 
-        if ( $this->db->table( $table )->updateBatch( $sets, $where ) ) {
+        if ( $this->db->collection( $table )->updateBatch( $sets, $where ) ) {
 
             if ( empty( $this->afterProcess ) ) {
                 return true;
@@ -184,7 +184,7 @@ trait ModifierTrait
      */
     final public function trash( $id, $table = null )
     {
-        $table = isset( $table ) ? $table : $this->table;
+        $table = isset( $table ) ? $table : $this->collection;
         $primaryKey = isset( $this->primaryKey ) ? $this->primaryKey : 'id';
 
         $sets[ 'record_status' ] = 'DELETE';
@@ -212,7 +212,7 @@ trait ModifierTrait
 
         $sets = $this->beforeProcess( $sets, $table );
 
-        if ( $this->db->table( $table )->update( $sets ) ) {
+        if ( $this->db->collection( $table )->update( $sets ) ) {
             if ( empty( $this->afterProcess ) ) {
                 return true;
             }
@@ -257,7 +257,7 @@ trait ModifierTrait
     public function delete( $id, $force = false, $table = null )
     {
         if ( ( isset( $table ) AND is_bool( $table ) ) OR ! isset( $table ) ) {
-            $table = $this->table;
+            $table = $this->collection;
         }
 
         if ( isset( $this->adjacencyEnabled ) ) {
@@ -330,7 +330,7 @@ trait ModifierTrait
         $this->primaryKey = 'id';
         $this->primaryKeys = [];
 
-        if ( $this->db->table( $table )->delete( $where ) ) {
+        if ( $this->db->collection( $table )->delete( $where ) ) {
             if ( empty( $this->afterProcess ) ) {
                 return true;
             }

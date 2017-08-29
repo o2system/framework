@@ -10,11 +10,11 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL\DataObjects;
+namespace O2System\Framework\Models\Sql\DataObjects;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\SQL\Model;
+use O2System\Framework\Models\Sql\Model;
 use O2System\Spl\Iterators\ArrayIterator;
 
 /**
@@ -29,7 +29,7 @@ class Result extends ArrayIterator
      *
      * @param array $rows
      */
-    public function __construct ( \O2System\Database\DataObjects\Result $result, Model $model )
+    public function __construct( \O2System\Database\DataObjects\Result $result, Model $model )
     {
         if ( $result->count() > 0 ) {
             $key = empty( $model->foreignKey ) ? $model->primaryKey : $model->foreignKey;
@@ -43,4 +43,6 @@ class Result extends ArrayIterator
             parent::__construct( $ormResult );
         }
     }
+
+    // ------------------------------------------------------------------------
 }

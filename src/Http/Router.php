@@ -58,12 +58,28 @@ class Router
                     }
                 }
             } elseif ( false !== ( $subdomain = $uri->getSubdomain() ) ) {
-                if ( false !== ( $subdomainAppModule = modules()->getApp( $subdomain ) ) ) {
+                if ( false !== ( $module = modules()->getApp( $subdomain ) ) ) {
                     // Register Subdomain App Module Namespace
-                    loader()->addNamespace( $subdomainAppModule->getNamespace(), $subdomainAppModule->getRealPath() );
+                    loader()->addNamespace( $module->getNamespace(), $module->getRealPath() );
 
                     // Push Subdomain App Module
-                    modules()->push( $subdomainAppModule );
+                    modules()->push( $module );
+
+                    // Load modular routes config
+                    if ( false !== ( $configDir = $module->getDir( 'config', true ) ) ) {
+
+                        if ( is_file(
+                            $filePath = $configDir . ucfirst(
+                                    strtolower( ENVIRONMENT )
+                                ) . DIRECTORY_SEPARATOR . 'Routes.php'
+                        ) ) {
+                            include( $filePath );
+                        } elseif ( is_file(
+                            $filePath = $configDir . 'Routes.php'
+                        ) ) {
+                            include( $filePath );
+                        }
+                    }
                 }
             }
         }

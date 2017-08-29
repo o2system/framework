@@ -10,56 +10,58 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL\Traits;
+namespace O2System\Framework\Models\Sql\Traits;
 
 // ------------------------------------------------------------------------
 
-use O2System\Database\Datastructures\Result;
-use O2System\Framework\Abstracts\AbstractModel;
-use O2System\Framework\Models\Datastructures\Row;
-use O2System\Framework\Models\Relations;
+use O2System\Framework\Models\Sql\DataObjects\Result;
+use O2System\Framework\Models\Sql\Model;
+use O2System\Framework\Models\Sql\DataObjects\Result\Row;
+use O2System\Framework\Models\Sql\Relations;
 
 /**
  * Class RelationTrait
  *
- * @package O2System\Framework\Models\SQL\Traits
+ * @package O2System\Framework\Models\Sql\Traits
  */
 trait RelationTrait
 {
     /**
-     * Has
+     * Belongs To
      *
-     * Has provides a convenient short-cut to build one to one relationship result.
-     * Only a single query will be executed.
+     * Belongs To is the inverse of one to one relationship.
      *
-     * @param string|AbstractModel $relationModel String of table name or AbstractModel
-     * @param string|null          $foreignKey
-     * @param string|null          $primaryKey
+     * @param string|Model $referenceModel
+     * @param string|null  $foreignKey
+     * @param string|null  $primaryKey
      *
-     * @return Result
+     * @return Row|bool
      */
-    public function has( $relationModel, $foreignKey = null, $primaryKey = null )
+    public function belongsTo( $referenceModel, $foreignKey = null, $primaryKey = null )
     {
-        return ( new Relations\Has( $relationModel, $foreignKey, $primaryKey ) )->getResult();
+        return ( new Relations\BelongsTo(
+            new Relations\Maps\Inverse( $this, $referenceModel, $foreignKey, $primaryKey )
+        ) )->getResult();
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * With
+     * Belongs To Many
      *
-     * With provides a convenient short-cut to build one to many relationship result.
-     * Only a single query will be executed.
+     * Belongs To is the inverse of one to many relationship.
      *
-     * @param string|AbstractModel|array $relationModel String of table name or AbstractModel
-     * @param string|null                $foreignKey
-     * @param string|null                $primaryKey
+     * @param string|Model $relationModel String of table name or AbstractModel
+     * @param string|null          $foreignKey
+     * @param string|null          $primaryKey
      *
-     * @return Result
+     * @return Row|bool
      */
-    public function with( $relationModel, $foreignKey = null, $primaryKey = null )
+    public function belongsToMany( $relationModel, $pivotTable = null, $foreignKey = null, $primaryKey = null )
     {
-        return ( new Relations\With( $relationModel, $foreignKey, $primaryKey ) )->getResult();
+        return ( new Relations\BelongsToMany(
+            new Relations\Maps\Intermediary( $this, $relationModel, $pivotTable, $foreignKey, $primaryKey )
+        ) )->getResult();
     }
 
     // ------------------------------------------------------------------------
@@ -70,7 +72,7 @@ trait RelationTrait
      * Has one is a one to one relationship. The reference model might be associated
      * with one relation model / table.
      *
-     * @param string|AbstractModel $relationModel String of table name or AbstractModel
+     * @param string|Model $relationModel String of table name or AbstractModel
      * @param string|null          $foreignKey
      * @param string|null          $primaryKey
      *
@@ -79,27 +81,7 @@ trait RelationTrait
     public function hasOne( $relationModel, $foreignKey = null, $primaryKey = null )
     {
         return ( new Relations\HasOne(
-            new Relations\Mapper( $this, $relationModel, $foreignKey, $primaryKey )
-        ) )->getResult();
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Belongs To
-     *
-     * Belongs To is the inverse of one to one relationship.
-     *
-     * @param string|AbstractModel $relationModel String of table name or AbstractModel
-     * @param string|null          $foreignKey
-     * @param string|null          $primaryKey
-     *
-     * @return Datastructures\Result\Row|bool
-     */
-    public function belongsTo( $relationModel, $foreignKey = null, $primaryKey = null )
-    {
-        return ( new Relations\BelongsTo(
-            new Relations\Mappers\Inverse( $this, $relationModel, $foreignKey, $primaryKey )
+            new Relations\Maps\Reference( $this, $relationModel, $foreignKey, $primaryKey )
         ) )->getResult();
     }
 
@@ -111,36 +93,16 @@ trait RelationTrait
      * Has Many is a one to many relationship, is used to define relationships where a single
      * reference model owns any amount of others relation model.
      *
-     * @param string|AbstractModel $relationModel String of table name or AbstractModel
+     * @param string|Model $relationModel String of table name or AbstractModel
      * @param string|null          $foreignKey
      * @param string|null          $primaryKey
      *
-     * @return array|bool
+     * @return Result|bool
      */
     public function hasMany( $relationModel, $foreignKey = null, $primaryKey = null )
     {
         return ( new Relations\HasMany(
-            new Relations\Mapper( $this, $relationModel, $foreignKey, $primaryKey )
-        ) )->getResult();
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Belongs To Many
-     *
-     * Belongs To is the inverse of one to one relationship.
-     *
-     * @param string|AbstractModel $relationModel String of table name or AbstractModel
-     * @param string|null          $foreignKey
-     * @param string|null          $primaryKey
-     *
-     * @return Datastructures\Row|bool
-     */
-    public function belongsToMany( $relationModel, $foreignKey = null, $primaryKey = null )
-    {
-        return ( new Relations\BelongsToMany(
-            new Relations\Mappers\Inverse( $this, $relationModel, $foreignKey, $primaryKey )
+            new Relations\Maps\Reference( $this, $relationModel, $foreignKey, $primaryKey )
         ) )->getResult();
     }
 
@@ -152,66 +114,17 @@ trait RelationTrait
      * Has Many Through provides a convenient short-cut for accessing distant relations via
      * an intermediate relation model.
      *
-     * @param string|AbstractModel $relationModel     String of table name or AbstractModel
-     * @param string|AbstractModel $intermediateModel String of table name or AbstractModel
-     * @param string|null          $foreignKey
-     * @param string|null          $primaryKey
+     * @param string|Model $relationModel
+     * @param string|Model $pivotTable
+     * @param string|null  $foreignKey
+     * @param string|null  $primaryKey
      *
-     * @return array|bool
+     * @return Result|bool
      */
-    public function hasManyThrough( $relationModel, $intermediateModel, $foreignKey = null, $primaryKey = null )
+    public function hasManyThrough( $relationModel, $referenceModel, $pivotForeignKey = null, $relationForeignKey = null )
     {
         return ( new Relations\HasManyThrough(
-            new Relations\Mappers\Intermediate( $this, $relationModel, $intermediateModel, $foreignKey, $primaryKey )
+            new Relations\Maps\Through( $this, $pivotForeignKey, $relationModel, $relationForeignKey, $referenceModel )
         ) )->getResult();
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Morph To
-     *
-     * Polymorphic relations allow a model to belong to more than one other model on a single association.
-     *
-     * @param       $subjectModel
-     * @param array $subjectForeignKeys
-     * @param null  $referencePrimaryKey
-     */
-    public function morphTo( $subjectModel, array $subjectForeignKeys = [], $referencePrimaryKey = null )
-    {
-
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Morph To Many
-     *
-     * Morph To Many is a many to many polymorphic relations.
-     * In addition to traditional polymorphic relations, you may also define "many-to-many" polymorphic relations.
-     *
-     * @param string|AbstractModel $subjectModel
-     * @param array                $subjectForeignKeys
-     * @param null                 $referencePrimaryKey
-     */
-    public function morphToMany( $subjectModel, array $subjectForeignKeys = [], $referencePrimaryKey = null )
-    {
-
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Morphed By Many
-     *
-     * Morphed By Many is the inverse of Morph to Many polymorphic relations.
-     *
-     * @param string|AbstractModel $subjectModel
-     * @param array                $subjectForeignKeys
-     * @param null                 $referencePrimaryKey
-     */
-    public function morphedByMany( $subjectModel, array $subjectForeignKeys = [], $referencePrimaryKey = null )
-    {
-
     }
 }

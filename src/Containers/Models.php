@@ -14,8 +14,8 @@ namespace O2System\Framework\Containers;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Abstracts\AbstractModel as FrameworkModel;
-use O2System\Orm\Abstracts\AbstractModel as OrmModel;
+use O2System\Framework\Models\SQL\Model as SQLModel;
+use O2System\Framework\Models\NoSQL\Model as NoSQLModel;
 use O2System\Spl\Containers\Datastructures\SplServiceRegistry;
 use O2System\Spl\Containers\SplServiceContainer;
 
@@ -28,16 +28,16 @@ class Models extends SplServiceContainer
 {
     public function load( $model )
     {
-        if( is_string( $model ) ) {
+        if ( is_string( $model ) ) {
             $service = new SplServiceRegistry( $model );
-        } elseif( $model instanceof SplServiceRegistry ) {
+        } elseif ( $model instanceof SplServiceRegistry ) {
             $service = $model;
         }
 
         $offset = strtolower( $service->getClassName() );
 
-        if ( $service->isSubclassOf( 'O2System\Framework\Abstracts\AbstractModel' ) OR
-            $service->isSubclassOf( 'O2System\Orm\Abstracts\AbstractModel' )
+        if ( $service->isSubclassOf( 'O2System\Framework\Models\SQL\Model' ) ||
+            $service->isSubclassOf( 'O2System\Framework\Models\NoSQL\Model' )
         ) {
             models()->attach( $offset, $service );
         }
@@ -46,12 +46,12 @@ class Models extends SplServiceContainer
     /**
      * Models::register
      *
-     * @param string                  $offset
-     * @param FrameworkModel|OrmModel $model
+     * @param string                                                                      $offset
+     * @param \O2System\Framework\Models\SQL\Model|\O2System\Framework\Models\NoSQL\Model $model
      */
     public function register( $offset, $model )
     {
-        if ( $model instanceof FrameworkModel OR $model instanceof OrmModel ) {
+        if ( $model instanceof SQLModel OR $model instanceof NoSQLModel ) {
 
             parent::attach( $offset, new SplServiceRegistry( $model ) );
         }

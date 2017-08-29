@@ -10,23 +10,23 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL\Relations;
+namespace O2System\Framework\Models\Sql\Relations\Maps;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\Abstracts\AbstractModel;
+use O2System\Framework\Models\Sql\Model;
 
 /**
  * Class Mapper
  *
- * @package O2System\Framework\Models\SQL\Relations
+ * @package O2System\Framework\Models\Sql\Relations
  */
-class Mapper
+class Reference
 {
     /**
      * Reference Model
      *
-     * @var AbstractModel
+     * @var Model
      */
     public $referenceModel;
 
@@ -47,7 +47,7 @@ class Mapper
     /**
      * Relation Model
      *
-     * @var AbstractModel
+     * @var Model
      */
     public $relationModel;
 
@@ -72,13 +72,13 @@ class Mapper
     /**
      * Mapper constructor.
      *
-     * @param AbstractModel        $referenceModel
-     * @param string|AbstractModel $relationModel
+     * @param Model        $referenceModel
+     * @param string|Model $relationModel
      * @param string|null          $relationForeignKey
      * @param string|null          $referencePrimaryKey
      */
     public function __construct(
-        AbstractModel $referenceModel,
+        Model $referenceModel,
         $relationModel,
         $relationForeignKey = null,
         $referencePrimaryKey = null
@@ -105,13 +105,13 @@ class Mapper
     /**
      * Map Relation Model
      *
-     * @param string|AbstractModel $relationModel
+     * @param string|Model $relationModel
      *
      * @return void
      */
     private function mapRelationModel( $relationModel )
     {
-        if ( $relationModel instanceof AbstractModel ) {
+        if ( $relationModel instanceof Model ) {
             $this->relationModel = $relationModel;
             $this->relationTable = $this->relationModel->table;
         } elseif ( class_exists( $relationModel ) ) {

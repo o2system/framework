@@ -10,94 +10,53 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL\Relations;
+namespace O2System\Framework\Models\Sql\Relations;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Abstracts\AbstractModel;
-use O2System\Framework\Models\Abstracts\AbstractRelations;
-use O2System\Framework\Models\Datastructures\Row;
+use O2System\Database\DataObjects\Result;
+use O2System\Framework\Models\Sql;
 
 /**
  * Class BelongsTo
  *
- * @package O2System\Framework\Models\SQL\Relations
+ * @package O2System\Framework\Models\Sql\Relations
  */
-class BelongsTo extends AbstractRelations
+class BelongsTo extends Abstracts\AbstractRelation
 {
     /**
      * Get Result
      *
-     * @return bool|Row
+     * @return \O2System\Framework\Models\Sql\DataObjects\Result\Row|bool
      */
     public function getResult()
     {
-        if ( $this->mapper->referenceModel instanceof AbstractModel ) {
-            if ( $this->mapper->relationModel->row instanceof Row ) {
-                if ( is_array( $this->mapper->relationForeignKey ) ) {
-                    $criteria = $this->mapper->relationModel->row->{$this->mapper->relationModel->primaryKey};
+        if ( $this->map->relationModel->row instanceof Sql\DataObjects\Result\Row ) {
 
-                    $conditions = [];
+            $criteria = $this->map->relationModel->row->offsetGet( $this->map->relationModel->primaryKey );
+            $conditions = [ $this->map->referencePrimaryKey => $criteria ];
 
-                    foreach ( $this->mapper->relationForeignKey as $foreignKey => $foreignKeyCriteria ) {
-                        if ( isset( $this->mapper->relationModel->row->{$foreignKey} ) ) {
-                            $conditions[ $foreignKey ] = str_replace(
-                                '{criteria}',
-                                $this->mapper->relationModel->row->{$foreignKey},
-                                $foreignKeyCriteria
-                            );
-                        } else {
-                            $conditions[ $foreignKey ] = str_replace( '{criteria}', $criteria, $foreignKeyCriteria );
-                        }
+            if ( $this->map->referenceModel instanceof Sql\Model ) {
+                $result = $this->map->relationModel->db
+                    ->from( $this->map->referenceModel->table )
+                    ->getWhere( $conditions, 1 );
+
+                if( $result instanceof Result ) {
+                    if ( $result->count() > 0 ) {
+                        $this->map->referenceModel->result = new Sql\DataObjects\Result( $result, $this->map->referenceModel );
+                        return $this->map->referenceModel->row = $this->map->referenceModel->result->first();
                     }
-
-                    $result = $this->mapper->relationModel->findWhere( $conditions );
-                } else {
-                    $criteria = $this->mapper->relationModel->row->{$this->mapper->relationForeignKey};
-
-                    $result = $this->mapper->referenceModel->find( $criteria, $this->mapper->referencePrimaryKey );
                 }
-            }
+            } elseif( ! empty( $this->map->referenceTable ) ) {
+                $result = $this->map->relationModel->db
+                    ->from( $this->map->referenceTable )
+                    ->getWhere( $conditions, 1 );
 
-            if ( is_array( $result ) ) {
-                return reset( $result );
-            }
-        } elseif ( isset( $this->mapper->referenceTable ) ) {
-            if ( $this->mapper->relationModel->row instanceof Row ) {
-                if ( is_array( $this->mapper->relationForeignKey ) ) {
-                    $criteria = $this->mapper->relationModel->row->{$this->mapper->relationModel->primaryKey};
-
-                    foreach ( $this->mapper->relationForeignKey as $foreignKey => $foreignKeyCriteria ) {
-                        if ( isset( $this->mapper->relationModel->row->{$foreignKey} ) ) {
-                            $conditions[ $foreignKey ] = str_replace(
-                                '{criteria}',
-                                $this->mapper->relationModel->row->{$foreignKey},
-                                $foreignKeyCriteria
-                            );
-                        } else {
-                            $conditions[ $foreignKey ] = str_replace( '{criteria}', $criteria, $foreignKeyCriteria );
-                        }
+                if( $result instanceof Result ) {
+                    if ( $result->count() > 0 ) {
+                        $result = new Sql\DataObjects\Result( $result, $this->map->relationModel );
+                        return $result->first();
                     }
-
-                    $result = $this->mapper->referenceModel->db->getWhere(
-                        $this->mapper->relationTable,
-                        $conditions,
-                        1
-                    );
-                } else {
-                    $criteria = $this->mapper->relationModel->row->{$this->mapper->relationForeignKey};
-
-                    $result = $this->mapper->relationModel->db->getWhere(
-                        $this->mapper->referenceTable,
-                        [
-                            $this->mapper->referencePrimaryKey => $criteria,
-                        ],
-                        1
-                    );
-                }
-
-                if ( $result->count() > 0 ) {
-                    return $result->first();
                 }
             }
         }

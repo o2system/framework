@@ -10,23 +10,23 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL\Relations\Mappers;
+namespace O2System\Framework\Models\Sql\Relations\Maps;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\Abstracts\AbstractModel;
+use O2System\Framework\Models\Sql\Model;
 
 /**
- * Class Intermediate
+ * Class Inverse
  *
- * @package O2System\Framework\Models\SQL\Relations\Mappers
+ * @package O2System\Framework\Models\Sql\Relations\Maps
  */
-class Intermediate
+class Inverse
 {
     /**
      * Relation Model
      *
-     * @var AbstractModel
+     * @var Model
      */
     public $relationModel;
 
@@ -49,7 +49,7 @@ class Intermediate
     /**
      * Reference Model
      *
-     * @var AbstractModel
+     * @var Model
      */
     public $referenceModel;
 
@@ -70,18 +70,16 @@ class Intermediate
     // ------------------------------------------------------------------------
 
     /**
-     * IntermediateMapper constructor.
+     * InverseMapper constructor.
      *
-     * @param AbstractModel        $relationModel
-     * @param string|AbstractModel $referenceModel
-     * @param string|AbstractModel $intermediateModel
-     * @param string|null          $relationForeignKey
-     * @param string|null          $referencePrimaryKey
+     * @param Model        $relationModel
+     * @param string|Model $referenceModel
+     * @param string|null  $relationForeignKey
+     * @param string|null  $referencePrimaryKey
      */
     public function __construct(
-        AbstractModel $relationModel,
+        Model $relationModel,
         $referenceModel,
-        $intermediateModel,
         $relationForeignKey = null,
         $referencePrimaryKey = null
     ) {
@@ -104,13 +102,13 @@ class Intermediate
     /**
      * Map Relation Model
      *
-     * @param string|AbstractModel $referenceModel
+     * @param string|Model $referenceModel
      *
      * @return void
      */
     private function mapReferenceModel( $referenceModel )
     {
-        if ( $referenceModel instanceof AbstractModel ) {
+        if ( $referenceModel instanceof Model ) {
             $this->referenceModel = $referenceModel;
             $this->referenceTable = $this->referenceModel->table;
             $this->referencePrimaryKey = $this->referenceModel->primaryKey;

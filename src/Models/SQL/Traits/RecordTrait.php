@@ -10,14 +10,14 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL\Traits;
+namespace O2System\Framework\Models\Sql\Traits;
 
 // ------------------------------------------------------------------------
 
 /**
  * Class TraitRecord
  *
- * @package O2System\Framework\Models\SQL\Traits
+ * @package O2System\Framework\Models\Sql\Traits
  */
 trait RecordTrait
 {

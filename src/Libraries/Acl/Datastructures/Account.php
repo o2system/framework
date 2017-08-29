@@ -37,12 +37,13 @@ class Account extends AbstractDataStoragePattern
             'username' => null,
             'password' => null,
             'pin'      => null,
+            'sso'      => null,
             'role'     => null,
             'profile'  => null,
         ];
 
         foreach ( $defaultAccount as $item => $value ) {
-            if ( in_array( $item, [ 'password', 'pin' ] ) and $hash === true ) {
+            if ( in_array( $item, [ 'password', 'pin', 'sso' ] ) and $hash === true ) {
                 /**
                  * This code will benchmark your server to determine how high of a cost you can
                  * afford. You want to set the highest cost that you can without slowing down

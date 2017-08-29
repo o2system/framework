@@ -50,14 +50,20 @@ if ( ! function_exists( 'array_get_values' ) ) {
      *
      * @return array
      */
-    function array_get_values( array $keys, array $array, $default = null )
+    function array_get_values( array $keys, array $array, $default = [] )
     {
         $return = [];
 
         is_array( $keys ) OR $keys = [ $keys ];
 
         foreach ( $keys as $item ) {
-            $return[ $item ] = array_key_exists( $item, $array ) ? $array[ $item ] : $default;
+            if( array_key_exists( $item, $array ) ) {
+                $return[ $item ] = $array[ $item ];
+            } elseif( is_array( $default) && array_key_exists( $item, $default ) ) {
+                $return[ $item ] = $default[ $item ];
+            } elseif( ! empty( $default ) ) {
+                $return[ $item ] = $default;
+            }
         }
 
         return $return;

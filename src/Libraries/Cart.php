@@ -38,29 +38,106 @@ class Cart extends AbstractItemStoragePattern
     // ------------------------------------------------------------------------
 
     /**
-     * AbstractItemStoragePattern::__set
+     * Cart::add
      *
-     * Application of __set magic method to store the data into the storage.
-     *
-     * @param string $offset The data offset key.
-     * @param mixed  $value  The data to be stored.
-     *
-     * @return void
+     * @param array $item
      */
-    public function __set( $offset, $value )
+    public function add( array $item )
     {
-        $this->storage[ $offset ] = $value;
+        $item = array_merge( [
+            'id'      => null,
+            'sku'     => null,
+            'qty'     => 1,
+            'price'   => 0,
+            'name'    => null,
+            'options' => [],
+        ], $item );
+
+        // set sku
+        $sku = empty( $item[ 'sku' ] ) ? $item[ 'id' ] : $item[ 'sku' ];
+
+        // set sub-total
+        $item[ 'subTotal' ][ 'price' ] = $item[ 'price' ] * $item[ 'qty' ];
+        $item[ 'subTotal' ][ 'weight' ] = $item[ 'weight' ] * $item[ 'qty' ];
+
+        $this->storage[ $sku ] = $item;
     }
 
     // ------------------------------------------------------------------------
 
-    public function getTotalWeight()
+    /**
+     * Cart::update
+     *
+     * @param string $sku
+     * @param array  $item
+     *
+     * @return bool
+     */
+    public function update( $sku, array $item )
     {
+        if ( $this->offsetExists( $sku ) ) {
+            $item = array_merge( $this->offsetGet( $sku ), $item );
 
+            // update sub-total
+            $item[ 'subTotal' ][ 'price' ] = $item[ 'price' ] * $item[ 'qty' ];
+            $item[ 'subTotal' ][ 'weight' ] = $item[ 'weight' ] * $item[ 'qty' ];
+
+            $this->storage[ $sku ] = $item;
+
+            return true;
+        }
+
+        return false;
     }
 
-    public function getTotal()
+    // ------------------------------------------------------------------------
+
+    /**
+     * Cart::getTotalWeight
+     *
+     * @return int
+     */
+    public function getTotalWeight()
     {
+        $totalWeight = 0;
+
+        if ( $this->count() ) {
+            foreach ( $this->storage as $id => $item ) {
+                if ( isset( $item[ 'subTotal' ][ 'weight' ] ) ) {
+                    $totalWeight += (int)$item[ 'weight' ];
+                }
+            }
+        }
+
+        return $totalWeight;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Cart::getTotalPrice
+     *
+     * @return int
+     */
+    public function getTotalPrice()
+    {
+        $totalPrice = 0;
+
+        if ( $this->count() ) {
+            foreach ( $this->storage as $id => $item ) {
+                if ( isset( $item[ 'subTotal' ][ 'price' ] ) ) {
+                    $totalPrice += (int)$item[ 'price' ];
+                }
+            }
+        }
+
+        return $totalPrice;
+    }
+
+    public function destroy()
+    {
+        unset( $_SESSION[ 'o2system' ][ 'cart' ] );
+        parent::destroy();
 
     }
 }

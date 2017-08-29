@@ -10,35 +10,35 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL\Relations\Abstracts;
+namespace O2System\Framework\Models\Sql\Relations\Abstracts;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\DataObjects;
-use O2System\Framework\Models\SQL\Relations;
+use O2System\Framework\Models\Sql\DataObjects;
+use O2System\Framework\Models\Sql\Relations;
 
 /**
  * Class AbstractRelations
  *
  * @package O2System\Framework\Models\Abstracts
  */
-abstract class AbstractRelations
+abstract class AbstractRelation
 {
     /**
-     * Relations Mapper
+     * Relations Map
      *
-     * @var Relations\Mapper
+     * @var Relations\Maps\Reference|Relations\Maps\Inverse|Relations\Maps\Intermediary|\O2System\Framework\Models\Sql\Relations\Maps\Through
      */
-    protected $mapper;
+    protected $map;
 
     /**
-     * Relations constructor.
+     * Relations::__construct
      *
-     * @param Relations\Mapper|Relations\Mappers\Inverse|Relations\Mappers\Inverse $mapper
+     * @param Relations\Maps\Reference|Relations\Maps\Inverse|Relations\Maps\Intermediary|\O2System\Framework\Models\Sql\Relations\Maps\Through $map
      */
-    public function __construct( $mapper )
+    public function __construct( $map )
     {
-        $this->mapper = $mapper;
+        $this->map = $map;
     }
 
     // ------------------------------------------------------------------------

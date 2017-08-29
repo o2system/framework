@@ -14,7 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Card\Block;
+use O2System\Framework\Libraries\Ui\Components\Card\Body;
 use O2System\Framework\Libraries\Ui\Components\Card\Footer;
 use O2System\Framework\Libraries\Ui\Components\Card\Header;
 use O2System\Framework\Libraries\Ui\Interfaces\ContextualInterface;
@@ -50,7 +50,7 @@ class Card extends Element implements ContextualInterface
         $this->setContextualClassSuffix( $contextualClass );
 
         $this->header = new Header();
-        $this->block = new Block();
+        $this->block = new Body();
         $this->footer = new Footer();
     }
 
@@ -91,11 +91,11 @@ class Card extends Element implements ContextualInterface
     }
 
     /**
-     * @return Block
+     * @return Body
      */
-    public function createBlock()
+    public function createBody()
     {
-        $this->childNodes->push( new Block() );
+        $this->childNodes->push( new Body() );
 
         return $this->childNodes->last();
     }

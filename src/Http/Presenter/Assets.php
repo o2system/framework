@@ -63,10 +63,13 @@ class Assets
     public function loadPackages( $packages )
     {
         foreach ( $packages as $package => $files ) {
+
             if ( is_string( $files ) ) {
                 $this->loadPackage( $files );
             } elseif ( is_array( $files ) ) {
                 $this->loadPackage( $package, $files );
+            } elseif( is_object( $files ) ) {
+                $this->loadPackage( $package, get_object_vars( $files ) );
             }
         }
     }

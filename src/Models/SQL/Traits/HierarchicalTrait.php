@@ -10,14 +10,14 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL\Traits;
+namespace O2System\Framework\Models\Sql\Traits;
 
 // ------------------------------------------------------------------------
 
 /**
  * Class HierarchicalTrait
  *
- * @package O2System\Framework\Models\SQL\Traits
+ * @package O2System\Framework\Models\Sql\Traits
  */
 trait HierarchicalTrait
 {
@@ -30,9 +30,9 @@ trait HierarchicalTrait
      *
      * @param string $table Working database table
      *
-     * @return numeric  rgt column value
+     * @return int  Right column value
      */
-    final public function _afterProcessRebuild( $id_parent = 0, $left = 0, $depth = 0 )
+    final public function afterProcessRebuild( $id_parent = 0, $left = 0, $depth = 0 )
     {
         $table = empty( $table ) ? $this->table : $table;
 

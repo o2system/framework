@@ -10,7 +10,7 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Libraries\Ui\Components\Card\Block;
+namespace O2System\Framework\Libraries\Ui\Components\Card\Body;
 
 // ------------------------------------------------------------------------
 
@@ -19,21 +19,28 @@ use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
 use O2System\Html\Element;
 
 /**
- * Class Blockquote
+ * Class Testimonial
  *
- * @package O2System\Framework\Libraries\Ui\Components\Card\Block
+ * @package O2System\Framework\Libraries\Ui\Components\Card\Body
  */
-class Blockquote extends Element
+class Testimonial extends Element
 {
     use ParagraphSetterTrait;
 
+    public $photo;
     public $author;
-    public $source;
+    public $jobTitle;
+    public $company;
 
     public function __construct()
     {
-        parent::__construct( 'div', 'blockquote' );
-        $this->attributes->addAttributeClass( 'card-blockquote' );
+        parent::__construct( 'div', 'testimonial' );
+        $this->attributes->addAttributeClass( 'card-testimonial' );
+    }
+
+    public function setPhoto( $photo )
+    {
+
     }
 
     public function setAuthor( $name, $href = null )
@@ -49,14 +56,22 @@ class Blockquote extends Element
         return $this;
     }
 
-    public function setSource( $name, $href = null )
+    public function setJobTitle( $position )
     {
-        $this->source = new Element( 'cite', 'source' );
+        $this->jobTitle = new Element( 'cite', 'source' );
+        $this->jobTitle->textContent->push( $position );
+
+        return $this;
+    }
+
+    public function setCompany( $company, $href = null )
+    {
+        $this->company = new Element( 'cite', 'source' );
 
         if ( isset( $href ) ) {
-            $this->source->childNodes->push( new Link( $name, $href ) );
+            $this->company->childNodes->push( new Link( $company, $href ) );
         } else {
-            $this->source->textContent->push( $name );
+            $this->company->textContent->push( $company );
         }
 
         return $this;
@@ -73,13 +88,13 @@ class Blockquote extends Element
         if ( $this->author instanceof Element ) {
             $footer->childNodes->push( $this->author );
 
-            if ( $this->author->tagName === 'small' && $this->source instanceof Element ) {
-                $this->author->childNodes->push( $this->source );
-            } elseif ( $this->source instanceof Element ) {
-                $footer->childNodes->push( $this->source );
+            if ( $this->author->tagName === 'small' && $this->jobTitle instanceof Element ) {
+                $this->author->childNodes->push( $this->jobTitle );
+            } elseif ( $this->jobTitle instanceof Element ) {
+                $footer->childNodes->push( $this->jobTitle );
             }
-        } elseif ( $this->source instanceof Element ) {
-            $footer->childNodes->push( $this->source );
+        } elseif ( $this->jobTitle instanceof Element ) {
+            $footer->childNodes->push( $this->jobTitle );
         }
 
         $this->childNodes->push( $footer );

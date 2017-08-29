@@ -15,6 +15,7 @@ namespace O2System\Framework\Libraries\Acl;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Libraries\Acl\Datastructures\Account;
+use O2System\Framework\Libraries\Acl\Datastructures\Profile;
 use O2System\Framework\Libraries\Acl\Datastructures\SignedOn;
 use O2System\Framework\Libraries\Acl\Sso\Broker;
 use O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException;
@@ -32,23 +33,18 @@ class User
     public function __construct()
     {
         if ( ! models( 'users' ) ) {
-            models()->load( 'O2System\Framework\Models\Users' );
+            models()->load( 'O2System\Framework\Models\SQL\System\Users' );
         }
 
         $this->attempts = (int)session()->offsetGet( 'aclAttempts' );
     }
 
-    public function setBroker( Broker $broker )
-    {
-        $this->broker = $broker;
-    }
-
     public function login( $username, $password, $remember = false )
     {
-        if ( false !== ( $account = models( 'users' )->findWhere(
+        if ( ( $account = models( 'users' )->findWhere(
                 [ 'username' => $username, 'record_status' => 'PUBLISH' ],
                 1
-            ) )
+            ) ) instanceof Account
         ) {
             $info = password_get_info( $account->password );
             if ( password_verify( $password, $account->password ) ) {
@@ -67,15 +63,17 @@ class User
                     );
                 }
 
-                $profile = models( 'users' )->profile->find( $account->id, 'id_sys_user' );
+                if ( ( $profile = models( 'users' )->profile->find( $account->id,
+                        'id_sys_user' ) ) instanceof Profile
+                ) {
+                    // set session
+                    unset( $account[ 'password' ], $account[ 'pin' ] );
+                    session()->offsetSet( 'account', $account );
+                    session()->offsetSet( 'profile', $profile );
+                    session()->offsetUnset( 'aclAttempts' );
 
-                // set session
-                unset( $account[ 'password' ], $account[ 'pin' ] );
-                session()->offsetSet( 'account', $account );
-                session()->offsetSet( 'profile', $profile );
-                session()->offsetUnset( 'aclAttempts' );
-
-                return true;
+                    return true;
+                }
             }
         }
 
@@ -129,6 +127,7 @@ class User
             'username' => $account->username,
             'password' => $account->password,
             'pin'      => $account->pin,
+            'sso'      => $account->sso,
         ] );
 
         if ( $model->connection->getTransactionStatus() ) {

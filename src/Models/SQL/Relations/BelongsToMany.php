@@ -10,26 +10,43 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\SQL\Relations;
+namespace O2System\Framework\Models\Sql\Relations;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\Abstracts\AbstractRelations;
+use O2System\Database\DataObjects\Result;
+use O2System\Framework\Models\Sql;
 
 /**
  * Class BelongsToMany
  *
- * @package O2System\Framework\Models\SQL\Relations
+ * @package O2System\Framework\Models\Sql\Relations
  */
-class BelongsToMany extends AbstractRelations
+class BelongsToMany extends Sql\Relations\Abstracts\AbstractRelation
 {
     /**
      * Get Result
      *
-     * @return bool|array
+     * @return Sql\DataObjects\Result|bool
      */
     public function getResult()
     {
+        if ( $this->map->relationModel->row instanceof Sql\DataObjects\Result\Row ) {
+            $result = $this->map->relationModel->db
+                ->from( $this->map->referenceTable )
+                ->join( $this->map->pivotTable, implode( ' = ', [
+                        $this->map->pivotReferenceKey,
+                        $this->map->referencePrimaryKey
+                    ] ) )
+                ->getWhere( [ $this->map->pivotRelationKey => $this->map->relationModel->row->offsetGet( $this->map->relationPrimaryKey ) ] );
 
+            if( $result instanceof Result ) {
+                if ( $result->count() > 0 ) {
+                    return new Sql\DataObjects\Result( $result, $this->map->relationModel );
+                }
+            }
+        }
+
+        return false;
     }
 }
