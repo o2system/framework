@@ -4,7 +4,7 @@ Open Source PHP Modular HMVC-MVM-P Framework.
 ### Composer Installation
 The best way to install O2System Framework is to use [Composer](https://getcomposer.org)
 ```
-composer require o2system/framework --prefer-dist dev-master
+composer require o2system/framework
 ```
 > Packagist: [https://packagist.org/packages/o2system/framework](https://packagist.org/packages/o2system/framework)
 
