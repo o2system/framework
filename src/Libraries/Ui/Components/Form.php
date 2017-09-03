@@ -14,9 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Form\Group;
 use O2System\Html\Element;
-use O2System\Spl\Iterators\ArrayIterator;
 
 /**
  * Class Form
@@ -46,11 +44,11 @@ class Form extends Element
     }
 
     /**
-     * @return Group
+     * @return Form\Group
      */
     public function createGroup()
     {
-        $this->childNodes->push( new Group() );
+        $this->childNodes->push( new Form\Group() );
 
         return $this->childNodes->last();
     }

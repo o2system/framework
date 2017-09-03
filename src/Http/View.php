@@ -319,10 +319,12 @@ class View
                 [
                     '"./assets/',
                     "'./assets/",
+                    "(./assets/",
                 ],
                 [
                     '"' . base_url() . '/assets/',
                     "'" . base_url() . '/assets/',
+                    "(" . base_url() . '/assets/',
                 ],
                 $htmlOutput );
 
@@ -330,10 +332,12 @@ class View
                 [
                     '"assets/',
                     "'assets/",
+                    "(assets/",
                 ],
                 [
                     '"' . presenter()->theme->active->getUrl( 'assets/' ),
                     "'" . presenter()->theme->active->getUrl( 'assets/' ),
+                    "(" . presenter()->theme->active->getUrl( 'assets/' ),
                 ],
                 $htmlOutput );
 

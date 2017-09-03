@@ -39,6 +39,11 @@ class Meta extends AbstractItemStoragePattern
             }
         }
 
+        $this->offsetSet( 'viewport', [
+            'width'         => 'device-width',
+            'initial-scale' => 1,
+            'shrink-to-fit' => 'no',
+        ] );
         $this->offsetSet( 'language', language()->getDefault() );
         $this->offsetSet( 'generator', FRAMEWORK_NAME . ' v' . FRAMEWORK_VERSION );
         $this->offsetSet( 'url', current_url() );
@@ -54,7 +59,20 @@ class Meta extends AbstractItemStoragePattern
             parent::offsetSet( camelcase( 'http_equiv_' . $value[ 'property' ] ), $element );
         } else {
             $element->attributes[ 'name' ] = $offset;
-            $element->attributes[ 'content' ] = ( is_array( $value ) ? implode( ', ', $value ) : $value );
+
+            if ( is_array( $value ) ) {
+                if ( is_numeric( key( $value ) ) ) {
+                    $element->attributes[ 'content' ] = implode( ', ', $value );
+                } else {
+                    $newValue = [];
+                    foreach ( $value as $key => $val ) {
+                        $newValue[] = $key . '=' . $val;
+                    }
+                    $element->attributes[ 'content' ] = implode( ', ', $newValue );
+                }
+            } else {
+                $element->attributes[ 'content' ] = $value;
+            }
 
             if ( in_array( $offset, [ 'description' ] ) and $this->opengraph instanceof Meta\Opengraph ) {
                 $this->opengraph->setObject( $element->attributes[ 'name' ], $element->attributes[ 'content' ] );

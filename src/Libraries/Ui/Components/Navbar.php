@@ -14,8 +14,6 @@ namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Navbar\Form;
-use O2System\Framework\Libraries\Ui\Components\Navbar\Nav;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ColorSetterTrait;
 use O2System\Html\Element;
 
@@ -34,7 +32,7 @@ class Navbar extends Element
     public $collapse;
 
     /**
-     * @var Nav
+     * @var Navbar\Nav
      */
     public $nav;
 
@@ -47,8 +45,8 @@ class Navbar extends Element
     {
         $id = empty( $id ) ? 'navbar-' . mt_rand( 0, 100 ) : $id;
 
-        parent::__construct( 'div', 'navbar' );
-        $this->attributes->addAttributeClass( [ 'navbar', 'navbar-toggleable-md', 'navbar-light', 'bg-faded' ] );
+        parent::__construct( 'nav', 'navbar' );
+        $this->attributes->addAttributeClass( [ 'navbar', 'navbar-expand-lg', 'navbar-light' ] );
 
         // Toogle Button
         $button = new Button();
@@ -70,7 +68,7 @@ class Navbar extends Element
         $collapse = new Element( 'div', 'collapse' );
         $collapse->attributes->addAttributeClass( [ 'collapse', 'navbar-collapse' ] );
         $collapse->attributes->setAttributeId( $id );
-        $collapse->childNodes->push( new Nav() );
+        $collapse->childNodes->push( new Navbar\Nav() );
 
         $this->nav = $collapse->childNodes->last();
 
@@ -105,23 +103,23 @@ class Navbar extends Element
      */
     public function createForm()
     {
-        $this->collapse->childNodes->push( new Form() );
+        $this->collapse->childNodes->push( new Navbar\Form() );
 
         return $this->form = $this->collapse->childNodes->last();
     }
 
     public function light()
     {
-        $this->attributes->removeAttributeClass('navbar-inverse');
+        $this->attributes->removeAttributeClass('navbar-dark');
         $this->attributes->addAttributeClass('navbar-light');
 
         return $this;
     }
 
-    public function inverse()
+    public function dark()
     {
         $this->attributes->removeAttributeClass('navbar-light');
-        $this->attributes->addAttributeClass('navbar-inverse');
+        $this->attributes->addAttributeClass('navbar-dark');
 
         return $this;
     }

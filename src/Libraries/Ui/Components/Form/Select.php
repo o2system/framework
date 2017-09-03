@@ -14,8 +14,6 @@ namespace O2System\Framework\Libraries\Ui\Components\Form;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Form\Select\Group;
-use O2System\Framework\Libraries\Ui\Components\Form\Select\Traits\OptionCreateTrait;
 use O2System\Html\Element;
 
 /**
@@ -25,7 +23,7 @@ use O2System\Html\Element;
  */
 class Select extends Element
 {
-    use OptionCreateTrait;
+    use Select\Traits\OptionCreateTrait;
 
     public function __construct()
     {
@@ -35,7 +33,7 @@ class Select extends Element
 
     public function createGroup( $label )
     {
-        $group = new Group();
+        $group = new Select\Group();
         $group->textContent->push( $label );
 
         $this->childNodes->push( $group );

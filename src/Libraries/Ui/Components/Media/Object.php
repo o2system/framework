@@ -25,7 +25,7 @@ use O2System\Html\Element;
  *
  * @package O2System\Framework\Libraries\Ui\Components\Media
  */
-class Object extends Item
+class Object extends Element
 {
     use ImageSetterTrait;
     use HeadingSetterTrait;
@@ -36,7 +36,7 @@ class Object extends Item
 
     public function __construct()
     {
-        parent::__construct();
+        parent::__construct( 'div' );
         $this->attributes->addAttributeClass( 'media' );
 
         $this->container = new Element( 'div' );
@@ -73,7 +73,7 @@ class Object extends Item
         } else {
             $node->entity->setEntityName( 'media-nested-' . ( $this->childNodes->count() + 1 ) );
 
-            if( isset( $list ) ) {
+            if ( isset( $list ) ) {
                 $node->entity->setEntityName( $list );
                 $node->textContent->push( $list );
             }
@@ -89,7 +89,7 @@ class Object extends Item
         $output[] = $this->open();
 
         if ( $this->image instanceof Element ) {
-            $this->image->attributes->addAttributeClass( 'media-object' );
+            $this->image->attributes->addAttributeClass( [ 'media-image', 'd-flex', 'mr-3' ] );
             $this->container->childNodes->push( $this->image );
         }
 
@@ -97,15 +97,15 @@ class Object extends Item
             $this->body->childNodes->prepend( $this->paragraph );
         }
 
-        if( $this->hasChildNodes() ) {
-            foreach( $this->childNodes as $childNode ) {
+        if ( $this->hasChildNodes() ) {
+            foreach ( $this->childNodes as $childNode ) {
                 $this->body->childNodes->push( $childNode );
             }
         }
 
         if ( $this->heading instanceof Element ) {
             $this->heading->tagName = 'h4';
-            $this->heading->attributes->addAttributeClass( 'media-heading' );
+            $this->heading->attributes->addAttributeClass( [ 'media-heading', 'mt-0' ] );
             $this->body->childNodes->prepend( $this->heading );
         }
 

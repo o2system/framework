@@ -17,6 +17,7 @@ namespace O2System\Framework\Libraries\Ui\Components;
 use O2System\Framework\Libraries\Ui\Components\Card\Body;
 use O2System\Framework\Libraries\Ui\Components\Card\Footer;
 use O2System\Framework\Libraries\Ui\Components\Card\Header;
+use O2System\Framework\Libraries\Ui\Components\Card\ListGroup;
 use O2System\Framework\Libraries\Ui\Interfaces\ContextualInterface;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ContextualClassSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\TypographySetterTrait;
@@ -85,7 +86,7 @@ class Card extends Element implements ContextualInterface
      */
     public function createListGroup()
     {
-        $this->childNodes->push( new Lists\Group() );
+        $this->childNodes->push( new ListGroup() );
 
         return $this->childNodes->last();
     }
@@ -106,6 +107,11 @@ class Card extends Element implements ContextualInterface
 
         if ( $this->header->hasTextContent() || $this->header->hasChildNodes() ) {
             $output[] = $this->header;
+            if ( $this->image instanceof \O2System\Framework\Libraries\Ui\Components\Card\Image ||
+                $this->image instanceof \O2System\Framework\Libraries\Ui\Components\Card\Carousel
+            ) {
+                $this->image->attributes->removeAttributeClass( 'card-img-top' );
+            }
         } elseif ( $this->image instanceof \O2System\Framework\Libraries\Ui\Components\Card\Image ||
             $this->image instanceof \O2System\Framework\Libraries\Ui\Components\Card\Carousel
         ) {

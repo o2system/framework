@@ -10,33 +10,20 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Libraries\Ui\Components\Lists;
+namespace O2System\Framework\Libraries\Ui\Components\Card;
 
 // ------------------------------------------------------------------------
 
-use O2System\Html\Element;
-
 /**
- * Class Group
+ * Class ListGroup
  *
- * @package O2System\Framework\Libraries\Ui\Components\Lists
+ * @package O2System\Framework\Libraries\Ui\Components\Card
  */
-class Group extends Unordered
+class ListGroup extends \O2System\Framework\Libraries\Ui\Components\Lists\Group
 {
     public function __construct()
     {
         parent::__construct();
-        $this->attributes->addAttributeClass( 'list-group' );
-    }
-
-    protected function pushChildNode( Element $node )
-    {
-        $node->attributes->addAttributeClass( 'list-group-item' );
-
-        if( $node instanceof Item ) {
-            $node->setContextualClassPrefix( 'list-group-item' );
-        }
-
-        parent::pushChildNode( $node );
+        $this->attributes->addAttributeClass('list-group-flush');
     }
 }

@@ -219,4 +219,18 @@ class Assets
             }
         }
     }
+
+    public function media( $media )
+    {
+        $media = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $media );
+
+        foreach ( loader()->getPublicDirs( true ) as $filePath ) {
+            $filePath .= 'media' . DIRECTORY_SEPARATOR;
+
+            if ( is_file( $filePath . $media ) ) {
+                return path_to_url( $filePath . $media );
+                break;
+            }
+        }
+    }
 }

@@ -395,7 +395,7 @@ class Framework extends Kernel
 
                     // autoload presenter assets
                     if ( $presenter->offsetExists( 'assets' ) ) {
-                        presenter()->assets->autoload( $presenter->offsetGet( 'assets' )->autoload->getArrayCopy() );
+                        presenter()->assets->autoload( $presenter->assets['autoload'] );
                     }
 
                     // autoload presenter theme

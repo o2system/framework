@@ -16,7 +16,6 @@ namespace O2System\Framework\Libraries\Ui\Components\Carousel;
 
 use O2System\Framework\Libraries\Ui\Components\Image;
 use O2System\Framework\Libraries\Ui\Components\Jumbotron;
-use O2System\Framework\Libraries\Ui\Components\Thumbnails;
 use O2System\Html\Element;
 
 /**
@@ -49,13 +48,6 @@ class Slide extends Element
     public function createJumbotron()
     {
         $this->childNodes->push( new Jumbotron() );
-
-        return $this->childNodes->last();
-    }
-
-    public function createThumbnail()
-    {
-        $this->childNodes->push( new Thumbnails\Item() );
 
         return $this->childNodes->last();
     }

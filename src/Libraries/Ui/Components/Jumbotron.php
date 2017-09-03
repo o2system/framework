@@ -33,6 +33,59 @@ class Jumbotron extends Element
         $this->attributes->addAttributeClass( 'jumbotron' );
     }
 
+    public function setImageBackground( $src )
+    {
+        $this->attributes->addAttributeClass( 'jumbotron-bg' );
+
+        if ( is_file( $src ) ) {
+            $src = path_to_url( $src );
+        }
+
+        $this->attributes->addAttribute( 'style', 'background-image: url(\'' . $src . '\');' );
+
+        return $this;
+    }
+
+    public function setVideoBackground( $src, $poster = null )
+    {
+        $this->attributes->addAttributeClass( 'jumbotron-video' );
+
+        $video = new Element( 'video', 'jumbotron-video' );
+
+        if ( isset( $poster ) ) {
+            $video->attributes->addAttribute( 'poster', $poster );
+        }
+
+        $video->attributes->addAttribute( 'width', '100%' );
+        $video->attributes->addAttribute( 'preload', 'auto' );
+        $video->attributes->addAttribute( 'loop', null );
+        $video->attributes->addAttribute( 'autoplay', null );
+        $video->attributes->addAttribute( 'muted', null );
+
+        $source = new Element( 'source', 'jumbotron-video-source' );
+
+        if ( is_file( $src ) ) {
+            $src = path_to_url( $src );
+        }
+
+        $source->attributes->addAttribute( 'src', $src );
+        $source->attributes->addAttribute( 'type', 'video/webm');
+
+        $video->textContent->push( $source->render() );
+
+        $this->childNodes->prepend( $video );
+
+        return $this;
+    }
+
+    public function setCarousel( Carousel $carousel )
+    {
+        $this->attributes->addAttributeClass('jumbotron-carousel');
+        $this->childNodes->prepend( $carousel );
+
+        return $this;
+    }
+
     public function createHeader( $text, $tagName = 'h1', array $attributes = [ 'class' => 'display-3' ] )
     {
         $header = new Element( $tagName, 'header-' . dash( $text ) );

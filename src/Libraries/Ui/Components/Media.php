@@ -14,7 +14,6 @@ namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Lists\Unordered;
 use O2System\Framework\Libraries\Ui\Components\Media\Object;
 use O2System\Html\Element;
 
@@ -23,11 +22,11 @@ use O2System\Html\Element;
  *
  * @package O2System\Framework\Libraries\Ui\Components
  */
-class Media extends Unordered
+class Media extends Element
 {
     public function __construct()
     {
-        parent::__construct();
+        parent::__construct( 'div' );
         $this->attributes->addAttributeClass( 'media-list' );
     }
 
@@ -49,7 +48,7 @@ class Media extends Unordered
             }
         }
 
-        $this->pushChildNode( $node );
+        $this->childNodes->push( $node );
 
         return $this->childNodes->last();
     }
