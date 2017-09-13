@@ -29,6 +29,7 @@ class Router
     final public function parseRequest()
     {
         $uri = request()->getUri();
+        $domain = implode( '.', $uri->getSubDomains() ) . '.' . $uri->getHost();
         $uriSegments = $uri->getSegments()->getParts();
         $uriString = $uri->getSegments()->getString();
 
@@ -36,13 +37,12 @@ class Router
         $routes = config()->loadFile( 'routes', true );
 
         if ( $routes instanceof Router\Routes ) {
-
             // Domain routing
             if ( null !== ( $domain = $routes->getDomain() ) ) {
                 if ( is_array( $domain ) ) {
                     $uriSegments = array_merge( $domain, $uriSegments );
                     $uriString = implode( '/', array_map( 'dash', $uriSegments ) );
-                } else {
+                } elseif( is_string( $domain ) ) {
                     if ( false !== ( $domainAppModule = modules()->getApp( $domain ) ) ) {
                         // Register Domain App Module Namespace
                         loader()->addNamespace( $domainAppModule->getNamespace(), $domainAppModule->getRealPath() );
@@ -105,45 +105,47 @@ class Router
                     // Push Path Module
                     modules()->push( $module );
 
-                    // Load modular routes config
-                    if ( false !== ( $configDir = $module->getDir( 'config', true ) ) ) {
-
-                        if ( is_file(
-                            $filePath = $configDir . ucfirst(
-                                    strtolower( ENVIRONMENT )
-                                ) . DIRECTORY_SEPARATOR . 'Routes.php'
-                        ) ) {
-                            include( $filePath );
-                        } elseif ( is_file(
-                            $filePath = $configDir . 'Routes.php'
-                        ) ) {
-                            include( $filePath );
-                        }
-
-                        if ( isset( $routes ) && $routes instanceof Router\Routes ) {
-                            $moduleRouteDefault = $routes->getMap( '/' );
-                        }
-                    }
-
-                    // Define default route by module routes config
-                    if ( empty( $moduleRouteDefault ) ) {
-                        $controllerClassName = $module->getNamespace() . 'Controllers\\' . studlycase( $module->getParameter() );
-                        if ( class_exists( $controllerClassName ) ) {
-                            $defaultRoute = $routes->any( '/', function () use ( $controllerClassName ) {
-                                //return new $controllerClassName();
-                                return new Router\Datastructures\Controller( $controllerClassName );
-                            } )->getMap( '/' );
-
-                            $uriSegments = array_diff( $uriSegments, [ strtolower( $module->getParameter() ) ] );
-
-                            $defaultRoute->setClosureParameters( $uriSegments );
-                        }
-                    } else {
-                        $defaultRoute = $moduleRouteDefault;
-                    }
-
                     break;
                 }
+            }
+        }
+
+        if( ! empty( $module ) ) {
+            // Load modular routes config
+            if ( false !== ( $configDir = $module->getDir( 'config', true ) ) ) {
+
+                if ( is_file(
+                    $filePath = $configDir . ucfirst(
+                            strtolower( ENVIRONMENT )
+                        ) . DIRECTORY_SEPARATOR . 'Routes.php'
+                ) ) {
+                    include( $filePath );
+                } elseif ( is_file(
+                    $filePath = $configDir . 'Routes.php'
+                ) ) {
+                    include( $filePath );
+                }
+
+                if ( isset( $routes ) && $routes instanceof Router\Routes ) {
+                    $moduleRouteDefault = $routes->getMap( '/' );
+                }
+            }
+
+            // Define default route by module routes config
+            if ( empty( $moduleRouteDefault ) ) {
+                $controllerClassName = $module->getNamespace() . 'Controllers\\' . studlycase( $module->getParameter() );
+                if ( class_exists( $controllerClassName ) ) {
+                    $defaultRoute = $routes->any( '/', function () use ( $controllerClassName ) {
+                        //return new $controllerClassName();
+                        return new Router\Datastructures\Controller( $controllerClassName );
+                    } )->getMap( '/' );
+
+                    $uriSegments = array_diff( $uriSegments, [ strtolower( $module->getParameter() ) ] );
+
+                    $defaultRoute->setClosureParameters( $uriSegments );
+                }
+            } else {
+                $defaultRoute = $moduleRouteDefault;
             }
         }
 

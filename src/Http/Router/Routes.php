@@ -294,6 +294,21 @@ class Routes
 
     // ------------------------------------------------------------------------
 
+    public function middleware( array $middleware, $register = true )
+    {
+        foreach ( $middleware as $offset => $object ) {
+            $offset = is_numeric( $offset ) ? $object : $offset;
+
+            if( $register ) {
+                middleware()->register( $object, $offset );
+            } else {
+                middleware()->unregister( $offset );
+            }
+        }
+
+        return $this;
+    }
+
     public function group( $attributes, \Closure $closure )
     {
         $parentAttributes = $this->attributes;
