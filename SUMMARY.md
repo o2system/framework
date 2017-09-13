@@ -6,7 +6,9 @@
 * [Fundamental](fundamental.md)
 * [Architecture](architecture.md)
 
-## Methods
+## Getting Started
 
-* [Defining Methods](methods.md)
+* [Installation](getting-started/installation.md)
+
+## Basic
 
