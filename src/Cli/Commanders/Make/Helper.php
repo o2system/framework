@@ -71,7 +71,7 @@ class Helper extends Make
 
         $vars[ 'CREATE_DATETIME' ] = date( 'd/m/Y H:m' );
         $vars[ 'HELPER' ] = underscore(
-            decamelcase(
+            snakecase(
                 pathinfo( $filePath, PATHINFO_FILENAME )
             )
         );

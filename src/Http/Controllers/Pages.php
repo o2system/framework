@@ -50,15 +50,15 @@ class Pages extends Controller
             }
 
             if ( $settings->offsetExists( 'title' ) ) {
-                presenter()->title->add( $settings->title );
+                presenter()->meta->title->append( $settings->title );
             }
 
             if ( $settings->offsetExists( 'pageTitle' ) ) {
-                presenter()->title->addTitlePage( $settings->pageTitle );
+                presenter()->meta->title->append( $settings->pageTitle );
             }
 
             if ( $settings->offsetExists( 'browserTitle' ) ) {
-                presenter()->title->addTitleBrowser( $settings->browserTitle );
+                presenter()->meta->title->replace( $settings->browserTitle );
             }
         }
     }

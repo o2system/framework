@@ -282,7 +282,7 @@ class Framework extends Kernel
 
         profiler()->watch( 'CALL_HOOKS_POST_SYSTEM' );
         hooks()->callEvent( Framework\Services\Hooks::POST_SYSTEM );
-
+        
         if ( is_cli() ) {
             $this->cliHandler();
         } else {
@@ -328,10 +328,11 @@ class Framework extends Kernel
      */
     private function httpHandler()
     {
-        // Instantiate Session Service
-        profiler()->watch( 'INSTANTIATE_SESSION_SERVICE' );
-
         if ( config( 'session', true )->enabled === true ) {
+
+            // Instantiate Session Service
+            profiler()->watch( 'INSTANTIATE_SESSION_SERVICE' );
+
             $session = new Session( config( 'session', true ) );
 
             if ( ! $session->isStarted() ) {
@@ -395,7 +396,7 @@ class Framework extends Kernel
 
                     // autoload presenter assets
                     if ( $presenter->offsetExists( 'assets' ) ) {
-                        presenter()->assets->autoload( $presenter->assets['autoload'] );
+                        presenter()->assets->autoload( $presenter->assets[ 'autoload' ] );
                     }
 
                     // autoload presenter theme

@@ -15,7 +15,6 @@
  * A collection of helper function to work with array.
  */
 // ------------------------------------------------------------------------
-
 if ( ! function_exists( 'array_get_value' ) ) {
     /**
      * array_get_value
@@ -101,7 +100,6 @@ if ( ! function_exists( 'array_combines' ) ) {
 
         return $combine_array;
     }
-
 }
 
 // ------------------------------------------------------------------------

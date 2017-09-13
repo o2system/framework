@@ -182,6 +182,14 @@ class View
     {
         if ( $filename instanceof Page ) {
             return $this->page( $filename->getRealPath(), array_merge( $vars, $filename->getVars() ) );
+        } else {
+            $pageDirectories = modules()->getDirs( 'Pages' );
+            foreach( $pageDirectories as $pageDirectory ) {
+                if( is_file( $pageFilePath = $pageDirectory . $filename . '.phtml' ) ) {
+                    $filename = $pageFilePath;
+                    break;
+                }
+            }
         }
 
         presenter()->merge( $vars );

@@ -63,6 +63,7 @@ class Make extends Commander
         ],
         'namespace' => [
             'description' => 'Set a custom namespace',
+            'shortcut'    => 'ns',
             'required'    => false,
         ],
     ];

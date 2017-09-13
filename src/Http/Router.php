@@ -180,7 +180,7 @@ class Router
                         break;
                     } elseif ( false !== ( $pagesDir = $module->getDir( 'pages', true ) ) ) {
                         $pageFilePath = $pagesDir . implode( DIRECTORY_SEPARATOR,
-                                array_map( 'dash', $uriRoutedSegments ) ) . '.phtml';
+                                array_map( 'studlycase', $uriRoutedSegments ) ) . '.phtml';
 
                         if ( is_file( $pageFilePath ) ) {
                             if ( $this->setPage( new Page( $pageFilePath ) ) !== false ) {
@@ -319,7 +319,7 @@ class Router
             if ( class_exists( $controllerPagesClassName ) ) {
                 $controller = new $controllerPagesClassName();
 
-                if ( $controller instanceof Controllers\Pages ) {
+                if ( method_exists( $controller, 'setPage' ) ) {
                     $controller->setPage( $page );
 
                     $this->setController(
