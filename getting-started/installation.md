@@ -108,34 +108,34 @@ If you are using Nginx, the following directive in your site configuration will 
 
 ```
 server {
-	listen 80;
+    listen 80;
 
-	root path/to/project/public;
-	index index.php;
+    root path/to/project/public;
+    index index.php;
 
-	server_name example.com;
+    server_name example.com;
 
-	location / {
-		try_files $uri $uri/ /index.php?$query_string;
-	}
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
 
-	location ~ \.php$ {
-		if ($fastcgi_script_name !~ "^\/index\.php$") {
-			return 403;
-		}
-		fastcgi_split_path_info ^(.+\.php)(/.+)$;
-		fastcgi_pass unix:/var/run/php/php7.1-fpm.sock;
-		fastcgi_index index.php;
-		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-		include fastcgi_params;
-	}
+    location ~ \.php$ {
+        if ($fastcgi_script_name !~ "^\/index\.php$") {
+            return 403;
+        }
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass unix:/var/run/php/php7.1-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
 
-	location ~ /\. {
-		deny all;
-		access_log off;
-		error_log off;
-		log_not_found off;
-	}
+    location ~ /\. {
+        deny all;
+        access_log off;
+        error_log off;
+        log_not_found off;
+    }
 }
 ```
 
@@ -163,6 +163,8 @@ If you are using IIS create a web.config file at your public directory and put t
 </configuration>
 ```
 
-  
+---
 
+© Copyright 2011 - 2017 with MIT License.  
+O2System Framework is a Trademark of Steeven Andrian Salim.
 
