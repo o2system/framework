@@ -22,19 +22,19 @@ HMVCP is a collection of MVCP decks that can operate as a single mini applicatio
 
 The main advantages of implementing HMVCP architectures in the application development cycle are:
 
-* **Modularization**
+* **Modularization**  
   Implementation of HMVCP architecture indirectly makes the application structure becomes modular.
 
-* **Organized**
+* **Organized**  
   Having a directory for each of the relevant MVCP decks makes the system workload lighter.
 
-* **Reusable**
+* **Reusable**  
   Applying the HMVCP architecture makes the source code codes of each HMVCP decks reusable in other application projects.
 
-* **Easy to Maintain**
+* **Easy to Maintain**  
   Make apps easier to maintain without having to interfere with other HMVCP decks.
 
-* **Easy to Expand**
+* **Easy to Expand**  
   Make apps easier to expand without sacrificing maintenance ease.
 
 This advantage will allow you to do more exploration in your application development with less headaches.
@@ -45,20 +45,25 @@ Modular HMVCP is an evolution of the Hierarchical Model-View-Controller-Presente
 
 Modular HMVCP is a package that consists of many HMVCP decks. The HMVCP Modular architecture is only available within O2System Framework and by default splits into four \(4\) types of modular types:
 
-* **Apps**
+* **Apps**  
   Apps are a type of package that can be called an application because it consists of a collection of packages that will be explained at the next point.
 
-* **Modules**
+* **Modules**  
   Modules are a standard package type that is used as a front-office modular system. But not limited to use as back-office modular system.
 
-* **Components**
+* **Components**  
   Components are a standard package type that is used as a back-office modular system.
 
-* **Plugins**
+* **Plugins**  
   Plugins are standard package types that are used as add-ons functionality in the above package types.
 
-* **Widgets**
+* **Widgets**  
   Widgets are a standard package type that is used as an add-ons display on a modular system. Unlike the plugins widgets type does not have a controller thus making it inaccessible directly.
 
 The greatness of the HMVCP architecture of the O2System Framework does not end here, you can create your own modular type inside with namespaces that you can set yourself.
+
+---
+
+© Copyright 2011 - 2017 with MIT License.  
+O2System Framework is a Trademark of Steeven Andrian Salim.
 
