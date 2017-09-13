@@ -10,7 +10,7 @@
 ## Getting Started
 
 * [Installation](getting-started/installation.md)
-* Configuration
+* [Configuration](getting-started/configuration.md)
 
 ## Basic
 
