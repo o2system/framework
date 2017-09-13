@@ -83,8 +83,7 @@ class Testimonial extends Element
             $this->childNodes->push( $this->paragraph );
         }
 
-        $footer = new Element( 'div', 'footer' );
-        $footer->attributes->addAttributeClass('blockquote-footer');
+        $footer = new Element( 'footer', 'footer' );
 
         if ( $this->author instanceof Element ) {
             $footer->childNodes->push( $this->author );

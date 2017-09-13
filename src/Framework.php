@@ -282,7 +282,7 @@ class Framework extends Kernel
 
         profiler()->watch( 'CALL_HOOKS_POST_SYSTEM' );
         hooks()->callEvent( Framework\Services\Hooks::POST_SYSTEM );
-        
+
         if ( is_cli() ) {
             $this->cliHandler();
         } else {
@@ -392,19 +392,6 @@ class Framework extends Kernel
                 // Autoload Model and Assets
                 $controllerAssets = [];
 
-                if ( false !== ( $presenter = config()->loadFile( 'presenter', true ) ) ) {
-
-                    // autoload presenter assets
-                    if ( $presenter->offsetExists( 'assets' ) ) {
-                        presenter()->assets->autoload( $presenter->assets[ 'autoload' ] );
-                    }
-
-                    // autoload presenter theme
-                    if ( $presenter->offsetExists( 'theme' ) ) {
-                        presenter()->theme->load( $presenter->offsetGet( 'theme' ) );
-                    }
-                }
-
                 foreach ( modules() as $module ) {
                     if ( in_array( $module->getType(), [ 'KERNEL', 'FRAMEWORK' ] ) ) {
                         continue;
@@ -414,7 +401,7 @@ class Framework extends Kernel
                     $module->loadModel();
                 }
 
-                $modelClassName = str_replace( 'Presenters', 'Models', $controller->getName() );
+                $modelClassName = str_replace( [ 'Controllers', 'Presenters' ], 'Models', $controller->getName() );
 
                 if ( class_exists( $modelClassName ) ) {
                     models()->register( 'controller', new $modelClassName() );
@@ -444,7 +431,23 @@ class Framework extends Kernel
                 $presenterClassName = str_replace( 'Controllers', 'Presenters', $controller->getName() );
 
                 if ( class_exists( $presenterClassName ) ) {
-                    $this->addService( new $presenterClassName(), 'presenter' );
+                    $presenterClassObject = new $presenterClassName();
+                    if ( $presenterClassObject instanceof Framework\Http\Presenter ) {
+                        $this->addService( new $presenterClassName(), 'presenter' );
+                    }
+                }
+
+                if ( false !== ( $presenter = config()->loadFile( 'presenter', true ) ) ) {
+
+                    // autoload presenter assets
+                    if ( $presenter->offsetExists( 'assets' ) ) {
+                        presenter()->assets->autoload( $presenter->assets[ 'autoload' ] );
+                    }
+
+                    // autoload presenter theme
+                    if ( $presenter->offsetExists( 'theme' ) ) {
+                        presenter()->theme->load( $presenter->offsetGet( 'theme' ) );
+                    }
                 }
 
                 presenter()->assets->loadFiles(

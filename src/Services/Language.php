@@ -153,9 +153,9 @@ class Language extends \O2System\Kernel\Services\Language
      *
      * @return bool
      */
-    public function isPackageExists( $package )
+    public function packageExists( $package )
     {
-        return (bool)array_key_exists( $package, $this->packages );
+        return isset( $this->registry[ $package ] );
     }
 
     // ------------------------------------------------------------------------

@@ -34,18 +34,6 @@ class Pages extends Controller
     // ------------------------------------------------------------------------
 
     /**
-     * Pages::__construct
-     */
-    public function __construct()
-    {
-        if( class_exists('App\Http\Controller' ) ) {
-            new \App\Http\Controller;
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
      * Pages::setPage
      *
      * @param \O2System\Framework\Http\Router\Datastructures\Page $page

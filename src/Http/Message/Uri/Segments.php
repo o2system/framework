@@ -261,7 +261,7 @@ class Segments
                     // Filter segments for security
                     if ( $part = trim( $this->filterPart( $part ) ) ) {
 
-                        if ( false !== ( $language = language()->isPackageExists( $part ) ) ) {
+                        if ( false !== ( $language = language()->packageExists( $part ) ) ) {
                             language()->setDefault( $part );
 
                             continue;

@@ -130,10 +130,13 @@ class Router
                         $controllerClassName = $module->getNamespace() . 'Controllers\\' . studlycase( $module->getParameter() );
                         if ( class_exists( $controllerClassName ) ) {
                             $defaultRoute = $routes->any( '/', function () use ( $controllerClassName ) {
-                                return new $controllerClassName();
+                                //return new $controllerClassName();
+                                return new Router\Datastructures\Controller( $controllerClassName );
                             } )->getMap( '/' );
 
                             $uriSegments = array_diff( $uriSegments, [ strtolower( $module->getParameter() ) ] );
+
+                            $defaultRoute->setClosureParameters( $uriSegments );
                         }
                     } else {
                         $defaultRoute = $moduleRouteDefault;
@@ -168,10 +171,13 @@ class Router
 
                     if ( class_exists( $controllerClassName ) ) {
                         $defaultRoute = $routes->any( '/', function () use ( $controllerClassName ) {
-                            return new $controllerClassName();
+                            //return new $controllerClassName();
+                            return new Router\Datastructures\Controller( $controllerClassName );
                         } )->getMap( '/' );
 
                         $uriSegments = array_diff( $uriSegments, $uriRoutedSegments );
+
+                        $defaultRoute->setClosureParameters( $uriSegments );
 
                         if ( $this->parseRoute( $defaultRoute, $uriSegments ) !== false ) { // Try to parse route
                             return;
@@ -257,9 +263,9 @@ class Router
         if ( null !== $controller->getRequestMethod() ) {
             $controller->setRequestMethodArgs( $controllerMethodParams );
         } elseif ( count( $uriSegments ) ) {
-            if ( $controller->hasMethod( 'reroute' ) ) {
+            if ( $controller->hasMethod( 'route' ) ) {
                 $controller
-                    ->setRequestMethod( 'reroute' )
+                    ->setRequestMethod( 'route' )
                     ->setRequestMethodArgs(
                         [
                             $controllerMethod,
@@ -282,8 +288,11 @@ class Router
                 $index = $controller->getMethod( 'index' );
 
                 if ( $index->getNumberOfParameters() > 0 ) {
-
                     array_unshift( $controllerMethodParams, $controllerMethod );
+
+                    // remove unused parameters
+                    $controllerMethodParams = array_slice( $controllerMethodParams, 0,
+                        $index->getNumberOfParameters() );
 
                     $controller
                         ->setRequestMethod( 'index' )
@@ -292,9 +301,9 @@ class Router
                     output()->sendError( 404 );
                 }
             }
-        } elseif ( $controller->hasMethod( 'reroute' ) ) {
+        } elseif ( $controller->hasMethod( 'route' ) ) {
             $controller
-                ->setRequestMethod( 'reroute' )
+                ->setRequestMethod( 'route' )
                 ->setRequestMethodArgs( [ 'index', [] ] );
         } elseif ( $controller->hasMethod( 'index' ) ) {
             $controller

@@ -54,6 +54,10 @@ class Controller extends SplClassInfo
             } elseif ( class_exists( '\O2System\Framework\Http\\' . $className ) ) {
                 parent::__construct( '\O2System\Framework\Http\\' . $className );
             }
+        } elseif ( class_exists( $filePath ) ) {
+            parent::__construct( $filePath );
+        } elseif ( class_exists( '\O2System\Framework\Http\\' . $filePath ) ) {
+            parent::__construct( '\O2System\Framework\Http\\' . $filePath );
         }
     }
 

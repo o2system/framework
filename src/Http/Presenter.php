@@ -35,12 +35,12 @@ class Presenter extends AbstractVariableStoragePattern
         $this->store( 'theme', new Presenter\Theme() );
     }
 
-    public function addItem( $offset, $item )
+    public function store( $offset, $value, $replace = false )
     {
-        if ( $item instanceof \Closure ) {
-            parent::store( $offset, call_user_func( $item, $this ) );
+        if ( $value instanceof \Closure ) {
+            parent::store( $offset, call_user_func( $value, $this ) );
         } else {
-            parent::store( $offset, $item );
+            parent::store( $offset, $value );
         }
     }
 
