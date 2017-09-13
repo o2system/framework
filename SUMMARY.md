@@ -1,8 +1,8 @@
 # Summary
 
-## Overview
+## Introduction
 
-* [Getting Started](README.md)
+* [Overview](README.md)
 
 ## Methods
 
