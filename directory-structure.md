@@ -24,5 +24,8 @@ Storage directory serves as a place of storage of raw-files or files uploaded fr
 
 The vendor directory contains framework and application Composer dependencies.
 
+---
 
+© Copyright 2011 - 2017 with MIT License.  
+O2System Framework is a Trademark of Steeven Andrian Salim.
 
