@@ -43,7 +43,3 @@ The O2System Framework applies the Semantic Versioning system since v2.0.0, last
 © Copyright 2011 - 2017 with MIT License.  
 O2System Framework is a Trademark of Steeven Andrian Salim.
 
-
-
-
-
