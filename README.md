@@ -36,7 +36,14 @@ The O2System Framework is licensed under the MIT license so you can use it as yo
 
 ## O2System is used Semantic Versioning
 
-The O2System Framework applies the Semantic Versioning system since v2.0.0.
+The O2System Framework applies the Semantic Versioning system since v2.0.0, last stable version v5.0.0-alpha.
+
+
+
+© Copyright 2011 - 2017 with MIT License.  
+O2System Framework is a Trademark of Steeven Andrian Salim.
+
+
 
 
 
