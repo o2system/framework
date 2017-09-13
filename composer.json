@@ -1,0 +1,53 @@
+{
+  "name": "o2system/framework",
+  "description": "O2System Framework",
+  "license": "MIT",
+  "type": "package",
+  "keywords": [
+    "utilities",
+    "php",
+    "framework",
+    "driver",
+    "libraries"
+  ],
+  "authors": [
+    {
+      "name": "Steeven Andrian Salim",
+      "email": "steevenz@steevenz.com",
+      "homepage": "http://www.steevenz.com",
+      "role": "Founder and Lead Project"
+    },
+    {
+      "name": "Teguh Rianto",
+      "email": "teguh.rianto22@gmail.com",
+      "homepage": "http://teguhrianto22.pusku.com",
+      "role": "Template Designer"
+    }
+  ],
+  "support": {
+    "email": "o2system@yahoo.com",
+    "issues": "https://github.com/o2system/framework/issues",
+    "forum": "https://www.facebook.com/groups/498147006994512"
+  },
+  "require": {
+    "php": ">=5.6.0",
+    "o2system/kernel": "*",
+    "o2system/filesystem": "*",
+    "o2system/cache": "*",
+    "o2system/database": "*",
+    "o2system/html": "*",
+    "o2system/parser": "*",
+    "o2system/image": "*",
+    "o2system/security": "*",
+    "o2system/curl": "*",
+    "o2system/email": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "O2System\\Framework\\": "src"
+    },
+    "files": [
+      "src/Framework.php"
+    ]
+  }
+}
