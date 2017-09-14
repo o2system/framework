@@ -29,7 +29,7 @@ class Result extends ArrayIterator
      *
      * @param array $rows
      */
-    public function __construct( \O2System\Database\DataObjects\Result $result, Model $model )
+    public function __construct( \O2System\Database\DataObjects\Result $result, Model &$model )
     {
         if ( $result->count() > 0 ) {
             $key = empty( $model->foreignKey ) ? $model->primaryKey : $model->foreignKey;

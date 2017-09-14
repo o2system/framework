@@ -30,7 +30,7 @@ class Row extends SplArrayObject
      *
      * @var Model
      */
-    private static $model;
+    private $model;
 
     /**
      * Row::__construct
@@ -38,9 +38,9 @@ class Row extends SplArrayObject
      * @param Database\DataObjects\Result\Row|array  $row
      * @param Model $model
      */
-    public function __construct( $row, Model $model )
+    public function __construct( $row, Model &$model )
     {
-        self::$model =& $model;
+        $this->model =& $model;
 
         if ( $row instanceof Database\DataObjects\Result\Row ) {
             parent::__construct( $row->getArrayCopy() );
@@ -48,14 +48,14 @@ class Row extends SplArrayObject
             parent::__construct( $row );
         }
 
-        self::$model->row = $this;
+        $this->model->row = $this;
     }
 
     // ------------------------------------------------------------------------
 
     public function offsetGet( $offset )
     {
-        if( method_exists( self::$model, $offset ) ) {
+        if( method_exists( $this->model, $offset ) ) {
             return $this->__call( $offset );
         }
 
@@ -78,9 +78,9 @@ class Row extends SplArrayObject
      */
     public function __call( $method, $args = [] )
     {
-        if ( method_exists( self::$model, $method ) ) {
-            self::$model->row = $this;
-            return call_user_func_array( [ &self::$model, $method ], $args );
+        if ( method_exists( $this->model, $method ) ) {
+            $this->model->row = $this;
+            return call_user_func_array( [ &$this->model, $method ], $args );
         }
 
         return null;

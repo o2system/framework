@@ -33,7 +33,7 @@ class BelongsTo extends Abstracts\AbstractRelation
     {
         if ( $this->map->relationModel->row instanceof Sql\DataObjects\Result\Row ) {
 
-            $criteria = $this->map->relationModel->row->offsetGet( $this->map->relationModel->primaryKey );
+            $criteria = $this->map->relationModel->row->offsetGet( $this->map->relationForeignKey );
             $conditions = [ $this->map->referencePrimaryKey => $criteria ];
 
             if ( $this->map->referenceModel instanceof Sql\Model ) {
