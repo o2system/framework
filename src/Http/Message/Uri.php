@@ -172,20 +172,19 @@ class Uri extends Message\Uri
         }
 
         $uriPath = empty( $this->path )
-            ? ''
-            : '/' . $this->path;
+            ? '/'
+            : '/' . trim( $this->path, '/' ) . '/';
 
         $uriPath .= empty( $this->string )
             ? ''
-            : '/' . $this->string;
+            : '/' . trim( $this->string, '/' ) . '/';
 
         $uriPath .= $this->segments->getTotalParts() == 0
             ? ''
-            : '/' . $this->segments->getString();
-
-        $uriPath = '/' . trim( $uriPath, '/' );
+            : '/' . trim( $this->segments->getString(), '/' );
 
         if ( $uriPath !== '/' &&
+            substr($uriPath, strlen($uriPath) - 1) !== '/' &&
             $this->suffix !== '' &&
             ( $uriPath . '/' !== $_SERVER['REQUEST_URI'] ) &&
             pathinfo( $uriPath, PATHINFO_EXTENSION ) === '' &&
