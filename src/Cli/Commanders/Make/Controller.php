@@ -31,7 +31,7 @@ class Controller extends Make
      *
      * @var string
      */
-    protected $commandDescription = 'DESC_CLI_MAKE_CONTROLLER';
+    protected $commandDescription = 'CLI_MAKE_CONTROLLER_DESC';
 
     public function execute()
     {
@@ -41,7 +41,7 @@ class Controller extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'E_CLI_CONTROLLER_FILENAME' ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_CONTROLLER_E_FILENAME' ) )
                     ->setNewLinesAfter( 1 )
             );
 
@@ -62,7 +62,7 @@ class Controller extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'E_CLI_CONTROLLER_EXISTS', [ $filePath ] ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_CONTROLLER_E_EXISTS', [ $filePath ] ) )
                     ->setNewLinesAfter( 1 )
             );
 
@@ -135,7 +135,7 @@ PHPTEMPLATE;
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::SUCCESS )
-                    ->setString( language()->getLine( 'S_CLI_CONTROLLER_MAKE', [ $filePath ] ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_CONTROLLER_S_MAKE', [ $filePath ] ) )
                     ->setNewLinesAfter( 1 )
             );
 

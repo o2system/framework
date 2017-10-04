@@ -237,6 +237,29 @@ class Group extends Element implements ContextualInterface
         return $this->help = $this->childNodes->last();
     }
 
+    public function createButton( $label, array $attributes = [] )
+    {
+        $button = new Button( $label );
+
+        if ( count( $attributes ) ) {
+            foreach ( $attributes as $name => $value ) {
+                $button->attributes->addAttribute( $name, $value );
+
+                if ( $name === 'name' ) {
+                    $this->entity->setEntityName( 'btn-' . $value );
+
+                    if ( ! array_key_exists( 'id', $attributes ) ) {
+                        $button->attributes->setAttributeId( 'btn-' . $value );
+                    }
+                }
+            }
+        }
+
+        $this->childNodes->push( $button );
+
+        return $this->childNodes->last();
+    }
+
     protected function renderCheckbox()
     {
         $output[] = $this->open();

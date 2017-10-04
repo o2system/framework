@@ -319,37 +319,15 @@ class View
         }
 
         if ( presenter()->theme->use === true ) {
-            $layout = presenter()->theme->active->getLayout();
-            parser()->loadFile( $layout->getRealPath() );
 
-            $htmlOutput = parser()->parse();
-            $htmlOutput = str_replace(
-                [
-                    '"./assets/',
-                    "'./assets/",
-                    "(./assets/",
-                ],
-                [
-                    '"' . base_url() . '/assets/',
-                    "'" . base_url() . '/assets/',
-                    "(" . base_url() . '/assets/',
-                ],
-                $htmlOutput );
+            presenter()->theme->load();
 
-            $htmlOutput = str_replace(
-                [
-                    '"assets/',
-                    "'assets/",
-                    "(assets/",
-                ],
-                [
-                    '"' . presenter()->theme->active->getUrl( 'assets/' ),
-                    "'" . presenter()->theme->active->getUrl( 'assets/' ),
-                    "(" . presenter()->theme->active->getUrl( 'assets/' ),
-                ],
-                $htmlOutput );
+            if( false !== ( $layout = presenter()->theme->active->getLayout() ) ) {
 
-            $this->document->loadHTML( $htmlOutput );
+                parser()->loadFile( $layout->getRealPath() );
+                $htmlOutput = parser()->parse();
+                $this->document->loadHTML( presenter()->assets->parseSourceCode( $htmlOutput ) );
+            }
         } else {
             $this->document->find( 'body' )->append( presenter()->partials->__get( 'content' ) );
         }

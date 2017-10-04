@@ -31,7 +31,7 @@ class Widget extends Make
      *
      * @var string
      */
-    protected $commandDescription = 'DESC_CLI_MAKE_WIDGET';
+    protected $commandDescription = 'CLI_MAKE_WIDGET_DESC';
 
     public function execute()
     {
@@ -41,7 +41,7 @@ class Widget extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'E_CLI_WIDGET_NAME' ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_WIDGET_E_NAME' ) )
                     ->setNewLinesAfter( 1 )
             );
 
@@ -60,7 +60,7 @@ class Widget extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'E_CLI_WIDGET_EXISTS', [ $widgetPath ] ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_WIDGET_E_EXISTS', [ $widgetPath ] ) )
                     ->setNewLinesAfter( 1 )
             );
 
@@ -104,7 +104,7 @@ class Widget extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::SUCCESS )
-                    ->setString( language()->getLine( 'S_CLI_WIDGET_MAKE', [ $widgetPath ] ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_WIDGET_S_MAKE', [ $widgetPath ] ) )
                     ->setNewLinesAfter( 1 )
             );
 

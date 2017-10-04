@@ -73,6 +73,23 @@ if ( ! function_exists( 'assets_url' ) ) {
 
 // ------------------------------------------------------------------------
 
+if ( ! function_exists( 'storage_url' ) ) {
+    /**
+     * assets_url
+     *
+     * @param string $path Uri path.
+     *
+     * @return string
+     */
+    function storage_url( $path )
+    {
+        $urlPath = str_replace( PATH_STORAGE, '', $path );
+        return base_url( 'storage/' . $urlPath );
+    }
+}
+
+// ------------------------------------------------------------------------
+
 if ( ! function_exists( 'prepare_url' ) ) {
     /**
      * Prep URL

@@ -40,7 +40,7 @@ class Assets
         return isset( $this->{$property} ) ? $this->{$property} : null;
     }
 
-    public function autoload( array $assets )
+    public function autoload( $assets )
     {
         foreach ( $assets as $position => $collections ) {
             if ( property_exists( $this, $position ) ) {
@@ -116,6 +116,12 @@ class Assets
                         $pluginDir = $packageDir . 'plugins' . DIRECTORY_SEPARATOR;
                         $pluginName = $subPackageFile;
 
+                        $pluginName = str_replace( [ '\\','/' ], DIRECTORY_SEPARATOR, $pluginName );
+                        if( strpos( $pluginName, DIRECTORY_SEPARATOR ) !== false ) {
+                            $pluginDir.= pathinfo( $pluginName, PATHINFO_DIRNAME ) . DIRECTORY_SEPARATOR;
+                            $pluginName = pathinfo( $pluginName, PATHINFO_BASENAME );
+                        }
+
                         if ( $this->body->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.js' ) ) {
                             $this->head->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.css' );
                         } else {
@@ -124,13 +130,19 @@ class Assets
                     }
                 } elseif ( $subPackage === 'libraries' ) {
                     foreach ( $subPackageFiles as $subPackageFile ) {
-                        $pluginDir = $packageDir . 'libraries' . DIRECTORY_SEPARATOR;
-                        $pluginName = $subPackageFile;
+                        $libraryDir = $packageDir . 'libraries' . DIRECTORY_SEPARATOR;
+                        $libraryName = $subPackageFile;
 
-                        if ( $this->body->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.js' ) ) {
-                            $this->head->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.css' );
+                        $libraryName = str_replace( [ '\\','/' ], DIRECTORY_SEPARATOR, $libraryName );
+                        if( strpos( $libraryName, DIRECTORY_SEPARATOR ) !== false ) {
+                            $libraryDir.= pathinfo( $libraryName, PATHINFO_DIRNAME ) . DIRECTORY_SEPARATOR;
+                            $libraryName = pathinfo( $libraryName, PATHINFO_BASENAME );
+                        }
+
+                        if ( $this->body->loadFile( $libraryDir . $libraryName . DIRECTORY_SEPARATOR . $libraryName . '.js' ) ) {
+                            $this->head->loadFile( $libraryDir . $libraryName . DIRECTORY_SEPARATOR . $libraryName . '.css' );
                         } else {
-                            $this->body->loadFile( $pluginDir . $pluginName . '.js' );
+                            $this->body->loadFile( $libraryDir . $libraryName . '.js' );
                         }
                     }
                 }
@@ -154,10 +166,6 @@ class Assets
 
     public function unloadFiles( $assets )
     {
-        if ( $assets instanceof Config ) {
-            $assets = $assets->getArrayCopy();
-        }
-
         foreach ( $assets as $type => $item ) {
 
             if ( is_array( $item ) ) {
@@ -232,5 +240,44 @@ class Assets
                 break;
             }
         }
+    }
+
+    public function parseSourceCode( $sourceCode )
+    {
+        $sourceCode = str_replace(
+            [
+                '"./assets/',
+                "'./assets/",
+                "(./assets/",
+            ],
+            [
+                '"' . base_url() . '/assets/',
+                "'" . base_url() . '/assets/',
+                "(" . base_url() . '/assets/',
+            ],
+            $sourceCode );
+
+        if ( presenter()->theme->use === true ) {
+            $sourceCode = str_replace(
+                [
+                    '"assets/',
+                    "'assets/",
+                    "(assets/",
+                    '"layouts/',
+                    "'layouts/",
+                    "(layouts/",
+                ],
+                [
+                    '"' . presenter()->theme->active->getUrl('assets/'),
+                    "'" . presenter()->theme->active->getUrl('assets/'),
+                    "(" . presenter()->theme->active->getUrl('assets/'),
+                    '"' . presenter()->theme->active->getUrl('layouts/'),
+                    "'" . presenter()->theme->active->getUrl('layouts/'),
+                    "(" . presenter()->theme->active->getUrl('layouts/'),
+                ],
+                $sourceCode );
+        }
+
+        return $sourceCode;
     }
 }

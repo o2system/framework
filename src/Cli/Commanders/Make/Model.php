@@ -31,7 +31,7 @@ class Model extends Make
      *
      * @var string
      */
-    protected $commandDescription = 'DESC_CLI_MAKE_MODEL';
+    protected $commandDescription = 'CLI_MAKE_MODEL_DESC';
 
     public function optionOrm( $useOrm = true )
     {
@@ -46,7 +46,7 @@ class Model extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'E_CLI_MODEL_FILENAME' ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_MODEL_E_FILENAME' ) )
                     ->setNewLinesAfter( 1 )
             );
 
@@ -67,7 +67,7 @@ class Model extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'E_CLI_MODEL_EXISTS', [ $filePath ] ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_MODEL_E_EXISTS', [ $filePath ] ) )
                     ->setNewLinesAfter( 1 )
             );
 
@@ -137,7 +137,7 @@ PHPTEMPLATE;
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::SUCCESS )
-                    ->setString( language()->getLine( 'S_CLI_MODEL_MAKE', [ $filePath ] ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_MODEL_S_MAKE', [ $filePath ] ) )
                     ->setNewLinesAfter( 1 )
             );
 

@@ -84,8 +84,16 @@ class Button extends Element implements ContextualInterface
 
     public function disabled()
     {
+        $this->attributes->addAttribute( 'disabled', 'disabled' );
         $this->attributes->addAttributeClass( 'disabled' );
         $this->attributes->addAttribute( 'aria-disabled', true );
+
+        return $this;
+    }
+
+    public function autofocus()
+    {
+        $this->attributes->addAttribute( 'autofocus', 'autofocus' );
 
         return $this;
     }

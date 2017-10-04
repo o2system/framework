@@ -14,14 +14,14 @@ namespace O2System\Framework\Datastructures\Commons;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractDataStoragePattern;
+use O2System\Psr\Patterns\AbstractItemStoragePattern;
 
 /**
  * Class Metadata
  *
  * @package O2System\Framework\Datastructures\Commons
  */
-class Metadata extends AbstractDataStoragePattern
+class Metadata extends AbstractItemStoragePattern
 {
     /**
      * Metadata::__construct

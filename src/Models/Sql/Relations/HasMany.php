@@ -37,7 +37,7 @@ class HasMany extends Sql\Relations\Abstracts\AbstractRelation
             $conditions = [ $this->map->relationForeignKey => $criteria ];
 
             if ( $this->map->relationModel instanceof Sql\Model ) {
-                $result = $this->map->relationModel->db
+                $result = $this->map->relationModel->qb
                     ->from( $this->map->relationTable )
                     ->getWhere( $conditions, 1 );
 
@@ -47,7 +47,7 @@ class HasMany extends Sql\Relations\Abstracts\AbstractRelation
                     }
                 }
             } elseif( ! empty( $this->map->relationTable ) ) {
-                $result = $this->map->referenceModel->db
+                $result = $this->map->referenceModel->qb
                     ->from( $this->map->relationTable )
                     ->getWhere( $conditions, 1 );
 

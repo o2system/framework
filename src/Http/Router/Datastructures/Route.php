@@ -182,7 +182,6 @@ class Route
         if ( preg_match( '#^' . $regex . '$#', $string, $matches ) ) {
             // Remove the original string from the matches array.
             array_shift( $matches );
-
             return $matches;
         }
 

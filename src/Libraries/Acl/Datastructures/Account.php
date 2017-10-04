@@ -14,14 +14,14 @@ namespace O2System\Framework\Libraries\Acl\Datastructures;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractDataStoragePattern;
+use O2System\Psr\Patterns\AbstractItemStoragePattern;
 
 /**
  * Class Account
  *
  * @package O2System\Framework\Libraries\Acl\Datastructures
  */
-class Account extends AbstractDataStoragePattern
+class Account extends AbstractItemStoragePattern
 {
     /**
      * Account::__construct
@@ -32,47 +32,51 @@ class Account extends AbstractDataStoragePattern
     public function __construct( $account = [], $hash = true )
     {
         $defaultAccount = [
+            'id'       => null,
             'email'    => null,
             'msisdn'   => null,
             'username' => null,
             'password' => null,
             'pin'      => null,
             'sso'      => null,
-            'role'     => null,
-            'profile'  => null,
         ];
 
         foreach ( $defaultAccount as $item => $value ) {
             if ( in_array( $item, [ 'password', 'pin', 'sso' ] ) and $hash === true ) {
-                /**
-                 * This code will benchmark your server to determine how high of a cost you can
-                 * afford. You want to set the highest cost that you can without slowing down
-                 * you server too much. 8-10 is a good baseline, and more is good if your servers
-                 * are fast enough. The code below aims for ≤ 50 milliseconds stretching time,
-                 * which is a good baseline for systems handling interactive logins.
-                 */
-                $cost = 8;
-                do {
-                    $cost++;
-                    $start = microtime( true );
-                    password_hash( $account[ $item ], PASSWORD_BCRYPT, [ 'cost' => $cost ] );
-                    $end = microtime( true );
-                } while ( ( $end - $start ) < 0.05 ); // 50 milliseconds
+                if( isset( $account[ $item ] ) ) {
+                    $config = config( 'acl', true) ;
 
-                $this->store(
-                    $item,
-                    password_hash( $account[ $item ], PASSWORD_BCRYPT, [ 'cost' => $cost ] )
-                );
-            } elseif ( isset( $account[ $item ] ) ) {
+                    if( empty( $config ) ) {
+                        $this->store(
+                            $item,
+                            password_hash( $account[ $item ], PASSWORD_DEFAULT )
+                        );
+                    } else {
 
-                if ( $item === 'profile' ) {
-                    $account[ $item ] = new Profile( $account[ $item ] );
+                        if( ! empty( $config->options ) ) {
+                            $config->algorithm = PASSWORD_BCRYPT;
+                        }
+
+                        $this->store(
+                            $item,
+                            password_hash( $account[ $item ], $config->algorithm, $config->options )
+                        );
+                    }
                 }
-
-                $this->store( $item, $account[ $item ] );
             } else {
-                $this->store( $item, null );
+                $this->store( $item, ( isset( $account[ $item ] ) ? $account[ $item ] : null ) );
             }
         }
+    }
+
+    public function store( $offset, $value )
+    {
+        if( $offset === 'profile' ) {
+            $value = new Profile( $value );
+        } elseif( $offset === 'role' ) {
+            $value = new Role( $value );
+        }
+
+        parent::store( $offset, $value );
     }
 }

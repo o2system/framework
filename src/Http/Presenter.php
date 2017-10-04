@@ -35,6 +35,23 @@ class Presenter extends AbstractVariableStoragePattern
         $this->store( 'theme', new Presenter\Theme() );
     }
 
+    public function initialize()
+    {
+        if ( false !== ( $presenter = config()->loadFile( 'presenter', true ) ) ) {
+            // autoload presenter assets
+            if ( $presenter->offsetExists( 'assets' ) ) {
+                $this->assets->autoload( $presenter->assets[ 'autoload' ] );
+            }
+
+            // autoload presenter theme
+            if ( $presenter->offsetExists( 'theme' ) ) {
+                $this->theme->set( $presenter->offsetGet( 'theme' ) );
+            }
+        }
+
+        return $this;
+    }
+
     public function store( $offset, $value, $replace = false )
     {
         if ( $value instanceof \Closure ) {

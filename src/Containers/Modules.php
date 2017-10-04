@@ -400,7 +400,7 @@ class Modules extends SplArrayStack
                 if( is_cli() ) {
                     output()->verbose(
                         ( new Format() )
-                            ->setString( language()->getLine( 'V_CLI_FETCH_MODULE_MANIFEST',
+                            ->setString( language()->getLine( 'CLI_REGISTRY_MODULE_VERB_FETCH_MANIFEST_START',
                                 [ str_replace( PATH_ROOT, '/', $propertiesFile ) ] ) )
                             ->setNewLinesAfter( 1 )
                     );
@@ -412,7 +412,7 @@ class Modules extends SplArrayStack
                     output()->verbose(
                         ( new Format() )
                             ->setContextualClass( Format::DANGER )
-                            ->setString( language()->getLine( 'V_CLI_FETCH_LANGUAGE_MANIFEST_FAILED' ) )
+                            ->setString( language()->getLine( 'CLI_REGISTRY_MODULE_VERB_FETCH_MANIFEST_FAILED' ) )
                             ->setIndent( 2 )
                             ->setNewLinesAfter( 1 )
                     );
@@ -487,7 +487,7 @@ class Modules extends SplArrayStack
                     output()->verbose(
                         ( new Format() )
                             ->setContextualClass( Format::SUCCESS )
-                            ->setString( language()->getLine( 'V_CLI_FETCH_MODULE_MANIFEST_SUCCESS' ) )
+                            ->setString( language()->getLine( 'CLI_REGISTRY_MODULE_VERB_FETCH_MANIFEST_SUCCESS' ) )
                             ->setIndent( 2 )
                             ->setNewLinesAfter( 1 )
                     );
@@ -565,7 +565,7 @@ class Modules extends SplArrayStack
             output()->verbose(
                 ( new Format() )
                     ->setContextualClass( Format::WARNING )
-                    ->setString( language()->getLine( 'V_CLI_START_UPDATE_MODULES_REGISTRY' ) )
+                    ->setString( language()->getLine( 'CLI_REGISTRY_MODULE_VERB_UPDATE_START' ) )
                     ->setNewLinesBefore( 1 )
                     ->setNewLinesAfter( 2 )
             );
@@ -586,7 +586,7 @@ class Modules extends SplArrayStack
             output()->verbose(
                 ( new Format() )
                     ->setContextualClass( Format::SUCCESS )
-                    ->setString( language()->getLine( 'V_CLI_SUCCESS_UPDATE_MODULES_REGISTRY' ) )
+                    ->setString( language()->getLine( 'CLI_REGISTRY_MODULE_VERB_UPDATE_SUCCESS' ) )
                     ->setNewLinesBefore( 1 )
                     ->setNewLinesAfter( 2 )
             );
@@ -594,7 +594,7 @@ class Modules extends SplArrayStack
             output()->verbose(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'V_CLI_FAILED_UPDATE_MODULES_REGISTRY' ) )
+                    ->setString( language()->getLine( 'CLI_REGISTRY_MODULE_VERB_UPDATE_FAILED' ) )
                     ->setNewLinesBefore( 1 )
                     ->setNewLinesAfter( 2 )
             );

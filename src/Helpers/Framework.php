@@ -162,7 +162,7 @@ if ( ! function_exists( 'models' ) ) {
      *
      * Convenient shortcut for O2System Framework Models container.
      *
-     * @return O2System\Framework\Containers\Models|O2System\Framework\Abstracts\AbstractModel|O2System\Orm\Abstracts\AbstractModel
+     * @return O2System\Framework\Containers\Models|O2System\Framework\Models\Sql\Model|O2System\Framework\Models\NoSql\Model
      */
     function &models ()
     {

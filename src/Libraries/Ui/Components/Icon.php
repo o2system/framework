@@ -28,7 +28,15 @@ class Icon extends Element
         parent::__construct( 'i' );
 
         if( isset( $iconClass ) ) {
-            $this->attributes->addAttributeClass( $iconClass );
+            $this->setClass( $iconClass );
         }
+    }
+
+    public function setClass( $iconClass )
+    {
+        $this->attributes->removeAttributeClass( [ 'fa', 'fa-*' ] );
+        $this->attributes->addAttributeClass( $iconClass );
+
+        return $this;
     }
 }

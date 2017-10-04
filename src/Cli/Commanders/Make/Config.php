@@ -31,7 +31,7 @@ class Config extends Make
      *
      * @var string
      */
-    protected $commandDescription = 'DESC_CLI_MAKE_CONFIG';
+    protected $commandDescription = 'CLI_MAKE_CONFIG_DESC';
 
     public function execute()
     {
@@ -41,7 +41,7 @@ class Config extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'E_CLI_CONFIG_FILENAME' ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_CONFIG_E_FILENAME' ) )
                     ->setNewLinesAfter( 1 )
             );
 
@@ -62,7 +62,7 @@ class Config extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'E_CLI_CONFIG_EXISTS', [ $filePath ] ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_CONFIG_E_EXISTS', [ $filePath ] ) )
                     ->setNewLinesAfter( 1 )
             );
 
@@ -92,7 +92,7 @@ PHPTEMPLATE;
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::SUCCESS )
-                    ->setString( language()->getLine( 'S_CLI_CONTROLLER_MAKE', [ $filePath ] ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_CONFIG_S_MAKE', [ $filePath ] ) )
                     ->setNewLinesAfter( 1 )
             );
 

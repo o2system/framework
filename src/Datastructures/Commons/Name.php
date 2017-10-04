@@ -14,14 +14,14 @@ namespace O2System\Framework\Datastructures\Commons;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractDataStoragePattern;
+use O2System\Psr\Patterns\AbstractItemStoragePattern;
 
 /**
  * Class Name
  *
  * @package O2System\Framework\Datastructures\Commons
  */
-class Name extends AbstractDataStoragePattern
+class Name extends AbstractItemStoragePattern
 {
     /**
      * Name::__construct

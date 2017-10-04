@@ -14,6 +14,7 @@ namespace O2System\Framework\Http\Presenter;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Datastructures\Module\Widget;
 use O2System\Psr\Patterns\AbstractItemStoragePattern;
 
 /**
@@ -28,37 +29,33 @@ class Widgets extends AbstractItemStoragePattern
         return $this->__isset( $widgetOffset );
     }
 
-    public function addWidget( $widgetOffset )
+    public function load( $widgetOffset )
     {
-        $widgetClassName = modules()->current()->getNamespace() . 'Widgets\\' . studlycase( $widgetOffset ) . '\\Widget';
-        $widgetFilepath = modules()->current()->getRealPath() . 'Widgets' . DIRECTORY_SEPARATOR . studlycase( $widgetOffset ) . DIRECTORY_SEPARATOR . 'Widget.php';
+        $widgetDirectory = modules()->current()->getRealPath() . 'Widgets' . DIRECTORY_SEPARATOR . studlycase( $widgetOffset ) . DIRECTORY_SEPARATOR;
 
-        if ( is_file( $widgetFilepath ) ) {
-            $this->store( camelcase( $widgetOffset ), $widgetClassName );
+        if ( is_dir( $widgetDirectory ) ) {
+            $widget = new Widget( $widgetDirectory );
+            $this->store( camelcase( $widgetOffset ), $widget );
         }
+
+        return $this->exists( $widgetOffset );
     }
 
-    public function __get( $widget )
+    public function __get( $offset )
     {
-        $widgetClassName = parent::__get( $widget );
+        if ( null !== ( $widget = parent::__get( $offset ) ) ) {
 
-        if ( class_exists( $widgetClassName ) ) {
-            $widgetPresenter = new $widgetClassName();
-
-            $widgetViewFilePath = str_replace(
-                'Widget.php',
-                'view.phtml',
-                $widgetPresenter->getClassInfo()->getFileInfo()->getRealPath()
-            );
+            $widgetViewFilePath = $widget->getRealPath() . 'Views' . DIRECTORY_SEPARATOR . $offset . '.phtml';
 
             if ( presenter()->theme->use === true ) {
-                $widgetViewReplacementPath = presenter()->theme->active->getPathName()
-                    . DIRECTORY_SEPARATOR
-                    . 'views'
-                    . DIRECTORY_SEPARATOR
-                    . strtolower(
-                        str_replace( [ PATH_APP, DIRECTORY_SEPARATOR . 'view.phtml' ], '', $widgetViewFilePath )
-                    );
+                $widgetViewReplacementPath = str_replace(
+                    $widget->getRealPath() . 'Views' . DIRECTORY_SEPARATOR,
+                    presenter()->theme->active->getPathName() . DIRECTORY_SEPARATOR . implode( DIRECTORY_SEPARATOR, [
+                        'views',
+                        'widgets',
+                    ]) . DIRECTORY_SEPARATOR,
+                    $widgetViewFilePath
+                );
 
                 $viewsFileExtensions = [
                     '.php',
@@ -83,6 +80,11 @@ class Widgets extends AbstractItemStoragePattern
                 }
 
             }
+
+            loader()->addNamespace( $widget->getNamespace(), $widget->getRealPath() );
+            $widgetPresenterClassName = $widgetPresenterClassName = $widget->getNamespace() . 'Presenters\\' . studlycase( $offset );
+
+            $widgetPresenter = new $widgetPresenterClassName();
 
             if ( is_file( $widgetViewFilePath ) ) {
                 parser()->loadVars( $widgetPresenter->getArrayCopy() );

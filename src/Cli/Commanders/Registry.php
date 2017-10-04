@@ -41,7 +41,7 @@ class Registry extends Commander
      *
      * @var string
      */
-    protected $commandDescription = 'DESC_CLI_REGISTRY';
+    protected $commandDescription = 'CLI_REGISTRY_DESC';
 
     /**
      * Make::$commandOptions
@@ -52,18 +52,18 @@ class Registry extends Commander
      */
     protected $commandOptions = [
         'update'   => [
-            'description' => 'Update application registry',
-            'help'        => 'H_CLI_REGISTRY_UPDATE',
+            'description' => 'CLI_REGISTRY_UPDATE_DESC',
+            'help'        => 'CLI_REGISTRY_UPDATE_HELP',
         ],
         'flush'    => [
-            'description' => 'Flush application registry',
+            'description' => 'CLI_REGISTRY_FLUSH_DESC',
         ],
         'info'     => [
-            'description' => 'Application registry info',
+            'description' => 'CLI_REGISTRY_INFO_DESC',
         ],
         'metadata' => [
-            'description' => 'Application registry metadata',
-            'help'        => 'H_CLI_REGISTRY_METADATA',
+            'description' => 'CLI_REGISTRY_METADATA_DESC',
+            'help'        => 'CLI_REGISTRY_HELP_METADATA',
         ],
     ];
 

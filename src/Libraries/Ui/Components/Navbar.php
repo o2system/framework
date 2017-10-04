@@ -52,7 +52,8 @@ class Navbar extends Element
         $button = new Button();
         $button->attributes->addAttributeClass( [ 'navbar-toggler', 'navbar-toggler-right' ] );
         $button->attributes->addAttribute( 'type', 'button' );
-        $button->attributes->addAttribute( 'dat-toggle', 'collapse' );
+        $button->attributes->addAttribute( 'data-toggle', 'collapse' );
+        $button->attributes->addAttribute( 'data-target', '#' . $id );
         $button->attributes->addAttribute( 'aria-controls', $id );
         $button->attributes->addAttribute( 'aria-expanded', false );
         $button->attributes->addAttribute( 'aria-label', 'Toggle navigation' );

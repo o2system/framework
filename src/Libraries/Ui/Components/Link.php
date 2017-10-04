@@ -28,6 +28,8 @@ class Link extends Element
     use PopoverSetterTrait;
     use TooltipSetterTrait;
 
+    public $icon;
+
     public function __construct( $label = null, $href = null )
     {
         parent::__construct( 'a' );
@@ -100,5 +102,32 @@ class Link extends Element
         $this->attributes->addAttributeClass( 'disabled' );
 
         return $this;
+    }
+
+    public function render()
+    {
+        $output[] = $this->open();
+
+        if( $this->hasIcon() ) {
+            $output[] = $this->icon;
+        }
+
+        if( $this->hasTextContent() ) {
+            $output[] = PHP_EOL . implode( '', $this->textContent->getArrayCopy() ) . PHP_EOL;
+        }
+
+        if( $this->hasChildNodes() ) {
+            if( ! $this->hasTextContent() ) {
+                $output[] = PHP_EOL;
+            }
+
+            foreach( $this->childNodes as $childNode ) {
+                $output[] = $childNode . PHP_EOL;
+            }
+        }
+
+        $output[] = $this->close();
+
+        return implode( '', $output );
     }
 }

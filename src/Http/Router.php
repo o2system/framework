@@ -14,6 +14,7 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Http\Message\Uri;
 use O2System\Framework\Http\Router\Datastructures\Page;
 use O2System\Framework\Http\Router\Datastructures\Route;
 
@@ -26,10 +27,9 @@ use O2System\Framework\Http\Router\Datastructures\Route;
  */
 class Router
 {
-    final public function parseRequest()
+    final public function parseRequest( Uri $uri = null )
     {
-        $uri = request()->getUri();
-        $domain = implode( '.', $uri->getSubDomains() ) . '.' . $uri->getHost();
+        $uri = is_null( $uri ) ? request()->getUri() : $uri;
         $uriSegments = $uri->getSegments()->getParts();
         $uriString = $uri->getSegments()->getString();
 
@@ -152,9 +152,7 @@ class Router
         // Try to get route from URI String
         if ( false !== ( $uriRoute = $routes->getMap( $uriString ) ) ) {
             if ( $uriRoute->isValidUriString( $uriString ) ) {
-                if ( ! $uriRoute->isValidHttpMethod( request()->getMethod() ) and
-                    ! $uriRoute->isAnyHttpMethod()
-                ) {
+                if ( ! $uriRoute->isValidHttpMethod( request()->getMethod() ) && ! $uriRoute->isAnyHttpMethod() ) {
                     output()->sendError( 405 );
                 } elseif ( $this->parseRoute( $uriRoute ) !== false ) {
                     return;
@@ -168,7 +166,13 @@ class Router
                 $uriRoutedSegments = array_slice( $uriSegments, 0, ( $uriTotalSegments - $i ) );
 
                 foreach ( modules()->getArrayCopy() as $module ) {
-                    $controllerClassName = $module->getNamespace() . 'Controllers\\' . implode( '\\',
+
+                    $controllerNamespace = $module->getNamespace() . 'Controllers\\';
+                    if( $module->getNamespace() === 'O2System\Framework\\' ) {
+                        $controllerNamespace = $module->getNamespace() . 'Http\\Controllers\\';
+                    }
+
+                    $controllerClassName = $controllerNamespace . implode( '\\',
                             array_map( 'studlycase', $uriRoutedSegments ) );
 
                     if ( class_exists( $controllerClassName ) ) {
@@ -208,10 +212,7 @@ class Router
         } elseif ( count( $maps = $routes->getMaps() ) ) { // Try to parse route from route map
             foreach ( $maps as $map ) {
                 if ( $map instanceof Route ) {
-                    if ( $map->isValidHttpMethod( request()->getMethod() ) and $map->isValidUriString(
-                            $uriString
-                        )
-                    ) {
+                    if ( $map->isValidHttpMethod( request()->getMethod() ) && $map->isValidUriString( $uriString ) ) {
                         if ( $this->parseRoute( $map ) !== false ) {
                             return;
 
@@ -233,7 +234,7 @@ class Router
 
     // ------------------------------------------------------------------------
 
-    final private function parseRoute( Route $route, array $uriSegments = [] )
+    final protected function parseRoute( Route $route, array $uriSegments = [] )
     {
         if ( $closure = $route->getClosure() ) {
             if ( $closure instanceof Controller ) {
@@ -244,6 +245,11 @@ class Router
                 $this->setController( $controllerRegistry, $uriSegments );
             } elseif ( $closure instanceof Router\Datastructures\Controller ) {
                 $this->setController( $closure, $route->getClosureParameters() );
+            } elseif ( is_array( $closure ) ) {
+                $uri = ( new \O2System\Framework\Http\Message\Uri() )
+                    ->withSegments( new \O2System\Framework\Http\Message\Uri\Segments( '' ) )
+                    ->withQuery( '' );
+                $this->parseRequest( $uri->addSegments( $closure ) );
             }
         } else {
             output()->sendError( 204 );

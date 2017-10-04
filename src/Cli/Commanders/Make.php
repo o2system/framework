@@ -39,7 +39,7 @@ class Make extends Commander
      *
      * @var string
      */
-    protected $commandDescription = 'DESC_CLI_MAKE';
+    protected $commandDescription = 'CLI_MAKE_DESC';
 
     /**
      * Make::$commandOptions
@@ -50,19 +50,19 @@ class Make extends Commander
      */
     protected $commandOptions = [
         'name'      => [
-            'description' => 'Set a filename',
+            'description' => 'CLI_MAKE_NAME_DESC',
             'required'    => true,
         ],
         'path'      => [
-            'description' => 'Set a custom path file',
+            'description' => 'CLI_MAKE_PATH_DESC',
             'required'    => false,
         ],
         'filename'  => [
-            'description' => 'Set a filename',
+            'description' => 'CLI_MAKE_FILENAME_DESC',
             'required'    => true,
         ],
         'namespace' => [
-            'description' => 'Set a custom namespace',
+            'description' => 'CLI_MAKE_NAMESPACE_DESC',
             'shortcut'    => 'ns',
             'required'    => false,
         ],

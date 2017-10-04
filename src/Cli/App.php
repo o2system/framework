@@ -326,15 +326,15 @@ class App extends AbstractCommandersPool
             ->addRow()
             ->addColumn( '--version' )
             ->addColumn( '-v' )
-            ->addColumn( language()->getLine( 'H_CLI_OPTION_VERSION' ) )
+            ->addColumn( language()->getLine( 'CLI_HELP_SHOW_OPTION_VERSION' ) )
             ->addRow()
             ->addColumn( '--help' )
             ->addColumn( '-h' )
-            ->addColumn( language()->getLine( 'H_CLI_OPTION_HELP' ) )
+            ->addColumn( language()->getLine( 'CLI_HELP_SHOW_OPTION_HELP' ) )
             ->addRow()
             ->addColumn( '--verbose' )
             ->addColumn( '-vv' )
-            ->addColumn( language()->getLine( 'H_CLI_OPTION_VERBOSE' ) );
+            ->addColumn( language()->getLine( 'CLI_HELP_SHOW_OPTION_VERBOSE' ) );
 
         output()->write(
             ( new Format() )

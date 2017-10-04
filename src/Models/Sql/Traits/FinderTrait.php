@@ -34,14 +34,14 @@ trait FinderTrait
     public function all( $fields = null, $limit = null )
     {
         if ( isset( $fields ) ) {
-            $this->db->select( $fields );
+            $this->qb->select( $fields );
         }
 
         if( isset( $limit ) ) {
-            $this->db->limit( $limit );
+            $this->qb->limit( $limit );
         }
         
-        $result = $this->db->from( $this->table )->get();
+        $result = $this->qb->from( $this->table )->get();
 
         if ( $result->count() > 0 ) {
             $this->result = new DataObjects\Result( $result, $this );
@@ -71,7 +71,7 @@ trait FinderTrait
 
         $field = isset( $field ) ? $field : $this->primaryKey;
 
-        $result = $this->db
+        $result = $this->qb
             ->from( $this->table )
             ->getWhere( [ $field => $criteria ], $limit );
 
@@ -105,7 +105,7 @@ trait FinderTrait
     {
         $field = isset( $field ) ? $field : $this->primaryKey;
 
-        $result = $this->db
+        $result = $this->qb
             ->from( $this->table )
             ->whereIn( $field, $inCriteria )
             ->get();
@@ -132,7 +132,7 @@ trait FinderTrait
      */
     public function findWhere( array $conditions, $limit = null )
     {
-        $result = $this->db
+        $result = $this->qb
             ->from( $this->table )
             ->getWhere( $conditions, $limit );
 
@@ -164,7 +164,7 @@ trait FinderTrait
     {
         $field = isset( $field ) ? $field : $this->primaryKey;
 
-        $result = $this->db
+        $result = $this->qb
             ->from( $this->table )
             ->whereNotIn( $field, $notInCriteria )
             ->get();

@@ -76,7 +76,7 @@ class Config extends AbstractVariableStoragePattern
 
     public function addItem( $offset, $value )
     {
-        $this->store( $offset, $value );
+        $this->store( $offset, $value, true );
     }
 
     /**

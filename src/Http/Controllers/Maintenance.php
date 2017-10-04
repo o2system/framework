@@ -10,28 +10,26 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\Sql\Traits;
+namespace O2System\Framework\Http\Controllers;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Http\Controller;
+
 /**
- * Class OrderingTrait
+ * Class Maintenance
  *
- * @package O2System\Framework\Models\Sql\Traits
+ * @package O2System\Framework\Http\Controllers
  */
-trait OrderingTrait
+class Maintenance extends Controller
 {
     /**
-     * Process Row Ordering
+     * Error::index
      *
-     * @access  public
+     * @param int $code
      */
-    protected function beforeProcessRowOrdering( array $row, $table = null )
+    public function index()
     {
-        $table = isset( $table ) ? $table : $this->table;
-
-        if ( ! isset( $row[ 'ordering' ] ) ) {
-            $row[ 'record_ordering' ] = $this->qb->countAllResults( $table ) + 1;
-        }
+        view( 'maintenance/default' );
     }
 }

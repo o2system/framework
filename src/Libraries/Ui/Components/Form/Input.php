@@ -26,7 +26,7 @@ class Input extends Element
 {
     use SizingSetterTrait;
 
-    public function __construct( $attributes = [] )
+    public function __construct( array $attributes = [] )
     {
         parent::__construct( 'input' );
         $this->attributes->addAttributeClass( 'form-control' );
@@ -38,6 +38,13 @@ class Input extends Element
                 $this->attributes->addAttribute( $name, $value );
             }
         }
+    }
+
+    public function autofocus()
+    {
+        $this->attributes->addAttribute( 'autofocus', 'autofocus' );
+
+        return $this;
     }
 
     public function disabled()

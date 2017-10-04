@@ -107,7 +107,7 @@ class Loader implements AutoloadInterface
      *
      * @param string $publicDir
      */
-    public function addPublicDir( $publicDir )
+    public function addPublicDir( $publicDir, $offset = null )
     {
         // normalize the public directory with a trailing separator
         $publicDir = str_replace( [ '/', '\\' ], DIRECTORY_SEPARATOR, $publicDir );
@@ -115,7 +115,11 @@ class Loader implements AutoloadInterface
         $publicDir = rtrim( $publicDir, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR;
 
         if ( is_dir( $publicDir ) and ! in_array( $publicDir, $this->publicDirs ) ) {
-            $this->publicDirs[] = $publicDir;
+            if( isset( $offset ) ) {
+                $this->publicDirs[ $offset ] = $publicDir;
+            } else {
+                $this->publicDirs[] = $publicDir;
+            }
         }
     }
 
@@ -410,55 +414,56 @@ class Loader implements AutoloadInterface
         // the current namespace prefix
         $namespace = $class;
 
-        if ( strpos( $class, 'Testing' ) !== false ) {
-            if ( empty( $namespaceDirs ) and empty( $namespaceDirsMap ) ) {
-                $modules = modules()->getRegistry();
-                foreach ( $modules as $module ) {
-                    $namespaceDirs[ $module->getNamespace() ] = [
-                        $module->getRealPath(),
-                    ];
+        if ( empty( $namespaceDirs ) and empty( $namespaceDirsMap ) ) {
+            $modules = modules()->getRegistry();
+            foreach ( $modules as $module ) {
+                $namespaceDirs[ $module->getNamespace() ] = [
+                    $module->getRealPath(),
+                ];
 
-                    $namespaceDirsMap[ $module->getRealPath() ] = $module->getNamespace();
-                }
+                $namespaceDirsMap[ $module->getRealPath() ] = $module->getNamespace();
             }
+        }
 
-            // work backwards through the namespace names of the fully-qualified
-            // class name to find a mapped file name
-            while ( false !== $pos = strrpos( $namespace, '\\' ) ) {
-                // retain the trailing namespace separator in the prefix
-                $namespace = substr( $class, 0, $pos + 1 );
+        // work backwards through the namespace names of the fully-qualified
+        // class name to find a mapped file name
+        while ( false !== $pos = strrpos( $namespace, '\\' ) ) {
+            // retain the trailing namespace separator in the prefix
+            $namespace = substr( $class, 0, $pos + 1 );
 
-                // the rest is the relative class name
-                $relativeClass = substr( $class, $pos + 1 );
+            // the rest is the relative class name
+            $relativeClass = substr( $class, $pos + 1 );
 
-                $namespaceParts = explode( '\\', trim( $namespace, '\\' ) );
-                $namespaceTotalParts = count( $namespaceParts );
+            /**
+             * @todo: find-out what for.. i'm totally forgot
+             */
+            //$namespaceParts = explode( '\\', trim( $namespace, '\\' ) );
+            //$namespaceTotalParts = count( $namespaceParts );
 
-                if ( isset( $namespaceDirs[ $namespace ] ) ) {
-                    // look through base directories for this namespace prefix
-                    foreach ( $namespaceDirs[ $namespace ] as $namespaceDirectory ) {
+            if ( isset( $namespaceDirs[ $namespace ] ) ) {
+                // look through base directories for this namespace prefix
+                foreach ( $namespaceDirs[ $namespace ] as $namespaceDirectory ) {
 
-                        // replace the namespace prefix with the base directory,
-                        // replace namespace separators with directory separators
-                        // in the relative class name, append with .php
-                        $file = $namespaceDirectory
-                            . str_replace( '\\', '/', $relativeClass )
-                            . '.php';
+                    // replace the namespace prefix with the base directory,
+                    // replace namespace separators with directory separators
+                    // in the relative class name, append with .php
+                    $file = $namespaceDirectory
+                        . str_replace( '\\', '/', $relativeClass )
+                        . '.php';
 
-                        // if the mapped file exists, require it
-                        if ( is_file( $file ) ) {
-                            require_once $file;
+                    // if the mapped file exists, require it
+                    if ( is_file( $file ) ) {
+                        require_once $file;
 
-                            // yes, we're done
-                            return $file;
-                        }
+                        // yes, we're done
+                        return $file;
                     }
                 }
-
-                // remove the trailing namespace separator for the next iteration
-                // of strrpos()
-                $namespace = rtrim( $namespace, '\\' );
             }
+
+            // remove the trailing namespace separator for the next iteration
+            // of strrpos()
+            $namespace = rtrim( $namespace, '\\' );
         }
 
         // never found a mapped file

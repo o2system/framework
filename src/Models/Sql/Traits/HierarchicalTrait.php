@@ -40,7 +40,7 @@ trait HierarchicalTrait
         $right = $left + 1;
 
         /* get all children of this node */
-        $this->db->select( 'id' )->where( 'id_parent', $id_parent )->orderBy( 'record_ordering' );
+        $this->qb->select( 'id' )->where( 'id_parent', $id_parent )->orderBy( 'record_ordering' );
         $query = $this->db->get( $table );
 
         if ( $query->count() > 0 ) {
@@ -52,7 +52,7 @@ trait HierarchicalTrait
 
         /* update this page with the (possibly) new left, right, and depth values */
         $data = [ 'record_left' => $left, 'record_right' => $right, 'record_depth' => $depth - 1 ];
-        $this->db->update( $table, $data, [ 'id' => $id_parent ] );
+        $this->qb->update( $table, $data, [ 'id' => $id_parent ] );
 
         /* return the right value of this node + 1 */
 
@@ -71,7 +71,7 @@ trait HierarchicalTrait
      */
     final public function getParents( $id = 0, &$parents = [] )
     {
-        $result = $this->db->getWhere( $this->table, [ 'id' => $id ] );
+        $result = $this->qb->getWhere( $this->table, [ 'id' => $id ] );
 
         if ( $result->count() > 0 ) {
             $parents[] = $result->first();
@@ -98,18 +98,18 @@ trait HierarchicalTrait
     public function getChilds( $id_parent = null )
     {
         if ( isset( $id_parent ) ) {
-            $this->db->where( 'id_parent', $id_parent )->orWhere( 'id', $id_parent );
+            $this->qb->where( 'id_parent', $id_parent )->orWhere( 'id', $id_parent );
         }
 
-        if ( $this->db->fieldExists( 'record_left', $this->table ) ) {
+        if ( $this->qb->fieldExists( 'record_left', $this->table ) ) {
             $this->db->orderBy( 'record_left', 'ASC' );
         }
 
-        if ( $this->db->fieldExists( 'record_ordering', $this->table ) ) {
-            $this->db->orderBy( 'record_ordering', 'ASC' );
+        if ( $this->qb->fieldExists( 'record_ordering', $this->table ) ) {
+            $this->qb->orderBy( 'record_ordering', 'ASC' );
         }
 
-        $query = $this->db->get( $this->table );
+        $query = $this->qb->get( $this->table );
 
         if ( $query->count() > 0 ) {
             return $query->result();
@@ -131,7 +131,7 @@ trait HierarchicalTrait
      */
     final public function hasChilds( $id_parent = 0 )
     {
-        $query = $this->db->select( 'id' )->where( 'id_parent', $id_parent )->get( $this->table );
+        $query = $this->qb->select( 'id' )->where( 'id_parent', $id_parent )->get( $this->table );
 
         if ( $query->count() > 0 ) {
             return true;
@@ -153,7 +153,7 @@ trait HierarchicalTrait
      */
     final public function countChilds( $id_parent )
     {
-        return $this->db->select( 'id' )->getWhere( $this->table, [ 'id_parent' => $id_parent ] )->count();
+        return $this->qb->select( 'id' )->getWhere( $this->table, [ 'id_parent' => $id_parent ] )->count();
     }
     // ------------------------------------------------------------------------
 }

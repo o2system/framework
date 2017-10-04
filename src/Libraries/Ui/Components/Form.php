@@ -14,6 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Libraries\Ui\Components\Form\Checkbox;
 use O2System\Html\Element;
 
 /**
@@ -49,6 +50,36 @@ class Form extends Element
     public function createGroup()
     {
         $this->childNodes->push( new Form\Group() );
+
+        return $this->childNodes->last();
+    }
+
+    public function createCheckbox( $label, array $attributes = [] )
+    {
+        $this->childNodes->push( new Checkbox( $label, $attributes ) );
+
+        return $this->childNodes->last();
+    }
+
+    public function createButton( $label, array $attributes = [] )
+    {
+        $button = new Button( $label );
+
+        if ( count( $attributes ) ) {
+            foreach ( $attributes as $name => $value ) {
+                $button->attributes->addAttribute( $name, $value );
+
+                if ( $name === 'name' ) {
+                    $this->entity->setEntityName( 'btn-' . $value );
+
+                    if ( ! array_key_exists( 'id', $attributes ) ) {
+                        $button->attributes->setAttributeId( 'btn-' . $value );
+                    }
+                }
+            }
+        }
+
+        $this->childNodes->push( $button );
 
         return $this->childNodes->last();
     }

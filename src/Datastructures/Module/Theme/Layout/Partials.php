@@ -57,12 +57,12 @@ class Partials extends AbstractItemStoragePattern
 
         foreach ( $partialsFiles as $partialsFile ) {
 
-            $partialsFilePath = $this->path . $partialsFile;
+            $partialsFilePath = $dir . $partialsFile;
 
             if ( is_file( $partialsFilePath ) ) {
                 $this->loadFile( $partialsFilePath );
             } elseif ( is_dir( $partialsFilePath ) ) {
-                $this->loadDir( $partialsFilePath );
+                $this->loadDir( $partialsFilePath . DIRECTORY_SEPARATOR );
             }
         }
     }
@@ -70,8 +70,7 @@ class Partials extends AbstractItemStoragePattern
     public function loadFile( $filePath )
     {
         if ( strrpos( $filePath, $this->extension ) !== false ) {
-            $fileKey = str_replace( $this->extension, '', pathinfo( $filePath, PATHINFO_BASENAME ) );
-            $fileKey = isset( $partialsKey ) ? $partialsKey . '-' . $fileKey : $fileKey;
+            $fileKey = str_replace( [ $this->path, $this->extension, DIRECTORY_SEPARATOR ], ['','','-'], $filePath );
             $this->store( camelcase( $fileKey ), new SplFileInfo( $filePath ) );
         }
     }

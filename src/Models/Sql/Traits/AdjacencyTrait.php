@@ -50,7 +50,7 @@ trait AdjacencyTrait
     {
         $table = isset( $table ) ? $table : $this->table;
 
-        $result = $this->db->getWhere( $table, [ $this->parentKey => $id_parent ] );
+        $result = $this->qb->table( $table )->getWhere( [ $this->parentKey => $id_parent ] );
 
         if ( $result->count() > 0 ) {
             return $result;
@@ -72,7 +72,9 @@ trait AdjacencyTrait
     {
         $table = isset( $table ) ? $table : $this->table;
 
-        $result = $this->db->select( 'id' )->getWhere( $table, [ $this->parentKey => $id_parent ] );
+        $result = $this->qb->select( 'id' )->table( $table )->getWhere( [ $this->parentKey => $id_parent ] );
+
+        print_out($this->db->getLastQuery());
 
         if ( $result->count() > 0 ) {
             return true;

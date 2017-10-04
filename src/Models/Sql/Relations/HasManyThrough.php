@@ -33,7 +33,7 @@ class HasManyThrough extends Sql\Relations\Abstracts\AbstractRelation
     {
         // print_out($this->map);
         if ( $this->map->pivotModel->row instanceof Sql\DataObjects\Result\Row ) {
-            $result = $this->map->pivotModel->db
+            $result = $this->map->pivotModel->qb
                 ->from( $this->map->relationTable )
                 ->join( $this->map->referenceTable, implode( ' = ', [
                     $this->map->referencePrimaryKey,

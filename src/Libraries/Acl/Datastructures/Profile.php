@@ -16,14 +16,15 @@ namespace O2System\Framework\Libraries\Acl\Datastructures;
 
 use O2System\Framework\Datastructures\Commons\Metadata;
 use O2System\Framework\Datastructures\Commons\Name;
-use O2System\Psr\Patterns\AbstractDataStoragePattern;
+use O2System\Framework\Libraries\Acl\Datastructures\Profile\Images;
+use O2System\Psr\Patterns\AbstractItemStoragePattern;
 
 /**
  * Class Profile
  *
  * @package O2System\Framework\Libraries\Acl\Datastructures
  */
-class Profile extends AbstractDataStoragePattern
+class Profile extends AbstractItemStoragePattern
 {
     /**
      * Profile::__construct
@@ -33,23 +34,34 @@ class Profile extends AbstractDataStoragePattern
     public function __construct( $profile = [] )
     {
         $defaultProfile = [
+            'id'        => isset( $profile[ 'id' ] ) ? $profile[ 'id' ] : null,
             'name'      => [
-                'first'   => null,
-                'middle'  => null,
-                'last'    => null,
-                'display' => null,
+                'first'   => isset( $profile[ 'name_first' ] ) ? $profile[ 'name_first' ] : null,
+                'middle'  => isset( $profile[ 'name_middle' ] ) ? $profile[ 'name_middle' ] : null,
+                'last'    => isset( $profile[ 'name_last' ] ) ? $profile[ 'name_last' ] : null,
+                'display' => isset( $profile[ 'name_display' ] ) ? $profile[ 'name_display' ] : null,
             ],
-            'gender'    => 'UNDEFINED',
-            'birthday'  => '0000-00-00',
-            'marital'   => 'UNDEFINED',
-            'religion'  => 'UNDEFINED',
-            'biography' => null,
-            'metadata'  => [],
+            'images'    => [
+                'avatar' => isset( $profile[ 'avatar' ] ) ? $profile[ 'avatar' ] : null,
+                'cover' => isset( $profile[ 'cover' ] ) ? $profile[ 'cover' ] : null,
+            ],
+            'gender'    => isset( $profile[ 'gender' ] ) ? $profile[ 'gender' ] : 'UNDEFINED',
+            'birthday'  => isset( $profile[ 'birthday' ] ) ? $profile[ 'birthday' ] : '0000-00-00',
+            'marital'   => isset( $profile[ 'marital' ] ) ? $profile[ 'marital' ] : 'UNDEFINED',
+            'religion'  => isset( $profile[ 'religion' ] ) ? $profile[ 'religion' ] : 'UNDEFINED',
+            'biography' => isset( $profile[ 'biography' ] ) ? $profile[ 'biography' ] : null,
+            'metadata'  => isset( $profile[ 'metadata' ] ) ? $profile[ 'metadata' ] : [],
         ];
 
-        $profile = array_merge( $defaultProfile, $profile );
+        if( empty( $defaultProfile[ 'name' ][ 'display' ] ) ) {
+            $defaultProfile[ 'name' ][ 'display' ] = implode( ' ', array_filter( [
+                $defaultProfile[ 'name' ][ 'first' ],
+                $defaultProfile[ 'name' ][ 'middle' ],
+                $defaultProfile[ 'name' ][ 'last' ]
+            ] ) );
+        }
 
-        foreach ( $profile as $item => $value ) {
+        foreach ( $defaultProfile as $item => $value ) {
             $this->store( $item, $value );
         }
     }
@@ -64,10 +76,16 @@ class Profile extends AbstractDataStoragePattern
      */
     public function store( $offset, $value )
     {
-        if ( $offset === 'name' ) {
+        if ( $offset === 'name' and is_array( $value ) ) {
             $value = new Name( $value );
         } elseif ( $offset === 'metadata' and is_array( $value ) ) {
             $value = new Metadata( $value );
+        } elseif( $offset === 'images' and is_array( $value ) ) {
+            $images = new Images();
+            foreach( $value as $key => $image ) {
+                $images->store( $key, $image );
+            }
+            $value = $images;
         } elseif ( $offset === 'gender' ) {
             if ( in_array( $value, [ 'MALE', 'FEMALE', 'UNDEFINED' ] ) ) {
                 $value = strtoupper( $value );

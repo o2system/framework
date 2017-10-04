@@ -31,7 +31,7 @@ class Helper extends Make
      *
      * @var string
      */
-    protected $commandDescription = 'DESC_CLI_MAKE_HELPER';
+    protected $commandDescription = 'CLI_MAKE_HELPER_DESC';
 
     public function execute()
     {
@@ -41,7 +41,7 @@ class Helper extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'E_CLI_HELPER_FILENAME' ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_HELPER_E_FILENAME' ) )
                     ->setNewLinesAfter( 1 )
             );
 
@@ -62,7 +62,7 @@ class Helper extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'E_CLI_HELPER_EXISTS', [ $filePath ] ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_HELPER_E_EXISTS', [ $filePath ] ) )
                     ->setNewLinesAfter( 1 )
             );
 
@@ -102,7 +102,7 @@ PHPTEMPLATE;
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::SUCCESS )
-                    ->setString( language()->getLine( 'S_CLI_HELPER_MAKE', [ $filePath ] ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_HELPER_S_MAKE', [ $filePath ] ) )
                     ->setNewLinesAfter( 1 )
             );
 

@@ -14,6 +14,7 @@ namespace O2System\Framework\Http\Router\Datastructures;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Http\Message\Uri\Segments;
 use O2System\Spl\Info\SplClassInfo;
 
 /**
@@ -23,6 +24,8 @@ use O2System\Spl\Info\SplClassInfo;
  */
 class Controller extends SplClassInfo
 {
+    private $requestSegments;
+
     private $requestMethod = null;
 
     private $requestMethodArgs = [];
@@ -97,6 +100,28 @@ class Controller extends SplClassInfo
         }
 
         return $this->instance;
+    }
+
+    public function setRequestSegments( array $segments )
+    {
+        $this->requestSegments = new Segments( $segments );
+
+        return $this;
+    }
+
+    public function getRequestSegments()
+    {
+        if( empty( $this->requestSegments ) ) {
+            $segments[] = $this->getParameter();
+
+            if( ! in_array( $this->getRequestMethod(), [ 'index', 'route' ] ) ) {
+                array_push( $segments, $this->getRequestMethod() );
+            }
+
+            $this->setRequestSegments( $segments );
+        }
+
+        return $this->requestSegments;
     }
 
     public function getRequestMethod()

@@ -14,6 +14,7 @@ namespace O2System\Framework\Http\Message;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Http\Router\Datastructures\Controller;
 use O2System\Kernel\Http\Message;
 use O2System\Psr\Http\Message\UriInterface;
 use Traversable;
@@ -160,8 +161,26 @@ class Request extends Message\Request implements \IteratorAggregate
      */
     public function getLanguage()
     {
-        return 'en-US';
+        return language()->getDefault();
     }
+
+    //--------------------------------------------------------------------
+
+    /**
+     * Request::getController
+     *
+     * @return bool|Controller
+     */
+    public function getController()
+    {
+        if( false !== ( $controller = services( 'controller' ) ) ) {
+            return $controller;
+        }
+
+        return false;
+    }
+
+    //--------------------------------------------------------------------
 
     /**
      * Retrieve an external iterator

@@ -34,12 +34,14 @@ class Models extends SplServiceContainer
             $service = $model;
         }
 
-        $offset = strtolower( $service->getClassName() );
+        if( isset( $service ) && $service instanceof SplServiceRegistry ) {
+            $offset = strtolower( $service->getClassName() );
 
-        if ( $service->isSubclassOf( 'O2System\Framework\Models\SQL\Model' ) ||
-            $service->isSubclassOf( 'O2System\Framework\Models\NoSQL\Model' )
-        ) {
-            models()->attach( $offset, $service );
+            if ( $service->isSubclassOf( 'O2System\Framework\Models\SQL\Model' ) ||
+                $service->isSubclassOf( 'O2System\Framework\Models\NoSQL\Model' )
+            ) {
+                models()->attach( $offset, $service );
+            }
         }
     }
 

@@ -176,6 +176,9 @@ class Framework extends Kernel
     {
         parent::__construct();
 
+        // Add App Views Folder
+        output()->addFilePath( PATH_APP );
+
         profiler()->watch( 'SYSTEM_START' );
 
         profiler()->watch( 'INSTANTIATE_HOOKS_SERVICE' );
@@ -280,6 +283,23 @@ class Framework extends Kernel
         profiler()->watch( 'LANGUAGES_SERVICE_LOAD_REGISTRIES' );
         language()->loadRegistry();
 
+        // Modules default app
+        if( null !== ( $defaultApp = config( 'app' ) ) ) {
+            if ( false !== ( $defaultModule = modules()->getApp( $defaultApp ) ) ) {
+                // Register Domain App Module Namespace
+                loader()->addNamespace( $defaultModule->getNamespace(), $defaultModule->getRealPath() );
+
+                // Push Domain App Module
+                modules()->push( $defaultModule );
+            } elseif ( false !== ( $defaultModule = modules()->getModule( $defaultApp ) ) ) {
+                // Register Path Module Namespace
+                loader()->addNamespace( $defaultModule->getNamespace(), $defaultModule->getRealPath() );
+
+                // Push Path Module
+                modules()->push( $defaultModule );
+            }
+        }
+
         profiler()->watch( 'CALL_HOOKS_POST_SYSTEM' );
         hooks()->callEvent( Framework\Services\Hooks::POST_SYSTEM );
 
@@ -351,9 +371,14 @@ class Framework extends Kernel
         $this->addService( 'O2System\Framework\Http\View' );
 
         // Instantiate Http Presenter Service
+        profiler()->watch( 'INSTANTIATE_HTTP_PRESENTER_SERVICE' );
         $this->addService( 'O2System\Framework\Http\Presenter' );
 
+        // Initialize Http Presenter Service
+        profiler()->watch( 'INITIALIZE_HTTP_PRESENTER_SERVICE' );
+
         $this->addService( 'O2System\Framework\Http\Message\Request' );
+        //presenter()->initialize();
 
         // Instantiate Http Middleware Service
         profiler()->watch( 'INSTANTIATE_HTTP_MIDDLEWARE_SERVICE' );
@@ -437,20 +462,8 @@ class Framework extends Kernel
                     }
                 }
 
-                if ( false !== ( $presenter = config()->loadFile( 'presenter', true ) ) ) {
-
-                    // autoload presenter assets
-                    if ( $presenter->offsetExists( 'assets' ) ) {
-                        presenter()->assets->autoload( $presenter->assets[ 'autoload' ] );
-                    }
-
-                    // autoload presenter theme
-                    if ( $presenter->offsetExists( 'theme' ) ) {
-                        presenter()->theme->load( $presenter->offsetGet( 'theme' ) );
-                    }
-                }
-
-                presenter()->assets->loadFiles(
+                // Re-Initialize Presenter
+                presenter()->initialize()->assets->loadFiles(
                     [
                         'css' => $controllerAssets,
                         'js'  => $controllerAssets,
@@ -476,12 +489,56 @@ class Framework extends Kernel
 
                 // Call the requested controller method
                 profiler()->watch( 'CALL_REQUESTED_CONTROLLER_METHOD' );
-                $requestController->__call( $requestMethod, $requestMethodArgs );
+                ob_start();
+                $requestControllerOutput = $requestController->__call( $requestMethod, $requestMethodArgs );
 
-                profiler()->watch( 'VIEW_SERVICE_RENDER' );
-                view()->render();
+                if( $requestControllerOutput === true ) {
+                    output()->sendError( 200 );
+                    exit( EXIT_SUCCESS );
+                } elseif( $requestControllerOutput === false ) {
+                    output()->sendError( 204 );
+                    exit( EXIT_ERROR );
+                } elseif( is_array( $requestControllerOutput ) || is_object( $requestControllerOutput ) ) {
+                    output()->send( $requestControllerOutput );
+                    exit( EXIT_SUCCESS );
+                } elseif( is_null( $requestControllerOutput ) ) {
+                    $requestControllerOutput = ob_get_contents();
+                    ob_end_clean();
 
-                exit( EXIT_SUCCESS );
+                    if( empty( $requestControllerOutput ) ) {
+                        $requestControllerOutput = '';
+                    } else {
+                        echo $requestControllerOutput;
+                        exit( EXIT_SUCCESS );
+                    }
+                }
+
+                if( is_string( $requestControllerOutput ) ) {
+                    if ( presenter()->theme->use === true ) {
+                        if( ! presenter()->partials->offsetExists( 'content' ) && $requestControllerOutput !== '' ) {
+                            presenter()->partials->offsetSet( 'content', $requestControllerOutput );
+                        }
+
+                        if( presenter()->partials->offsetExists( 'content' ) ) {
+                            profiler()->watch( 'VIEW_SERVICE_RENDER' );
+                            view()->render();
+                            exit( EXIT_SUCCESS );
+                        } else {
+                            output()->sendError( 204 );
+                            exit( EXIT_ERROR );
+                        }
+                    } elseif( $requestControllerOutput !== '' ) {
+                        output()->send( $requestControllerOutput );
+                        exit( EXIT_SUCCESS );
+                    } else {
+                        output()->sendError( 204 );
+                        exit( EXIT_ERROR );
+                    }
+
+                } elseif( is_numeric( $requestControllerOutput ) ) {
+                    output()->sendError( $requestControllerOutput );
+                    exit( EXIT_ERROR );
+                }
             }
         }
 

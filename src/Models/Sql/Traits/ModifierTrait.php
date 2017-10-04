@@ -44,7 +44,7 @@ trait ModifierTrait
 
         $sets = $this->beforeProcess( $sets, $table );
 
-        if ( $this->db->table( $table )->insert( $sets ) ) {
+        if ( $this->qb->table( $table )->insert( $sets ) ) {
             if ( empty( $this->afterProcess ) ) {
                 return true;
             }
@@ -77,7 +77,7 @@ trait ModifierTrait
         $where = [];
         if ( empty( $this->primaryKeys ) ) {
             $where[ $primaryKey ] = $sets[ $primaryKey ];
-            $this->db->where( $primaryKey, $sets[ $primaryKey ] );
+            $this->qb->where( $primaryKey, $sets[ $primaryKey ] );
         } else {
             foreach ( $this->primaryKeys as $primaryKey ) {
                 $where[ $primaryKey ] = $sets[ $primaryKey ];
@@ -90,7 +90,7 @@ trait ModifierTrait
 
         $sets = $this->beforeProcess( $sets, $table );
 
-        if ( $this->db->table( $table )->update( $sets, $where ) ) {
+        if ( $this->qb->table( $table )->update( $sets, $where ) ) {
 
             if ( empty( $this->afterProcess ) ) {
                 return true;
@@ -108,7 +108,7 @@ trait ModifierTrait
 
         $sets = $this->beforeProcess( $sets, $table );
 
-        if ( $this->db->table( $table )->insertBatch( $sets ) ) {
+        if ( $this->qb->table( $table )->insertBatch( $sets ) ) {
             if ( empty( $this->afterProcess ) ) {
                 return true;
             }
@@ -129,7 +129,7 @@ trait ModifierTrait
         $where = [];
         if ( empty( $this->primaryKeys ) ) {
             $where[ $primaryKey ] = $sets[ $primaryKey ];
-            $this->db->where( $primaryKey, $sets[ $primaryKey ] );
+            $this->qb->where( $primaryKey, $sets[ $primaryKey ] );
         } else {
             foreach ( $this->primaryKeys as $primaryKey ) {
                 $where[ $primaryKey ] = $sets[ $primaryKey ];
@@ -142,7 +142,7 @@ trait ModifierTrait
 
         $sets = $this->beforeProcess( $sets, $table );
 
-        if ( $this->db->table( $table )->updateBatch( $sets, $where ) ) {
+        if ( $this->qb->table( $table )->updateBatch( $sets, $where ) ) {
 
             if ( empty( $this->afterProcess ) ) {
                 return true;
@@ -212,7 +212,7 @@ trait ModifierTrait
 
         $sets = $this->beforeProcess( $sets, $table );
 
-        if ( $this->db->table( $table )->update( $sets ) ) {
+        if ( $this->qb->table( $table )->update( $sets ) ) {
             if ( empty( $this->afterProcess ) ) {
                 return true;
             }
@@ -238,7 +238,7 @@ trait ModifierTrait
 
     protected function trashBy( $id, array $where = [], $table = null )
     {
-        $this->db->where( $where );
+        $this->qb->where( $where );
 
         return $this->trash( $id, $table );
     }
@@ -276,20 +276,20 @@ trait ModifierTrait
         $fields = [ 'file', 'document', 'image', 'picture', 'cover', 'avatar', 'photo', 'video' ];
 
         foreach ( $fields as $field ) {
-            if ( $this->db->isTableFieldExists( $field, $table ) ) {
+            if ( $this->qb->isTableFieldExists( $field, $table ) ) {
                 $primaryKey = isset( $this->primaryKey ) ? $this->primaryKey : 'id';
 
                 if ( empty( $this->primaryKeys ) ) {
-                    $this->db->where( $primaryKey, $id );
+                    $this->qb->where( $primaryKey, $id );
                 } elseif ( is_array( $id ) ) {
                     foreach ( $this->primaryKeys as $primaryKey ) {
-                        $this->db->where( $primaryKey, $id[ $primaryKey ] );
+                        $this->qb->where( $primaryKey, $id[ $primaryKey ] );
                     }
                 } else {
-                    $this->db->where( reset( $this->primaryKeys ), $id );
+                    $this->qb->where( reset( $this->primaryKeys ), $id );
                 }
 
-                $result = $this->db->select( $field )->limit( 1 )->get( $table );
+                $result = $this->qb->select( $field )->limit( 1 )->get( $table );
 
                 if ( $result->count() > 0 ) {
                     if ( ! empty( $result->first()->{$field} ) ) {
@@ -330,7 +330,7 @@ trait ModifierTrait
         $this->primaryKey = 'id';
         $this->primaryKeys = [];
 
-        if ( $this->db->table( $table )->delete( $where ) ) {
+        if ( $this->qb->table( $table )->delete( $where ) ) {
             if ( empty( $this->afterProcess ) ) {
                 return true;
             }
@@ -354,7 +354,7 @@ trait ModifierTrait
 
     protected function deleteBy( $id, $where = [], $force = false, $table = null )
     {
-        $this->db->where( $where );
+        $this->qb->where( $where );
 
         return $this->delete( $id, $force, $table );
     }

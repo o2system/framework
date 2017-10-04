@@ -14,19 +14,22 @@ if ( ! function_exists( 'str_echo' ) ) {
     /**
      * str_echo
      *
-     * @param mixed  $string
-     * @param string $before
-     * @param string $after
+     * Output one or more strings with string validation whether the string is empty or not,
+     * and add additional prefix and suffix string with self-defined glue string.
+     *
+     * @param mixed  $string String to be echo.
+     * @param string $prefix Add a prefix string.
+     * @param string $suffix Add a suffix string.
      *
      * @return string
      */
-    function str_echo( $string, $before = null, $after = null, $glue = '' )
+    function str_echo( $string, $prefix = null, $suffix = null, $glue = '' )
     {
         if ( ! empty( $string ) OR $string !== '' ) {
             return implode( $glue, array_filter([
-                $before,
+                $prefix,
                 $string,
-                $after
+                $suffix
             ]) );
         }
 
@@ -38,14 +41,13 @@ if ( ! function_exists( 'str_echo' ) ) {
 
 if ( ! function_exists( 'str_email' ) ) {
     /**
-     * Save display email
+     * str_email
      *
-     * @access    public
+     * Simple save display email address.
      *
-     * @param    string
-     * @param    integer    number of repeats
+     * @param string $string Email address.
      *
-     * @return    string
+     * @return string
      */
     function str_email( $string )
     {
@@ -71,9 +73,9 @@ if ( ! function_exists( 'str_email' ) ) {
 
 if ( ! function_exists( 'str_alphanumeric' ) ) {
     /**
-     * Remove Non AlphaNumeric Characters
+     * str_alphanumeric
      *
-     * @access    public
+     * Remove non alpha-numeric characters.
      *
      * @param    string
      * @param    integer    number of repeats
@@ -94,7 +96,9 @@ if ( ! function_exists( 'str_alphanumeric' ) ) {
 
 if ( ! function_exists( 'str_numeric' ) ) {
     /**
-     * Remove Non Numeric Characters
+     * str_numeric
+     *
+     * Remove non-numeric characters.
      *
      * @access    public
      *
@@ -117,7 +121,9 @@ if ( ! function_exists( 'str_numeric' ) ) {
 
 if ( ! function_exists( 'str_truncate' ) ) {
     /**
-     * Truncates a string to a certain length
+     * str_truncate
+     *
+     * Truncates a string to a certain length.
      *
      * @param string $string
      * @param int    $limit
@@ -142,7 +148,10 @@ if ( ! function_exists( 'str_truncate' ) ) {
 
 if ( ! function_exists( 'str_shorten' ) ) {
     /**
-     * If a string is too long, shorten it in the middle
+     * str_shorten
+     *
+     * Shorten a string with a limit,
+     * if a string is too long will be shorten it in the middle.
      *
      * @param string $string
      * @param int    $limit
@@ -152,9 +161,9 @@ if ( ! function_exists( 'str_shorten' ) ) {
     function str_shorten( $string, $limit = 25 )
     {
         if ( strlen( $string ) > $limit ) {
-            $pre = substr( $string, 0, ( $limit / 2 ) );
-            $suf = substr( $string, -( $limit / 2 ) );
-            $string = $pre . ' ... ' . $suf;
+            $prefix = substr( $string, 0, ( $limit / 2 ) );
+            $suffix = substr( $string, -( $limit / 2 ) );
+            $string = $prefix . ' ... ' . $suffix;
         }
 
         return $string;
@@ -165,7 +174,9 @@ if ( ! function_exists( 'str_shorten' ) ) {
 
 if ( ! function_exists( 'str_obfuscate' ) ) {
     /**
-     * Scrambles the source of a string
+     * str_obfuscate
+     *
+     * Scrambles the source of a string.
      *
      * @param string $string
      *
@@ -188,6 +199,8 @@ if ( ! function_exists( 'str_obfuscate' ) ) {
 if ( ! function_exists( 'str_symbol_to_entities' ) ) {
 
     /**
+     * str_symbol_to_entities
+     *
      * Converts high-character symbols into their respective html entities.
      *
      * @return string
@@ -453,9 +466,9 @@ if ( ! function_exists( 'str_symbol_to_entities' ) ) {
 
 if ( ! function_exists( 'str_strip_slashes' ) ) {
     /**
-     * Strip Slashes
+     * str_strip_slashes
      *
-     * Removes slashes contained in a string or in an array
+     * Removes slashes contained in a string or in an array.
      *
      * @param    mixed    string or array
      *
@@ -479,9 +492,9 @@ if ( ! function_exists( 'str_strip_slashes' ) ) {
 
 if ( ! function_exists( 'str_quote_strip' ) ) {
     /**
-     * Strip Quotes
+     * str_quote_strip
      *
-     * Removes single and double quotes from a string
+     * Removes single and double quotes from a string.
      *
      * @param    string
      *
@@ -497,9 +510,9 @@ if ( ! function_exists( 'str_quote_strip' ) ) {
 
 if ( ! function_exists( 'str_quote_to_entities' ) ) {
     /**
-     * Quotes to Entities
+     * str_quote_to_entities
      *
-     * Converts single and double quotes to entities
+     * Converts single and double quotes to entities.
      *
      * @param    string
      *
@@ -518,19 +531,19 @@ if ( ! function_exists( 'str_filter_char' ) ) {
     /**
      * str_filter_char
      *
-     * Reduces multiple instances of a particular character.  Example:
+     * Reduces multiple instances of a particular character.
      *
+     * @example
      * Fred, Bill,, Joe, Jimmy
      *
-     * becomes:
-     *
+     * @result
      * Fred, Bill, Joe, Jimmy
      *
-     * @param    string
-     * @param    string    the character you wish to reduce
-     * @param    bool      TRUE/FALSE - whether to trim the character from the beginning/end
+     * @param string $str       The string to be filtered.
+     * @param string $character The character you wish to reduce.
+     * @param bool   $trim      TRUE/FALSE - whether to trim the character from the beginning/end.
      *
-     * @return    string
+     * @return  string
      */
     function str_filter_char( $str, $character = ',', $trim = false )
     {
@@ -544,16 +557,17 @@ if ( ! function_exists( 'str_filter_char' ) ) {
 
 if ( ! function_exists( 'str_rand' ) ) {
     /**
-     * Create a Random String
+     * str_rand
      *
-     * Useful for generating passwords or hashes.
+     * Create a random string, very useful for generating passwords or hashes.
      *
-     * @param    string    type of random string.  basic, alpha, alnum, numeric, nozero, unique, md5, encrypt and sha1
-     * @param    int       number of characters
+     * @param   string $type    Type of random string.
+     *                          basic, alpha, alnum, numeric, nozero, unique, md5, encrypt and sha1
+     * @param   int    $length  Number of characters
      *
-     * @return    string
+     * @return  string
      */
-    function str_rand( $type = 'alnum', $len = 8 )
+    function str_rand( $type = 'alnum', $length = 8 )
     {
         switch ( $type ) {
             case 'basic':
@@ -577,7 +591,7 @@ if ( ! function_exists( 'str_rand' ) ) {
                         break;
                 }
 
-                return substr( str_shuffle( str_repeat( $pool, ceil( $len / strlen( $pool ) ) ) ), 0, $len );
+                return substr( str_shuffle( str_repeat( $pool, ceil( $length / strlen( $pool ) ) ) ), 0, $length );
             case 'unique': // todo: remove in 3.1+
             case 'md5':
                 return md5( uniqid( mt_rand() ) );
@@ -592,19 +606,21 @@ if ( ! function_exists( 'str_rand' ) ) {
 
 if ( ! function_exists( 'str_inc' ) ) {
     /**
-     * Add's _1 to a string or increment the ending number to allow _2, _3, etc
+     * str_inc
      *
-     * @param    string    required
-     * @param    string    What should the duplicate number be appended with
-     * @param    string    Which number should be used for the first dupe increment
+     * Add's _1 to a string or increment the ending number to allow _2, _3, etc.
      *
-     * @return    string
+     * @param   string  $string      The string to be increased.
+     * @param   string  $separator   What should the duplicate number be appended with.
+     * @param   string  $first       Which number should be used for the first dupe increment
+     *
+     * @return  string
      */
-    function str_inc( $str, $separator = '_', $first = 1 )
+    function str_inc( $string, $separator = '_', $first = 1 )
     {
-        preg_match( '/(.+)' . $separator . '([0-9]+)$/', $str, $match );
+        preg_match( '/(.+)' . $separator . '([0-9]+)$/', $string, $match );
 
-        return isset( $match[ 2 ] ) ? $match[ 1 ] . $separator . ( $match[ 2 ] + 1 ) : $str . $separator . $first;
+        return isset( $match[ 2 ] ) ? $match[ 1 ] . $separator . ( $match[ 2 ] + 1 ) : $string . $separator . $first;
     }
 }
 
@@ -612,15 +628,15 @@ if ( ! function_exists( 'str_inc' ) ) {
 
 if ( ! function_exists( 'str_alt' ) ) {
     /**
-     * Alternator
+     * str_alt
      *
      * Allows strings to be alternated. See docs...
      *
-     * @param    string (as many parameters as needed)
+     * @param string $param as many parameters as needed.
      *
-     * @return    string
+     * @return string
      */
-    function str_alt( $args )
+    function str_alt()
     {
         static $i;
 
@@ -629,6 +645,7 @@ if ( ! function_exists( 'str_alt' ) ) {
 
             return '';
         }
+
         $args = func_get_args();
 
         return $args[ ( $i++ % count( $args ) ) ];
@@ -637,11 +654,13 @@ if ( ! function_exists( 'str_alt' ) ) {
 
 if ( ! function_exists( 'str_char_to_ascii' ) ) {
     /**
-     * Convert Accented Foreign Characters to ASCII
+     * str_char_to_ascii
      *
-     * @param    string $string Input string
+     * Convert accented foreign characters to ASCII.
      *
-     * @return    string
+     * @param   string  $string The string to be converted.
+     *
+     * @return  string
      */
     function str_chars_to_ascii( $string )
     {
@@ -753,14 +772,14 @@ if ( ! function_exists( 'str_char_to_ascii' ) ) {
 
 if ( ! function_exists( 'str_entities_to_ascii' ) ) {
     /**
-     * Entities to ASCII
+     * str_entities_to_ascii
      *
-     * Converts character entities back to ASCII
+     * Converts character entities back to ASCII.
      *
-     * @param    string
-     * @param    bool
+     * @param   string $string The string to be converted.
+     * @param   bool   $all    TRUE/FALSE - whether convert all entities or not.
      *
-     * @return    string
+     * @return  string
      */
     function str_entities_to_ascii( $string, $all = true )
     {
@@ -801,13 +820,13 @@ if ( ! function_exists( 'str_entities_to_ascii' ) ) {
 
 if ( ! function_exists( 'str_ascii_to_entities' ) ) {
     /**
-     * High ASCII to Entities
+     * str_ascii_to_entities
      *
-     * Converts high ASCII text and MS Word special characters to character entities
+     * Converts high ASCII text and MS Word special characters to character entities.
      *
-     * @param    string $string
+     * @param string $string The string to be converted.
      *
-     * @return    string
+     * @return string
      */
     function str_ascii_to_entities( $string )
     {

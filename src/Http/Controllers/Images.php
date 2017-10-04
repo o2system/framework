@@ -14,7 +14,6 @@ namespace O2System\Framework\Http\Controllers;
 
 // ------------------------------------------------------------------------
 
-use O2System\Cache\Adapters;
 use O2System\Cache\Item;
 use O2System\Framework\Http\Controller;
 use O2System\Image\Manipulation;
@@ -35,7 +34,7 @@ class Images extends Controller
         $this->imagesNotFound = $this->imagesPath . 'not-found.jpg';
     }
 
-    public function reRoute()
+    public function route()
     {
         $segments = array_merge([func_get_arg(0)], func_get_arg(1));
         $filePath = $this->imagesNotFound;

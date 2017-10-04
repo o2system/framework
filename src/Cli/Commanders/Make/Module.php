@@ -31,7 +31,7 @@ class Module extends Make
      *
      * @var string
      */
-    protected $commandDescription = 'DESC_CLI_MAKE_MODULE';
+    protected $commandDescription = 'CLI_MAKE_MODULE_DESC';
 
     public function execute()
     {
@@ -41,7 +41,7 @@ class Module extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'E_CLI_MODULE_NAME' ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_MODULE_E_NAME' ) )
                     ->setNewLinesAfter( 1 )
             );
 
@@ -64,7 +64,7 @@ class Module extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'E_CLI_MODULE_EXISTS', [ $modulePath ] ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_MODULE_E_EXISTS', [ $modulePath ] ) )
                     ->setNewLinesAfter( 1 )
             );
 
@@ -108,7 +108,7 @@ class Module extends Make
             output()->write(
                 ( new Format() )
                     ->setContextualClass( Format::SUCCESS )
-                    ->setString( language()->getLine( 'S_CLI_MODULE_MAKE', [ $modulePath ] ) )
+                    ->setString( language()->getLine( 'CLI_MAKE_MODULE_S_MAKE', [ $modulePath ] ) )
                     ->setNewLinesAfter( 1 )
             );
 

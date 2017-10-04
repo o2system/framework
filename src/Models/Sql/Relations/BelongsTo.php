@@ -37,7 +37,7 @@ class BelongsTo extends Abstracts\AbstractRelation
             $conditions = [ $this->map->referencePrimaryKey => $criteria ];
 
             if ( $this->map->referenceModel instanceof Sql\Model ) {
-                $result = $this->map->relationModel->db
+                $result = $this->map->relationModel->qb
                     ->from( $this->map->referenceModel->table )
                     ->getWhere( $conditions, 1 );
 
@@ -48,7 +48,7 @@ class BelongsTo extends Abstracts\AbstractRelation
                     }
                 }
             } elseif( ! empty( $this->map->referenceTable ) ) {
-                $result = $this->map->relationModel->db
+                $result = $this->map->relationModel->qb
                     ->from( $this->map->referenceTable )
                     ->getWhere( $conditions, 1 );
 

@@ -13,6 +13,7 @@
 namespace O2System\Framework\Http\Message\Uri;
 
 // ------------------------------------------------------------------------
+
 use O2System\Spl\Exceptions\RuntimeException;
 
 /**
@@ -35,7 +36,7 @@ class Segments
             switch ( $protocol ) {
                 case 'AUTO':
                 case 'REQUEST_URI':
-                    $string = $this->parseRequestURI();
+                    $string = $this->parseRequestUri();
                     break;
                 case 'QUERY_STRING':
                     $string = $this->parseQueryString();
@@ -44,7 +45,7 @@ class Segments
                 default:
                     $string = isset( $_SERVER[ $protocol ] )
                         ? $_SERVER[ $protocol ]
-                        : $this->parseRequestURI();
+                        : $this->parseRequestUri();
                     break;
             }
 
@@ -52,6 +53,7 @@ class Segments
             $string = implode( '/', $string );
         }
 
+        $string = str_replace( '\\', '/', $string );
         $string = trim( remove_invisible_characters( $string, false ), '/' );
         $this->setParts( explode( '/', $string ) );
     }
@@ -65,7 +67,7 @@ class Segments
      * @access  protected
      * @return  string
      */
-    protected function parseRequestURI()
+    protected function parseRequestUri()
     {
         if ( ! isset( $_SERVER[ 'REQUEST_URI' ], $_SERVER[ 'SCRIPT_NAME' ] ) ) {
             return '';
@@ -98,6 +100,16 @@ class Segments
                 : '';
         } else {
             $_SERVER[ 'QUERY_STRING' ] = $query;
+        }
+
+        if( isset( $_GET[ 'SEGMENTS_STRING' ] ) ) {
+            $uri = $_GET[ 'SEGMENTS_STRING' ];
+            unset( $_GET[ 'SEGMENTS_STRING' ] );
+
+            $_SERVER[ 'QUERY_STRING' ] = str_replace([
+                'SEGMENTS_STRING=' . $uri . '&',
+                'SEGMENTS_STRING=' . $uri,
+            ], '', $_SERVER[ 'QUERY_STRING' ] );
         }
 
         parse_str( $_SERVER[ 'QUERY_STRING' ], $_GET );
@@ -342,7 +354,7 @@ class Segments
 
         // Convert programatic characters to entities and return
         return str_replace(
-            [ '$', '(', ')', '%28', '%29', $config->offsetGet( 'suffix' ) ],    // Bad
+            [ '$', '(', ')', '%28', '%29', 'index', $config->offsetGet( 'suffix' ) ],    // Bad
             [ '&#36;', '&#40;', '&#41;', '&#40;', '&#41;', '' ],    // Good
             $string
         );

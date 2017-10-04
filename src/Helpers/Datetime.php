@@ -1355,44 +1355,6 @@ if ( ! function_exists( 'nice_date' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'timezone_menu' ) ) {
-    /**
-     * Timezone Nav
-     *
-     * Generates a drop-down menu of timezones.
-     *
-     * @param    string    timezone
-     * @param    string    classname
-     * @param    string    menu name
-     * @param    mixed     attributes
-     *
-     * @return    string
-     */
-    function timezone_menu( $default = 'UTC', $class = '', $name = 'timezones', $attributes = '' )
-    {
-        language()->loadFile( 'date' );
-
-        $default = ( $default === 'GMT' ) ? 'UTC' : $default;
-
-        $menu = '<select name="' . $name . '"';
-
-        if ( $class !== '' ) {
-            $menu .= ' class="' . $class . '"';
-        }
-
-        $menu .= stringify_attributes( $attributes ) . ">\n";
-
-        foreach ( timezones() as $key => $val ) {
-            $selected = ( $default === $key ) ? ' selected="selected"' : '';
-            $menu .= '<option value="' . $key . '"' . $selected . '>' . language()->getLine( $key ) . "</option>\n";
-        }
-
-        return $menu . '</select>';
-    }
-}
-
-// ------------------------------------------------------------------------
-
 if ( ! function_exists( 'timezones' ) ) {
     /**
      * Timezones

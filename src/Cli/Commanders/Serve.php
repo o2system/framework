@@ -40,7 +40,7 @@ class Serve extends Commander
      *
      * @var string
      */
-    protected $commandDescription = 'DESC_CLI_SERVE';
+    protected $commandDescription = 'CLI_SERVE_DESC';
 
     /**
      * Make::$commandOptions
@@ -51,11 +51,11 @@ class Serve extends Commander
      */
     protected $commandOptions = [
         'host' => [
-            'description' => 'Set a custom hostname, default: localhost',
+            'description' => 'CLI_SERVE_HOST_HELP',
             'required'    => false,
         ],
         'port' => [
-            'description' => 'Set a custom port, default: 8000',
+            'description' => 'CLI_SERVE_PORT_HELP',
             'required'    => false,
         ],
     ];

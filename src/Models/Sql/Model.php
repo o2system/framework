@@ -27,22 +27,22 @@ class Model
     use FinderTrait;
 
     /**
-     * AbstractModel::$conn
+     * AbstractModel::$db
      *
      * Database connection instance.
      *
      * @var \O2System\Database\Sql\Abstracts\AbstractConnection
      */
-    public $conn = null;
+    public $db = null;
 
     /**
-     * AbstractModel::$db
+     * AbstractModel::$qb
      *
      * Database query builder instance.
      *
      * @var \O2System\Database\Sql\Abstracts\AbstractQueryBuilder
      */
-    public $db = null;
+    public $qb = null;
 
     /**
      * Model Table
@@ -108,8 +108,8 @@ class Model
     {
         // Set database connection
         if ( method_exists( database(), 'loadConnection' ) ) {
-            if ( $this->conn = database()->loadConnection( 'default' ) ) {
-                $this->db = $this->conn->getQueryBuilder();
+            if ( $this->db = database()->loadConnection( 'default' ) ) {
+                $this->qb = $this->db->getQueryBuilder();
             }
         }
 
@@ -184,23 +184,23 @@ class Model
 
     // ------------------------------------------------------------------------
 
-    public function &__get( $property )
+    public function __get( $property )
     {
-        $get[ $property ] = false;
-
         if ( $this->row instanceof Row ) {
             if ( $this->row->offsetExists( $property ) ) {
-                $get[ $property ] = $this->row->offsetGet( $property );
+                return $this->row->offsetGet( $property );
             }
-        } elseif ( o2system()->hasService( $property ) ) {
-            $get[ $property ] = o2system()->getService( $property );
-        } elseif ( array_key_exists( $property, $this->validSubModels ) ) {
-            $get[ $property ] = $this->loadSubModel( $property );
-        } elseif ( o2system()->__isset( $property ) ) {
-            $get[ $property ] = o2system()->__get( $property );
         }
 
-        return $get[ $property ];
+        if( empty( $get[ $property ] ) ) {
+            if ( o2system()->hasService( $property ) ) {
+                return o2system()->getService( $property );
+            } elseif ( array_key_exists( $property, $this->validSubModels ) ) {
+                 return $this->loadSubModel( $property );
+            } elseif ( o2system()->__isset( $property ) ) {
+                return o2system()->__get( $property );
+            }
+        }
     }
 
     // ------------------------------------------------------------------------

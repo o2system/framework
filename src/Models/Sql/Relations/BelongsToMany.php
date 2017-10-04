@@ -32,7 +32,7 @@ class BelongsToMany extends Sql\Relations\Abstracts\AbstractRelation
     public function getResult()
     {
         if ( $this->map->relationModel->row instanceof Sql\DataObjects\Result\Row ) {
-            $result = $this->map->relationModel->db
+            $result = $this->map->relationModel->qb
                 ->from( $this->map->referenceTable )
                 ->join( $this->map->pivotTable, implode( ' = ', [
                         $this->map->pivotReferenceKey,
