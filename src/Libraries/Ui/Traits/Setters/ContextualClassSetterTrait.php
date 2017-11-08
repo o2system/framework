@@ -51,6 +51,13 @@ trait ContextualClassSetterTrait
         return $this;
     }
 
+    public function setContextualClass( $class )
+    {
+        if( method_exists( $this, $method = 'context' . ucfirst( $class ) ) ) {
+            $this->{$method}();
+        }
+    }
+
     public function contextOutline()
     {
         $this->attributes->replaceAttributeClass( $this->contextualClassPrefix . '-',

@@ -111,14 +111,6 @@ use O2System\Framework\Http\Controller;
 class CLASS extends Controller
 {
     /**
-     * CLASS::__construct
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-    
-    /**
      * CLASS::index
      */
     public function index()

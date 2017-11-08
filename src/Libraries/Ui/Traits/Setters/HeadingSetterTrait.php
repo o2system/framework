@@ -14,7 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Traits\Setters;
 
 // ------------------------------------------------------------------------
 
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Contents\Heading;
 
 /**
  * Trait HeadingSetterTrait
@@ -25,11 +25,10 @@ trait HeadingSetterTrait
 {
     public $heading;
 
-    public function setHeading( $text, $tagName = 'h3' )
+    public function setHeading( $text, $level = 3 )
     {
-        $this->heading = new Element( $tagName );
+        $this->heading = new Heading( $text, $level );
         $this->heading->entity->setEntityName( $text );
-        $this->heading->textContent->push( $text );
 
         return $this;
     }

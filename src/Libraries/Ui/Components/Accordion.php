@@ -14,7 +14,8 @@ namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
+use O2System\Framework\Libraries\Ui\Contents;
 
 /**
  * Class Accordion
@@ -37,7 +38,7 @@ class Accordion extends Element
     public function createCard( $title, $paragraph = null )
     {
         $collapseId = dash( $title );
-        $link = new Link( $title, '#' . $collapseId );
+        $link = new Contents\Link( $title, '#' . $collapseId );
         $link->attributes->addAttribute( 'data-toggle', 'collapse' );
         $link->attributes->addAttribute( 'data-parent', '#' . $this->attributes->getAttributeId() );
 

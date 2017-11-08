@@ -16,7 +16,6 @@ namespace O2System\Framework\Http\Controllers;
 
 use O2System\Filesystem\Handlers\Downloader;
 use O2System\Framework\Http\Controller;
-use O2System\Framework\Http\Presenter\Meta\Opengraph\Profile;
 use O2System\Spl\Info\SplFileInfo;
 
 /**

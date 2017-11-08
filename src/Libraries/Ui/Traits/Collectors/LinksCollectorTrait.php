@@ -14,7 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Traits\Collectors;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Link;
+use O2System\Framework\Libraries\Ui\Contents\Link;
 use O2System\Spl\Iterators\ArrayIterator;
 
 /**

@@ -36,6 +36,7 @@ class Images extends Controller
 
     public function route()
     {
+        print_out('test');
         $segments = array_merge([func_get_arg(0)], func_get_arg(1));
         $filePath = $this->imagesNotFound;
 

@@ -16,7 +16,7 @@ namespace O2System\Framework\Libraries\Ui\Components;
 
 use O2System\Framework\Libraries\Ui\Interfaces\ContextualInterface;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ContextualClassSetterTrait;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Badge
@@ -27,22 +27,22 @@ class Badge extends Element implements ContextualInterface
 {
     use ContextualClassSetterTrait;
 
-    public function __construct( $text = null, $contextualClass = 'default' )
+    public function __construct( $textContent = null, $contextualClass = 'default' )
     {
         parent::__construct( 'span' );
         $this->attributes->addAttributeClass( 'badge' );
         $this->setContextualClassPrefix( 'badge' );
         $this->setContextualClassSuffix( $contextualClass );
 
-        if ( isset( $text ) ) {
-            $this->setText( $text );
+        if ( isset( $textContent ) ) {
+            $this->setTextContent( $textContent );
         }
     }
 
-    public function setText( $text )
+    public function setTextContent( $textContent )
     {
-        $this->entity->setEntityName( 'badge-' . $text );
-        $this->textContent->push( $text );
+        $this->entity->setEntityName( 'badge-' . $textContent );
+        $this->textContent->push( $textContent );
 
         return $this;
     }

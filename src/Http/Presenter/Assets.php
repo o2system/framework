@@ -204,8 +204,6 @@ class Assets
     }
 
     public function file( $file ) {
-        $file = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $file );
-
         foreach ( loader()->getPublicDirs( true ) as $filePath ) {
             if ( is_file( $filePath . $file ) ) {
                 return path_to_url( $filePath . $file );

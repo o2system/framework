@@ -15,7 +15,7 @@ namespace O2System\Framework\Libraries\Ui\Components;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Libraries\Ui\Components\Progress\Bar;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 use O2System\Spl\Iterators\ArrayIterator;
 
 /**

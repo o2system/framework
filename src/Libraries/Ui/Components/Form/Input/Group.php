@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Form\Input;
@@ -15,8 +16,10 @@ namespace O2System\Framework\Libraries\Ui\Components\Form\Input;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Libraries\Ui\Components;
+use O2System\Framework\Libraries\Ui\Components\Form;
 use O2System\Framework\Libraries\Ui\Traits\Setters\SizingSetterTrait;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
+use O2System\Html\Element\Nodes;
 
 /**
  * Class Group
@@ -40,12 +43,12 @@ class Group extends Element
         // Set input sizing class
         $this->setSizingClassPrefix( 'input-group' );
 
-        $this->addOns = new Element\Nodes();
+        $this->addOns = new Nodes();
     }
 
     public function createInput( array $attributes = [] )
     {
-        $field = new Components\Form\Input();
+        $field = new Form\Elements\Input();
 
         if ( count( $attributes ) ) {
             foreach ( $attributes as $name => $value ) {
@@ -61,14 +64,37 @@ class Group extends Element
             }
         }
 
-        $this->childNodes->push( $field );
-
-        return $this->input = $this->childNodes->last();
+        return $this->input = $field;
     }
 
-    public function createAddon( $node = null, $position = AddOn::ADDON_LEFT )
+    public function createSelect( array $options = [], $selected = null, array $attributes = [] )
     {
-        $addOn = new AddOn( $position );
+        $field = new Form\Elements\Select();
+
+        if ( count( $options ) ) {
+            $field->createOptions( $options, $selected );
+        }
+
+        if ( count( $attributes ) ) {
+            foreach ( $attributes as $name => $value ) {
+                $field->attributes->addAttribute( $name, $value );
+
+                if ( $name === 'name' ) {
+                    $this->entity->setEntityName( 'input-' . $value );
+
+                    if ( ! array_key_exists( 'id', $attributes ) ) {
+                        $field->attributes->setAttributeId( 'input-' . $value );
+                    }
+                }
+            }
+        }
+
+        return $this->input = $field;
+    }
+
+    public function createAddon( $node = null, $position = Group\AddOn::ADDON_LEFT )
+    {
+        $addOn = new Group\AddOn( $position );
 
         if ( isset( $node ) ) {
             if ( $node instanceof Element ) {
@@ -88,19 +114,21 @@ class Group extends Element
         $addOnsLeft = [];
         $addOnsRight = [];
 
-        foreach( $this->addOns as $addOn ) {
-            if( $addOn->position === AddOn::ADDON_LEFT ) {
-                $addOnsLeft[] = $addOn;
-            } else {
-                $addOnsRight[] = $addOn;
+        if( $this->addOns->count() ) {
+            foreach ( $this->addOns as $addOn ) {
+                if ( $addOn->position === Group\AddOn::ADDON_LEFT ) {
+                    $addOnsLeft[] = $addOn;
+                } else {
+                    $addOnsRight[] = $addOn;
+                }
             }
         }
 
         $output[] = $this->open();
 
         // AddOn Left
-        if( count( $addOnsLeft ) ) {
-            foreach( $addOnsLeft as $addOn ) {
+        if ( count( $addOnsLeft ) ) {
+            foreach ( $addOnsLeft as $addOn ) {
                 $output[] = $addOn;
             }
         }
@@ -109,10 +137,28 @@ class Group extends Element
         $output[] = $this->input;
 
         // AddOn Right
-        if( count( $addOnsRight ) ) {
-            foreach( $addOnsRight as $addOn ) {
+        if ( count( $addOnsRight ) ) {
+            foreach ( $addOnsRight as $addOn ) {
                 $output[] = $addOn;
             }
+        }
+
+        if ( $this->hasChildNodes() ) {
+            foreach( $this->childNodes as $childNode ) {
+                if ( $childNode instanceof Components\Dropdown ) {
+                    $childNode->attributes->removeAttributeClass( 'dropdown' );
+                    $childNode->attributes->addAttributeClass( 'input-group-btn' );
+
+                    $childNode->toggle->tagName = 'a';
+                    $childNode->toggle->attributes->removeAttribute( 'type' );
+                }
+
+                $output[] = $childNode;
+            }
+        }
+
+        if ( $this->hasTextContent() ) {
+            $output[] = implode( PHP_EOL, $this->textContent->getArrayCopy() );
         }
 
         $output[] = $this->close();

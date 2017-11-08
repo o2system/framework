@@ -14,7 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Grid;
 
 // ------------------------------------------------------------------------
 
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Row
@@ -23,24 +23,15 @@ use O2System\Html\Element;
  */
 class Row extends Element
 {
-    protected $columns = 1;
+    public $auto = false;
     protected $childNodesEntities = [];
 
     // ------------------------------------------------------------------------
 
-    public function __construct( $columns = 1 )
+    public function __construct()
     {
         parent::__construct( 'div' );
         $this->attributes->addAttributeClass( 'row' );
-
-        $this->setColumns( $columns );
-    }
-
-    public function setColumns( $columns )
-    {
-        $this->columns = (int) $columns;
-
-        return $this;
     }
 
     public function hasItem( $index )
@@ -71,9 +62,20 @@ class Row extends Element
 
     // ------------------------------------------------------------------------
 
+    public function createColumn( array $attributes = [] )
+    {
+        $this->addColumn( new Column( $attributes ) );
+
+        return $this->childNodes->last();
+    }
+
     public function addColumn( $column )
     {
         if ( $column instanceof Element ) {
+            if( $column->entity->getEntityName() === '' ) {
+                $column->entity->setEntityName( 'col-' . ( $this->childNodes->count() + 1 ) );
+            }
+
             $this->pushColumnChildNodes( $column );
         }
 
@@ -99,25 +101,31 @@ class Row extends Element
 
         if ( $this->hasChildNodes() ) {
 
-            if ( $this->columns > 2 ) {
-                $extraSmallColumn = @round( 12 / ( $this->columns - 2 ) );
-                $smallColumn = @round( 12 / ( $this->columns - 1 ) );
+            if( $this->auto ) {
+                $columns = $this->childNodes->count();
+
+                if ( $columns > 2 ) {
+                    $extraSmallColumn = @round( 12 / ( $columns - 2 ) );
+                    $smallColumn = @round( 12 / ( $columns - 1 ) );
+                }
+
+                $mediumColumn = round( 12 / ( $columns ) );
+                $largeColumn = round( 12 / ( $columns ) );
             }
 
-            $mediumColumn = round( 12 / ( $this->columns ) );
-            $largeColumn = round( 12 / ( $this->columns ) );
-
             foreach( $this->childNodes as $childNode ) {
-                if ( isset( $extraSmallColumn ) ) {
-                    $childNode->attributes->addAttributeClass( 'col-xs-' . $extraSmallColumn );
-                }
+                if( $this->auto ) {
+                    if ( isset( $extraSmallColumn ) ) {
+                        $childNode->attributes->addAttributeClass( 'col-xs-' . $extraSmallColumn );
+                    }
 
-                if ( isset( $smallColumn ) ) {
-                    $childNode->attributes->addAttributeClass( 'col-sm-' . $smallColumn );
-                }
+                    if ( isset( $smallColumn ) ) {
+                        $childNode->attributes->addAttributeClass( 'col-sm-' . $smallColumn );
+                    }
 
-                $childNode->attributes->addAttributeClass( 'col-md-' . $mediumColumn );
-                $childNode->attributes->addAttributeClass( 'col-lg-' . $largeColumn );
+                    $childNode->attributes->addAttributeClass( 'col-md-' . $mediumColumn );
+                    $childNode->attributes->addAttributeClass( 'col-lg-' . $largeColumn );
+                }
 
                 $output[] = $childNode->render() . PHP_EOL;
             }

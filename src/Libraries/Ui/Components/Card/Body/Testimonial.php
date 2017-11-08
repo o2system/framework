@@ -14,9 +14,9 @@ namespace O2System\Framework\Libraries\Ui\Components\Card\Body;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Link;
+use O2System\Framework\Libraries\Ui\Contents\Link;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Testimonial

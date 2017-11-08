@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http;
@@ -16,7 +17,7 @@ namespace O2System\Framework\Http;
 
 use O2System\Framework\Http\Message\Uri;
 use O2System\Framework\Http\Router\Datastructures\Page;
-use O2System\Framework\Http\Router\Datastructures\Route;
+use O2System\Framework\Http\Router\Datastructures\Action;
 
 // ------------------------------------------------------------------------
 
@@ -33,16 +34,27 @@ class Router
         $uriSegments = $uri->getSegments()->getParts();
         $uriString = $uri->getSegments()->getString();
 
-        // Load app routes config
-        $routes = config()->loadFile( 'routes', true );
+        if ( empty( $uriSegments ) ) {
+            $uriPath = urldecode(
+                parse_url( $_SERVER[ 'REQUEST_URI' ], PHP_URL_PATH )
+            );
 
-        if ( $routes instanceof Router\Routes ) {
+            if( $uriPath !== '/' ) {
+                $uriString = $uriPath;
+                $uriSegments = array_filter( explode( '/', $uriString ) );
+            }
+        }
+
+        // Load app addresses config
+        $addresses = config()->loadFile( 'addresses', true );
+
+        if ( $addresses instanceof Router\Addresses ) {
             // Domain routing
-            if ( null !== ( $domain = $routes->getDomain() ) ) {
+            if ( null !== ( $domain = $addresses->getDomain() ) ) {
                 if ( is_array( $domain ) ) {
                     $uriSegments = array_merge( $domain, $uriSegments );
                     $uriString = implode( '/', array_map( 'dash', $uriSegments ) );
-                } elseif( is_string( $domain ) ) {
+                } elseif ( is_string( $domain ) ) {
                     if ( false !== ( $domainAppModule = modules()->getApp( $domain ) ) ) {
                         // Register Domain App Module Namespace
                         loader()->addNamespace( $domainAppModule->getNamespace(), $domainAppModule->getRealPath() );
@@ -65,17 +77,17 @@ class Router
                     // Push Subdomain App Module
                     modules()->push( $module );
 
-                    // Load modular routes config
+                    // Load modular addresses config
                     if ( false !== ( $configDir = $module->getDir( 'config', true ) ) ) {
 
                         if ( is_file(
                             $filePath = $configDir . ucfirst(
                                     strtolower( ENVIRONMENT )
-                                ) . DIRECTORY_SEPARATOR . 'Routes.php'
+                                ) . DIRECTORY_SEPARATOR . 'Addresses.php'
                         ) ) {
                             include( $filePath );
                         } elseif ( is_file(
-                            $filePath = $configDir . 'Routes.php'
+                            $filePath = $configDir . 'Addresses.php'
                         ) ) {
                             include( $filePath );
                         }
@@ -84,8 +96,8 @@ class Router
             }
         }
 
-        // Define default route by app routes config
-        $defaultRoute = $routes->getMap( '/' );
+        // Define default action by app addresses config
+        $defaultAction = $addresses->getTranslation( '/' );
 
         // Module routing
         if ( $uriTotalSegments = count( $uriSegments ) ) {
@@ -110,8 +122,8 @@ class Router
             }
         }
 
-        if( ! empty( $module ) ) {
-            // Load modular routes config
+        if ( ! empty( $module ) ) {
+            // Load modular addresses config
             if ( false !== ( $configDir = $module->getDir( 'config', true ) ) ) {
 
                 if ( is_file(
@@ -126,35 +138,35 @@ class Router
                     include( $filePath );
                 }
 
-                if ( isset( $routes ) && $routes instanceof Router\Routes ) {
-                    $moduleRouteDefault = $routes->getMap( '/' );
+                if ( isset( $addresses ) && $addresses instanceof Router\Addresses ) {
+                    $moduleRouteDefault = $addresses->getTranslation( '/' );
                 }
             }
 
-            // Define default route by module routes config
+            // Define default action by module addresses config
             if ( empty( $moduleRouteDefault ) ) {
                 $controllerClassName = $module->getNamespace() . 'Controllers\\' . studlycase( $module->getParameter() );
                 if ( class_exists( $controllerClassName ) ) {
-                    $defaultRoute = $routes->any( '/', function () use ( $controllerClassName ) {
+                    $defaultAction = $addresses->any( '/', function () use ( $controllerClassName ) {
                         //return new $controllerClassName();
                         return new Router\Datastructures\Controller( $controllerClassName );
-                    } )->getMap( '/' );
+                    } )->getTranslation( '/' );
 
                     $uriSegments = array_diff( $uriSegments, [ strtolower( $module->getParameter() ) ] );
 
-                    $defaultRoute->setClosureParameters( $uriSegments );
+                    $defaultAction->setClosureParameters( $uriSegments );
                 }
             } else {
-                $defaultRoute = $moduleRouteDefault;
+                $defaultAction = $moduleRouteDefault;
             }
         }
 
-        // Try to get route from URI String
-        if ( false !== ( $uriRoute = $routes->getMap( $uriString ) ) ) {
-            if ( $uriRoute->isValidUriString( $uriString ) ) {
-                if ( ! $uriRoute->isValidHttpMethod( request()->getMethod() ) && ! $uriRoute->isAnyHttpMethod() ) {
+        // Try to get action from URI String
+        if ( false !== ( $action = $addresses->getTranslation( $uriString ) ) ) {
+            if ( $action->isValidUriString( $uriString ) ) {
+                if ( ! $action->isValidHttpMethod( request()->getMethod() ) && ! $action->isAnyHttpMethod() ) {
                     output()->sendError( 405 );
-                } elseif ( $this->parseRoute( $uriRoute ) !== false ) {
+                } elseif ( $this->parseAction( $action ) !== false ) {
                     return;
                 }
             }
@@ -168,24 +180,23 @@ class Router
                 foreach ( modules()->getArrayCopy() as $module ) {
 
                     $controllerNamespace = $module->getNamespace() . 'Controllers\\';
-                    if( $module->getNamespace() === 'O2System\Framework\\' ) {
-                        $controllerNamespace = $module->getNamespace() . 'Http\\Controllers\\';
+                    if ( $module->getNamespace() === 'O2System\Framework\\' ) {
+                        $controllerNamespace = 'O2System\Framework\Http\Controllers\\';
                     }
 
                     $controllerClassName = $controllerNamespace . implode( '\\',
                             array_map( 'studlycase', $uriRoutedSegments ) );
 
                     if ( class_exists( $controllerClassName ) ) {
-                        $defaultRoute = $routes->any( '/', function () use ( $controllerClassName ) {
-                            //return new $controllerClassName();
+                        $defaultAction = $addresses->any( '/', function () use ( $controllerClassName ) {
                             return new Router\Datastructures\Controller( $controllerClassName );
-                        } )->getMap( '/' );
+                        } )->getTranslation( '/' );
 
                         $uriSegments = array_diff( $uriSegments, $uriRoutedSegments );
 
-                        $defaultRoute->setClosureParameters( $uriSegments );
+                        $defaultAction->setClosureParameters( $uriSegments );
 
-                        if ( $this->parseRoute( $defaultRoute, $uriSegments ) !== false ) { // Try to parse route
+                        if ( $this->parseAction( $defaultAction, $uriSegments ) !== false ) { // Try to parse route
                             return;
                         }
 
@@ -209,11 +220,11 @@ class Router
                     break;
                 }
             }
-        } elseif ( count( $maps = $routes->getMaps() ) ) { // Try to parse route from route map
+        } elseif ( count( $maps = $addresses->getTranslations() ) ) { // Try to parse route from route map
             foreach ( $maps as $map ) {
-                if ( $map instanceof Route ) {
+                if ( $map instanceof Action ) {
                     if ( $map->isValidHttpMethod( request()->getMethod() ) && $map->isValidUriString( $uriString ) ) {
-                        if ( $this->parseRoute( $map ) !== false ) {
+                        if ( $this->parseAction( $map ) !== false ) {
                             return;
 
                             break;
@@ -223,9 +234,9 @@ class Router
             }
         }
 
-        // try to get default route
-        if ( isset( $defaultRoute ) ) {
-            $this->parseRoute( $defaultRoute, $uriSegments );
+        // try to get default action
+        if ( isset( $defaultAction ) ) {
+            $this->parseAction( $defaultAction, $uriSegments );
         }
 
         // Let's the framework do the rest when there is no controller found
@@ -234,17 +245,17 @@ class Router
 
     // ------------------------------------------------------------------------
 
-    final protected function parseRoute( Route $route, array $uriSegments = [] )
+    final protected function parseAction( Action $action, array $uriSegments = [] )
     {
-        if ( $closure = $route->getClosure() ) {
+        if ( $closure = $action->getClosure() ) {
             if ( $closure instanceof Controller ) {
                 $controllerRegistry = new Router\Datastructures\Controller( $closure );
                 $uriSegments = empty( $uriSegments )
-                    ? $route->getClosureParameters()
+                    ? $action->getClosureParameters()
                     : $uriSegments;
                 $this->setController( $controllerRegistry, $uriSegments );
             } elseif ( $closure instanceof Router\Datastructures\Controller ) {
-                $this->setController( $closure, $route->getClosureParameters() );
+                $this->setController( $closure, $action->getClosureParameters() );
             } elseif ( is_array( $closure ) ) {
                 $uri = ( new \O2System\Framework\Http\Message\Uri() )
                     ->withSegments( new \O2System\Framework\Http\Message\Uri\Segments( '' ) )

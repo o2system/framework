@@ -14,8 +14,8 @@ namespace O2System\Framework\Libraries\Ui\Components\Card\Header\Nav;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Icon;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Contents\Icon;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Link
@@ -24,7 +24,7 @@ use O2System\Html\Element;
  *
  * @todo    : add collapse bootstrap 4.0 and add tooltip
  */
-class Link extends \O2System\Framework\Libraries\Ui\Components\Link
+class Link extends \O2System\Framework\Libraries\Ui\Contents\Link
 {
     public function __construct( $label = null, $href = null )
     {

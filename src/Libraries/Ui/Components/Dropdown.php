@@ -15,7 +15,7 @@ namespace O2System\Framework\Libraries\Ui\Components;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Libraries\Ui\Components\Dropdown\Menu;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Dropdown

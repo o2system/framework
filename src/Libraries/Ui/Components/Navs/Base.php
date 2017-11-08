@@ -15,10 +15,10 @@ namespace O2System\Framework\Libraries\Ui\Components\Navs;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Libraries\Ui\Components\Dropdown;
-use O2System\Framework\Libraries\Ui\Components\Link;
-use O2System\Framework\Libraries\Ui\Components\Lists\Item;
-use O2System\Framework\Libraries\Ui\Components\Lists\Unordered;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Contents\Link;
+use O2System\Framework\Libraries\Ui\Contents\Lists\Item;
+use O2System\Framework\Libraries\Ui\Contents\Lists\Unordered;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Base

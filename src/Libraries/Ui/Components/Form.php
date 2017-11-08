@@ -14,8 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Form\Checkbox;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Form
@@ -24,9 +23,20 @@ use O2System\Html\Element;
  */
 class Form extends Element
 {
-    public function __construct()
+    public function __construct( array $attributes = [] )
     {
         parent::__construct( 'form' );
+
+        if ( isset( $attributes[ 'id' ] ) ) {
+            $this->entity->setEntityName( $attributes[ 'id' ] );
+        }
+
+        if ( count( $attributes ) ) {
+            foreach ( $attributes as $name => $value ) {
+                $this->attributes->addAttribute( $name, $value );
+            }
+        }
+
         $this->attributes->addAttribute( 'role', 'form' );
     }
 
@@ -47,39 +57,9 @@ class Form extends Element
     /**
      * @return Form\Group
      */
-    public function createGroup()
+    public function createFormGroup()
     {
         $this->childNodes->push( new Form\Group() );
-
-        return $this->childNodes->last();
-    }
-
-    public function createCheckbox( $label, array $attributes = [] )
-    {
-        $this->childNodes->push( new Checkbox( $label, $attributes ) );
-
-        return $this->childNodes->last();
-    }
-
-    public function createButton( $label, array $attributes = [] )
-    {
-        $button = new Button( $label );
-
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $button->attributes->addAttribute( $name, $value );
-
-                if ( $name === 'name' ) {
-                    $this->entity->setEntityName( 'btn-' . $value );
-
-                    if ( ! array_key_exists( 'id', $attributes ) ) {
-                        $button->attributes->setAttributeId( 'btn-' . $value );
-                    }
-                }
-            }
-        }
-
-        $this->childNodes->push( $button );
 
         return $this->childNodes->last();
     }

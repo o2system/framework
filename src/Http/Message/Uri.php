@@ -185,7 +185,7 @@ class Uri extends Message\Uri
 
         if ( $uriPath !== '/' &&
             substr($uriPath, strlen($uriPath) - 1) !== '/' &&
-            $this->suffix !== '' &&
+            $this->suffix !== '' && $this->suffix !== '.' &&
             ( $uriPath . '/' !== $_SERVER['REQUEST_URI'] ) &&
             pathinfo( $uriPath, PATHINFO_EXTENSION ) === '' &&
             strpos( $uriPath, '#' ) === false &&
@@ -195,6 +195,8 @@ class Uri extends Message\Uri
         } elseif( pathinfo( $uriPath, PATHINFO_EXTENSION ) === '' ) {
             $uriPath .= '/';
         }
+
+        $uriPath = rtrim( $uriPath, '/' );
 
         $uriString .= str_replace( '//', '/', $uriPath );
         $uriString .= empty( $this->query )

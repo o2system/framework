@@ -23,12 +23,12 @@ if ( ! function_exists( 'tag' ) ) {
      * Generate html tag with auto closed when the content is set.
      *
      * @param string      $tagName
-     * @param array       $attributes
      * @param string|null $contents
+     * @param array       $attributes
      *
      * return string
      */
-    function tag( $tagName, $attributes = [], $contents = null )
+    function tag( $tagName, $contents = null, array $attributes = [] )
     {
         if ( ( $tag = substr( $tagName, 0 ) ) === '/' ) {
             $element = new \O2System\Html\Element( $tag );
@@ -192,25 +192,15 @@ if ( ! function_exists( 'heading' ) ) {
      *
      * Generates html heading tag.
      *
-     * @param string $content
+     * @param string $textContent
      * @param int    $level
      * @param array  $attributes
      *
      * @return string
      */
-    function heading( $content = '', $level = 1, array $attributes = [] )
+    function heading( $textContent = '', $level = 1, array $attributes = [] )
     {
-        $element = new O2System\Html\Element( 'h' . $level );
-
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $element->attributes->addAttribute( $name, $value );
-            }
-        }
-
-        $element->textContent->push( $content );
-
-        return $element->render();
+        return ( new \O2System\Framework\Libraries\Ui\Contents\Heading( $textContent, $level, $attributes ) )->render();
     }
 }
 
@@ -218,18 +208,18 @@ if ( ! function_exists( 'heading' ) ) {
 
 if ( ! function_exists( 'ul' ) ) {
     /**
-     * Unordered List
+     * ul
      *
      * Generates an HTML unordered list from an single or multi-dimensional array.
      *
-     * @param    array
-     * @param    mixed
+     * @param    array $list
+     * @param    array $attributes
      *
      * @return    string
      */
-    function ul( $list, $attributes = '' )
+    function ul( $list, array $attributes = [] )
     {
-        return _list( 'ul', $list, $attributes );
+        return ( new \O2System\Framework\Libraries\Ui\Contents\Lists\Unordered( $attributes ) )->createLists( $list )->render();
     }
 }
 
@@ -237,18 +227,18 @@ if ( ! function_exists( 'ul' ) ) {
 
 if ( ! function_exists( 'ol' ) ) {
     /**
-     * Ordered List
+     * ol
      *
      * Generates an HTML ordered list from an single or multi-dimensional array.
      *
-     * @param    array
-     * @param    mixed
+     * @param    array $list
+     * @param    array $attributes
      *
      * @return    string
      */
-    function ol( $list, $attributes = '' )
+    function ol( $list, array $attributes = [] )
     {
-        return _list( 'ol', $list, $attributes );
+        return ( new \O2System\Framework\Libraries\Ui\Contents\Lists\Ordered( $attributes ) )->createLists( $list )->render();
     }
 }
 
@@ -265,7 +255,7 @@ if ( ! function_exists( 'img' ) ) {
      */
     function img( $src = '', $alt, array $attributes = [] )
     {
-        $img = new \O2System\Framework\Libraries\Ui\Components\Image( $src, $alt );
+        $img = new \O2System\Framework\Libraries\Ui\Contents\Image( $src, $alt );
 
         if ( count( $attributes ) ) {
             foreach ( $attributes as $name => $value ) {
@@ -303,10 +293,13 @@ if ( ! function_exists( 'meta' ) ) {
         $output = [];
 
         foreach ( $meta as $attributes ) {
-            $element = new \O2System\Html\Element('meta');
-            $element->attributes->addAttribute( 'type', ( isset( $attributes[ 'type' ] ) && $attributes[ 'type' ] !== 'name' ) ? 'http-equiv' : 'name' );
-            $element->attributes->addAttribute( 'name', isset( $attributes[ 'content' ] ) ? $attributes[ 'content' ] : '' );
-            $element->attributes->addAttribute( 'name', isset( $attributes[ 'content' ] ) ? $attributes[ 'content' ] : '' );
+            $element = new \O2System\Html\Element( 'meta' );
+            $element->attributes->addAttribute( 'type',
+                ( isset( $attributes[ 'type' ] ) && $attributes[ 'type' ] !== 'name' ) ? 'http-equiv' : 'name' );
+            $element->attributes->addAttribute( 'name',
+                isset( $attributes[ 'content' ] ) ? $attributes[ 'content' ] : '' );
+            $element->attributes->addAttribute( 'name',
+                isset( $attributes[ 'content' ] ) ? $attributes[ 'content' ] : '' );
 
             if ( count( $attributes ) ) {
                 foreach ( $attributes as $meta => $value ) {
@@ -345,7 +338,7 @@ if ( ! function_exists( 'parse_attributes' ) ) {
             }
 
             foreach ( $xml->attributes() as $key => $node ) {
-                $attributes[ $key ] = (string)$node;
+                $attributes[ $key ] = (string) $node;
             }
         }
 

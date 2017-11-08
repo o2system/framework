@@ -13,7 +13,8 @@
 namespace O2System\Framework\Libraries\Ui\Traits\Collectors;
 
 // ------------------------------------------------------------------------
-use O2System\Html\Element;
+
+use O2System\Framework\Libraries\Ui\Contents\Paragraph;
 use O2System\Spl\Iterators\ArrayIterator;
 
 /**
@@ -38,7 +39,7 @@ trait ParagraphsCollectorTrait
 
    public function createParagraph( $text )
    {
-       $paragraph = new Element( 'p', 'paragraph' );
+       $paragraph = new Paragraph();
        $paragraph->textContent->push( $text );
 
        if( ! $this->paragraphs instanceof ArrayIterator ) {
@@ -50,7 +51,7 @@ trait ParagraphsCollectorTrait
        return $this->paragraphs->last();
    }
 
-   public function addParagraph( Element $paragraph )
+   public function addParagraph( Paragraph $paragraph )
    {
        $paragraph->tagName = 'p';
 

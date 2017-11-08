@@ -14,12 +14,12 @@ namespace O2System\Framework\Libraries\Ui\Components\Icons\Abstracts;
 
 // ------------------------------------------------------------------------
 
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Glyphicon
  *
- * @package O2System\Framework\Libraries\Ui\Components\Icons
+ * @package O2System\Framework\Libraries\Ui\Contents\Icons
  */
 abstract class AbstractIcon extends Element
 {

@@ -17,7 +17,7 @@ namespace O2System\Framework\Libraries\Ui\Components;
 use O2System\Framework\Libraries\Ui\Interfaces\ContextualInterface;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ContextualClassSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\HeadingSetterTrait;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Label
@@ -31,14 +31,14 @@ class Alert extends Element implements ContextualInterface
 
     protected $dismissible = false;
 
-    public function __construct( $text = null, $contextualClass = 'default' )
+    public function __construct( $textContent = null, $contextualClass = 'default' )
     {
         parent::__construct( 'div' );
         $this->attributes->addAttributeClass( 'alert' );
         $this->attributes->addAttribute( 'role', 'alert' );
 
-        if ( isset( $text ) ) {
-            $this->setText( $text );
+        if ( isset( $textContent ) ) {
+            $this->setText( $textContent );
         }
 
         $this->setContextualClassPrefix( 'alert' );

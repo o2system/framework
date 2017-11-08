@@ -14,7 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Components\Card;
 
 // ------------------------------------------------------------------------
 
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Footer

@@ -14,7 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Components\Navbar;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Link;
+use O2System\Framework\Libraries\Ui\Contents\Link;
 
 class Links
 {

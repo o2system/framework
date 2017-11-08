@@ -127,7 +127,6 @@ class View
         presenter()->merge( $vars );
 
         if ( false !== ( $filePath = $this->getFilePath( $filename ) ) ) {
-
             if ( $return === false ) {
 
                 $partials = presenter()->getVariable( 'partials' );
@@ -137,7 +136,6 @@ class View
                 } else {
                     $partials->addPartial( pathinfo( $filePath, PATHINFO_FILENAME ), $filePath );
                 }
-
             } else {
                 parser()->loadFile( $filePath );
 
@@ -287,6 +285,7 @@ class View
                 presenter()->meta->opengraph->setTitle( presenter()->meta->title->__toString() );
             }
 
+
             // set opengraph site name
             if ( presenter()->exists( 'siteName' ) ) {
                 presenter()->meta->opengraph->setSiteName( presenter()->offsetGet( 'siteName' ) );
@@ -319,11 +318,8 @@ class View
         }
 
         if ( presenter()->theme->use === true ) {
-
             presenter()->theme->load();
-
             if( false !== ( $layout = presenter()->theme->active->getLayout() ) ) {
-
                 parser()->loadFile( $layout->getRealPath() );
                 $htmlOutput = parser()->parse();
                 $this->document->loadHTML( presenter()->assets->parseSourceCode( $htmlOutput ) );

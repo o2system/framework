@@ -14,12 +14,14 @@ namespace O2System\Framework\Libraries\Ui\Components\Card;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Libraries\Ui\Components;
+
 /**
  * Class ListGroup
  *
  * @package O2System\Framework\Libraries\Ui\Components\Card
  */
-class ListGroup extends \O2System\Framework\Libraries\Ui\Components\Lists\Group
+class ListGroup extends Components\ListGroup
 {
     public function __construct()
     {

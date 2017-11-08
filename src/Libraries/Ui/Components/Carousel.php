@@ -17,7 +17,7 @@ namespace O2System\Framework\Libraries\Ui\Components;
 use O2System\Framework\Libraries\Ui\Components\Carousel\Control;
 use O2System\Framework\Libraries\Ui\Components\Carousel\Indicators;
 use O2System\Framework\Libraries\Ui\Components\Carousel\Slides;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Carousel

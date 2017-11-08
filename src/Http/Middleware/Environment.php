@@ -72,6 +72,6 @@ class Environment implements MiddlewareServiceInterface
 
     public function terminate( RequestInterface $request )
     {
-        // TODO: Implement terminate() method.
+        // Nothing to-be terminated
     }
 }

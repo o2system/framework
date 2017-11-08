@@ -735,13 +735,13 @@ if ( ! function_exists( 'weeks_in_month' ) ) {
     {
         // Start Date in Month
         $start_date_month = mktime( 0, 0, 0, $month, 1, $year );
-        $start_week_month = (int)date( 'W', $start_date_month );
+        $start_week_month = (int) date( 'W', $start_date_month );
 
         $amount_day = days_in_month( $month, $year );
 
         // Finish Date in onth
         $finish_date_month = mktime( 0, 0, 0, $month, $amount_day, $year );
-        $finish_week_month = (int)date( 'W', $finish_date_month );
+        $finish_week_month = (int) date( 'W', $finish_date_month );
 
         $amount_week = $finish_week_month - $start_week_month + 1;
 
@@ -792,11 +792,11 @@ if ( ! function_exists( 'week_number_of_month' ) ) {
 
         // Start Date in Month
         $start_date_month = mktime( 0, 0, 0, $month, 1, $year );
-        $start_week_month = (int)date( 'W', $start_date_month );
+        $start_week_month = (int) date( 'W', $start_date_month );
 
         // Date Search
         $date_search = mktime( 0, 0, 0, $month, $date, $year );
-        $date_week_search = (int)date( 'W', $date_search );
+        $date_week_search = (int) date( 'W', $date_search );
 
         $number_of_week = $date_week_search - $start_week_month + 1;
 
@@ -896,14 +896,16 @@ if ( ! function_exists( 'format_time' ) ) {
 
 if ( ! function_exists( 'now' ) ) {
     /**
+     * now
+     *
      * Get "now" time
      *
      * Returns time() based on the timezone parameter or on the
      * "time_reference" setting
      *
-     * @param    string
+     * @param  $timezone string
      *
-     * @return    int
+     * @return  int
      */
     function now( $timezone = null )
     {
@@ -1116,7 +1118,7 @@ if ( ! function_exists( 'days_in_month' ) ) {
         }
 
         if ( $year >= 1970 ) {
-            return (int)date( 't', mktime( 12, 0, 0, $month, 1, $year ) );
+            return (int) date( 't', mktime( 12, 0, 0, $month, 1, $year ) );
         }
 
         if ( $month == 2 ) {
@@ -1450,8 +1452,8 @@ if ( ! function_exists( 'date_range_unix' ) ) {
         $is_unix = ! ( ! $is_unix OR $is_unix === 'days' );
 
         // Validate input and try strtotime() on invalid timestamps/intervals, just in case
-        if ( ( ! ctype_digit( (string)$unix_start ) && ( $unix_start = @strtotime( $unix_start ) ) === false )
-            OR ( ! ctype_digit( (string)$mixed ) && ( $is_unix === false OR ( $mixed = @strtotime(
+        if ( ( ! ctype_digit( (string) $unix_start ) && ( $unix_start = @strtotime( $unix_start ) ) === false )
+            OR ( ! ctype_digit( (string) $mixed ) && ( $is_unix === false OR ( $mixed = @strtotime(
                         $mixed
                     ) ) === false ) )
             OR ( $is_unix === true && $mixed < $unix_start )
@@ -1489,7 +1491,7 @@ if ( ! function_exists( 'date_range_unix' ) ) {
                 $arg = new DateTime();
                 $arg->setTimestamp( $mixed );
             } else {
-                $arg = (int)$mixed;
+                $arg = (int) $mixed;
             }
 
             $period = new DatePeriod( $from, new DateInterval( 'P1D' ), $arg );
@@ -1516,7 +1518,7 @@ if ( ! function_exists( 'date_range_unix' ) ) {
             $arg->setDate( date( 'Y', $mixed ), date( 'n', $mixed ), date( 'j', $mixed ) );
             $arg->setTime( date( 'G', $mixed ), date( 'i', $mixed ), date( 's', $mixed ) );
         } else {
-            $arg = (int)$mixed;
+            $arg = (int) $mixed;
         }
         $range[] = $from->format( $format );
 

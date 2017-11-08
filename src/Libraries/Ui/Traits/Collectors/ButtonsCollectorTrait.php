@@ -37,9 +37,9 @@ trait ButtonsCollectorTrait
         return false;
     }
 
-    public function createButton( $label, $contextualClass = Button::DEFAULT_CONTEXT )
+    public function createButton( $label, array $attributes = [], $contextualClass = Button::DEFAULT_CONTEXT )
     {
-        $button = new Button( $label, $contextualClass );
+        $button = new Button( $label, $attributes, $contextualClass );
 
         if ( ! $this->buttons instanceof ArrayIterator ) {
             $this->buttons = new ArrayIterator();

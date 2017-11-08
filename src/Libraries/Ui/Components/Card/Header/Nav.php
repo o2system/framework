@@ -15,8 +15,8 @@ namespace O2System\Framework\Libraries\Ui\Components\Card\Header;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Libraries\Ui\Components\Card\Header\Nav\Link;
-use O2System\Framework\Libraries\Ui\Components\Lists\Unordered;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Contents\Lists\Unordered;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Nav

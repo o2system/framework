@@ -15,7 +15,7 @@ namespace O2System\Framework\Containers;
 // ------------------------------------------------------------------------
 
 use O2System\Cache\Item;
-use O2System\Framework\Http\Router\Routes;
+use O2System\Framework\Http\Router\Addresses;
 use O2System\Framework\Datastructures;
 use O2System\Framework\Services\Hooks;
 use O2System\Kernel\Cli\Writers\Format;
@@ -210,7 +210,7 @@ class Modules extends SplArrayStack
             include( $filePath );
         }
 
-        if ( isset( $routes ) AND $routes instanceof Routes ) {
+        if ( isset( $routes ) AND $routes instanceof Addresses ) {
             config()->addItem( 'routes', $routes );
 
             unset( $routes );
@@ -647,7 +647,18 @@ class Modules extends SplArrayStack
     }
 
     // ------------------------------------------------------------------------
+    
+    public function first()
+    {
+        if( isset( $this->registry[ '' ] ) ) {
+            return $this->registry[ '' ];
+        } elseif( reset( $this->registry )->type === 'APP' ) {
+            return reset( $this->registry );
+        }
 
+        return false;
+    } 
+    
     /**
      * Modules::isExists
      *

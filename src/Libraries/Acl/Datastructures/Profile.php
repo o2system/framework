@@ -46,6 +46,8 @@ class Profile extends AbstractItemStoragePattern
                 'cover' => isset( $profile[ 'cover' ] ) ? $profile[ 'cover' ] : null,
             ],
             'gender'    => isset( $profile[ 'gender' ] ) ? $profile[ 'gender' ] : 'UNDEFINED',
+            'age'       => 'UNDEFINED',
+            'birthplace' => isset( $profile[ 'birthplace' ] ) ? $profile[ 'birthplace' ] : 'UNDEFINED',
             'birthday'  => isset( $profile[ 'birthday' ] ) ? $profile[ 'birthday' ] : '0000-00-00',
             'marital'   => isset( $profile[ 'marital' ] ) ? $profile[ 'marital' ] : 'UNDEFINED',
             'religion'  => isset( $profile[ 'religion' ] ) ? $profile[ 'religion' ] : 'UNDEFINED',

@@ -15,7 +15,7 @@ namespace O2System\Framework\Libraries\Ui\Components\Buttons;
 use O2System\Framework\Libraries\Ui\Components\Button;
 use O2System\Framework\Libraries\Ui\Components\Dropdown;
 use O2System\Framework\Libraries\Ui\Traits\Setters\SizingSetterTrait;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Group
@@ -37,6 +37,11 @@ class Group extends Element
         $this->setSizingClassPrefix( 'btn-group' );
     }
 
+    /**
+     * @param $label
+     *
+     * @return Button
+     */
     public function createButton( $label )
     {
         $node = new Button();

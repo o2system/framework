@@ -14,7 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Components\Carousel;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Lists\Ordered;
+use O2System\Framework\Libraries\Ui\Contents\Lists\Ordered;
 
 /**
  * Class Indicators

@@ -14,7 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Traits\Setters;
 
 // ------------------------------------------------------------------------
 
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Trait ImageSetterTrait

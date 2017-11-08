@@ -14,9 +14,9 @@ namespace O2System\Framework\Libraries\Ui\Components\Carousel;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Image;
+use O2System\Framework\Libraries\Ui\Contents\Image;
 use O2System\Framework\Libraries\Ui\Components\Jumbotron;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Slide

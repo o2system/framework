@@ -414,14 +414,15 @@ class Loader implements AutoloadInterface
         // the current namespace prefix
         $namespace = $class;
 
-        if ( empty( $namespaceDirs ) and empty( $namespaceDirsMap ) ) {
-            $modules = modules()->getRegistry();
-            foreach ( $modules as $module ) {
-                $namespaceDirs[ $module->getNamespace() ] = [
-                    $module->getRealPath(),
-                ];
+        if ( empty( $namespaceDirs ) and empty( $namespaceDirsMap ) and modules() !== false ) {
+            if( false !== ( $modules = modules()->getRegistry() ) ) {
+                foreach ( $modules as $module ) {
+                    $namespaceDirs[ $module->getNamespace() ] = [
+                        $module->getRealPath(),
+                    ];
 
-                $namespaceDirsMap[ $module->getRealPath() ] = $module->getNamespace();
+                    $namespaceDirsMap[ $module->getRealPath() ] = $module->getNamespace();
+                }
             }
         }
 

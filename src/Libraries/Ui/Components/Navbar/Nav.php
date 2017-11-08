@@ -15,10 +15,10 @@ namespace O2System\Framework\Libraries\Ui\Components\Navbar;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Libraries\Ui\Components\Dropdown;
-use O2System\Framework\Libraries\Ui\Components\Link;
-use O2System\Framework\Libraries\Ui\Components\Lists\Item;
-use O2System\Framework\Libraries\Ui\Components\Lists\Unordered;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Contents\Link;
+use O2System\Framework\Libraries\Ui\Contents\Lists\Item;
+use O2System\Framework\Libraries\Ui\Contents\Lists\Unordered;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Nav
@@ -59,14 +59,6 @@ class Nav extends Unordered
                 $list->toggle->attributes->remove( 'type' );
                 $list->toggle->attributes->removeAttributeClass( [ 'btn', 'btn-*' ] );
                 $list->toggle->attributes->addAttribute( 'role', 'button' );
-
-                if ( $list->menu->hasChildNodes() ) {
-                    foreach ( $list->menu->childNodes as $childNode ) {
-                        if( ! $childNode->attributes->hasAttributeClass('dropdown-divider') ) {
-                            $childNode->attributes->addAttributeClass( 'nav-link' );
-                        }
-                    }
-                }
 
                 $node->childNodes->push( $list->toggle );
                 $node->childNodes->push( $list->menu );

@@ -15,17 +15,14 @@ namespace O2System\Framework\Libraries\Ui\Components\Navbar;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Button;
-use O2System\Framework\Libraries\Ui\Components\Form\Input;
-use O2System\Framework\Libraries\Ui\Components\Input\Field;
-use O2System\Framework\Libraries\Ui\Components\Input\Group;
+use O2System\Framework\Libraries\Ui\Components;
 
 /**
  * Class Form
  *
  * @package O2System\Framework\Libraries\Ui\Components\Navbar
  */
-class Form extends \O2System\Framework\Libraries\Ui\Components\Form
+class Form extends Components\Form
 {
     public function __construct()
     {
@@ -36,11 +33,11 @@ class Form extends \O2System\Framework\Libraries\Ui\Components\Form
     /**
      * @param array $attributes
      *
-     * @return \O2System\Framework\Libraries\Ui\Components\Form\Input
+     * @return \O2System\Framework\Libraries\Ui\Components\Form\Elements\Input
      */
     public function createInput( array $attributes = [] )
     {
-        $field = new Input();
+        $field = new Components\Form\Elements\Input();
 
         if ( count( $attributes ) ) {
             foreach ( $attributes as $name => $value ) {
@@ -63,7 +60,7 @@ class Form extends \O2System\Framework\Libraries\Ui\Components\Form
 
     public function createButton( $label, array $attributes = [] )
     {
-        $button = new Button( $label );
+        $button = new Components\Form\Elements\Button( $label );
 
         if ( ! array_key_exists( 'class', $attributes ) ) {
             $button->attributes->addAttributeClass( [ 'btn', 'my-2', 'my-sm-0' ] );

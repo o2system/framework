@@ -18,7 +18,7 @@ use O2System\Framework\Libraries\Ui\Components\Lists\Item;
 use O2System\Framework\Libraries\Ui\Traits\Setters\HeadingSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ImageSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Object

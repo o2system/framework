@@ -14,14 +14,13 @@ namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Libraries\Ui\Contents\Icon;
 use O2System\Framework\Libraries\Ui\Interfaces\ContextualInterface;
-use O2System\Framework\Libraries\Ui\Traits\Setters\BorderSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\PopoverSetterTrait;
-use O2System\Framework\Libraries\Ui\Traits\Setters\ShapeClassSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\SizingSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\TooltipSetterTrait;
-use O2System\Html\Element;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ContextualClassSetterTrait;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Button
@@ -31,18 +30,29 @@ use O2System\Framework\Libraries\Ui\Traits\Setters\ContextualClassSetterTrait;
 class Button extends Element implements ContextualInterface
 {
     use ContextualClassSetterTrait;
-    use BorderSetterTrait;
     use SizingSetterTrait;
     use PopoverSetterTrait;
     use TooltipSetterTrait;
 
     public $icon;
 
-    public function __construct( $label = null, $contextualClass = 'default' )
+    public function __construct( $label = null, array $attributes = [], $contextualClass = 'default' )
     {
         parent::__construct( 'button' );
-
         $this->attributes->addAttribute( 'type', 'button' );
+
+        if ( isset( $attributes[ 'id' ] ) ) {
+            $this->entity->setEntityName( 'btn-' . $attributes[ 'id' ] );
+        } elseif ( isset( $attributes[ 'name' ] )  ) {
+            $this->entity->setEntityName( 'btn-' . $attributes[ 'name' ] );
+        }
+
+        if ( count( $attributes ) ) {
+            foreach ( $attributes as $name => $value ) {
+                $this->attributes->addAttribute( $name, $value );
+            }
+        }
+
         $this->attributes->addAttributeClass( 'btn' );
 
         // Set button contextual class
@@ -75,6 +85,13 @@ class Button extends Element implements ContextualInterface
         return $this;
     }
 
+    public function disabled()
+    {
+        $this->attributes->addAttributeClass( 'disabled' );
+
+        return $this;
+    }
+
     public function active()
     {
         $this->attributes->addAttributeClass( 'active' );
@@ -82,33 +99,13 @@ class Button extends Element implements ContextualInterface
         return $this;
     }
 
-    public function disabled()
-    {
-        $this->attributes->addAttribute( 'disabled', 'disabled' );
-        $this->attributes->addAttributeClass( 'disabled' );
-        $this->attributes->addAttribute( 'aria-disabled', true );
-
-        return $this;
-    }
-
-    public function autofocus()
-    {
-        $this->attributes->addAttribute( 'autofocus', 'autofocus' );
-
-        return $this;
-    }
-
     public function render()
     {
-        if ( $this->icon instanceof Icon and ! $this->hasTextContent() ) {
-            $this->attributes->addAttributeClass( [ 'btn-icon', 'btn-icon-mini' ] );
+        if ( $this->icon instanceof Icon && $this->hasTextContent() ) {
+            $this->attributes->addAttributeClass('btn-icon' );
         }
 
         $output[] = $this->open();
-
-        if ( $this->icon instanceof Icon ) {
-            $output[] = $this->icon;
-        }
 
         if ( $this->hasTextContent() ) {
             $output[] = implode( '', $this->textContent->getArrayCopy() );
@@ -118,6 +115,9 @@ class Button extends Element implements ContextualInterface
             $output[] = implode( PHP_EOL, $this->childNodes->getArrayCopy() );
         }
 
+        if ( $this->icon instanceof Icon ) {
+            $output[] = $this->icon;
+        }
 
         $output[] = $this->close();
 

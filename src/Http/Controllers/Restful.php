@@ -8,12 +8,14 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Controllers;
 
 // ------------------------------------------------------------------------
 
+use O2System\Cache\Item;
 use O2System\Framework\Http\Controller;
 use O2System\Psr\Http\Header\ResponseFieldInterface;
 
@@ -120,32 +122,16 @@ class Restful extends Controller
      */
     protected $accessControlMaxAge = 86400;
 
-    /**
-     * Access-Control-Last-Polling-Call-Timestamp
-     *
-     * Used for indicates last long polling call timestamp
-     *
-     * @type int Time
-     */
-    protected $accessControlLastPollingCallTimestamp;
-
-    /**
-     * Access-Control-Last-Polling-Changed-Timestamp
-     *
-     * Used for indicates last long polling changed timestamp
-     *
-     * @type int Time
-     */
-    protected $accessControlLastPollingChangedTimestamp;
-
     // ------------------------------------------------------------------------
+
+    protected $ajaxOnly = true;
 
     /**
      * Restful::__construct
      */
     public function __construct()
     {
-        presenter()->setTheme( false );
+        presenter()->theme-set( false );
 
         if ( is_ajax() ) {
             output()->setContentType( 'application/json' );
@@ -173,6 +159,13 @@ class Restful extends Controller
                 output()->addHeader( ResponseFieldInterface::RESPONSE_ACCESS_CONTROL_ALLOW_CREDENTIALS, $origin );
             }
         }
+
+        if ( count( $this->accessControlAllowMethods ) ) {
+            output()->addHeader(
+                ResponseFieldInterface::RESPONSE_ACCESS_CONTROL_ALLOW_METHODS,
+                implode( ', ', $this->accessControlAllowMethods )
+            );
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -185,66 +178,77 @@ class Restful extends Controller
         output()->sendError( 204 );
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Server-side file.
-     * This file is an infinitive loop. Seriously.
-     * It gets the file data.txt's last-changed timestamp, checks if this is larger than the timestamp of the
-     * AJAX-submitted timestamp (time of last ajax request), and if so, it sends back a JSON with the data from
-     * data.txt (and a timestamp). If not, it waits for one seconds and then start the next while step.
+     * Restful::sendPayload
      *
-     * Note: This returns a JSON, containing the content of data.txt and the timestamp of the last data.txt change.
-     * This timestamp is used by the client's JavaScript for the next request, so THIS server-side script here only
-     * serves new content after the last file change. Sounds weird, but try it out, you'll get into it really fast!
+     * @param mixed $data        The payload data to-be send.
+     * @param bool  $longPooling Long pooling flag mode.
      */
-    protected function sendLongPoolingPayload()
+    protected function sendPayload( $data, $longPooling = false )
     {
-        if ( method_exists( $this, 'getLastPollingChangedTimestamp' ) AND method_exists( $this, 'getLastPollingData' ) )
-        {
+        if ( $longPooling === false ) {
+            if ( $this->ajaxOnly ) {
+                if ( is_ajax() ) {
+                    output()->send( $data );
+                } else {
+                    output()->sendError( 403 );
+                }
+            } else {
+                output()->send( $data );
+            }
+        } elseif ( is_ajax() ) {
+            /**
+             * Server-side file.
+             * This file is an infinitive loop. Seriously.
+             * It gets the cache created timestamp, checks if this is larger than the timestamp of the
+             * AJAX-submitted timestamp (time of last ajax request), and if so, it sends back a JSON with the data from
+             * data.txt (and a timestamp). If not, it waits for one seconds and then start the next while step.
+             *
+             * Note: This returns a JSON, containing the content of data.txt and the timestamp of the last data.txt change.
+             * This timestamp is used by the client's JavaScript for the next request, so THIS server-side script here only
+             * serves new content after the last file change. Sounds weird, but try it out, you'll get into it really fast!
+             */
+
             // set php runtime to unlimited
             set_time_limit( 0 );
 
+            $longPoolingCacheKey = 'long-pooling-' . session()->get( 'id' );
+            $longPoolingCacheData = null;
+
+            if( ! cache()->hasItem( $longPoolingCacheKey ) ) {
+                cache()->save( new Item( $longPoolingCacheKey, $data ) );
+            }
+
             // main loop
-            while ( TRUE )
-            {
-                // if ajax request has send a timestamp, then $last_ajax_call = timestamp, else $last_ajax_call = null
-                $this->accessControlLastPollingCallTimestamp = (int) input()->getPost( 'last_call_timestamp' );
+            while ( true ) {
+                // if ajax request has send a timestamp, then $lastCallTimestamp = timestamp, else $last_call = null
+                $lastCallTimestamp = (int) input()->getPost( 'last_call_timestamp' );
 
                 // PHP caches file data, like requesting the size of a file, by default. clearstatcache() clears that cache
                 clearstatcache();
 
-                // get timestamp of when file has been changed the last time
-                $this->accessControlLastPollingChangedTimestamp = (int) $this->getLastPollingChangedTimestamp();
-
-                // if no timestamp delivered or last polling changed timestamp has been changed SINCE last call timestamp
-                if ( $this->accessControlLastPollingCallTimestamp == 0 OR $this->accessControlLastPollingChangedTimestamp > $this->accessControlLastPollingCallTimestamp )
-                {
-                    // get last polling changed data
-                    $data = $this->getLastPollingData();
-
-                    output()->send([
-                        'metadata' => [
-                            'timestamp' => [
-                                'last_call'    => $this->accessControlLastPollingCallTimestamp,
-                                'last_changed' => $this->accessControlLastPollingChangedTimestamp,
-                            ]
-                        ],
-                        'data' => $data
-                    ]);
-
-                    // leave this loop step
-                    break;
-
+                if ( cache()->hasItem( $longPoolingCacheKey ) ) {
+                    $longPoolingCacheData = cache()->getItem( $longPoolingCacheKey );
                 }
-                else
-                {
+
+                // get timestamp of when file has been changed the last time
+                $longPoolingCacheMetadata = $longPoolingCacheData->getMetadata();
+
+                // if no timestamp delivered via ajax or data.txt has been changed SINCE last ajax timestamp
+                if ( $lastCallTimestamp == null || $longPoolingCacheMetadata[ 'ctime' ] > $lastCallTimestamp ) {
+                    output()->send( [
+                        'timestamp' => $longPoolingCacheMetadata,
+                        'data'     => $data,
+                    ] );
+                } else {
                     // wait for 1 sec (not very sexy as this blocks the PHP/Apache process, but that's how it goes)
                     sleep( 1 );
                     continue;
                 }
             }
-        }
-        else
-        {
+        } else {
             output()->sendError( 501 );
         }
     }

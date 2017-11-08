@@ -18,7 +18,7 @@ use O2System\Framework\Libraries\Ui\Components\Jumbotron\Paragraph;
 use O2System\Framework\Libraries\Ui\Traits\Collectors\LinksCollectorTrait;
 use O2System\Framework\Libraries\Ui\Traits\Collectors\ParagraphsCollectorTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\PopoverSetterTrait;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Jumbotron

@@ -54,6 +54,7 @@ class Theme
             return true;
         }
 
+        $this->use = false;
         $this->active = false;
         return false;
     }

@@ -8,26 +8,25 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Traits\Setters\ColorSetterTrait;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Components\Card\Header\Nav\Link;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Navbar
  *
- * @todo: add bgsetter trait
+ * @todo    : add bgsetter trait
  *
  * @package O2System\Framework\Libraries\Ui\Components
  */
 class Navbar extends Element
 {
-    use ColorSetterTrait;
-
     public $brand;
     public $collapse;
 
@@ -80,7 +79,7 @@ class Navbar extends Element
     /**
      * @param $label
      *
-     * @return \O2System\Framework\Libraries\Ui\Components\Link
+     * @return \O2System\Framework\Libraries\Ui\Contents\Link
      */
     public function createBrand( $label )
     {
@@ -100,7 +99,7 @@ class Navbar extends Element
     }
 
     /**
-     * @return Form
+     * @return \O2System\Framework\Libraries\Ui\Components\Navbar\Form
      */
     public function createForm()
     {
@@ -109,19 +108,19 @@ class Navbar extends Element
         return $this->form = $this->collapse->childNodes->last();
     }
 
-    public function light()
-    {
-        $this->attributes->removeAttributeClass('navbar-dark');
-        $this->attributes->addAttributeClass('navbar-light');
-
-        return $this;
-    }
-
     public function dark()
     {
-        $this->attributes->removeAttributeClass('navbar-light');
-        $this->attributes->addAttributeClass('navbar-dark');
+        $this->attributes->removeAttributeClass( 'navbar-light' );
+        $this->attributes->addAttributeClass( 'navbar-dark' );
 
-        return $this;
+        return $this->backgroundDark();
+    }
+
+    public function light()
+    {
+        $this->attributes->removeAttributeClass( 'navbar-dark' );
+        $this->attributes->addAttributeClass( 'navbar-light' );
+
+        return $this->backgroundLight();
     }
 }

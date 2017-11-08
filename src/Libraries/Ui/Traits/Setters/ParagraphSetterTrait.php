@@ -14,7 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Traits\Setters;
 
 // ------------------------------------------------------------------------
 
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Contents\Paragraph;
 
 /**
  * Trait ParagraphSetterTrait
@@ -27,7 +27,7 @@ trait ParagraphSetterTrait
 
     public function setParagraph( $text )
     {
-        $this->paragraph = new Element( 'p' );
+        $this->paragraph = new Paragraph();
         $this->paragraph->entity->setEntityName( 'paragraph' );
         $this->paragraph->textContent->push( $text );
 

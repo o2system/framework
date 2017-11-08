@@ -16,7 +16,7 @@ namespace O2System\Framework\Libraries\Ui\Components\Card\Image;
 
 use O2System\Framework\Libraries\Ui\Traits\Collectors\ParagraphsCollectorTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\TitleSetterTrait;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 use O2System\Spl\Iterators\ArrayIterator;
 
 /**

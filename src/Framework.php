@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System;
@@ -235,7 +236,7 @@ class Framework extends Kernel
      */
     public function __isset( $property )
     {
-        return (bool)isset( $this->{$property} );
+        return (bool) isset( $this->{$property} );
     }
 
     // ------------------------------------------------------------------------
@@ -284,7 +285,7 @@ class Framework extends Kernel
         language()->loadRegistry();
 
         // Modules default app
-        if( null !== ( $defaultApp = config( 'app' ) ) ) {
+        if ( null !== ( $defaultApp = config( 'app' ) ) ) {
             if ( false !== ( $defaultModule = modules()->getApp( $defaultApp ) ) ) {
                 // Register Domain App Module Namespace
                 loader()->addNamespace( $defaultModule->getNamespace(), $defaultModule->getRealPath() );
@@ -394,25 +395,14 @@ class Framework extends Kernel
         profiler()->watch( 'HTTP_RUN_MIDDLEWARE_SERVICE' );
         middleware()->run();
 
-        // Try to get from cache
-        $cacheKey = 'o2output_' . underscore( request()->getUri()->getSegments()->getString() );
-
-        $cacheItemPool = cache()->getItemPool( 'default' );
-
-        if ( cache()->hasItemPool( 'output' ) ) {
-            $cacheItemPool = cache()->getItemPool( 'output' );
-        }
-
-        if ( $cacheItemPool instanceof \O2System\Psr\Cache\CacheItemPoolInterface ) {
-            if ( $cacheItemPool->hasItem( $cacheKey ) ) {
-                $cacheOutput = $cacheItemPool->getItem( $cacheKey )->get();
-                output()->send( $cacheOutput );
-            }
-        }
-
         if ( false !== ( $controller = $this->getService( 'controller' ) ) ) {
 
             if ( $controller instanceof Framework\Http\Router\Datastructures\Controller ) {
+
+                // Autoload Language
+                language()->loadFile( $controller->getParameter() );
+                language()->loadFile( $controller->getRequestMethod() );
+                language()->loadFile( $controller->getParameter() . '/' . $controller->getRequestMethod() );
 
                 // Autoload Model and Assets
                 $controllerAssets = [];
@@ -426,6 +416,9 @@ class Framework extends Kernel
                     $module->loadModel();
                 }
 
+                $controllerAssets = array_reverse( $controllerAssets );
+
+                // Autoload Model
                 $modelClassName = str_replace( [ 'Controllers', 'Presenters' ], 'Models', $controller->getName() );
 
                 if ( class_exists( $modelClassName ) ) {
@@ -435,7 +428,7 @@ class Framework extends Kernel
                 $controllerAssets[] = $controller->getParameter();
                 $controllerAssets[] = $controller->getRequestMethod();
 
-                // Decamelcase assets file names
+                // Snakecase assets file names
                 $controllerAssets = array_map( 'snakecase', $controllerAssets );
 
                 // Dashed assets file names
@@ -476,6 +469,12 @@ class Framework extends Kernel
                 profiler()->watch( 'INSTANTIATE_REQUESTED_CONTROLLER' );
                 $requestController = $controller->getInstance();
 
+                if ( method_exists( $requestController, '__reconstruct' ) ) {
+                    $requestController->__reconstruct();
+                } elseif ( method_exists( $requestController, 'initialize' ) ) {
+                    $requestController->initialize();
+                }
+
                 $this->addService( $requestController, 'controller' );
 
                 profiler()->watch( 'CALL_HOOKS_POST_CONTROLLER' );
@@ -492,20 +491,20 @@ class Framework extends Kernel
                 ob_start();
                 $requestControllerOutput = $requestController->__call( $requestMethod, $requestMethodArgs );
 
-                if( $requestControllerOutput === true ) {
+                if ( $requestControllerOutput === true ) {
                     output()->sendError( 200 );
                     exit( EXIT_SUCCESS );
-                } elseif( $requestControllerOutput === false ) {
+                } elseif ( $requestControllerOutput === false ) {
                     output()->sendError( 204 );
                     exit( EXIT_ERROR );
-                } elseif( is_array( $requestControllerOutput ) || is_object( $requestControllerOutput ) ) {
+                } elseif ( is_array( $requestControllerOutput ) || is_object( $requestControllerOutput ) ) {
                     output()->send( $requestControllerOutput );
                     exit( EXIT_SUCCESS );
-                } elseif( is_null( $requestControllerOutput ) ) {
+                } elseif ( is_null( $requestControllerOutput ) ) {
                     $requestControllerOutput = ob_get_contents();
                     ob_end_clean();
 
-                    if( empty( $requestControllerOutput ) ) {
+                    if ( empty( $requestControllerOutput ) ) {
                         $requestControllerOutput = '';
                     } else {
                         echo $requestControllerOutput;
@@ -513,13 +512,13 @@ class Framework extends Kernel
                     }
                 }
 
-                if( is_string( $requestControllerOutput ) ) {
+                if ( is_string( $requestControllerOutput ) ) {
                     if ( presenter()->theme->use === true ) {
-                        if( ! presenter()->partials->offsetExists( 'content' ) && $requestControllerOutput !== '' ) {
+                        if ( ! presenter()->partials->offsetExists( 'content' ) && $requestControllerOutput !== '' ) {
                             presenter()->partials->offsetSet( 'content', $requestControllerOutput );
                         }
 
-                        if( presenter()->partials->offsetExists( 'content' ) ) {
+                        if ( presenter()->partials->offsetExists( 'content' ) ) {
                             profiler()->watch( 'VIEW_SERVICE_RENDER' );
                             view()->render();
                             exit( EXIT_SUCCESS );
@@ -527,7 +526,7 @@ class Framework extends Kernel
                             output()->sendError( 204 );
                             exit( EXIT_ERROR );
                         }
-                    } elseif( $requestControllerOutput !== '' ) {
+                    } elseif ( $requestControllerOutput !== '' ) {
                         output()->send( $requestControllerOutput );
                         exit( EXIT_SUCCESS );
                     } else {
@@ -535,7 +534,7 @@ class Framework extends Kernel
                         exit( EXIT_ERROR );
                     }
 
-                } elseif( is_numeric( $requestControllerOutput ) ) {
+                } elseif ( is_numeric( $requestControllerOutput ) ) {
                     output()->sendError( $requestControllerOutput );
                     exit( EXIT_ERROR );
                 }

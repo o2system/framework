@@ -8,14 +8,15 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Lists\Ordered;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Contents\Lists\Ordered;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Breadcrumb
@@ -36,5 +37,15 @@ class Breadcrumb extends Ordered
         $node->attributes->addAttributeClass( 'breadcrumb-item' );
 
         parent::pushChildNode( $node );
+    }
+
+    public function style( $style )
+    {
+        if ( in_array( $style, [ 'arrow', 'dot', 'bar' ] ) ) {
+            $this->attributes->removeAttributeClass( 'breadcrumb-*' );
+            $this->attributes->addAttributeClass( 'breadcrumb-' . $style );
+        }
+
+        return $this;
     }
 }

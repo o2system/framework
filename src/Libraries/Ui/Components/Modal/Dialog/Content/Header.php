@@ -14,7 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Components\Modal\Dialog\Content;
 
 // ------------------------------------------------------------------------
 
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Header

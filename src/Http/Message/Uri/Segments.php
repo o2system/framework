@@ -50,10 +50,10 @@ class Segments
             }
 
         } elseif ( is_array( $string ) ) {
-            $string = implode( '/', $string );
+            $string = implode( '/', array_map( 'dash', $string ) );
         }
 
-        $string = str_replace( '\\', '/', $string );
+        $string = str_replace( [ '\\', '_' ], [ '/', '-' ], $string );
         $string = trim( remove_invisible_characters( $string, false ), '/' );
         $this->setParts( explode( '/', $string ) );
     }

@@ -8,11 +8,13 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Card;
 
 // ------------------------------------------------------------------------
+
 use O2System\Framework\Libraries\Ui\Components\Card\Image\Overlay;
 
 /**
@@ -20,11 +22,12 @@ use O2System\Framework\Libraries\Ui\Components\Card\Image\Overlay;
  *
  * @package O2System\Framework\Libraries\Ui\Components\Card
  */
-class Image extends \O2System\Framework\Libraries\Ui\Components\Image
+class Image extends \O2System\Framework\Libraries\Ui\Contents\Image
 {
     public function __construct( $src = null, $alt = null )
     {
         parent::__construct( $src, $alt );
+        $this->attributes->addAttributeClass( 'img-fluid' );
     }
 
     /**
@@ -41,7 +44,7 @@ class Image extends \O2System\Framework\Libraries\Ui\Components\Image
     {
         $output[] = $this->open();
 
-        if( $this->hasChildNodes() ) {
+        if ( $this->hasChildNodes() ) {
             $output[] = implode( PHP_EOL, $this->childNodes->getArrayCopy() );
         }
 

@@ -14,9 +14,10 @@ namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Lists\Unordered;
+use O2System\Framework\Libraries\Ui\Contents\Link;
+use O2System\Framework\Libraries\Ui\Contents\Lists\Unordered;
 use O2System\Framework\Libraries\Ui\Traits\Setters\SizingSetterTrait;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Pagination

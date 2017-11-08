@@ -14,7 +14,6 @@ namespace O2System\Framework\Http\Presenter\Assets\Positions;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Presenter\Assets\Abstracts\AbstractPosition;
 use O2System\Framework\Http\Presenter\Assets\Collections;
 
 /**
@@ -22,7 +21,7 @@ use O2System\Framework\Http\Presenter\Assets\Collections;
  *
  * @package O2System\Framework\Http\Presenter\Assets\Positions
  */
-class Body extends AbstractPosition
+class Body extends Abstracts\AbstractPosition
 {
     protected $javascript;
 

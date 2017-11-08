@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Middleware;
@@ -25,7 +26,23 @@ use O2System\Psr\Http\Middleware\MiddlewareServiceInterface;
 class Cache implements MiddlewareServiceInterface
 {
     /**
-     * validate
+     * Cache::$cacheKey
+     *
+     * @var string
+     */
+    protected $cacheKey;
+
+    /**
+     * Cache::$cacheHandle
+     *
+     * @var \O2System\Psr\Cache\CacheItemPoolInterface
+     */
+    protected $cacheHandle;
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Cache::validate
      *
      * @param \O2System\Psr\Http\Message\RequestInterface $request
      *
@@ -33,10 +50,17 @@ class Cache implements MiddlewareServiceInterface
      */
     public function validate( RequestInterface $request )
     {
-        $filename = md5( $request->getUri()->__toString() );
+        // Try to get from cache
+        $this->cacheKey = 'o2output_' . underscore( request()->getUri()->getSegments()->getString() );
 
-        if ( null !== ( $cache = cache()->getItemPool( 'html' ) ) ) {
-            if ( null !== ( $html = $cache->getItem( $filename ) ) ) {
+        $this->cacheHandle = cache()->getItemPool( 'default' );
+
+        if ( cache()->hasItemPool( 'output' ) ) {
+            $this->cacheHandle = cache()->getItemPool( 'output' );
+        }
+
+        if ( $this->cacheHandle instanceof \O2System\Psr\Cache\CacheItemPoolInterface ) {
+            if ( $this->cacheHandle->hasItem( $this->cacheKey ) ) {
                 return true;
             }
         }
@@ -44,19 +68,33 @@ class Cache implements MiddlewareServiceInterface
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Cache::handle
+     *
+     * @param \O2System\Psr\Http\Message\RequestInterface $request
+     *
+     * @return void
+     */
     public function handle( RequestInterface $request )
     {
-        $filename = md5( $request->getUri()->__toString() );
-        $cache = cache()->getItemPool( 'html' );
-
-        if ( null !== ( $html = $cache->getItem( $filename ) ) ) {
-            $etag = md5( $html );
-            output()->send( $html, [ 'ETag' => $etag ] );
-        }
+        output()
+            ->setContentType('text/html')
+            ->send( $this->cacheHandle->getItem( $this->cacheKey )->get() );
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Cache::terminate
+     *
+     * @param \O2System\Psr\Http\Message\RequestInterface $request
+     *
+     * @return void
+     */
     public function terminate( RequestInterface $request )
     {
-        // TODO: Implement terminate() method.
+        // Nothing to be terminated
     }
 }

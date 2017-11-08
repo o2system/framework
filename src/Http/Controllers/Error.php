@@ -30,12 +30,12 @@ class Error extends Controller
      */
     public function index( $code = 500 )
     {
-        $codeString = $code . error_code_string( $code );
+        $codeString = $code . '_' . error_code_string( $code );
 
-        view( 'error/code', [
+        echo $this->view->load( 'error-code', [
             'code'    => $code,
             'title'   => language()->getLine( $codeString . '_TITLE' ),
             'message' => language()->getLine( $codeString . '_MESSAGE' ),
-        ] );
+        ], true );
     }
 }

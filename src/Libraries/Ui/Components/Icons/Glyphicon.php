@@ -19,7 +19,7 @@ use O2System\Framework\Libraries\Ui\Components\Icons\Abstracts\AbstractIcon;
 /**
  * Class Glyphicon
  *
- * @package O2System\Framework\Libraries\Ui\Components\Icons
+ * @package O2System\Framework\Libraries\Ui\Contents\Icons
  */
 class Glyphicon extends AbstractIcon
 {

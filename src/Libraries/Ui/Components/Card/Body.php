@@ -15,10 +15,11 @@ namespace O2System\Framework\Libraries\Ui\Components\Card;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Libraries\Ui\Components\Card\Body\Blockquote;
+use O2System\Framework\Libraries\Ui\Grid\Row;
 use O2System\Framework\Libraries\Ui\Traits\Collectors\LinksCollectorTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\TitleSetterTrait;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 use O2System\Spl\Iterators\ArrayIterator;
 
 /**
@@ -36,6 +37,15 @@ class Body extends Element
     {
         parent::__construct( 'div', 'card-body' );
         $this->attributes->addAttributeClass( 'card-body' );
+    }
+
+    public function createRow()
+    {
+        $row = new Row();
+
+        $this->childNodes->push( $row );
+
+        return $this->childNodes->last();
     }
 
     public function createBlockquote( $text = null )

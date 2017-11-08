@@ -17,7 +17,7 @@ namespace O2System\Framework\Libraries\Ui\Components\Modal\Dialog;
 use O2System\Framework\Libraries\Ui\Components\Modal\Dialog\Content\Body;
 use O2System\Framework\Libraries\Ui\Components\Modal\Dialog\Content\Footer;
 use O2System\Framework\Libraries\Ui\Components\Modal\Dialog\Content\Header;
-use O2System\Html\Element;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Content

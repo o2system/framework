@@ -120,13 +120,7 @@ use O2System\Framework\Models\Sql\Model;
  */
 class CLASS extends Model
 {
-    /**
-     * CLASS::__construct
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    public \$table = 'table_name';
 }
 PHPTEMPLATE;
 
