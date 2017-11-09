@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http;
@@ -76,6 +77,7 @@ class View
         }
 
         $this->document = new Html\Document();
+        $this->document->formatOutput = (bool) $this->config->beautify;
     }
 
     /**
@@ -182,8 +184,8 @@ class View
             return $this->page( $filename->getRealPath(), array_merge( $vars, $filename->getVars() ) );
         } else {
             $pageDirectories = modules()->getDirs( 'Pages' );
-            foreach( $pageDirectories as $pageDirectory ) {
-                if( is_file( $pageFilePath = $pageDirectory . $filename . '.phtml' ) ) {
+            foreach ( $pageDirectories as $pageDirectory ) {
+                if ( is_file( $pageFilePath = $pageDirectory . $filename . '.phtml' ) ) {
                     $filename = $pageFilePath;
                     break;
                 }
@@ -319,7 +321,7 @@ class View
 
         if ( presenter()->theme->use === true ) {
             presenter()->theme->load();
-            if( false !== ( $layout = presenter()->theme->active->getLayout() ) ) {
+            if ( false !== ( $layout = presenter()->theme->active->getLayout() ) ) {
                 parser()->loadFile( $layout->getRealPath() );
                 $htmlOutput = parser()->parse();
                 $this->document->loadHTML( presenter()->assets->parseSourceCode( $htmlOutput ) );
@@ -352,6 +354,34 @@ class View
                     $cacheItemPool->save( new Item( $cacheKey, $htmlOutput, presenter()->cacheOutput ) );
                 }
             }
+        }
+
+        // Minify Output
+        if ( $this->config->output->minify === true ) {
+            $htmlOutput = preg_replace(
+                [
+                    '/\>[^\S ]+/s',     // strip whitespaces after tags, except space
+                    '/[^\S ]+\</s',     // strip whitespaces before tags, except space
+                    '/(\s)+/s',         // shorten multiple whitespace sequences
+                    '/<!--(.|\s)*?-->/', // Remove HTML comments
+                    '/<!--(.*)-->/Uis',
+                    "/[[:blank:]]+/",
+                ],
+                [
+                    '>',
+                    '<',
+                    '\\1',
+                    '',
+                    '',
+                    ' ',
+                ],
+                str_replace( [ "\n", "\r", "\t" ], '', $htmlOutput ) );
+        }
+
+        // Beautify Output
+        if ( $this->config->output->minify === false && $this->config->output->beautify === true ) {
+            $beautifier = new Html\Dom\Beautifier();
+            $htmlOutput = $beautifier->format( $htmlOutput );
         }
 
         output()->send( $htmlOutput );
