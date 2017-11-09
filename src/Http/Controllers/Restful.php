@@ -132,7 +132,7 @@ class Restful extends Controller
     public function __construct()
     {
         if ( o2system()->hasService( 'presenter' ) ) {
-            presenter()->theme - set( false );
+            presenter()->theme->set( false );
         }
 
         if ( is_ajax() ) {
