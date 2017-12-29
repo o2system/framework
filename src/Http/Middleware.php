@@ -28,6 +28,7 @@ class Middleware extends AbstractObjectRegistryPattern
     {
         $this->register( new Middleware\Environment(), 'environment' );
         $this->register( new Middleware\Maintenance(), 'maintenance' );
+        $this->register( new Middleware\SignOn(), 'sign-on' );
         $this->register( new Middleware\Cache(), 'cache' );
     }
 

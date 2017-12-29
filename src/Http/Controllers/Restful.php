@@ -27,10 +27,10 @@ use O2System\Psr\Http\Header\ResponseFieldInterface;
 class Restful extends Controller
 {
     /**
-     * Push Access-Control-Allow-Origin flag
+     * Push headers flag
      *
-     * Used for push 'Access-Control-Allow-Origin: *' to header
-     * If you're set this flag into FALSE you must push it via server configuration
+     * Used for push default headers by controller.
+     * Set to FALSE if you want to set default headers on the web-server configuration.
      *
      * APACHE via .htaccess
      * IIS via .webconfig
@@ -38,7 +38,7 @@ class Restful extends Controller
      *
      * @type string
      */
-    protected $pushAccessControlAllowOrigin = true;
+    protected $pushDefaultHeaders = false;
 
     /**
      * Access-Control-Allow-Origin
@@ -72,8 +72,8 @@ class Restful extends Controller
     protected $accessControlAllowMethods = [
         'GET', // common request
         'POST', // used for create, update request
-        'PUT', // used for upload files request
-        'DELETE', // used for delete request
+        //'PUT', // used for upload files request
+        //'DELETE', // used for delete request
         'OPTIONS', // used for preflight request
     ];
 
@@ -89,7 +89,7 @@ class Restful extends Controller
         'Origin',
         'Access-Control-Request-Method',
         'Access-Control-Request-Headers',
-        'API-Authenticate', // API-Authenticate: api_key="xxx", api_secret="xxx", api_signature="xxx"
+        'X-Api-Authenticate', // API-Authenticate: api_key="xxx", api_secret="xxx", api_signature="xxx"
         'X-Api-Token',
         'X-Web-Token', // X-Web-Token: xxx (json-web-token)
         'X-Csrf-Token',
@@ -131,25 +131,25 @@ class Restful extends Controller
      */
     public function __construct()
     {
-        if ( o2system()->hasService( 'presenter' ) ) {
-            presenter()->theme->set( false );
+        if (o2system()->hasService('presenter')) {
+            presenter()->theme->set(false);
         }
 
-        if ( is_ajax() ) {
-            output()->setContentType( 'application/json' );
+        if (is_ajax()) {
+            output()->setContentType('application/json');
         } else {
-            output()->setContentType( 'text/html' );
+            output()->setContentType('text/html');
         }
 
-        if ( $contentType = input()->server( 'HTTP_X_REQUESTED_CONTENT_TYPE' ) ) {
-            if ( in_array( $contentType, $this->accessControlAllowContentTypes ) ) {
-                output()->setContentType( $contentType );
+        if ($contentType = input()->server('HTTP_X_REQUESTED_CONTENT_TYPE')) {
+            if (in_array($contentType, $this->accessControlAllowContentTypes)) {
+                output()->setContentType($contentType);
             }
         }
 
-        if ( $this->pushAccessControlAllowOrigin ) {
+        if ($this->pushDefaultHeaders) {
 
-            $origin = input()->server( 'HTTP_ORIGIN' );
+            $origin = input()->server('HTTP_ORIGIN');
 
             /**
              * Prepare for preflight modern browser request
@@ -157,16 +157,47 @@ class Restful extends Controller
              * Since some server cannot use 'Access-Control-Allow-Origin: *'
              * the Access-Control-Allow-Origin will be defined based on requested origin
              */
-            if ( $this->accessControlAllowOrigin === '*' ) {
-                output()->addHeader( ResponseFieldInterface::RESPONSE_ACCESS_CONTROL_ALLOW_CREDENTIALS, $origin );
+            if ($this->accessControlAllowOrigin === '*') {
+                output()->addHeader(ResponseFieldInterface::RESPONSE_ACCESS_CONTROL_ALLOW_ORIGIN, $origin);
+            }
+
+            // Set response access control allowed credentials
+            if ($this->accessControlAllowCredentials === false) {
+                output()->addHeader(ResponseFieldInterface::RESPONSE_ACCESS_CONTROL_ALLOW_CREDENTIALS, 'false');
+            }
+
+            // Set response access control allowed methods header
+            if (count($this->accessControlAllowMethods)) {
+                output()->addHeader(
+                    ResponseFieldInterface::RESPONSE_ACCESS_CONTROL_ALLOW_METHODS,
+                    implode(', ', $this->accessControlAllowMethods)
+                );
+            }
+
+            // Set response access control allowed headers header
+            if (count($this->accessControlAllowHeaders)) {
+                output()->addHeader(
+                    ResponseFieldInterface::RESPONSE_ACCESS_CONTROL_ALLOW_HEADERS,
+                    implode(', ', $this->accessControlAllowHeaders)
+                );
+            }
+
+            // Set response access control allowed content types header
+            if (count($this->accessControlAllowContentTypes)) {
+                output()->addHeader(
+                    ResponseFieldInterface::RESPONSE_ACCESS_CONTROL_ALLOW_CONTENT_TYPES,
+                    implode(', ', $this->accessControlAllowContentTypes)
+                );
+            }
+
+            // Set response access control max age header
+            if ($this->accessControlMaxAge > 0) {
+                output()->addHeader(ResponseFieldInterface::RESPONSE_ACCESS_CONTROL_MAX_AGE, $this->accessControlMaxAge);
             }
         }
 
-        if ( count( $this->accessControlAllowMethods ) ) {
-            output()->addHeader(
-                ResponseFieldInterface::RESPONSE_ACCESS_CONTROL_ALLOW_METHODS,
-                implode( ', ', $this->accessControlAllowMethods )
-            );
+        if (input()->server('REQUEST_METHOD') === 'OPTIONS') {
+            exit(EXIT_SUCCESS);
         }
     }
 
@@ -177,7 +208,7 @@ class Restful extends Controller
      */
     public function index()
     {
-        output()->sendError( 204 );
+        output()->sendError(204);
     }
 
     // ------------------------------------------------------------------------
@@ -188,19 +219,19 @@ class Restful extends Controller
      * @param mixed $data        The payload data to-be send.
      * @param bool  $longPooling Long pooling flag mode.
      */
-    protected function sendPayload( $data, $longPooling = false )
+    protected function sendPayload($data, $longPooling = false)
     {
-        if ( $longPooling === false ) {
-            if ( $this->ajaxOnly ) {
-                if ( is_ajax() ) {
-                    output()->send( $data );
+        if ($longPooling === false) {
+            if ($this->ajaxOnly) {
+                if (is_ajax()) {
+                    output()->send($data);
                 } else {
-                    output()->sendError( 403 );
+                    output()->sendError(403);
                 }
             } else {
-                output()->send( $data );
+                output()->send($data);
             }
-        } elseif ( is_ajax() ) {
+        } elseif (is_ajax()) {
             /**
              * Server-side file.
              * This file is an infinitive loop. Seriously.
@@ -214,44 +245,44 @@ class Restful extends Controller
              */
 
             // set php runtime to unlimited
-            set_time_limit( 0 );
+            set_time_limit(0);
 
-            $longPoolingCacheKey = 'long-pooling-' . session()->get( 'id' );
+            $longPoolingCacheKey = 'long-pooling-' . session()->get('id');
             $longPoolingCacheData = null;
 
-            if( ! cache()->hasItem( $longPoolingCacheKey ) ) {
-                cache()->save( new Item( $longPoolingCacheKey, $data ) );
+            if ( ! cache()->hasItem($longPoolingCacheKey)) {
+                cache()->save(new Item($longPoolingCacheKey, $data));
             }
 
             // main loop
-            while ( true ) {
+            while (true) {
                 // if ajax request has send a timestamp, then $lastCallTimestamp = timestamp, else $last_call = null
-                $lastCallTimestamp = (int) input()->getPost( 'last_call_timestamp' );
+                $lastCallTimestamp = (int)input()->getPost('last_call_timestamp');
 
                 // PHP caches file data, like requesting the size of a file, by default. clearstatcache() clears that cache
                 clearstatcache();
 
-                if ( cache()->hasItem( $longPoolingCacheKey ) ) {
-                    $longPoolingCacheData = cache()->getItem( $longPoolingCacheKey );
+                if (cache()->hasItem($longPoolingCacheKey)) {
+                    $longPoolingCacheData = cache()->getItem($longPoolingCacheKey);
                 }
 
                 // get timestamp of when file has been changed the last time
                 $longPoolingCacheMetadata = $longPoolingCacheData->getMetadata();
 
                 // if no timestamp delivered via ajax or data.txt has been changed SINCE last ajax timestamp
-                if ( $lastCallTimestamp == null || $longPoolingCacheMetadata[ 'ctime' ] > $lastCallTimestamp ) {
-                    output()->send( [
+                if ($lastCallTimestamp == null || $longPoolingCacheMetadata[ 'ctime' ] > $lastCallTimestamp) {
+                    output()->send([
                         'timestamp' => $longPoolingCacheMetadata,
-                        'data'     => $data,
-                    ] );
+                        'data'      => $data,
+                    ]);
                 } else {
                     // wait for 1 sec (not very sexy as this blocks the PHP/Apache process, but that's how it goes)
-                    sleep( 1 );
+                    sleep(1);
                     continue;
                 }
             }
         } else {
-            output()->sendError( 501 );
+            output()->sendError(501);
         }
     }
 }

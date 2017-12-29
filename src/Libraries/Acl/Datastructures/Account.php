@@ -38,11 +38,10 @@ class Account extends AbstractItemStoragePattern
             'username' => null,
             'password' => null,
             'pin'      => null,
-            'sso'      => null,
         ];
 
         foreach ( $defaultAccount as $item => $value ) {
-            if ( in_array( $item, [ 'password', 'pin', 'sso' ] ) and $hash === true ) {
+            if ( in_array( $item, [ 'password', 'pin' ] ) and $hash === true ) {
                 if( isset( $account[ $item ] ) ) {
                     $config = config( 'acl', true) ;
 

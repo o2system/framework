@@ -14,7 +14,9 @@ namespace O2System\Framework\Libraries\Ui\Components\Card;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Libraries\Ui\Components\Card\Body\Author;
 use O2System\Framework\Libraries\Ui\Components\Card\Body\Blockquote;
+use O2System\Framework\Libraries\Ui\Components\Card\Body\Testimonial;
 use O2System\Framework\Libraries\Ui\Grid\Row;
 use O2System\Framework\Libraries\Ui\Traits\Collectors\LinksCollectorTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
@@ -33,11 +35,15 @@ class Body extends Element
     use ParagraphSetterTrait;
     use LinksCollectorTrait;
 
+    // ------------------------------------------------------------------------
+
     public function __construct()
     {
         parent::__construct( 'div', 'card-body' );
         $this->attributes->addAttributeClass( 'card-body' );
     }
+
+    // ------------------------------------------------------------------------
 
     public function createRow()
     {
@@ -48,6 +54,15 @@ class Body extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Body::createBlockquote
+     *
+     * @param string|null $text
+     *
+     * @return \O2System\Framework\Libraries\Ui\Components\Card\Body\Blockquote
+     */
     public function createBlockquote( $text = null )
     {
         $blockquote = new Blockquote();
@@ -61,15 +76,48 @@ class Body extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Body::createTestimonial
+     *
+     * @param string|null $text
+     *
+     * @return \O2System\Framework\Libraries\Ui\Components\Card\Body\Testimonial
+     */
     public function createTestimonial( $text = null )
     {
+        $testimonial = new Testimonial();
 
+        if ( isset( $text ) ) {
+            $testimonial->setParagraph( $text );
+        }
+
+        $this->childNodes->push( $testimonial );
+
+        return $this->childNodes->last();
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Body::createAuthor
+     *
+     * @return \O2System\Framework\Libraries\Ui\Components\Card\Body\Author
+     */
+    public function createAuthor()
+    {
+        $this->childNodes->push( new Author() );
+
+        return $this->childNodes->last();
     }
 
     public function createPrice( $price, $discount = null, $validUntil = null )
     {
 
     }
+
+    // ------------------------------------------------------------------------
 
     public function render()
     {

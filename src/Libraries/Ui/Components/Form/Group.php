@@ -95,6 +95,6 @@ class Group extends Element implements ContextualInterface
             }
         }
 
-        parent::render();
+        return parent::render();
     }
 }

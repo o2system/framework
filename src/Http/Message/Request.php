@@ -71,6 +71,13 @@ class Request extends Message\Request implements \IteratorAggregate
 
     // ------------------------------------------------------------------------
 
+    public function getClientUserAgent()
+    {
+        return input()->userAgent();
+    }
+
+    // ------------------------------------------------------------------------
+
     /**
      * Determines if this request was made from the command line (CLI).
      *

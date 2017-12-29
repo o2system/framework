@@ -63,7 +63,7 @@ class Registry extends Commander
         ],
         'metadata' => [
             'description' => 'CLI_REGISTRY_METADATA_DESC',
-            'help'        => 'CLI_REGISTRY_HELP_METADATA',
+            'help'        => 'CLI_REGISTRY_METADATA_HELP',
         ],
     ];
 
@@ -150,7 +150,7 @@ class Registry extends Commander
             }
 
             if ( isset( $line ) ) {
-                output()->writeln( $line );
+                output()->write( $line );
 
                 exit( EXIT_SUCCESS );
             }

@@ -132,7 +132,7 @@ class Serve extends Commander
             ':' .
             $this->optionPort .
             ' -t ' .
-            str_replace( '\\', DIRECTORY_SEPARATOR, DIR_PUBLIC ) . ' server.php'
+            str_replace( '\\', DIRECTORY_SEPARATOR, DIR_PUBLIC ) . ' ' . PATH_ROOT . 'server.php'
         );
     }
 }

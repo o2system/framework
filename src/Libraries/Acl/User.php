@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Acl;
@@ -16,7 +17,7 @@ namespace O2System\Framework\Libraries\Acl;
 
 use O2System\Framework\Http\Message\Request;
 use O2System\Framework\Libraries\Acl\Datastructures\Account;
-use O2System\Framework\Libraries\Acl\Sso\Broker;
+use O2System\Framework\Libraries\Acl\Datastructures\Signature;
 use O2System\Spl\Datastructures\SplArrayObject;
 use O2System\Spl\Exceptions\RuntimeException;
 use O2System\Spl\Iterators\ArrayIterator;
@@ -28,51 +29,73 @@ use O2System\Spl\Iterators\ArrayIterator;
  */
 class User
 {
-    protected $broker;
-    protected $attempts = 0;
+    protected $algorithm = PASSWORD_DEFAULT;
+    protected $options = [];
+    protected $msisdnRegex = '/^\+[1-9]{1}[0-9]{3,14}$/';
+    protected $maxAttempts = 5;
+    protected $currentAttempts = 0;
+    protected $sso = [
+        'enable' => false,
+        'server' => null,
+    ];
 
     public function __construct()
     {
-        if ( ! models( 'users' ) ) {
-            throw new RuntimeException('E_UNDEFINED_USERS_MODEL');
+        language()->loadFile('acl');
+
+        if ( ! models('users')) {
+            throw new RuntimeException('ACL_E_UNDEFINED_USERS_MODEL');
         }
 
-        $this->attempts = (int)session()->offsetGet( 'aclAttempts' );
+        if ($config = config()->loadFile('acl', true)) {
+
+            if ($config->offsetExists('algorithm')) {
+                $this->algorithm = $config->algorithm;
+            }
+
+            if ($config->offsetExists('options')) {
+                $this->options = (array)$config->options;
+            }
+
+            if ($config->offsetExists('msisdnRegex')) {
+                $this->msisdnRegex = (string)$config->msisdnRegex;
+            }
+
+            if ($config->offsetExists('attempts')) {
+                $this->maxAttempts = (int)$config->attempts;
+            }
+
+            if ($config->offsetExists('sso')) {
+                $this->sso = $config->sso->getArrayCopy();
+            }
+        }
+
+        $this->currentAttempts = (int)session()->offsetGet('aclAttempts');
     }
 
-    public function login( $username, $password, $remember = false )
+    public function login($username, $password, $remember = false)
     {
-        $config = config( 'acl', true) ;
-
-        if( empty( $config ) ) {
-            $config = new SplArrayObject([
-                'algorithm' => PASSWORD_DEFAULT,
-                'options' => [ ],
-                'msisdnRegex' => '/^\+[1-9]{1}[0-9]{3,14}$/'
-            ]);
-        }
-
         $condition = 'username';
-        if( filter_var( $username, FILTER_VALIDATE_EMAIL ) ) {
+        if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
             $condition = 'email';
-        } elseif( preg_match( $config->msisdnRegex, $username ) ) {
+        } elseif (preg_match($this->msisdnRegex, $username)) {
             $condition = 'msisdn';
         }
 
-        if ( ( $account = models( 'users' )->findAccount( $username, $condition ) ) instanceof Account
+        if (($account = models('users')->findAccount($username, $condition)) instanceof Account
         ) {
-            if ( password_verify( $password, $account->password ) ) {
+            if (password_verify($password, $account->password)) {
 
-                if( ! empty( $config->options ) ) {
-                    $config->algorithm = PASSWORD_BCRYPT;
+                if ( ! empty($this->options)) {
+                    $this->algorithm = PASSWORD_BCRYPT;
                 }
 
-                if ( password_needs_rehash(
+                if (password_needs_rehash(
                     $account->password,
-                    $config->algorithm,
-                    $config->options
-                ) ) {
-                    models( 'users' )->updateAccount(
+                    $this->algorithm,
+                    $this->options
+                )) {
+                    models('users')->updateAccount(
                         new Account(
                             [
                                 'username' => $account->username,
@@ -82,38 +105,70 @@ class User
                     );
                 }
 
+                // set user single-sign-on (sso)
+                if (method_exists(models('users'), 'insertSignature')) {
+                    models('users')->insertSignature(new Signature([
+                        'id_sys_user' => $account->id,
+                        'code'        => $account[ 'ssid' ] = md5(json_encode($account) . mt_srand() . time()),
+                    ]));
+
+                    set_cookie('ssid', $account[ 'ssid' ]);
+                }
+
                 // set user session
-                unset( $account[ 'password' ], $account[ 'pin' ] );
-                session()->offsetSet( 'account', $account );
-                session()->offsetUnset( 'aclAttempts' );
+                unset($account[ 'password' ], $account[ 'pin' ]);
+                session()->offsetSet('account', $account);
+                session()->offsetUnset('aclAttempts');
 
                 return true;
             }
         }
 
-        session()->offsetSet( 'aclAttempts', ++$this->attempts );
+        session()->offsetSet('aclAttempts', ++$this->currentAttempts);
 
         return false;
     }
 
-    public function getAttempts()
+    public function validate($ssid)
     {
-        return (int)$this->attempts;
-    }
+        if (method_exists(models('users'), 'findSignature')) {
+            if (($account = models('users')->findSignature($ssid)) instanceof Account
+            ) {
+                // set user session
+                unset($account[ 'password' ], $account[ 'pin' ]);
+                session()->offsetSet('account', $account);
 
-    public function getAccount()
-    {
-        if( session()->offsetExists('account') ) {
-            return session()->offsetGet( 'account' );
+                if (method_exists(models('users'), 'deleteSignature')) {
+                    models('users')->deleteSignature($account);
+                }
+
+                return true;
+            }
         }
 
         return false;
     }
 
-    public function getProfile( $scope = 'ALL' )
+    public function getCurrentAttempts()
     {
-        if( false !== ( $account = $this->getAccount() ) ) {
-            return models( 'users' )->getProfile( $account->id, $scope );
+        return (int)$this->currentAttempts;
+    }
+
+    public function getAccount()
+    {
+        if (session()->offsetExists('account')) {
+            return session()->offsetGet('account');
+        }
+
+        return false;
+    }
+
+    public function getProfile($scope = 'ALL')
+    {
+        if (false !== ($account = $this->getAccount())) {
+            if (method_exists(models('users'), 'getProfile')) {
+                return models('users')->getProfile($account->id, $scope);
+            }
         }
 
         return false;
@@ -121,8 +176,10 @@ class User
 
     public function getRoles()
     {
-        if( false !== ( $account = $this->getAccount() ) ) {
-            return models( 'users' )->getRoles( $account->id );
+        if (false !== ($account = $this->getAccount())) {
+            if (method_exists(models('users'), 'getRoles')) {
+                return models('users')->getRoles($account->id);
+            }
         }
 
         return false;
@@ -130,37 +187,39 @@ class User
 
     public function getRolesAccess()
     {
-        if( false !== ( $account = $this->getAccount() ) ) {
-            return models( 'users' )->getRolesAccess( $account->id );
+        if (false !== ($account = $this->getAccount())) {
+            if (method_exists(models('users'), 'getRolesAccess')) {
+                return models('users')->getRolesAccess($account->id);
+            }
         }
 
         return false;
     }
 
-    public function authorize( Request $request )
+    public function authorize(Request $request)
     {
         static $roles;
         static $rolesAccess;
 
-        if( empty( $roles ) ) {
+        if (empty($roles)) {
             $roles = $this->getRoles();
         }
 
-        foreach( $roles as $role ) {
-            if( in_array( $role->code, [ 'DEVELOPER', 'ADMINISTRATOR' ], true ) ) {
+        foreach ($roles as $role) {
+            if (in_array($role->code, ['DEVELOPER', 'ADMINISTRATOR'], true)) {
                 return true;
                 break;
             }
         }
 
-        if( empty( $rolesAccess ) ) {
+        if (empty($rolesAccess)) {
             $rolesAccess = $this->getRolesAccess();
         }
 
-        if( $rolesAccess instanceof ArrayIterator ) {
+        if ($rolesAccess instanceof ArrayIterator) {
             $uriString = $request->getController()->getRequestSegments()->getString();
-            if( false !== ( $access = $rolesAccess->offsetGet( $uriString ) ) ) {
-                if( $access->permissions === 'GRANTED' ) {
+            if (false !== ($access = $rolesAccess->offsetGet($uriString))) {
+                if ($access->permissions === 'GRANTED') {
                     return true;
                 }
             }
@@ -169,42 +228,69 @@ class User
         return false;
     }
 
+    public function getIframeCode()
+    {
+        if ($this->sso[ 'enable' ] && $this->loggedIn() === false) {
+            return '<iframe id="sign-on-iframe" width="1" height="1" src="' . rtrim($this->sso[ 'server' ],
+                    '/') . '/sign-on.html" style="display: none; visibility: hidden;"></iframe>';
+        }
+
+        return '';
+    }
+
+    public function getIframeScript()
+    {
+        return '<script>window.parent.location.reload();</script>';
+    }
+
     public function loggedIn()
     {
-        if ( $this->broker instanceof Broker ) {
-            return (bool)$this->broker->signIn();
+        if ($this->sso[ 'enable' ] === true && ! session()->offsetExists('account')) {
+            if ($token = get_cookie('ssid')) {
+                $this->validate($token);
+            }
         }
 
-        return (bool)session()->offsetExists( 'account' );
+        return (bool)session()->offsetExists('account');
     }
 
-    public function logout( $redirectUrl = null )
+    public function logout()
     {
-        session()->offsetUnset( 'account' );
-
-        if ( isset( $redirectUrl ) ) {
-            redirect_url( $redirectUrl );
+        if ($this->loggedIn()) {
+            if (method_exists(models('users'), 'deleteSignature')) {
+                models('users')->deleteSignature($this->getAccount());
+            }
         }
+
+        delete_cookie('ssid');
+
+        session()->destroy();
     }
 
-    public function register( Account $account )
+    /**
+     * @todo: moved into model user
+     *
+     * @param \O2System\Framework\Libraries\Acl\Datastructures\Account $account
+     *
+     * @return bool
+     */
+    public function register(Account $account)
     {
-        $model = models( 'users' );
+        $model = models('users');
         $model->db->transactionBegin();
 
-        $model->insert( [
+        $model->insert([
             'email'    => $account->email,
             'msisdn'   => $account->msisdn,
             'username' => $account->username,
             'password' => $account->password,
             'pin'      => $account->pin,
-            'sso'      => $account->sso,
-        ] );
+        ]);
 
-        if ( $model->db->getTransactionStatus() ) {
+        if ($model->db->getTransactionStatus()) {
             $id_sys_user = $model->connection->getLastInsertId();
 
-            $model->profile->insert( [
+            $model->profile->insert([
                 'id_sys_user'  => $id_sys_user,
                 'name_first'   => $account->profile->name->first,
                 'name_middle'  => $account->profile->name->middle,
@@ -216,16 +302,16 @@ class User
                 'religion'     => $account->profile->religion,
                 'biography'    => $account->profile->biography,
                 'metadata'     => $account->profile->metadata,
-            ] );
+            ]);
 
-            if ( $model->db->getTransactionStatus() ) {
+            if ($model->db->getTransactionStatus()) {
 
-                $model->role->insert( [
+                $model->role->insert([
                     'id_sys_user'             => $id_sys_user,
                     'id_sys_module_user_role' => $account->role,
-                ] );
+                ]);
 
-                if ( $model->db->getTransactionStatus() ) {
+                if ($model->db->getTransactionStatus()) {
                     $model->db->transactionCommit();
                 }
             }

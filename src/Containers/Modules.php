@@ -104,8 +104,8 @@ class Modules extends SplArrayStack
             // Autoload Module Config
             $this->autoloadConfig( $module );
 
-            // Autoload Module Router Maps
-            $this->autoloadRoutes( $module );
+            // Autoload Module Addresses
+            $this->autoloadAddresses( $module );
 
             // Autoload Module Hooks Closures
             $this->autoloadHooks( $module );
@@ -187,13 +187,13 @@ class Modules extends SplArrayStack
     // ------------------------------------------------------------------------
 
     /**
-     * Modules::autoloadRoutes
+     * Modules::autoloadAddresses
      *
      * Autoload modules routes.
      *
      * @param \O2System\Framework\Datastructures\Module $module
      */
-    private function autoloadRoutes( Datastructures\Module $module )
+    private function autoloadAddresses( Datastructures\Module $module )
     {
         // Routes is not available on cli
         if ( is_cli() ) {
@@ -203,17 +203,17 @@ class Modules extends SplArrayStack
         if ( is_file(
             $filePath = $module->getRealPath() . 'Config' . DIRECTORY_SEPARATOR . ucfirst(
                     strtolower( ENVIRONMENT )
-                ) . DIRECTORY_SEPARATOR . 'Routes.php'
+                ) . DIRECTORY_SEPARATOR . 'Addresses.php'
         ) ) {
             include( $filePath );
-        } elseif ( is_file( $filePath = $module->getRealPath() . 'Config' . DIRECTORY_SEPARATOR . 'Routes.php' ) ) {
+        } elseif ( is_file( $filePath = $module->getRealPath() . 'Config' . DIRECTORY_SEPARATOR . 'Addresses.php' ) ) {
             include( $filePath );
         }
 
-        if ( isset( $routes ) AND $routes instanceof Addresses ) {
-            config()->addItem( 'routes', $routes );
+        if ( isset( $addresses ) AND $addresses instanceof Addresses ) {
+            config()->addItem( 'addresses', $addresses );
 
-            unset( $routes );
+            unset( $addresses );
         }
     }
 

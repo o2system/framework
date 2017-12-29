@@ -8,15 +8,17 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Card\Body;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Libraries\Ui\Contents\Image;
 use O2System\Framework\Libraries\Ui\Contents\Link;
-use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
 use O2System\Framework\Libraries\Ui\Element;
+use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
 
 /**
  * Class Testimonial
@@ -27,10 +29,12 @@ class Testimonial extends Element
 {
     use ParagraphSetterTrait;
 
-    public $photo;
+    /**
+     * Testimonial::$author
+     *
+     * @var \O2System\Framework\Libraries\Ui\Components\Card\Body\Author
+     */
     public $author;
-    public $jobTitle;
-    public $company;
 
     public function __construct()
     {
@@ -38,43 +42,11 @@ class Testimonial extends Element
         $this->attributes->addAttributeClass( 'card-testimonial' );
     }
 
-    public function setPhoto( $photo )
+    public function createAuthor()
     {
+        $this->author = new Author();
 
-    }
-
-    public function setAuthor( $name, $href = null )
-    {
-        $this->author = new Element( 'small', 'author' );
-
-        if ( isset( $href ) ) {
-            $this->author->childNodes->push( new Link( $name, $href ) );
-        } else {
-            $this->author->textContent->push( $name );
-        }
-
-        return $this;
-    }
-
-    public function setJobTitle( $position )
-    {
-        $this->jobTitle = new Element( 'cite', 'source' );
-        $this->jobTitle->textContent->push( $position );
-
-        return $this;
-    }
-
-    public function setCompany( $company, $href = null )
-    {
-        $this->company = new Element( 'cite', 'source' );
-
-        if ( isset( $href ) ) {
-            $this->company->childNodes->push( new Link( $company, $href ) );
-        } else {
-            $this->company->textContent->push( $company );
-        }
-
-        return $this;
+        return $this->author;
     }
 
     public function render()
@@ -83,27 +55,12 @@ class Testimonial extends Element
             $this->childNodes->push( $this->paragraph );
         }
 
-        $footer = new Element( 'div', 'footer' );
-        $footer->attributes->addAttributeClass( 'blockquote-footer' );
+        $output[] = parent::render();
 
-        if ( $this->author instanceof Element ) {
-            $footer->childNodes->push( $this->author );
-
-            if ( $this->author->tagName === 'small' && $this->jobTitle instanceof Element ) {
-                $this->author->childNodes->push( $this->jobTitle );
-            } elseif ( $this->jobTitle instanceof Element ) {
-                $footer->childNodes->push( $this->jobTitle );
-            }
-        } elseif ( $this->jobTitle instanceof Element ) {
-            $footer->childNodes->push( $this->jobTitle );
+        if( $this->author instanceof Author ) {
+            $output[] = $this->author->render();
         }
 
-        $this->childNodes->push( $footer );
-
-        if ( $this->hasChildNodes() ) {
-            return parent::render();
-        }
-
-        return '';
+        return implode( PHP_EOL, $output );
     }
 }

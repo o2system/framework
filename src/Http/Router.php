@@ -187,6 +187,8 @@ class Router
                     $controllerClassName = $controllerNamespace . implode( '\\',
                             array_map( 'studlycase', $uriRoutedSegments ) );
 
+                    $classes[] = $controllerClassName;
+
                     if ( class_exists( $controllerClassName ) ) {
                         $defaultAction = $addresses->any( '/', function () use ( $controllerClassName ) {
                             return new Router\Datastructures\Controller( $controllerClassName );

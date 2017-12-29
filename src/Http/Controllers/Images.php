@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Controllers;
@@ -25,127 +26,141 @@ use O2System\Image\Manipulation;
  */
 class Images extends Controller
 {
-    public $imagesPath;
-    public $imagesNotFound = 'not-found.jpg';
+    public $imagePath;
+    public $imageNotFound = 'not-found.jpg';
+
+    public $imageFilePath = null;
+    public $imageFileMime = null;
+    public $imageSize = [
+        'width'  => null,
+        'height' => null,
+    ];
+
+    public $imageScale = null;
+    public $imageQuality = null;
+    public $imageCrop = false;
 
     public function __construct()
     {
-        $this->imagesPath = PATH_STORAGE . 'images' . DIRECTORY_SEPARATOR;
-        $this->imagesNotFound = $this->imagesPath . 'not-found.jpg';
+        $this->imagePath = PATH_STORAGE . 'images' . DIRECTORY_SEPARATOR;
+        $this->imageNotFound = $this->imagePath . 'not-found.jpg';
     }
 
     public function route()
     {
-        print_out('test');
         $segments = array_merge([func_get_arg(0)], func_get_arg(1));
-        $filePath = $this->imagesNotFound;
+        $this->imageFilePath = $this->imageNotFound;
+
+        $this->imageSize[ 'width' ] = input()->get('width');
+        $this->imageSize[ 'height' ] = input()->get('height');
+        $this->imageScale = input()->get('scale');
+        $this->imageQuality = input()->get('quality');
+        $this->imageCrop = input()->get('crop');
 
         if (false !== ($key = array_search('crop', $segments))) {
-            $_GET['crop'] = true;
-            unset($segments[$key]);
+            $this->imageCrop = true;
+            unset($segments[ $key ]);
             $segments = array_values($segments);
         }
 
         if (count($segments) == 1) {
-            $filePath = $this->imagesPath . end($segments);
+            $this->imageFilePath = $this->imagePath . end($segments);
         } elseif (count($segments) >= 2) {
-            if (preg_match("/(\d+)(x)(\d+)/", $segments[count($segments) - 2], $matches)) {
-                $size['width'] = $matches[1];
-                $size['height'] = $matches[3];
+            if (preg_match("/(\d+)(x)(\d+)/", $segments[ count($segments) - 2 ], $matches)) {
+                $this->imageSize[ 'width' ] = $matches[ 1 ];
+                $this->imageSize[ 'height' ] = $matches[ 3 ];
 
                 if (count($segments) == 2) {
-                    $filePath = $this->imagesPath . end($segments);
+                    $this->imageFilePath = $this->imagePath . end($segments);
                 } else {
-                    $filePath = $this->imagesPath . implode(DIRECTORY_SEPARATOR,
+                    $this->imageFilePath = $this->imagePath . implode(DIRECTORY_SEPARATOR,
                             array_slice($segments, 0,
                                 count($segments) - 2)) . DIRECTORY_SEPARATOR . end($segments);
                 }
-            } elseif (preg_match("/(\d+)(p)/", $segments[count($segments) - 2],
-                    $matches) or is_numeric($segments[count($segments) - 2])
+            } elseif (preg_match("/(\d+)(p)/", $segments[ count($segments) - 2 ],
+                    $matches) or is_numeric($segments[ count($segments) - 2 ])
             ) {
-                $scale = isset($matches[1]) ? $matches[1] : $segments[count($segments) - 2];
+                $this->imageScale = isset($matches[ 1 ]) ? $matches[ 1 ] : $segments[ count($segments) - 2 ];
                 if (count($segments) == 2) {
-                    $filePath = $this->imagesPath . end($segments);
+                    $this->imageFilePath = $this->imagePath . end($segments);
                 } else {
-                    $filePath = $this->imagesPath . implode(DIRECTORY_SEPARATOR,
+                    $this->imageFilePath = $this->imagePath . implode(DIRECTORY_SEPARATOR,
                             array_slice($segments, 0,
                                 count($segments) - 2)) . DIRECTORY_SEPARATOR . end($segments);
                 }
             } else {
-                $filePath = $this->imagesPath . implode(DIRECTORY_SEPARATOR, $segments);
+                $this->imageFilePath = $this->imagePath . implode(DIRECTORY_SEPARATOR, $segments);
             }
         }
 
-        if (!is_file($filePath)) {
-            $filePath = $this->imagesNotFound;
+        $imageFilePath = $this->imageFilePath;
+        $extensions[0] = pathinfo( $imageFilePath, PATHINFO_EXTENSION );
+
+        for($i = 0; $i < 2; $i++) {
+            $extension = pathinfo( $imageFilePath, PATHINFO_EXTENSION );
+
+            if( $extension !== '' ) {
+                $extensions[ $i ] = $extension;
+                $imageFilePath = str_replace('.' . $extensions[ $i], '', $imageFilePath );
+            }
         }
 
-        if (isset($scale)) {
-            $this->scale($filePath, $scale);
-        } elseif (isset($size)) {
-            $this->resize($filePath, $size);
+        $mimes = [
+            'gif' => 'image/gif',
+            'jpg' => 'image/jpeg',
+            'png' => 'image/png',
+            'webp' => 'image/webp'
+        ];
+
+        if( count( $extensions ) == 2 ) {
+            $this->imageFilePath = $imageFilePath . '.' . $extensions[ 1 ];
+        }
+
+        if( array_key_exists( $extension = reset( $extensions ), $mimes ) ) {
+            $this->imageFileMime = $mimes[ $extension ];
+        } elseif( array_key_exists( $extension = pathinfo( $this->imageFilePath, PATHINFO_EXTENSION), $mimes ) ) {
+            $this->imageFileMime = $mimes[ $extension ];
+        }
+
+        if ( ! is_file($this->imageFilePath)) {
+            $this->imageFilePath = $this->imageNotFound;
+        }
+
+        if ( ! empty($this->imageScale)) {
+            $this->scale();
+        } elseif ( ! empty($this->imageSize[ 'width' ]) || ! empty($this->imageSize[ 'height' ])) {
+            $this->resize();
         } else {
-            $this->original($filePath);
+            $this->original();
         }
     }
 
-    protected function original($filePath)
-    {
-        $manipulation = new Manipulation(config('image', true));
-        $manipulation->setImageFile($filePath);
-        $manipulation->displayImage();
-        exit(EXIT_SUCCESS);
-    }
-
-    protected function resize($filePath, $size)
+    protected function original()
     {
         $config = config('image', true);
 
-        if (input()->get('crop')) {
-            $config->offsetSet('autoCrop', true);
+        if ( ! empty($this->imageQuality)) {
+            $config->offsetSet('quality', intval($this->imageQuality));
         }
-
-        if ($config->cached === true) {
-            if ($filePath !== $this->imagesNotFound) {
-                $cacheImageKey = 'image-' . (input()->get('crop') ? 'crop-' : '') . implode('x',
-                        $size) . '-' . str_replace($this->imagesPath, '', $filePath);
-
-                if (cache()->hasItemPool('images')) {
-                    $cacheItemPool = cache()->getItemPool('images');
-
-                    if ($cacheItemPool->hasItem($cacheImageKey)) {
-                        $cacheImageString = $cacheItemPool->getItem($cacheImageKey)->get();
-
-                        $manipulation = new Manipulation($config);
-                        $manipulation->setImageFile($filePath);
-                        $manipulation->setImageString($cacheImageString);
-                        $manipulation->displayImage();
-                    } else {
-                        $manipulation = new Manipulation($config);
-                        $manipulation->setImageFile($filePath);
-                        $manipulation->resizeImage($size['width'], $size['height']);
-                        $cacheItemPool->save(new Item($cacheImageKey, $manipulation->getBlobImage(), false));
-
-                        $manipulation->displayImage();
-                        exit(EXIT_SUCCESS);
-                    }
-                }
-            }
-        }
-
 
         $manipulation = new Manipulation($config);
-        $manipulation->setImageFile($filePath);
-        $manipulation->resizeImage($size['width'], $size['height']);
-        $manipulation->displayImage();
+        $manipulation->setImageFile($this->imageFilePath);
+        $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
         exit(EXIT_SUCCESS);
     }
 
-    protected function scale($filePath, $scale)
+    protected function resize()
     {
-        if (config('image', true)->cached === true) {
-            if ($filePath !== $this->imagesNotFound) {
-                $cacheImageKey = 'image-' . $scale . '-' . str_replace($this->imagesPath, '', $filePath);
+        $config = config('image', true);
+
+        if ( ! empty($this->imageQuality)) {
+            $config->offsetSet('quality', intval($this->imageQuality));
+        }
+
+        if ($config->cached === true) {
+            if ($this->imageFilePath !== $this->imageNotFound) {
+                $cacheImageKey = 'image-' . (input()->get('crop') ? 'crop-' : '') . implode('x',
+                        $this->imageSize) . '-' . str_replace($this->imagePath, '', $this->imageFilePath);
 
                 if (cache()->hasItemPool('images')) {
                     $cacheItemPool = cache()->getItemPool('images');
@@ -153,27 +168,71 @@ class Images extends Controller
                     if ($cacheItemPool->hasItem($cacheImageKey)) {
                         $cacheImageString = $cacheItemPool->getItem($cacheImageKey)->get();
 
-                        $manipulation = new Manipulation(config('image', true));
-                        $manipulation->setImageFile($filePath);
+                        $manipulation = new Manipulation($config);
+                        $manipulation->setImageFile($this->imageFilePath);
                         $manipulation->setImageString($cacheImageString);
-                        $manipulation->displayImage();
+                        $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
                     } else {
-                        $manipulation = new Manipulation(config('image', true));
-                        $manipulation->setImageFile($filePath);
-                        $manipulation->scaleImage($scale);
+                        $manipulation = new Manipulation($config);
+                        $manipulation->setImageFile($this->imageFilePath);
+                        $manipulation->resizeImage($this->imageSize[ 'width' ], $this->imageSize[ 'height' ],
+                            (bool)$this->imageCrop);
                         $cacheItemPool->save(new Item($cacheImageKey, $manipulation->getBlobImage(), false));
 
-                        $manipulation->displayImage();
+                        $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
                         exit(EXIT_SUCCESS);
                     }
                 }
             }
         }
 
-        $manipulation = new Manipulation(config('image', true));
-        $manipulation->setImageFile($filePath);
-        $manipulation->scaleImage($scale);
-        $manipulation->displayImage();
+        $manipulation = new Manipulation($config);
+        $manipulation->setImageFile($this->imageFilePath);
+        $manipulation->resizeImage($this->imageSize[ 'width' ], $this->imageSize[ 'height' ], (bool)$this->imageCrop);
+        $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
+        exit(EXIT_SUCCESS);
+    }
+
+    protected function scale()
+    {
+        $config = config('image', true);
+
+        if ( ! empty($this->imageQuality)) {
+            $config->offsetSet('quality', intval($this->imageQuality));
+        }
+
+        if ($config->cached === true) {
+            if ($this->imageFilePath !== $this->imageNotFound) {
+                $cacheImageKey = 'image-' . $this->imageScale . '-' . str_replace($this->imagePath, '',
+                        $this->imageFilePath);
+
+                if (cache()->hasItemPool('images')) {
+                    $cacheItemPool = cache()->getItemPool('images');
+
+                    if ($cacheItemPool->hasItem($cacheImageKey)) {
+                        $cacheImageString = $cacheItemPool->getItem($cacheImageKey)->get();
+
+                        $manipulation = new Manipulation($config);
+                        $manipulation->setImageFile($this->imageFilePath);
+                        $manipulation->setImageString($cacheImageString);
+                        $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
+                    } else {
+                        $manipulation = new Manipulation($config);
+                        $manipulation->setImageFile($this->imageFilePath);
+                        $manipulation->scaleImage($this->imageScale);
+                        $cacheItemPool->save(new Item($cacheImageKey, $manipulation->getBlobImage(), false));
+
+                        $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
+                        exit(EXIT_SUCCESS);
+                    }
+                }
+            }
+        }
+
+        $manipulation = new Manipulation($config);
+        $manipulation->setImageFile($this->imageFilePath);
+        $manipulation->scaleImage($this->imageScale);
+        $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
         exit(EXIT_SUCCESS);
     }
 }
