@@ -28,7 +28,7 @@ trait ElementsCreatorTrait
      *
      * @param array $attributes
      *
-     * @return \O2System\Framework\Libraries\Ui\Contents\Form\Elements\Input
+     * @return \O2System\Framework\Libraries\Ui\Components\Form\Elements\Label
      */
     public function createLabel( $textContent = null, array $attributes = [] )
     {
@@ -51,7 +51,7 @@ trait ElementsCreatorTrait
      *
      * @param array $attributes
      *
-     * @return \O2System\Framework\Libraries\Ui\Contents\Form\Elements\Input
+     * @return \O2System\Framework\Libraries\Ui\Components\Form\Elements\Input
      */
     public function createInput( array $attributes = [] )
     {
@@ -83,7 +83,7 @@ trait ElementsCreatorTrait
      *
      * @param array $attributes
      *
-     * @return \O2System\Framework\Libraries\Ui\Contents\Form\Elements\Textarea
+     * @return \O2System\Framework\Libraries\Ui\Components\Form\Elements\Textarea
      */
     public function createTextarea( array $attributes = [] )
     {

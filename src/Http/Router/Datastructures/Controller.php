@@ -30,7 +30,7 @@ class Controller extends SplClassInfo
 
     private $requestMethodArgs = [];
 
-    private $properties;
+    private $properties = [];
 
     private $instance;
 

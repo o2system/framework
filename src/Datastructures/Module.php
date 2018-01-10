@@ -152,6 +152,20 @@ class Module extends SplDirectoryInfo
         return $this;
     }
 
+    public function getThemes()
+    {
+        $directory = new SplDirectoryInfo( $this->getPublicDir() . 'themes' . DIRECTORY_SEPARATOR );
+
+        $themes = [];
+        foreach( $directory->getTree() as $themeName => $themeTree ) {
+            if( ($theme = $this->getTheme( $themeName ) ) instanceof Theme ) {
+                $themes[ $themeName ] = $theme;
+            }
+        }
+
+        return $themes;
+    }
+
     public function getTheme( $theme, $failover = true )
     {
         $theme = dash( $theme );

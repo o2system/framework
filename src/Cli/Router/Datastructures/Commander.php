@@ -28,7 +28,7 @@ class Commander extends SplClassInfo
 
     private $requestMethodArgs = [];
 
-    private $properties;
+    private $properties = [];
 
     private $instance;
 
