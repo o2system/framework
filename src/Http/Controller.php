@@ -38,6 +38,8 @@ class Controller
             return o2system()->getService( $property );
         } elseif ( o2system()->__isset( $property ) ) {
             return o2system()->__get( $property );
+        } elseif( $property === 'model' ) {
+            return models( 'controller' );
         }
 
         return $get[ $property ];

@@ -23,5 +23,10 @@ use O2System\Psr\Patterns\AbstractItemStoragePattern;
  */
 class Images extends AbstractItemStoragePattern
 {
-
+    public function __construct( array $images = [] )
+    {
+        foreach($images as $key => $value) {
+            $this->offsetSet($key, $value);
+        }
+    }
 }

@@ -198,12 +198,7 @@ class User
 
     public function authorize(Request $request)
     {
-        static $roles;
-        static $rolesAccess;
-
-        if (empty($roles)) {
-            $roles = $this->getRoles();
-        }
+        $roles = $this->getRoles();
 
         foreach ($roles as $role) {
             if (in_array($role->code, ['DEVELOPER', 'ADMINISTRATOR'], true)) {

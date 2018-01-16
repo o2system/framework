@@ -476,6 +476,9 @@ class Framework extends Kernel
                         $requestController->initialize();
                     }
 
+                    profiler()->watch( 'HTTP_RUN_CONTROLLER_MIDDLEWARE_SERVICE' );
+                    middleware()->run();
+
                     $this->addService( $requestController, 'controller' );
 
                     profiler()->watch( 'CALL_HOOKS_POST_CONTROLLER' );
@@ -483,9 +486,6 @@ class Framework extends Kernel
 
                     $requestMethod = $controller->getRequestMethod();
                     $requestMethodArgs = $controller->getRequestMethodArgs();
-
-                    profiler()->watch( 'HTTP_RUN_CONTROLLER_MIDDLEWARE_SERVICE' );
-                    middleware()->run();
 
                     // Call the requested controller method
                     profiler()->watch( 'CALL_REQUESTED_CONTROLLER_METHOD' );

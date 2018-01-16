@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Traits;
@@ -32,27 +33,35 @@ trait HierarchicalTrait
      *
      * @return int  Right column value
      */
-    final public function afterProcessRebuild( $id_parent = 0, $left = 0, $depth = 0 )
+    final public function afterProcessRebuild($idParent = 0, $left = 0, $depth = 0)
     {
-        $table = empty( $table ) ? $this->table : $table;
-
         /* the right value of this node is the left value + 1 */
         $right = $left + 1;
 
         /* get all children of this node */
-        $this->qb->select( 'id' )->where( 'id_parent', $id_parent )->orderBy( 'record_ordering' );
-        $query = $this->db->get( $table );
+        $result = $this->qb
+            ->table($this->table)
+            ->select('id')
+            ->where('id_parent', $idParent)
+            ->orderBy('record_ordering')
+            ->get();
 
-        if ( $query->count() > 0 ) {
-            foreach ( $query->result() as $row ) {
+        if ($result) {
+            foreach ($result as $row) {
                 /* does this page have children? */
-                $right = $this->rebuildTree( $table, $row->id, $right, $depth + 1 );
+                $right = $this->afterProcessRebuild($row->id, $right, $depth + 1);
             }
         }
 
         /* update this page with the (possibly) new left, right, and depth values */
-        $data = [ 'record_left' => $left, 'record_right' => $right, 'record_depth' => $depth - 1 ];
-        $this->qb->update( $table, $data, [ 'id' => $id_parent ] );
+        $this->qb
+            ->table($this->table)
+            ->where('id', $idParent)
+            ->update([
+                'record_left'  => $left,
+                'record_right' => $right,
+                'record_depth' => $depth - 1,
+            ]);
 
         /* return the right value of this node + 1 */
 
@@ -69,53 +78,76 @@ trait HierarchicalTrait
      * @access public
      * @return array
      */
-    final public function getParents( $id = 0, &$parents = [] )
+    final public function getParents($id, &$parents = [])
     {
-        $result = $this->qb->getWhere( $this->table, [ 'id' => $id ] );
+        $result = $this->qb
+            ->table($this->table)
+            ->whereIn('id', $this->qb
+                ->subQuery()
+                ->table($this->table)
+                ->select('id_parent')
+                ->where('id', $id)
+            )
+            ->get();
 
-        if ( $result->count() > 0 ) {
-            $parents[] = $result->first();
+        if ($result) {
+            if($result->count()) {
+                $parents[] = $row = $result->first();
 
-            if ( (int)$result->first()->id_parent > 0 ) {
-                $this->getRowParents( $result->first()->id_parent, $parents );
+                if($this->hasParent($row->id_parent)) {
+                    $this->getParents($row->id, $parents);
+                }
             }
         }
 
-        return array_reverse( $parents );
+        return array_reverse($parents);
     }
     // ------------------------------------------------------------------------
+
+    final public function hasParent($idParent)
+    {
+        $result = $this->qb
+            ->table($this->table)
+            ->select('id')
+            ->where('id', $idParent)
+            ->get();
+
+        if ($result) {
+            return (bool)($result->count() == 0 ? false : true);
+        }
+
+        return false;
+    }
 
     /**
      * Find Childs
      *
      * Retreive all childs
      *
-     * @param numeric $id_parent Parent ID
+     * @param numeric $idParent Parent ID
      *
      * @access public
      * @return array
      */
-    public function getChilds( $id_parent = null )
+    public function getChilds($idParent)
     {
-        if ( isset( $id_parent ) ) {
-            $this->qb->where( 'id_parent', $id_parent )->orWhere( 'id', $id_parent );
+        $result = $this->qb
+            ->table($this->table)
+            ->where('id_parent', $idParent)
+            ->get();
+
+        $childs = [];
+
+        if ($result) {
+            foreach($result as $row) {
+                $childs[] = $row;
+                if( $this->hasChild( $row->id ) ) {
+                    $row->childs = $this->getChilds($row->id);
+                }
+            }
         }
 
-        if ( $this->qb->fieldExists( 'record_left', $this->table ) ) {
-            $this->db->orderBy( 'record_left', 'ASC' );
-        }
-
-        if ( $this->qb->fieldExists( 'record_ordering', $this->table ) ) {
-            $this->qb->orderBy( 'record_ordering', 'ASC' );
-        }
-
-        $query = $this->qb->get( $this->table );
-
-        if ( $query->count() > 0 ) {
-            return $query->result();
-        }
-
-        return [];
+        return $childs;
     }
     // ------------------------------------------------------------------------
 
@@ -129,12 +161,16 @@ trait HierarchicalTrait
      * @access public
      * @return bool
      */
-    final public function hasChilds( $id_parent = 0 )
+    final public function hasChild($idParent)
     {
-        $query = $this->qb->select( 'id' )->where( 'id_parent', $id_parent )->get( $this->table );
+        $result = $this->qb
+            ->table($this->table)
+            ->select('id')
+            ->where('id_parent', $idParent)
+            ->get();
 
-        if ( $query->count() > 0 ) {
-            return true;
+        if ($result) {
+            return (bool)($result->count() == 0 ? false : true);
         }
 
         return false;
@@ -146,14 +182,23 @@ trait HierarchicalTrait
      *
      * Num childs of a record
      *
-     * @param numeric $id_parent Record Parent ID
+     * @param numeric $idParent Record Parent ID
      *
      * @access public
      * @return bool
      */
-    final public function countChilds( $id_parent )
+    final public function getNumChilds($idParent)
     {
-        return $this->qb->select( 'id' )->getWhere( $this->table, [ 'id_parent' => $id_parent ] )->count();
+        $result = $this->qb
+            ->table($this->table)
+            ->select('id')
+            ->where('id_parent', $idParent)
+            ->get();
+
+        if ($result) {
+            return $result->count();
+        }
+
+        return 0;
     }
-    // ------------------------------------------------------------------------
 }

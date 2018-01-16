@@ -58,4 +58,19 @@ class Name extends AbstractItemStoragePattern
             $this->store( $key, $value );
         }
     }
+
+    public function __toString()
+    {
+        $name = $this->offsetGet('first');
+
+        if($this->offsetExists('middle')) {
+            $name.= ' ' . $this->offsetGet('middle');
+        }
+
+        if($this->offsetExists('last')) {
+            $name.= ' ' . $this->offsetGet('last');
+        }
+
+        return (string) trim( $name );
+    }
 }

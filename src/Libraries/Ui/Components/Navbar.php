@@ -123,4 +123,13 @@ class Navbar extends Element
 
         return $this->backgroundLight();
     }
+
+    public function render()
+    {
+        if($this->nav->childNodes->count() || $this->textContent->count()) {
+            return parent::render();
+        }
+
+        return '';
+    }
 }

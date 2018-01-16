@@ -103,7 +103,7 @@ class Module extends SplDirectoryInfo
 
     public function getParameter()
     {
-        return strtolower( $this->getDirName() );
+        return snakecase( $this->getDirName(),'-' );
     }
 
     public function getCode()

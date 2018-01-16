@@ -99,7 +99,9 @@ class Modules extends SplArrayStack
             loader()->addPublicDir( $module->getPublicDir() );
 
             // Autoload Module Language
-            language()->loadFile( $module->getParameter() );
+            language()
+                ->addFilePath( $module->getRealPath() )
+                ->loadFile( $module->getParameter() );
 
             // Autoload Module Config
             $this->autoloadConfig( $module );
@@ -376,7 +378,7 @@ class Modules extends SplArrayStack
      */
     public function fetchRegistry()
     {
-        $Datastructures = [];
+        $datastructures = [];
         $directory = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator( PATH_APP ),
             \RecursiveIteratorIterator::SELF_FIRST
@@ -437,7 +439,10 @@ class Modules extends SplArrayStack
 
                 array_shift( $moduleSegments );
 
-                $moduleSegments = array_map( 'strtolower', $moduleSegments );
+                $moduleSegments = array_map( function($string){
+                    return snakecase($string, '-');
+                }, $moduleSegments );
+
                 $moduleNamespace = prepare_namespace(
                     str_replace(
                         PATH_ROOT,
@@ -466,15 +471,15 @@ class Modules extends SplArrayStack
 
                 if ( $registryKey === '' ) {
                     if ( $propertiesFileInfo[ 'dirname' ] . DIRECTORY_SEPARATOR !== PATH_APP and $modulePluralTypes === 'apps' ) {
-                        $registryKey = 'apps/' . dash(
-                                pathinfo( $propertiesFileInfo[ 'dirname' ], PATHINFO_FILENAME )
-                            );
+                        $registryKey = 'apps/' . snakecase(
+                                pathinfo( $propertiesFileInfo[ 'dirname' ], PATHINFO_FILENAME ),
+                            '-');
                     }
                 } else {
                     $registryKey = 'modules/' . $registryKey;
                 }
 
-                $Datastructures[ $registryKey ] = ( new Datastructures\Module(
+                $datastructures[ $registryKey ] = ( new Datastructures\Module(
                     $propertiesFileInfo[ 'dirname' ]
                 ) )
                     ->setType( $propertiesFileInfo[ 'filename' ] )
@@ -495,9 +500,9 @@ class Modules extends SplArrayStack
             }
         }
 
-        ksort( $Datastructures );
+        ksort( $datastructures );
 
-        return $Datastructures;
+        return $datastructures;
     }
 
     // ------------------------------------------------------------------------
@@ -637,7 +642,7 @@ class Modules extends SplArrayStack
     {
         $segment = 'apps/' . dash( $segment );
 
-        if ( $this->isExists( $segment ) ) {
+        if ( $this->exists( $segment ) ) {
             if( $this->registry[ $segment ] instanceof Datastructures\Module ) {
                 return $this->registry[ $segment ];
             }
@@ -666,7 +671,7 @@ class Modules extends SplArrayStack
      *
      * @return bool
      */
-    public function isExists( $segments )
+    public function exists( $segments )
     {
         $segments = is_array( $segments ) ? implode( '/', $segments ) : $segments;
 
@@ -686,7 +691,7 @@ class Modules extends SplArrayStack
     {
         $segments = 'modules/' . ( is_array( $segments ) ? implode( '/', array_map( 'dash', $segments ) ) : $segments );
 
-        if ( $this->isExists( $segments ) ) {
+        if ( $this->exists( $segments ) ) {
             return $this->registry[ $segments ];
         }
 
