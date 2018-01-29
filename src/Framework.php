@@ -329,6 +329,18 @@ class Framework extends Kernel
 
         if ( $commander = router()->getCommander() ) {
             if ( $commander instanceof Framework\Cli\Router\Datastructures\Commander ) {
+                // Autoload Language
+                language()->loadFile( $commander->getParameter() );
+                language()->loadFile( $commander->getRequestMethod() );
+                language()->loadFile( $commander->getParameter() . '/' . $commander->getRequestMethod() );
+
+                // Autoload Model
+                $modelClassName = str_replace( 'Commanders', 'Models', $commander->getName() );
+
+                if ( class_exists( $modelClassName ) ) {
+                    models()->register( 'commander', new $modelClassName() );
+                }
+
                 profiler()->watch( 'INSTANTIATE_REQUESTED_COMMANDER' );
                 $requestCommander = $commander->getInstance();
 
