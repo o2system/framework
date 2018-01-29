@@ -38,7 +38,7 @@ trait ModifierTrait
      * @return mixed
      * @throws \O2System\Spl\Exceptions\RuntimeException
      */
-    final public function insert( array $sets, $table = null )
+    public function insert( array $sets, $table = null )
     {
         $table = isset( $table ) ? $table : $this->table;
 
@@ -69,18 +69,18 @@ trait ModifierTrait
      *
      * @return mixed
      */
-    final public function update( array $sets, $table = null )
+    public function update( array $sets, $where = [], $table = null )
     {
         $table = isset( $table ) ? $table : $this->table;
         $primaryKey = isset( $this->primaryKey ) ? $this->primaryKey : 'id';
 
-        $where = [];
-        if ( empty( $this->primaryKeys ) ) {
-            $where[ $primaryKey ] = $sets[ $primaryKey ];
-            $this->qb->where( $primaryKey, $sets[ $primaryKey ] );
-        } else {
-            foreach ( $this->primaryKeys as $primaryKey ) {
+        if(empty($where)) {
+            if (empty($this->primaryKeys)) {
                 $where[ $primaryKey ] = $sets[ $primaryKey ];
+            } else {
+                foreach ($this->primaryKeys as $primaryKey) {
+                    $where[ $primaryKey ] = $sets[ $primaryKey ];
+                }
             }
         }
 
@@ -102,7 +102,7 @@ trait ModifierTrait
         return false;
     }
 
-    protected function insertMany( array $sets )
+    public function insertMany( array $sets )
     {
         $table = isset( $table ) ? $table : $this->table;
 
@@ -121,7 +121,7 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    protected function updateMany( array $sets )
+    public function updateMany( array $sets )
     {
         $table = isset( $table ) ? $table : $this->table;
         $primaryKey = isset( $this->primaryKey ) ? $this->primaryKey : 'id';
@@ -161,7 +161,7 @@ trait ModifierTrait
      *
      * @return mixed
      */
-    protected function trashMany( array $ids )
+    public function trashMany( array $ids )
     {
         $affectedRows = [];
 
@@ -182,7 +182,7 @@ trait ModifierTrait
      *
      * @return array|bool
      */
-    final public function trash( $id, $table = null )
+    public function trash( $id, $table = null )
     {
         $table = isset( $table ) ? $table : $this->table;
         $primaryKey = isset( $this->primaryKey ) ? $this->primaryKey : 'id';
@@ -225,7 +225,7 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    protected function trashManyBy( array $ids, $where = [], $table = null )
+    public function trashManyBy( array $ids, $where = [], $table = null )
     {
         $affectedRows = [];
 
@@ -236,14 +236,14 @@ trait ModifierTrait
         return $affectedRows;
     }
 
-    protected function trashBy( $id, array $where = [], $table = null )
+    public function trashBy( $id, array $where = [], $table = null )
     {
         $this->qb->where( $where );
 
         return $this->trash( $id, $table );
     }
 
-    protected function deleteMany( array $ids, $force = false, $table = null )
+    public function deleteMany( array $ids, $force = false, $table = null )
     {
         $affectedRows = [];
 
@@ -341,7 +341,7 @@ trait ModifierTrait
         return false;
     }
 
-    protected function deleteManyBy( array $ids, $where = [], $force = false, $table = null )
+    public function deleteManyBy( array $ids, $where = [], $force = false, $table = null )
     {
         $affectedRows = [];
 
@@ -352,7 +352,7 @@ trait ModifierTrait
         return $affectedRows;
     }
 
-    protected function deleteBy( $id, $where = [], $force = false, $table = null )
+    public function deleteBy( $id, $where = [], $force = false, $table = null )
     {
         $this->qb->where( $where );
 

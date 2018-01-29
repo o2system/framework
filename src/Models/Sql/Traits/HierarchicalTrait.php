@@ -33,37 +33,59 @@ trait HierarchicalTrait
      *
      * @return int  Right column value
      */
-    final public function afterProcessRebuild($idParent = 0, $left = 0, $depth = 0)
+    final public function rebuild($idParent = 0, $left = 1, $depth = 0)
     {
-        /* the right value of this node is the left value + 1 */
-        $right = $left + 1;
+        ini_set('xdebug.max_nesting_level', 10000);
+        ini_set('memory_limit', '-1');
 
-        /* get all children of this node */
         $result = $this->qb
             ->table($this->table)
             ->select('id')
-            ->where('id_parent', $idParent)
-            ->orderBy('record_ordering')
+            ->where('id_parent',$idParent)
+            ->orderBy('id')
             ->get();
 
-        if ($result) {
-            foreach ($result as $row) {
-                /* does this page have children? */
-                $right = $this->afterProcessRebuild($row->id, $right, $depth + 1);
+        $right = $left + 1;
+
+        if($result) {
+            $i = 0;
+            foreach($result as $row) {
+                if($i == 0) {
+                    $this->qb
+                        ->table($this->table)
+                        ->where('id', $row->id)
+                        ->update($update = [
+                            'record_left'  => $left,
+                            'record_right' => $right,
+                            'record_depth' => $depth
+                        ]);
+                } else {
+                    $this->qb
+                        ->table($this->table)
+                        ->where('id', $row->id)
+                        ->update($update = [
+                            'record_left'  => $left = $right+1,
+                            'record_right' => $right = $left+1,
+                            'record_depth' => $depth
+                        ]);
+                }
+
+                $update['id'] = $row->id;
+
+                if($this->hasChild($row->id)) {
+                    $right = $this->rebuild($row->id, $right, $depth + 1);
+                    $this->qb
+                        ->table($this->table)
+                        ->where('id', $row->id)
+                        ->update($update = [
+                            'record_right' => $right
+                        ]);
+                    $update['id'] = $row->id;
+                }
+
+                $i++;
             }
         }
-
-        /* update this page with the (possibly) new left, right, and depth values */
-        $this->qb
-            ->table($this->table)
-            ->where('id', $idParent)
-            ->update([
-                'record_left'  => $left,
-                'record_right' => $right,
-                'record_depth' => $depth - 1,
-            ]);
-
-        /* return the right value of this node + 1 */
 
         return $right + 1;
     }

@@ -90,6 +90,23 @@ if ( ! function_exists( 'storage_url' ) ) {
 
 // ------------------------------------------------------------------------
 
+if ( ! function_exists( 'images_url' ) ) {
+    /**
+     * images_url
+     *
+     * @param string $path Uri path.
+     *
+     * @return string
+     */
+    function images_url( $path )
+    {
+        $urlPath = str_replace( PATH_STORAGE, '', $path );
+        return base_url( 'images/' . $urlPath );
+    }
+}
+
+// ------------------------------------------------------------------------
+
 if ( ! function_exists( 'prepare_url' ) ) {
     /**
      * Prep URL

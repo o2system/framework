@@ -183,9 +183,9 @@ class Router
         if ( null !== $commander->getRequestMethod() ) {
             $commander->setRequestMethodArgs( $commanderMethodParams );
         } elseif ( count( $uriSegments ) ) {
-            if ( $commander->hasMethod( 'reroute' ) ) {
+            if ( $commander->hasMethod( 'route' ) ) {
                 $commander
-                    ->setRequestMethod( 'reroute' )
+                    ->setRequestMethod( 'route' )
                     ->setRequestMethodArgs(
                         [
                             $commanderMethod,
@@ -218,9 +218,9 @@ class Router
                     output()->sendError( 404 );
                 }
             }
-        } elseif ( $commander->hasMethod( 'reroute' ) ) {
+        } elseif ( $commander->hasMethod( 'route' ) ) {
             $commander
-                ->setRequestMethod( 'reroute' )
+                ->setRequestMethod( 'route' )
                 ->setRequestMethodArgs( [ 'execute', [] ] );
         } elseif ( $commander->hasMethod( 'execute' ) ) {
             $commander
@@ -253,19 +253,18 @@ class Router
             $commanderFilename = implode( DIRECTORY_SEPARATOR, $routedSegments );
             $commanderFilename = prepare_filename( $commanderFilename ) . '.php';
 
-            if ( empty( $commanderRegistry ) ) {
-                foreach ( $commandersDirectories as $commanderDirectory ) {
-                    if ( is_file( $commanderFilePath = $commanderDirectory . $commanderFilename ) ) {
-                        $uriSegments = array_diff( $segments, $routedSegments );
-                    }
+            foreach ( $commandersDirectories as $commanderDirectory ) {
+                if ( is_file( $commanderFilePath = $commanderDirectory . $commanderFilename ) ) {
+                    $uriSegments = array_diff( $segments, $routedSegments );
                     $commanderRegistry = new Router\Datastructures\Commander( $commanderFilePath );
                     break;
                 }
-            } elseif ( $commanderRegistry instanceof Router\Datastructures\Commander ) {
-                $this->setCommander( $commanderRegistry, $uriSegments );
+            }
 
-                return true;
+            if ( $commanderRegistry instanceof Router\Datastructures\Commander ) {
+                $this->setCommander($commanderRegistry, $uriSegments);
                 break;
+                return true;
             }
         }
 

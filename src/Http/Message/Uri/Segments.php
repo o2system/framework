@@ -50,7 +50,7 @@ class Segments
             }
 
         } elseif ( is_array( $string ) ) {
-            $string = implode( '/', array_map( 'dash', $string ) );
+            $string = implode( '/', $string );
         }
 
         $string = str_replace( [ '\\', '_' ], [ '/', '-' ], $string );

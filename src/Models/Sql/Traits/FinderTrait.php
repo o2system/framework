@@ -54,6 +54,37 @@ trait FinderTrait
     // ------------------------------------------------------------------------
 
     /**
+     * FinderTrait::page
+     *
+     * Find record by page.
+     *
+     * @param int $page
+     */
+    public function page( $fields = null, $page = 1, $entries = 5 )
+    {
+        if ( isset( $fields ) ) {
+            if(is_numeric($fields)) {
+                $page = $fields;
+            } else {
+                $this->qb->select( $fields );
+            }
+        }
+
+        $this->qb->page( $page, $entries );
+
+        $result = $this->qb->from( $this->table )->get();
+
+        if ( $result->count() > 0 ) {
+            $this->result = new DataObjects\Result( $result, $this );
+
+            return $this->result;
+        }
+
+        return false;
+    }
+    // ------------------------------------------------------------------------
+
+    /**
      * Find
      *
      * Find single or many record base on criteria by specific field
