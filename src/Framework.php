@@ -419,15 +419,27 @@ class Framework extends Kernel
                 if ( config( 'presenter', true )->enabled === true ) {
                     // Autoload Model and Assets
                     $controllerAssets = [];
+                    $controllerAssetsDirs = [];
 
                     foreach ( modules() as $module ) {
                         if ( in_array( $module->getType(), [ 'KERNEL', 'FRAMEWORK' ] ) ) {
                             continue;
                         }
 
-                        $controllerAssets[] = $module->getParameter();
                         $module->loadModel();
                     }
+
+                    // Load App Models and Assets
+                    $app = modules()->first();
+                    $app->loadModel();
+                    $controllerAssets[] = $app->getParameter();
+                    $controllerAssetsDirs[] = $app->getParameter();
+
+                    // Load Current Module Models and Assets
+                    $module = modules()->current();
+                    $module->loadModel();
+                    $controllerAssets[] = $module->getParameter();
+                    $controllerAssetsDirs[] = $module->getParameter();
 
                     $controllerAssets = array_reverse( $controllerAssets );
 
@@ -438,24 +450,18 @@ class Framework extends Kernel
                         models()->register( 'controller', new $modelClassName() );
                     }
 
-                    $controllerAssets[] = $controller->getParameter();
-                    $controllerAssets[] = $controller->getRequestMethod();
+                    $controllerParameter = dash($controller->getParameter());
+                    $controllerRequestMethod = dash($controller->getRequestMethod());
 
-                    // Snakecase assets file names
-                    $controllerAssets = array_map( 'snakecase', $controllerAssets );
+                    $controllerAssets[] = $controllerParameter;
+                    $controllerAssetsDirs[] = $controllerParameter;
 
-                    // Dashed assets file names
-                    $controllerAssets = array_map( 'dash', $controllerAssets );
+                    $controllerAssets[] = $controllerRequestMethod;
 
-                    $numFileNames = count( $controllerAssets );
-
-                    for ( $i = 0; $i < $numFileNames; $i++ ) {
-                        $assetFilename = array_slice( $controllerAssets, 0, ( $numFileNames - $i ) );
-                        $assetFilename = implode( DIRECTORY_SEPARATOR, $assetFilename );
-
-                        if ( ! in_array( $assetFilename, $controllerAssets ) ) {
-                            $controllerAssets[] = $assetFilename;
-                        }
+                    foreach($controllerAssetsDirs as $controllerAssetsDir) {
+                        $controllerAssets[] = $controllerAssetsDir . '/' . $controllerParameter;
+                        $controllerAssets[] = $controllerAssetsDir . '/' . $controllerRequestMethod;
+                        $controllerAssets[] = $controllerAssetsDir . '/' . $controllerParameter . '/' . $controllerRequestMethod;
                     }
 
                     // Autoload Presenter
@@ -543,6 +549,13 @@ class Framework extends Kernel
                             output()->send( $requestControllerOutput );
                             exit( EXIT_SUCCESS );
                         } else {
+                            $requestControllerOutput = view()->render(true);
+
+                            if( $requestControllerOutput !== '' ) {
+                                echo $requestControllerOutput;
+                                exit( EXIT_SUCCESS );
+                            }
+
                             output()->sendError( 204 );
                             exit( EXIT_ERROR );
                         }

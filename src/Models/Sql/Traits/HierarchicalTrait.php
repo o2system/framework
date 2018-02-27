@@ -33,7 +33,7 @@ trait HierarchicalTrait
      *
      * @return int  Right column value
      */
-    final public function rebuild($idParent = 0, $left = 1, $depth = 0)
+    public function rebuild($idParent = 0, $left = 1, $depth = 0)
     {
         ini_set('xdebug.max_nesting_level', 10000);
         ini_set('memory_limit', '-1');
@@ -100,7 +100,7 @@ trait HierarchicalTrait
      * @access public
      * @return array
      */
-    final public function getParents($id, &$parents = [])
+    public function getParents($id, &$parents = [])
     {
         $result = $this->qb
             ->table($this->table)
@@ -126,7 +126,7 @@ trait HierarchicalTrait
     }
     // ------------------------------------------------------------------------
 
-    final public function hasParent($idParent)
+    public function hasParent($idParent)
     {
         $result = $this->qb
             ->table($this->table)
@@ -183,7 +183,7 @@ trait HierarchicalTrait
      * @access public
      * @return bool
      */
-    final public function hasChild($idParent)
+    public function hasChild($idParent)
     {
         $result = $this->qb
             ->table($this->table)
@@ -209,7 +209,7 @@ trait HierarchicalTrait
      * @access public
      * @return bool
      */
-    final public function getNumChilds($idParent)
+    public function getNumChilds($idParent)
     {
         $result = $this->qb
             ->table($this->table)

@@ -43,10 +43,12 @@ trait FinderTrait
         
         $result = $this->qb->from( $this->table )->get();
 
-        if ( $result->count() > 0 ) {
-            $this->result = new DataObjects\Result( $result, $this );
+        if( $result instanceof Result ) {
+            if ( $result->count() > 0 ) {
+                $this->result = new DataObjects\Result( $result, $this );
 
-            return $this->result;
+                return $this->result;
+            }
         }
 
         return false;

@@ -70,6 +70,7 @@ class Presenter extends AbstractVariableStoragePattern
         $storage[ 'language' ] = language();
         $storage[ 'session' ] = session();
         $storage[ 'presenter' ] = presenter();
+        $storage[ 'input' ] = input();
 
         // Add Container
         $storage[ 'globals' ] = globals();

@@ -213,6 +213,13 @@ class Restful extends Controller
 
     // ------------------------------------------------------------------------
 
+    protected function sendError($code, $message = null)
+    {
+       output()->sendError($code, $message);
+    }
+
+    // ------------------------------------------------------------------------
+
     /**
      * Restful::sendPayload
      *

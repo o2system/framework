@@ -34,7 +34,11 @@ class Config extends AbstractVariableStoragePattern
      */
     public function loadFile( $offset, $return = false )
     {
-        $configFile = studlycase( $offset );
+        $basename = pathinfo($offset, PATHINFO_BASENAME);
+        $filename = studlycase($basename);
+
+        $configFile = str_replace($basename, $filename, $offset);
+        $offset = camelcase($basename);
 
         $configDirs = [
             PATH_FRAMEWORK . 'Config' . DIRECTORY_SEPARATOR,
@@ -74,15 +78,27 @@ class Config extends AbstractVariableStoragePattern
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Config::addItem
+     *
+     * Adds config item.
+     *
+     * @param string $offset
+     * @param mixed  $value
+     */
     public function addItem( $offset, $value )
     {
         $this->store( $offset, $value, true );
     }
 
+    // ------------------------------------------------------------------------
+
     /**
      * Config::getItem
      *
-     * @param $offset
+     * Gets config item.
+     *
+     * @param string $offset
      *
      * @return mixed|\O2System\Spl\Datastructures\SplArrayObject
      */
@@ -99,6 +115,16 @@ class Config extends AbstractVariableStoragePattern
         return $item;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Config::setItem
+     *
+     * Sets config item.
+     *
+     * @param string $offset
+     * @param mixed  $value
+     */
     public function setItem( $offset, $value )
     {
         $this->store( $offset, $value );

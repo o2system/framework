@@ -14,7 +14,7 @@ namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Media\Object;
+use O2System\Framework\Libraries\Ui\Components\Media\Objects;
 use O2System\Framework\Libraries\Ui\Element;
 
 /**
@@ -32,9 +32,9 @@ class Media extends Element
 
     public function createObject( $list = null )
     {
-        $node = new Object();
+        $node = new Objects();
 
-        if ( $list instanceof Object ) {
+        if ( $list instanceof Objects ) {
             $node = $list;
         } elseif ( $list instanceof Element ) {
             $node->entity->setEntityName( $list->entity->getEntityName() );

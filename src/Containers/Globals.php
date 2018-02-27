@@ -89,7 +89,7 @@ class Globals implements \ArrayAccess, \IteratorAggregate
      */
     public function &__get( $offset )
     {
-        return ( isset( $GLOBALS[ $offset ] ) ) ? $GLOBALS[ $offset ] : $GLOBALS[ $offset ] = null;
+        return $GLOBALS[ $offset ];
     }
 
     // ------------------------------------------------------------------------

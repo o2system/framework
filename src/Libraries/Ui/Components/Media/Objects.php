@@ -21,11 +21,11 @@ use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
 use O2System\Framework\Libraries\Ui\Element;
 
 /**
- * Class Object
+ * Class Objects
  *
  * @package O2System\Framework\Libraries\Ui\Components\Media
  */
-class Object extends Element
+class Objects extends Element
 {
     use ImageSetterTrait;
     use HeadingSetterTrait;
@@ -62,10 +62,10 @@ class Object extends Element
 
     public function createNestedObject( $list = null )
     {
-        $node = new Object();
+        $node = new Objects();
         $node->tagName = 'div';
 
-        if ( $list instanceof Object ) {
+        if ( $list instanceof Objects ) {
             $node = $list;
         } elseif ( $list instanceof Element ) {
             $node->entity->setEntityName( $list->entity->getEntityName() );
