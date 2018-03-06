@@ -82,6 +82,11 @@ class Pagination extends Unordered
 
     public function render()
     {
+        // returning empty string if the num pages is zero
+        if($this->pages == 0 || $this->pages == 1) {
+            return '';
+        }
+
         $output[] = $this->open() . PHP_EOL;
 
         $current = (int)input()->get( 'page' );

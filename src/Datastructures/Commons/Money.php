@@ -40,6 +40,13 @@ class Money extends AbstractItemStoragePattern
         return currency_format($this->amount, 'id_ID', 'IDR', $decimal, $addSpace);
     }
 
+    public function numberFormat($decimals = 0, $thousandSeparator = '.', $decimalSeparator = ',')
+    {
+        $decimalSeparator = $thousandSeparator === '.' ? ',' : '.';
+
+        return number_format($this->amount, $decimals, $decimalSeparator, $thousandSeparator);
+    }
+
     public function isSufficient($amount)
     {
         if ($amount < $this->amount) {

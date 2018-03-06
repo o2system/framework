@@ -137,6 +137,8 @@ class Restful extends Controller
 
         if (is_ajax()) {
             output()->setContentType('application/json');
+        } elseif($this->ajaxOnly === false) {
+            output()->setContentType('application/json');
         } else {
             output()->setContentType('text/html');
         }
@@ -215,6 +217,10 @@ class Restful extends Controller
 
     protected function sendError($code, $message = null)
     {
+        if($this->ajaxOnly === false) {
+            output()->setContentType('application/json');
+        }
+
        output()->sendError($code, $message);
     }
 

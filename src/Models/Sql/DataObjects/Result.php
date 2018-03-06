@@ -14,6 +14,7 @@ namespace O2System\Framework\Models\Sql\DataObjects;
 
 // ------------------------------------------------------------------------
 
+use O2System\Database\DataObjects\Result\Info;
 use O2System\Framework\Models\Sql\Model;
 use O2System\Spl\Iterators\ArrayIterator;
 
@@ -24,6 +25,13 @@ use O2System\Spl\Iterators\ArrayIterator;
  */
 class Result extends ArrayIterator
 {
+    /**
+     * Result::$info
+     *
+     * @var Info
+     */
+    protected $info;
+
     /**
      * Result::__construct
      *
@@ -45,4 +53,16 @@ class Result extends ArrayIterator
     }
 
     // ------------------------------------------------------------------------
+
+    public function setInfo(Info $info)
+    {
+        $this->info = $info;
+
+        return $this;
+    }
+
+    public function getInfo()
+    {
+        return $this->info;
+    }
 }

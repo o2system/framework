@@ -159,7 +159,7 @@ class Model
             loader()->addNamespace( $reflection->name, $subModelPath );
 
             foreach ( glob( $subModelPath . '*.php' ) as $filepath ) {
-                $this->validSubModels[ strtolower( pathinfo( $filepath, PATHINFO_FILENAME ) ) ] = $filepath;
+                $this->validSubModels[ camelcase( pathinfo( $filepath, PATHINFO_FILENAME ) ) ] = $filepath;
             }
         }
     }

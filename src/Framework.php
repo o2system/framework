@@ -23,6 +23,8 @@ namespace O2System;
  * Different environments will require different levels of error reporting.
  * By default development will show errors but testing and live will hide them.
  */
+use O2System\Framework\Http\Controllers\Restful;
+
 switch ( strtoupper( ENVIRONMENT ) ) {
     case 'DEVELOPMENT':
         error_reporting( -1 );
@@ -548,8 +550,14 @@ class Framework extends Kernel
                         } elseif ( $requestControllerOutput !== '' ) {
                             output()->send( $requestControllerOutput );
                             exit( EXIT_SUCCESS );
+                        } elseif($requestController instanceof Restful) {
+                            if($requestControllerOutput === '') {
+                                $requestController->sendError(204);
+                            } else {
+                                $requestController->sendPayload($requestControllerOutput);
+                            }
                         } else {
-                            $requestControllerOutput = view()->render(true);
+                            $requestControllerOutput = view()->load($controllerParameter)->render(true);
 
                             if( $requestControllerOutput !== '' ) {
                                 echo $requestControllerOutput;

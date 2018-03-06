@@ -46,6 +46,7 @@ trait FinderTrait
         if( $result instanceof Result ) {
             if ( $result->count() > 0 ) {
                 $this->result = new DataObjects\Result( $result, $this );
+                $this->result->setInfo( $result->getInfo() );
 
                 return $this->result;
             }
@@ -78,6 +79,7 @@ trait FinderTrait
 
         if ( $result->count() > 0 ) {
             $this->result = new DataObjects\Result( $result, $this );
+            $this->result->setInfo( $result->getInfo() );
 
             return $this->result;
         }
@@ -111,6 +113,7 @@ trait FinderTrait
         if( $result instanceof Result ) {
             if ( $result->count() > 0 ) {
                 $this->result = new DataObjects\Result( $result, $this );
+                $this->result->setInfo( $result->getInfo() );
 
                 if( $this->result->count() == 1 ) {
                     return $this->result->first();
@@ -145,6 +148,7 @@ trait FinderTrait
 
         if ( $result->count() > 0 ) {
             $this->result = new DataObjects\Result( $result, $this );
+            $this->result->setInfo( $result->getInfo() );
 
             return $this->result;
         }
@@ -171,6 +175,7 @@ trait FinderTrait
 
         if ( $result->count() > 0 ) {
             $this->result = new DataObjects\Result( $result, $this );
+            $this->result->setInfo( $result->getInfo() );
 
             if( $limit == 1 ) {
                 return $this->result->first();
@@ -204,6 +209,7 @@ trait FinderTrait
 
         if ( $result->count() > 0 ) {
             $this->result = new DataObjects\Result( $result, $this );
+            $this->result->setInfo( $result->getInfo() );
 
             return $this->result;
         }

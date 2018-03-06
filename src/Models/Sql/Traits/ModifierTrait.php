@@ -21,7 +21,69 @@ namespace O2System\Framework\Models\Sql\Traits;
  */
 trait ModifierTrait
 {
-    use BeforeAfterTrait;
+    /**
+     * List of Before Process Methods
+     *
+     * @access  protected
+     * @type    array
+     */
+    protected $beforeModifyProcess = [];
+
+    /**
+     * List of After Process Methods
+     *
+     * @access  protected
+     * @type    array
+     */
+    protected $afterModifyProcess = [];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Before Process
+     *
+     * Process row data before insert or update
+     *
+     * @param $row
+     * @param $table
+     *
+     * @access  protected
+     * @return  mixed
+     */
+    protected function beforeProcess( $row, $table )
+    {
+        if ( ! empty( $this->beforeModifyProcess ) ) {
+            foreach ($this->beforeModifyProcess as $processMethod ) {
+                $row = $this->{$processMethod}( $row, $table );
+            }
+        }
+
+        return $row;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * After Process
+     *
+     * Runs all after process method actions
+     *
+     * @access  protected
+     * @return  array
+     */
+    protected function afterProcess()
+    {
+        $report = [];
+
+        if ( ! empty( $this->afterModifyProcess ) ) {
+            foreach ( $this->afterModifyProcess as $processMethod ) {
+                $report[ $processMethod ] = $this->{$processMethod}();
+            }
+        }
+
+        return $report;
+    }
+    // ------------------------------------------------------------------------
 
     /**
      * Insert Data
@@ -45,7 +107,7 @@ trait ModifierTrait
         $sets = $this->beforeProcess( $sets, $table );
 
         if ( $this->qb->table( $table )->insert( $sets ) ) {
-            if ( empty( $this->afterProcess ) ) {
+            if ( empty( $this->afterModifyProcess ) ) {
                 return true;
             }
 
@@ -92,7 +154,7 @@ trait ModifierTrait
 
         if ( $this->qb->table( $table )->update( $sets, $where ) ) {
 
-            if ( empty( $this->afterProcess ) ) {
+            if ( empty( $this->afterModifyProcess ) ) {
                 return true;
             }
 
@@ -109,7 +171,7 @@ trait ModifierTrait
         $sets = $this->beforeProcess( $sets, $table );
 
         if ( $this->qb->table( $table )->insertBatch( $sets ) ) {
-            if ( empty( $this->afterProcess ) ) {
+            if ( empty( $this->afterModifyProcess ) ) {
                 return true;
             }
 
@@ -144,7 +206,7 @@ trait ModifierTrait
 
         if ( $this->qb->table( $table )->updateBatch( $sets, $where ) ) {
 
-            if ( empty( $this->afterProcess ) ) {
+            if ( empty( $this->afterModifyProcess ) ) {
                 return true;
             }
 
@@ -213,7 +275,7 @@ trait ModifierTrait
         $sets = $this->beforeProcess( $sets, $table );
 
         if ( $this->qb->table( $table )->update( $sets ) ) {
-            if ( empty( $this->afterProcess ) ) {
+            if ( empty( $this->afterModifyProcess ) ) {
                 return true;
             }
 
@@ -276,7 +338,7 @@ trait ModifierTrait
         $fields = [ 'file', 'document', 'image', 'picture', 'cover', 'avatar', 'photo', 'video' ];
 
         foreach ( $fields as $field ) {
-            if ( $this->qb->isTableFieldExists( $field, $table ) ) {
+            if ( $this->db->hasColumn( $field, $table ) ) {
                 $primaryKey = isset( $this->primaryKey ) ? $this->primaryKey : 'id';
 
                 if ( empty( $this->primaryKeys ) ) {
@@ -331,7 +393,7 @@ trait ModifierTrait
         $this->primaryKeys = [];
 
         if ( $this->qb->table( $table )->delete( $where ) ) {
-            if ( empty( $this->afterProcess ) ) {
+            if ( empty( $this->afterModifyProcess ) ) {
                 return true;
             }
 

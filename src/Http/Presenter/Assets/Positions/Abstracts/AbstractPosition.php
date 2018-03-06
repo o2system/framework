@@ -109,11 +109,20 @@ abstract class AbstractPosition
         $directories = loader()->getPublicDirs( true );
         $filePath = str_replace( [ '/', '\\' ], DIRECTORY_SEPARATOR, $filePath );
 
+        // set filepaths
         foreach ( $directories as $directory ) {
+            if(strpos($directory, 'assets') === false ) {
+                $directory = $directory . 'assets' . DIRECTORY_SEPARATOR;
+            }
 
-            if ( is_file( $directory . $filePath ) ) {
+            $extension = pathinfo( $directory . $filePath , PATHINFO_EXTENSION );
 
-                $extension = pathinfo( $directory . $filePath , PATHINFO_EXTENSION );
+            $filePaths[] = $directory . str_replace('.' . $extension, '.min.' . $extension, $filePath); // minify version support
+            $filePaths[] = $directory . $filePath;
+        }
+
+        foreach( $filePaths as $filePath ) {
+            if ( is_file( $filePath ) ) {
 
                 if ( strpos( $filePath, 'fonts' ) ) {
                     $extension = 'font';
@@ -133,10 +142,11 @@ abstract class AbstractPosition
                 }
 
                 if ( property_exists( $this, $extension ) ) {
-                    if ( ! $this->{$extension}->has( $directory . $filePath  ) ) {
-                        $this->{$extension}->append( $directory . $filePath  );
+                    if ( ! $this->{$extension}->has( $filePath  ) ) {
+                        $this->{$extension}->append( $filePath  );
 
                         return true;
+                        break;
                         break;
                     }
                 }

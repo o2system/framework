@@ -32,6 +32,7 @@ class Name extends AbstractItemStoragePattern
     {
         if( is_string( $name ) ) {
             $parts = explode( ' ', trim( $name ) );
+            $name = [];
 
             if ( count( $parts ) == 1 ) {
                 $name[ 'first' ] = $parts[ 0 ];
