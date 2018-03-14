@@ -118,41 +118,7 @@ class Segments
             return '/';
         }
 
-        // Do some final cleaning of the URI and return it
-        return $this->removeRelativeDirectory( $uri );
-    }
-
-    /**
-     * Remove relative directory (../) and multi slashes (///)
-     *
-     * Do some final cleaning of the URI and return it, currently only used in self::parseRequestURI()
-     *
-     * @param   string $uri URI String
-     *
-     * @access  protected
-     * @return  string
-     */
-    protected function removeRelativeDirectory( $uri )
-    {
-        $segments = [];
-        $segment = strtok( $uri, '/' );
-
-        $base_dirs = explode( '/', str_replace( '\\', '/', PATH_ROOT ) );
-
-        while ( $segment !== false ) {
-            if ( ( ! empty( $segment ) || $segment === '0' ) AND
-                $segment !== '..' AND
-                ! in_array(
-                    $segment,
-                    $base_dirs
-                )
-            ) {
-                $segments[] = $segment;
-            }
-            $segment = strtok( '/' );
-        }
-
-        return implode( '/', $segments );
+        return $uri;
     }
 
     // ------------------------------------------------------------------------
@@ -183,7 +149,7 @@ class Segments
 
         parse_str( $_SERVER[ 'QUERY_STRING' ], $_GET );
 
-        return $this->removeRelativeDirectory( $uri );
+        return $uri;
     }
 
     // --------------------------------------------------------------------

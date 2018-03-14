@@ -448,7 +448,7 @@ class Modules extends SplArrayStack
                         PATH_ROOT,
                         '',
                         $propertiesFileInfo[ 'dirname' ]
-                    ) . DIRECTORY_SEPARATOR . $propertiesFileInfo[ 'filename' ],
+                    ),
                     false
                 );
 
