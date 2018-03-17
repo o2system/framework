@@ -79,25 +79,43 @@ class Router
 
                     // Load modular addresses config
                     if ( false !== ( $configDir = $module->getDir( 'config', true ) ) ) {
-
+                        $reconfig = false;
                         if ( is_file(
                             $filePath = $configDir . ucfirst(
                                     strtolower( ENVIRONMENT )
                                 ) . DIRECTORY_SEPARATOR . 'Addresses.php'
                         ) ) {
                             include( $filePath );
+                            $reconfig = true;
                         } elseif ( is_file(
                             $filePath = $configDir . 'Addresses.php'
                         ) ) {
                             include( $filePath );
+                            $reconfig = true;
+                        }
+
+                        if(! $reconfig) {
+                            global $controllerClassName;
+
+                            $controllerNamespace = $module->getNamespace() . 'Controllers\\';
+                            $controllerClassName = $controllerNamespace . studlycase($module->getParameter());
+
+                            if(class_exists($controllerClassName)) {
+                                $addresses->any(
+                                    '/',
+                                    function () {
+                                        global $controllerClassName;
+                                        return new $controllerClassName();
+                                    }
+                                );
+                            } else {
+                                output()->sendError(502);
+                            }
                         }
                     }
                 }
             }
         }
-
-        // Define default action by app addresses config
-        $defaultAction = $addresses->getTranslation( '/' );
 
         // Module routing
         if ( $uriTotalSegments = count( $uriSegments ) ) {
@@ -125,41 +143,61 @@ class Router
         if ( ! empty( $module ) ) {
             // Load modular addresses config
             if ( false !== ( $configDir = $module->getDir( 'config', true ) ) ) {
-
+                $reconfig = false;
                 if ( is_file(
                     $filePath = $configDir . ucfirst(
                             strtolower( ENVIRONMENT )
-                        ) . DIRECTORY_SEPARATOR . 'Routes.php'
+                        ) . DIRECTORY_SEPARATOR . 'Addresses.php'
                 ) ) {
                     include( $filePath );
+                    $reconfig = true;
                 } elseif ( is_file(
-                    $filePath = $configDir . 'Routes.php'
+                    $filePath = $configDir . 'Addresses.php'
                 ) ) {
                     include( $filePath );
+                    $reconfig = true;
                 }
 
-                if ( isset( $addresses ) && $addresses instanceof Router\Addresses ) {
-                    $moduleRouteDefault = $addresses->getTranslation( '/' );
-                }
-            }
+                if(! $reconfig) {
+                    global $controllerClassName;
 
-            // Define default action by module addresses config
-            if ( empty( $moduleRouteDefault ) ) {
-                $controllerClassName = $module->getNamespace() . 'Controllers\\' . studlycase( $module->getParameter() );
-                if ( class_exists( $controllerClassName ) ) {
-                    $defaultAction = $addresses->any( '/', function () use ( $controllerClassName ) {
-                        //return new $controllerClassName();
-                        return new Router\Datastructures\Controller( $controllerClassName );
-                    } )->getTranslation( '/' );
+                    $controllerNamespace = $module->getNamespace() . 'Controllers\\';
+                    $controllerClassName = $controllerNamespace . studlycase($module->getParameter());
 
-                    $uriSegments = array_diff( $uriSegments, [ strtolower( $module->getParameter() ) ] );
-
-                    $defaultAction->setClosureParameters( $uriSegments );
+                    if(class_exists($controllerClassName)) {
+                        $addresses->any(
+                            '/',
+                            function () {
+                                global $controllerClassName;
+                                return new $controllerClassName();
+                            }
+                        );
+                    } else {
+                        output()->sendError(502);
+                    }
                 }
             } else {
-                $defaultAction = $moduleRouteDefault;
+                global $controllerClassName;
+
+                $controllerNamespace = $module->getNamespace() . 'Controllers\\';
+                $controllerClassName = $controllerNamespace . studlycase($module->getParameter());
+
+                if(class_exists($controllerClassName)) {
+                    $addresses->any(
+                        '/',
+                        function () {
+                            global $controllerClassName;
+                            return new $controllerClassName();
+                        }
+                    );
+                } else {
+                    output()->sendError(502);
+                }
             }
         }
+
+        // Define default action by app addresses config
+        $defaultAction = $addresses->getTranslation( '/' );
 
         // Try to get action from URI String
         if ( false !== ( $action = $addresses->getTranslation( $uriString ) ) ) {
