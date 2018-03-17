@@ -14,8 +14,8 @@ namespace O2System\Framework\Containers;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\SQL\Model as SQLModel;
-use O2System\Framework\Models\NoSQL\Model as NoSQLModel;
+use O2System\Framework\Models\Sql\Model as SqlModel;
+use O2System\Framework\Models\NoSql\Model as NoSqlModel;
 use O2System\Spl\Containers\Datastructures\SplServiceRegistry;
 use O2System\Spl\Containers\SplServiceContainer;
 
@@ -37,8 +37,9 @@ class Models extends SplServiceContainer
         if( isset( $service ) && $service instanceof SplServiceRegistry ) {
             $offset = strtolower( $service->getClassName() );
 
-            if ( $service->isSubclassOf( 'O2System\Framework\Models\SQL\Model' ) ||
-                $service->isSubclassOf( 'O2System\Framework\Models\NoSQL\Model' )
+            if ( $service->isSubclassOf( 'O2System\Framework\Models\Sql\Model' ) ||
+                $service->isSubclassOf( 'O2System\Framework\Models\NoSql\Model' ) ||
+                $service->isSubclassOf( 'O2System\Framework\Models\Files\Model' )
             ) {
                 models()->attach( $offset, $service );
             }
@@ -49,11 +50,11 @@ class Models extends SplServiceContainer
      * Models::register
      *
      * @param string                                                                      $offset
-     * @param \O2System\Framework\Models\SQL\Model|\O2System\Framework\Models\NoSQL\Model $model
+     * @param \O2System\Framework\Models\Sql\Model|\O2System\Framework\Models\NoSql\Model|\O2System\Framework\Models\Files\Model $model
      */
     public function register( $offset, $model )
     {
-        if ( $model instanceof SQLModel OR $model instanceof NoSQLModel ) {
+        if ( $model instanceof SqlModel OR $model instanceof NoSqlModel ) {
 
             parent::attach( $offset, new SplServiceRegistry( $model ) );
         }

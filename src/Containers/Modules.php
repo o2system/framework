@@ -283,12 +283,15 @@ class Modules extends SplArrayStack
 
         if ( isset( $models ) AND is_array( $models ) ) {
             foreach ( $models as $offset => $model ) {
-                $service = new SplServiceRegistry( $model );
+                if(class_exists($model)) {
+                    $service = new SplServiceRegistry( $model );
 
-                if ( $service->isSubclassOf( 'O2System\Framework\Models\SQL\Model' ) ||
-                    $service->isSubclassOf( 'O2System\Framework\Models\NoSQL\Model' )
-                ) {
-                    models()->attach( $offset, $service );
+                    if ( $service->isSubclassOf( 'O2System\Framework\Models\Sql\Model' ) ||
+                        $service->isSubclassOf( 'O2System\Framework\Models\NoSql\Model' ) ||
+                        $service->isSubclassOf( 'O2System\Framework\Models\Files\Model' )
+                    ) {
+                        models()->attach( $offset, $service );
+                    }
                 }
             }
 

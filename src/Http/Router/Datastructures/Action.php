@@ -80,6 +80,11 @@ class Action
                 : @$_SERVER[ 'SERVER_NAME' ]
             : $domain;
 
+        // Remove www
+        if(strpos($this->domain, 'www.') !== false) {
+            $this->domain = str_replace('www.', '', $this->domain);
+        }
+
         if ( preg_match_all( "/{(.*)}/", $this->domain, $matches ) ) {
             foreach ( $matches[ 1 ] as $match ) {
                 $this->closureParameters[] = $match;

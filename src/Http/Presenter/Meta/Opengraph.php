@@ -96,6 +96,11 @@ class Opengraph extends AbstractItemStoragePattern
     public function setImage( $image )
     {
         if ( getimagesize( $image ) ) {
+            if(strpos($image,'http') === false) {
+                loader()->loadHelper('url');
+                $image = images_url($image);
+            }
+
             $this->setObject( 'image', $image );
         }
 

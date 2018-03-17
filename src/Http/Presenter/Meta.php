@@ -34,6 +34,7 @@ class Meta extends AbstractItemStoragePattern
         if ( false !== ( $config = config()->loadFile( 'presenter', true ) ) ) {
             if ( false !== ( $config->offsetGet( 'socialGraph' ) ) ) {
                 $this->opengraph = new Meta\Opengraph();
+                $this->opengraph->setTitle($this->title);
                 $this->opengraph->setLocale( language()->getDefaultLocale(), language()->getDefaultIdeom() );
                 $this->opengraph->setUrl( current_url() );
             }
@@ -44,6 +45,7 @@ class Meta extends AbstractItemStoragePattern
             'initial-scale' => 1,
             'shrink-to-fit' => 'no',
         ] );
+
         $this->offsetSet( 'language', language()->getDefault() );
         $this->offsetSet( 'generator', FRAMEWORK_NAME . ' v' . FRAMEWORK_VERSION );
         $this->offsetSet( 'url', current_url() );
