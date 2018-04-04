@@ -42,6 +42,9 @@ class Router
                 parse_url( $_SERVER[ 'REQUEST_URI' ], PHP_URL_PATH )
             );
 
+            $uriPathParts = explode('public/', $uriPath);
+            $uriPath = end($uriPathParts);
+
             if( $uriPath !== '/' ) {
                 $uriString = $uriPath;
                 $uriSegments = array_filter( explode( '/', $uriString ) );
