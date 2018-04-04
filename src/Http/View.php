@@ -287,7 +287,6 @@ class View
                 presenter()->meta->opengraph->setTitle(presenter()->meta->title->__toString());
             }
 
-
             // set opengraph site name
             if (presenter()->exists('siteName')) {
                 presenter()->meta->opengraph->setSiteName(presenter()->offsetGet('siteName'));

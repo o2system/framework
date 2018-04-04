@@ -50,7 +50,9 @@ class Uri extends Message\Uri
             $this->segments = new Segments();
         }
 
-        $this->setSuffix( config( 'uri' )->offsetGet( 'suffix' ) );
+        if(config()->offsetExists('uri')) {
+            $this->setSuffix( config( 'uri' )->offsetGet( 'suffix' ) );
+        }
     }
 
     // ------------------------------------------------------------------------

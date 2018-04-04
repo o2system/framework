@@ -103,13 +103,18 @@ class Assets
 
             foreach ( $subPackages as $subPackage => $subPackageFiles ) {
                 if ( $subPackage === 'theme' or $subPackage === 'themes' ) {
-                    $themeDir = $packageDir . 'themes' . DIRECTORY_SEPARATOR;
-                    $themeName = $subPackageFiles;
+                    if(is_string($subPackageFiles)) {
+                        $subPackageFiles = [ $subPackageFiles ];
+                    }
 
-                    if ( $this->head->loadFile( $themeDir . $themeName . DIRECTORY_SEPARATOR . $themeName . '.css' ) ) {
-                        $this->body->loadFile( $themeDir . $themeName . DIRECTORY_SEPARATOR . $themeName . '.js' );
-                    } else {
-                        $this->head->loadFile( $themeDir . $themeName . '.css' );
+                    foreach($subPackageFiles as $themeName) {
+                        $themeDir = $packageDir . 'themes' . DIRECTORY_SEPARATOR;
+
+                        if ( $this->head->loadFile( $themeDir . $themeName . DIRECTORY_SEPARATOR . $themeName . '.css' ) ) {
+                            $this->body->loadFile( $themeDir . $themeName . DIRECTORY_SEPARATOR . $themeName . '.js' );
+                        } else {
+                            $this->head->loadFile( $themeDir . $themeName . '.css' );
+                        }
                     }
                 } elseif ( $subPackage === 'plugins' ) {
                     foreach ( $subPackageFiles as $subPackageFile ) {

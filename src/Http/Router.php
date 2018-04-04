@@ -15,6 +15,7 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Datastructures\Module;
 use O2System\Framework\Http\Message\Uri;
 use O2System\Framework\Http\Router\Datastructures\Page;
 use O2System\Framework\Http\Router\Datastructures\Action;
@@ -28,6 +29,8 @@ use O2System\Framework\Http\Router\Datastructures\Action;
  */
 class Router
 {
+    protected $addresses;
+    
     final public function parseRequest( Uri $uri = null )
     {
         $uri = is_null( $uri ) ? request()->getUri() : $uri;
@@ -46,73 +49,24 @@ class Router
         }
 
         // Load app addresses config
-        $addresses = config()->loadFile( 'addresses', true );
+        $this->addresses = config()->loadFile( 'addresses', true );
 
-        if ( $addresses instanceof Router\Addresses ) {
+        if ( $this->addresses instanceof Router\Addresses ) {
             // Domain routing
-            if ( null !== ( $domain = $addresses->getDomain() ) ) {
+            if ( null !== ( $domain = $this->addresses->getDomain() ) ) {
                 if ( is_array( $domain ) ) {
                     $uriSegments = array_merge( $domain, $uriSegments );
                     $uriString = implode( '/', array_map( 'dash', $uriSegments ) );
-                } elseif ( is_string( $domain ) ) {
-                    if ( false !== ( $domainAppModule = modules()->getApp( $domain ) ) ) {
-                        // Register Domain App Module Namespace
-                        loader()->addNamespace( $domainAppModule->getNamespace(), $domainAppModule->getRealPath() );
+                }
 
-                        // Push Domain App Module
-                        modules()->push( $domainAppModule );
-                    } elseif ( false !== ( $module = modules()->getModule( $domain ) ) ) {
-                        // Register Path Module Namespace
-                        loader()->addNamespace( $module->getNamespace(), $module->getRealPath() );
-
-                        // Push Path Module
-                        modules()->push( $module );
-                    }
+                if ( false !== ( $domainAppModule = modules()->getApp( $domain ) ) ) {
+                    $this->registerModule($domainAppModule);
+                } elseif ( false !== ( $module = modules()->getModule( $domain ) ) ) {
+                    $this->registerModule($module);
                 }
             } elseif ( false !== ( $subdomain = $uri->getSubdomain() ) ) {
                 if ( false !== ( $module = modules()->getApp( $subdomain ) ) ) {
-                    // Register Subdomain App Module Namespace
-                    loader()->addNamespace( $module->getNamespace(), $module->getRealPath() );
-
-                    // Push Subdomain App Module
-                    modules()->push( $module );
-
-                    // Load modular addresses config
-                    if ( false !== ( $configDir = $module->getDir( 'config', true ) ) ) {
-                        $reconfig = false;
-                        if ( is_file(
-                            $filePath = $configDir . ucfirst(
-                                    strtolower( ENVIRONMENT )
-                                ) . DIRECTORY_SEPARATOR . 'Addresses.php'
-                        ) ) {
-                            include( $filePath );
-                            $reconfig = true;
-                        } elseif ( is_file(
-                            $filePath = $configDir . 'Addresses.php'
-                        ) ) {
-                            include( $filePath );
-                            $reconfig = true;
-                        }
-
-                        if(! $reconfig) {
-                            global $controllerClassName;
-
-                            $controllerNamespace = $module->getNamespace() . 'Controllers\\';
-                            $controllerClassName = $controllerNamespace . studlycase($module->getParameter());
-
-                            if(class_exists($controllerClassName)) {
-                                $addresses->any(
-                                    '/',
-                                    function () {
-                                        global $controllerClassName;
-                                        return new $controllerClassName();
-                                    }
-                                );
-                            } else {
-                                output()->sendError(502);
-                            }
-                        }
-                    }
+                    $this->registerModule($module);
                 }
             }
         }
@@ -129,83 +83,26 @@ class Router
                         ? [ $module->getParameter() ]
                         : $uriSegments;
 
-                    // Register Path Module Namespace
-                    loader()->addNamespace( $module->getNamespace(), $module->getRealPath() );
-
-                    // Push Path Module
-                    modules()->push( $module );
+                    $this->registerModule($module);
 
                     break;
                 }
             }
         }
 
-        if ( ! empty( $module ) ) {
-            // Load modular addresses config
-            if ( false !== ( $configDir = $module->getDir( 'config', true ) ) ) {
-                $reconfig = false;
-                if ( is_file(
-                    $filePath = $configDir . ucfirst(
-                            strtolower( ENVIRONMENT )
-                        ) . DIRECTORY_SEPARATOR . 'Addresses.php'
-                ) ) {
-                    include( $filePath );
-                    $reconfig = true;
-                } elseif ( is_file(
-                    $filePath = $configDir . 'Addresses.php'
-                ) ) {
-                    include( $filePath );
-                    $reconfig = true;
-                }
-
-                if(! $reconfig) {
-                    global $controllerClassName;
-
-                    $controllerNamespace = $module->getNamespace() . 'Controllers\\';
-                    $controllerClassName = $controllerNamespace . studlycase($module->getParameter());
-
-                    if(class_exists($controllerClassName)) {
-                        $addresses->any(
-                            '/',
-                            function () {
-                                global $controllerClassName;
-                                return new $controllerClassName();
-                            }
-                        );
-                    } else {
-                        output()->sendError(502);
-                    }
-                }
-            } else {
-                global $controllerClassName;
-
-                $controllerNamespace = $module->getNamespace() . 'Controllers\\';
-                $controllerClassName = $controllerNamespace . studlycase($module->getParameter());
-
-                if(class_exists($controllerClassName)) {
-                    $addresses->any(
-                        '/',
-                        function () {
-                            global $controllerClassName;
-                            return new $controllerClassName();
-                        }
-                    );
-                } else {
-                    output()->sendError(502);
-                }
-            }
-        }
-
         // Define default action by app addresses config
-        $defaultAction = $addresses->getTranslation( '/' );
+        $defaultAction = $this->addresses->getTranslation( '/' );
 
         // Try to get action from URI String
-        if ( false !== ( $action = $addresses->getTranslation( $uriString ) ) ) {
+        if ( false !== ( $action = $this->addresses->getTranslation( $uriString ) ) ) {
             if ( $action->isValidUriString( $uriString ) ) {
                 if ( ! $action->isValidHttpMethod( request()->getMethod() ) && ! $action->isAnyHttpMethod() ) {
                     output()->sendError( 405 );
-                } elseif ( $this->parseAction( $action ) !== false ) {
-                    return;
+                } else {
+                    $this->parseAction($action, $uriSegments);
+                    if ( ! empty( o2system()->hasService( 'controller' ) ) ) {
+                        return;
+                    }
                 }
             }
         }
@@ -228,7 +125,7 @@ class Router
                     $classes[] = $controllerClassName;
 
                     if ( class_exists( $controllerClassName ) ) {
-                        $defaultAction = $addresses->any( '/', function () use ( $controllerClassName ) {
+                        $defaultAction = $this->addresses->any( '/', function () use ( $controllerClassName ) {
                             return new Router\Datastructures\Controller( $controllerClassName );
                         } )->getTranslation( '/' );
 
@@ -260,7 +157,7 @@ class Router
                     break;
                 }
             }
-        } elseif ( count( $maps = $addresses->getTranslations() ) ) { // Try to parse route from route map
+        } elseif ( count( $maps = $this->addresses->getTranslations() ) ) { // Try to parse route from route map
             foreach ( $maps as $map ) {
                 if ( $map instanceof Action ) {
                     if ( $map->isValidHttpMethod( request()->getMethod() ) && $map->isValidUriString( $uriString ) ) {
@@ -403,5 +300,53 @@ class Router
         }
 
         return false;
+    }
+    
+    final protected function registerModule(Module $module) 
+    {
+        // Register Subdomain App Module Namespace
+        loader()->addNamespace( $module->getNamespace(), $module->getRealPath() );
+
+        // Push Subdomain App Module
+        modules()->push( $module );
+
+        // Load modular addresses config
+        if ( false !== ( $configDir = $module->getDir( 'config', true ) ) ) {
+            $reconfig = false;
+            if ( is_file(
+                $filePath = $configDir . ucfirst(
+                        strtolower( ENVIRONMENT )
+                    ) . DIRECTORY_SEPARATOR . 'Addresses.php'
+            ) ) {
+                include( $filePath );
+                $reconfig = true;
+            } elseif ( is_file(
+                $filePath = $configDir . 'Addresses.php'
+            ) ) {
+                include( $filePath );
+                $reconfig = true;
+            }
+
+            if(! $reconfig) {
+                global $controllerClassName;
+
+                $controllerNamespace = $module->getNamespace() . 'Controllers\\';
+                $controllerClassName = $controllerNamespace . studlycase($module->getParameter());
+
+                if(class_exists($controllerClassName)) {
+                    $this->addresses->any(
+                        '/',
+                        function () {
+                            global $controllerClassName;
+                            return new $controllerClassName();
+                        }
+                    );
+                } else {
+                    output()->sendError(502);
+                }
+            } elseif(isset($addresses)) {
+                $this->addresses = $addresses;
+            }
+        }
     }
 }

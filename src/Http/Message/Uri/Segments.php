@@ -29,7 +29,9 @@ class Segments
     public function __construct( $string = null )
     {
         if ( is_null( $string ) ) {
-            $protocol = strtoupper( config( 'uri' )->offsetGet( 'protocol' ) );
+            if(config()->offsetExists('uri')) {
+                $protocol = strtoupper( config( 'uri' )->offsetGet( 'protocol' ) );
+            }
 
             empty( $protocol ) && $protocol = 'REQUEST_URI';
 
@@ -318,11 +320,15 @@ class Segments
             throw new RuntimeException( 'E_URI_HAS_DISALLOWED_CHARACTERS', 105 );
         }
 
+        $regex = [ '$', '(', ')', '%28', '%29', 'index' ]; // Bad
+        $replace = [ '&#36;', '&#40;', '&#41;', '&#40;', '&#41;' ]; // Good
+
+        if(! empty($config)) {
+            array_push($regex, $config->offsetGet('suffix'));
+            array_push($replace, '');
+        }
+
         // Convert programatic characters to entities and return
-        return str_replace(
-            [ '$', '(', ')', '%28', '%29', 'index', $config->offsetGet( 'suffix' ) ],    // Bad
-            [ '&#36;', '&#40;', '&#41;', '&#40;', '&#41;', '' ],    // Good
-            $string
-        );
+        return str_replace( $regex, $replace, $string );
     }
 }

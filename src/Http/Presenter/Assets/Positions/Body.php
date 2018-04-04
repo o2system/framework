@@ -37,7 +37,7 @@ class Body extends Abstracts\AbstractPosition
         // Render js
         if ( $this->javascript->count() ) {
             foreach ( $this->javascript as $javascript ) {
-                $output[] = '<script type="text/javascript" src="' . $this->getUrl( $javascript ) . '" defer="defer"></script>';
+                $output[] = '<script type="text/javascript" src="' . $this->getUrl( $javascript ) . '"></script>';
             }
         }
 
