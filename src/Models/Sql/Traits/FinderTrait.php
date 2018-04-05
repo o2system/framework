@@ -65,6 +65,9 @@ trait FinderTrait
      */
     public function page( $fields = null, $page = 1, $entries = 5 )
     {
+        $page = empty($page) ? 1 : $page;
+        $entries = empty($entries) ? 5 : $entries;
+
         if ( isset( $fields ) ) {
             if(is_numeric($fields)) {
                 $page = $fields;

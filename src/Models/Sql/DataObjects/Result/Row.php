@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\DataObjects\Result;
@@ -17,6 +18,7 @@ namespace O2System\Framework\Models\Sql\DataObjects\Result;
 use O2System\Database;
 use O2System\Framework\Models\Sql\Model;
 use O2System\Spl\Datastructures\SplArrayObject;
+use O2System\Spl\Info\SplClassInfo;
 
 /**
  * Class Row
@@ -35,31 +37,37 @@ class Row extends SplArrayObject
     /**
      * Row::__construct
      *
-     * @param Database\DataObjects\Result\Row|array  $row
-     * @param Model $model
+     * @param Database\DataObjects\Result\Row|array $row
+     * @param Model                                 $model
      */
-    public function __construct( $row, Model &$model )
+    public function __construct($row, Model &$model)
     {
-        $this->model =& $model;
+        $this->model = new SplClassInfo($model);
 
-        if ( $row instanceof Database\DataObjects\Result\Row ) {
-            parent::__construct( $row->getArrayCopy() );
-        } elseif ( is_array( $row ) ) {
-            parent::__construct( $row );
+        if ( ! models()->has($this->model->getParameter())) {
+            models()->register($this->model->getParameter(), $model);
         }
 
-        $this->model->row = $this;
+        if ($row instanceof Database\DataObjects\Result\Row) {
+            parent::__construct($row->getArrayCopy());
+        } elseif (is_array($row)) {
+            parent::__construct($row);
+        }
+
+        models($this->model->getParameter())->row = $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function offsetGet( $offset )
+    public function offsetGet($offset)
     {
-        if( method_exists( $this->model, $offset ) ) {
-            return $this->__call( $offset );
+        $model = models($this->model->getParameter());
+
+        if (method_exists($model, $offset)) {
+            return $this->__call($offset);
         }
 
-        return parent::offsetGet( $offset );
+        return parent::offsetGet($offset);
     }
 
     // ------------------------------------------------------------------------
@@ -76,11 +84,14 @@ class Row extends SplArrayObject
      *
      * @return  mixed
      */
-    public function __call( $method, $args = [] )
+    public function __call($method, $args = [])
     {
-        if ( method_exists( $this->model, $method ) ) {
-            $this->model->row = $this;
-            return call_user_func_array( [ &$this->model, $method ], $args );
+        $model = models($this->model->getParameter());
+
+        if (method_exists($model, $method)) {
+            $model->row = $this;
+
+            return call_user_func_array([&$model, $method], $args);
         }
 
         return null;

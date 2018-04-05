@@ -39,6 +39,9 @@ class User
         'server' => null,
     ];
 
+
+    // ------------------------------------------------------------------------
+
     public function __construct()
     {
         language()->loadFile('acl');
@@ -73,17 +76,12 @@ class User
         $this->currentAttempts = (int)session()->offsetGet('aclAttempts');
     }
 
+
+    // ------------------------------------------------------------------------
+
     public function login($username, $password, $remember = false)
     {
-        $condition = 'username';
-        if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
-            $condition = 'email';
-        } elseif (preg_match($this->msisdnRegex, $username)) {
-            $condition = 'msisdn';
-        }
-
-        if (($account = models('users')->findAccount($username, $condition)) instanceof Account
-        ) {
+        if (false !== ($account = $this->findAccount($username))) {
             if (password_verify($password, $account->password)) {
 
                 if ( ! empty($this->options)) {
@@ -129,6 +127,34 @@ class User
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * User::findAccount
+     *
+     * @param string $username
+     *
+     * @return Account|bool Returns FALSE if failed.
+     */
+    public function findAccount($username)
+    {
+        $condition = 'username';
+        if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
+            $condition = 'email';
+        } elseif (preg_match($this->msisdnRegex, $username)) {
+            $condition = 'msisdn';
+        }
+
+        if (($account = models('users')->findAccount($username, $condition)) instanceof Account
+        ) {
+            return $account;
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
     public function validate($ssid)
     {
         if (method_exists(models('users'), 'findSignature')) {
@@ -149,10 +175,14 @@ class User
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
     public function getCurrentAttempts()
     {
         return (int)$this->currentAttempts;
     }
+
+    // ------------------------------------------------------------------------
 
     public function getAccount()
     {
@@ -162,6 +192,8 @@ class User
 
         return false;
     }
+
+    // ------------------------------------------------------------------------
 
     public function getProfile($scope = 'ALL')
     {
@@ -174,6 +206,8 @@ class User
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
     public function getRoles()
     {
         if (false !== ($account = $this->getAccount())) {
@@ -185,6 +219,8 @@ class User
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
     public function getRolesAccess()
     {
         if (false !== ($account = $this->getAccount())) {
@@ -195,6 +231,8 @@ class User
 
         return false;
     }
+
+    // ------------------------------------------------------------------------
 
     public function authorize(Request $request)
     {
@@ -223,6 +261,8 @@ class User
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
     public function getIframeCode()
     {
         if ($this->sso[ 'enable' ] && $this->loggedIn() === false) {
@@ -233,10 +273,14 @@ class User
         return '';
     }
 
+    // ------------------------------------------------------------------------
+
     public function getIframeScript()
     {
         return '<script>window.parent.location.reload();</script>';
     }
+
+    // ------------------------------------------------------------------------
 
     public function loggedIn()
     {
@@ -248,6 +292,8 @@ class User
 
         return (bool)session()->offsetExists('account');
     }
+
+    // ------------------------------------------------------------------------
 
     public function logout()
     {
@@ -261,6 +307,8 @@ class User
 
         session()->destroy();
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * @todo: moved into model user
@@ -315,5 +363,12 @@ class User
         $model->db->transactionRollBack();
 
         return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function update(Account $account)
+    {
+        return models('users')->updateAccount($account);
     }
 }

@@ -13,15 +13,15 @@
 if ( ! function_exists( 'base_url' ) ) {
     function base_url( $segments = null, $query = null )
     {
-        $uri = ( new \O2System\Framework\Http\Message\Uri() )
-            ->withSegments( new \O2System\Framework\Http\Message\Uri\Segments( '' ) )
+        $uri = ( new \O2System\Kernel\Http\Message\Uri() )
+            ->withSegments( new \O2System\Kernel\Http\Message\Uri\Segments( '' ) )
             ->withQuery( '' );
 
         if ( $uriConfig = config()->offsetGet( 'uri' ) ) {
             if ( ! empty( $uriConfig[ 'base' ] ) ) {
                 $base = ( is_https() ? 'https' : 'http' ) . '://' . str_replace( [ 'http://', 'https://' ], '',
                         $uriConfig[ 'base' ] );
-                $uri = new \O2System\Framework\Http\Message\Uri( $base );
+                $uri = new \O2System\Kernel\Http\Message\Uri( $base );
             }
         }
 
@@ -43,7 +43,7 @@ if ( ! function_exists( 'current_url' ) ) {
 
     function current_url( $segments = null, $query = null )
     {
-        $uri = new \O2System\Framework\Http\Message\Uri();
+        $uri = new \O2System\Kernel\Http\Message\Uri();
 
         if ( isset( $segments ) ) {
             $uri = $uri->addSegments( $segments );

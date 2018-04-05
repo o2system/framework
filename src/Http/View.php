@@ -107,7 +107,7 @@ class View
 
     public function with($vars, $value = null)
     {
-        if (isset($value)) {
+        if (is_string($vars)) {
             $vars = [$vars => $value];
         }
 

@@ -14,7 +14,7 @@ namespace O2System\Framework\Http\Router\Datastructures;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Message\Uri\Segments;
+use O2System\Kernel\Http\Message\Uri\Segments;
 use O2System\Spl\Info\SplClassInfo;
 
 /**

@@ -14,7 +14,7 @@ namespace O2System\Framework\Http\Presenter\Assets\Positions\Abstracts;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Message\Uri;
+use O2System\Kernel\Http\Message\Uri;
 
 /**
  * Class AbstractPosition

@@ -14,7 +14,7 @@ namespace O2System\Framework\Http\Router;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Message\Uri\Domain;
+use O2System\Kernel\Http\Message\Uri\Domain;
 
 /**
  * Class Addresses

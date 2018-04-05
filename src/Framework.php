@@ -557,7 +557,8 @@ class Framework extends Kernel
                                 $requestController->sendPayload($requestControllerOutput);
                             }
                         } else {
-                            $requestControllerOutput = view()->load($controllerParameter)->render(true);
+                            view()->load($controllerParameter);
+                            $requestControllerOutput = view()->render($controllerParameter, [], true);
 
                             if( $requestControllerOutput !== '' ) {
                                 echo $requestControllerOutput;
@@ -574,8 +575,6 @@ class Framework extends Kernel
                     }
                 } else {
                     // Autoload Model
-                    $controllerAssets = [];
-
                     foreach ( modules() as $module ) {
                         if ( in_array( $module->getType(), [ 'KERNEL', 'FRAMEWORK' ] ) ) {
                             continue;
@@ -583,8 +582,6 @@ class Framework extends Kernel
 
                         $module->loadModel();
                     }
-
-                    $controllerAssets = array_reverse( $controllerAssets );
 
                     // Autoload Model
                     $modelClassName = str_replace( 'Controllers', 'Models', $controller->getName() );

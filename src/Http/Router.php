@@ -16,7 +16,7 @@ namespace O2System\Framework\Http;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Datastructures\Module;
-use O2System\Framework\Http\Message\Uri;
+use O2System\Kernel\Http\Message\Uri;
 use O2System\Framework\Http\Router\Datastructures\Page;
 use O2System\Framework\Http\Router\Datastructures\Action;
 
@@ -31,7 +31,7 @@ class Router
 {
     protected $addresses;
     
-    final public function parseRequest( Uri $uri = null )
+    public function parseRequest( Uri $uri = null )
     {
         $uri = is_null( $uri ) ? request()->getUri() : $uri;
         $uriSegments = $uri->getSegments()->getParts();
@@ -185,7 +185,7 @@ class Router
 
     // ------------------------------------------------------------------------
 
-    final protected function parseAction( Action $action, array $uriSegments = [] )
+    protected function parseAction( Action $action, array $uriSegments = [] )
     {
         if ( $closure = $action->getClosure() ) {
             if ( $closure instanceof Controller ) {
@@ -197,8 +197,8 @@ class Router
             } elseif ( $closure instanceof Router\Datastructures\Controller ) {
                 $this->setController( $closure, $action->getClosureParameters() );
             } elseif ( is_array( $closure ) ) {
-                $uri = ( new \O2System\Framework\Http\Message\Uri() )
-                    ->withSegments( new \O2System\Framework\Http\Message\Uri\Segments( '' ) )
+                $uri = ( new \O2System\Kernel\Http\Message\Uri() )
+                    ->withSegments( new \O2System\Kernel\Http\Message\Uri\Segments( '' ) )
                     ->withQuery( '' );
                 $this->parseRequest( $uri->addSegments( $closure ) );
             }

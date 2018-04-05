@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter;
@@ -29,223 +30,224 @@ class Assets
      */
     public function __construct()
     {
-        loader()->addPublicDir( 'assets' );
+        loader()->addPublicDir('assets');
 
         $this->head = new Assets\Positions\Head();
         $this->body = new Assets\Positions\Body();
     }
 
-    public function __get( $property )
+    public function __get($property)
     {
-        return isset( $this->{$property} ) ? $this->{$property} : null;
+        return isset($this->{$property}) ? $this->{$property} : null;
     }
 
-    public function autoload( $assets )
+    public function autoload($assets)
     {
-        foreach ( $assets as $position => $collections ) {
-            if ( property_exists( $this, $position ) ) {
+        foreach ($assets as $position => $collections) {
+            if (property_exists($this, $position)) {
 
-                if ( $collections instanceof \ArrayObject ) {
+                if ($collections instanceof \ArrayObject) {
                     $collections = $collections->getArrayCopy();
                 }
 
-                $this->{$position}->loadCollections( $collections );
-            } elseif ( $position === 'packages' ) {
-                $this->loadPackages( $collections );
-            } elseif ( $position === 'css' ) {
-                $this->loadCss( $collections );
-            } elseif ( $position === 'js' ) {
-                $this->loadJs( $collections );
+                $this->{$position}->loadCollections($collections);
+            } elseif ($position === 'packages') {
+                $this->loadPackages($collections);
+            } elseif ($position === 'css') {
+                $this->loadCss($collections);
+            } elseif ($position === 'js') {
+                $this->loadJs($collections);
             }
         }
     }
 
-    public function loadPackages( $packages )
+    public function loadPackages($packages)
     {
-        foreach ( $packages as $package => $files ) {
+        foreach ($packages as $package => $files) {
 
-            if ( is_string( $files ) ) {
-                $this->loadPackage( $files );
-            } elseif ( is_array( $files ) ) {
-                $this->loadPackage( $package, $files );
-            } elseif( is_object( $files ) ) {
-                $this->loadPackage( $package, get_object_vars( $files ) );
+            if (is_string($files)) {
+                $this->loadPackage($files);
+            } elseif (is_array($files)) {
+                $this->loadPackage($package, $files);
+            } elseif (is_object($files)) {
+                $this->loadPackage($package, get_object_vars($files));
             }
         }
     }
 
-    public function loadPackage( $package, $subPackages = [] )
+    public function loadPackage($package, $subPackages = [])
     {
-        $packageDir = implode( DIRECTORY_SEPARATOR, [
+        $packageDir = implode(DIRECTORY_SEPARATOR, [
                 'packages',
                 $package,
-            ] ) . DIRECTORY_SEPARATOR;
+            ]) . DIRECTORY_SEPARATOR;
 
-        if ( count( $subPackages ) ) {
+        if (count($subPackages)) {
 
-            if ( array_key_exists( 'libraries', $subPackages ) ) {
-                foreach ( $subPackages[ 'libraries' ] as $subPackageFile ) {
+            if (array_key_exists('libraries', $subPackages)) {
+                foreach ($subPackages[ 'libraries' ] as $subPackageFile) {
                     $pluginDir = $packageDir . 'libraries' . DIRECTORY_SEPARATOR;
                     $pluginName = $subPackageFile;
 
-                    if ( $this->body->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.js' ) ) {
-                        $this->head->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.css' );
+                    if ($this->body->loadFile($pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.js')) {
+                        $this->head->loadFile($pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.css');
                     } else {
-                        $this->body->loadFile( $pluginDir . $pluginName . '.js' );
+                        $this->body->loadFile($pluginDir . $pluginName . '.js');
                     }
                 }
 
-                unset( $subPackages[ 'libraries' ] );
+                unset($subPackages[ 'libraries' ]);
             }
 
-            $this->head->loadFile( $packageDir . $package . '.css' );
-            $this->body->loadFile( $packageDir . $package . '.js' );
+            $this->head->loadFile($packageDir . $package . '.css');
+            $this->body->loadFile($packageDir . $package . '.js');
 
-            foreach ( $subPackages as $subPackage => $subPackageFiles ) {
-                if ( $subPackage === 'theme' or $subPackage === 'themes' ) {
-                    if(is_string($subPackageFiles)) {
-                        $subPackageFiles = [ $subPackageFiles ];
+            foreach ($subPackages as $subPackage => $subPackageFiles) {
+                if ($subPackage === 'theme' or $subPackage === 'themes') {
+                    if (is_string($subPackageFiles)) {
+                        $subPackageFiles = [$subPackageFiles];
                     }
 
-                    foreach($subPackageFiles as $themeName) {
+                    foreach ($subPackageFiles as $themeName) {
                         $themeDir = $packageDir . 'themes' . DIRECTORY_SEPARATOR;
 
-                        if ( $this->head->loadFile( $themeDir . $themeName . DIRECTORY_SEPARATOR . $themeName . '.css' ) ) {
-                            $this->body->loadFile( $themeDir . $themeName . DIRECTORY_SEPARATOR . $themeName . '.js' );
+                        if ($this->head->loadFile($themeDir . $themeName . DIRECTORY_SEPARATOR . $themeName . '.css')) {
+                            $this->body->loadFile($themeDir . $themeName . DIRECTORY_SEPARATOR . $themeName . '.js');
                         } else {
-                            $this->head->loadFile( $themeDir . $themeName . '.css' );
+                            $this->head->loadFile($themeDir . $themeName . '.css');
                         }
                     }
-                } elseif ( $subPackage === 'plugins' ) {
-                    foreach ( $subPackageFiles as $subPackageFile ) {
+                } elseif ($subPackage === 'plugins') {
+                    foreach ($subPackageFiles as $subPackageFile) {
                         $pluginDir = $packageDir . 'plugins' . DIRECTORY_SEPARATOR;
                         $pluginName = $subPackageFile;
 
-                        $pluginName = str_replace( [ '\\','/' ], DIRECTORY_SEPARATOR, $pluginName );
-                        if( strpos( $pluginName, DIRECTORY_SEPARATOR ) !== false ) {
-                            $pluginDir.= pathinfo( $pluginName, PATHINFO_DIRNAME ) . DIRECTORY_SEPARATOR;
-                            $pluginName = pathinfo( $pluginName, PATHINFO_BASENAME );
+                        $pluginName = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $pluginName);
+                        if (strpos($pluginName, DIRECTORY_SEPARATOR) !== false) {
+                            $pluginDir .= pathinfo($pluginName, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR;
+                            $pluginName = pathinfo($pluginName, PATHINFO_BASENAME);
                         }
 
-                        if ( $this->body->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.js' ) ) {
-                            $this->head->loadFile( $pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.css' );
+                        if ($this->body->loadFile($pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.js')) {
+                            $this->head->loadFile($pluginDir . $pluginName . DIRECTORY_SEPARATOR . $pluginName . '.css');
                         } else {
-                            $this->body->loadFile( $pluginDir . $pluginName . '.js' );
+                            $this->body->loadFile($pluginDir . $pluginName . '.js');
                         }
                     }
-                } elseif ( $subPackage === 'libraries' ) {
-                    foreach ( $subPackageFiles as $subPackageFile ) {
+                } elseif ($subPackage === 'libraries') {
+                    foreach ($subPackageFiles as $subPackageFile) {
                         $libraryDir = $packageDir . 'libraries' . DIRECTORY_SEPARATOR;
                         $libraryName = $subPackageFile;
 
-                        $libraryName = str_replace( [ '\\','/' ], DIRECTORY_SEPARATOR, $libraryName );
-                        if( strpos( $libraryName, DIRECTORY_SEPARATOR ) !== false ) {
-                            $libraryDir.= pathinfo( $libraryName, PATHINFO_DIRNAME ) . DIRECTORY_SEPARATOR;
-                            $libraryName = pathinfo( $libraryName, PATHINFO_BASENAME );
+                        $libraryName = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $libraryName);
+                        if (strpos($libraryName, DIRECTORY_SEPARATOR) !== false) {
+                            $libraryDir .= pathinfo($libraryName, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR;
+                            $libraryName = pathinfo($libraryName, PATHINFO_BASENAME);
                         }
 
-                        if ( $this->body->loadFile( $libraryDir . $libraryName . DIRECTORY_SEPARATOR . $libraryName . '.js' ) ) {
-                            $this->head->loadFile( $libraryDir . $libraryName . DIRECTORY_SEPARATOR . $libraryName . '.css' );
+                        if ($this->body->loadFile($libraryDir . $libraryName . DIRECTORY_SEPARATOR . $libraryName . '.js')) {
+                            $this->head->loadFile($libraryDir . $libraryName . DIRECTORY_SEPARATOR . $libraryName . '.css');
                         } else {
-                            $this->body->loadFile( $libraryDir . $libraryName . '.js' );
+                            $this->body->loadFile($libraryDir . $libraryName . '.js');
                         }
                     }
                 }
             }
         } else {
-            $this->head->loadFile( $packageDir . $package . '.css' );
-            $this->body->loadFile( $packageDir . $package . '.js' );
+            $this->head->loadFile($packageDir . $package . '.css');
+            $this->body->loadFile($packageDir . $package . '.js');
         }
     }
 
-    public function loadFiles( $assets )
+    public function loadFiles($assets)
     {
-        foreach ( $assets as $type => $item ) {
-            $addMethod = 'load' . ucfirst( $type );
+        foreach ($assets as $type => $item) {
+            $addMethod = 'load' . ucfirst($type);
 
-            if ( method_exists( $this, $addMethod ) ) {
-                call_user_func_array( [ &$this, $addMethod ], [ $item ] );
+            if (method_exists($this, $addMethod)) {
+                call_user_func_array([&$this, $addMethod], [$item]);
             }
         }
     }
 
-    public function unloadFiles( $assets )
+    public function unloadFiles($assets)
     {
-        foreach ( $assets as $type => $item ) {
+        foreach ($assets as $type => $item) {
 
-            if ( is_array( $item ) ) {
-                foreach ( $item as $filename ) {
-                    if ( array_key_exists( $filename, $this->{$type . 'Assets'} ) ) {
-                        unset( $this->{$type . 'Assets'}[ $filename ] );
+            if (is_array($item)) {
+                foreach ($item as $filename) {
+                    if (array_key_exists($filename, $this->{$type . 'Assets'})) {
+                        unset($this->{$type . 'Assets'}[ $filename ]);
                     }
                 }
-            } elseif ( is_string( $item ) ) {
-                if ( array_key_exists( $item, $this->{$type . 'Assets'} ) ) {
-                    unset( $this->{$type . 'Assets'}[ $item ] );
+            } elseif (is_string($item)) {
+                if (array_key_exists($item, $this->{$type . 'Assets'})) {
+                    unset($this->{$type . 'Assets'}[ $item ]);
                 }
             }
         }
     }
 
-    public function loadJs( $files, $position = 'body' )
+    public function loadJs($files, $position = 'body')
     {
-        $files = is_string( $files ) ? [ $files ] : $files;
-        $this->{$position}->loadCollections( [ 'js' => $files ] );
+        $files = is_string($files) ? [$files] : $files;
+        $this->{$position}->loadCollections(['js' => $files]);
     }
 
-    public function loadCss( $files )
+    public function loadCss($files)
     {
-        $files = is_string( $files ) ? [ $files ] : $files;
-        $this->head->loadCollections( [ 'css' => $files ] );
+        $files = is_string($files) ? [$files] : $files;
+        $this->head->loadCollections(['css' => $files]);
     }
 
-    public function theme( $path )
+    public function theme($path)
     {
-        $path = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $path );
+        $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
 
-        if ( is_file( $filePath = presenter()->theme->active->getRealPath() . $path ) ) {
-            return path_to_url( $filePath );
+        if (is_file($filePath = presenter()->theme->active->getRealPath() . $path)) {
+            return path_to_url($filePath);
         }
     }
 
-    public function file( $file ) {
-        foreach ( loader()->getPublicDirs( true ) as $filePath ) {
-            if ( is_file( $filePath . $file ) ) {
-                return path_to_url( $filePath . $file );
+    public function file($file)
+    {
+        foreach (loader()->getPublicDirs(true) as $filePath) {
+            if (is_file($filePath . $file)) {
+                return path_to_url($filePath . $file);
                 break;
             }
         }
     }
 
-    public function image( $image )
+    public function image($image)
     {
-        $image = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $image );
+        $image = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $image);
 
-        foreach ( loader()->getPublicDirs( true ) as $filePath ) {
+        foreach (loader()->getPublicDirs(true) as $filePath) {
             $filePath .= 'img' . DIRECTORY_SEPARATOR;
 
-            if ( is_file( $filePath . $image ) ) {
-                return path_to_url( $filePath . $image );
+            if (is_file($filePath . $image)) {
+                return path_to_url($filePath . $image);
                 break;
             }
         }
     }
 
-    public function media( $media )
+    public function media($media)
     {
-        $media = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $media );
+        $media = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $media);
 
-        foreach ( loader()->getPublicDirs( true ) as $filePath ) {
+        foreach (loader()->getPublicDirs(true) as $filePath) {
             $filePath .= 'media' . DIRECTORY_SEPARATOR;
 
-            if ( is_file( $filePath . $media ) ) {
-                return path_to_url( $filePath . $media );
+            if (is_file($filePath . $media)) {
+                return path_to_url($filePath . $media);
                 break;
             }
         }
     }
 
-    public function parseSourceCode( $sourceCode )
+    public function parseSourceCode($sourceCode)
     {
         $sourceCode = str_replace(
             [
@@ -258,9 +260,9 @@ class Assets
                 "'" . base_url() . '/assets/',
                 "(" . base_url() . '/assets/',
             ],
-            $sourceCode );
+            $sourceCode);
 
-        if ( presenter()->theme->use === true ) {
+        if (presenter()->theme->use === true) {
             $sourceCode = str_replace(
                 [
                     '"assets/',
@@ -278,7 +280,15 @@ class Assets
                     "'" . presenter()->theme->active->getUrl('layouts/'),
                     "(" . presenter()->theme->active->getUrl('layouts/'),
                 ],
-                $sourceCode );
+                $sourceCode);
+        }
+
+        // Valet path fixes
+        $valetPath = dirname($_SERVER[ 'DOCUMENT_URI' ]) . DIRECTORY_SEPARATOR;
+        $valetPath = $valetPath === '//' ? null : $valetPath;
+
+        if($valetPath !== '//') {
+            $sourceCode = str_replace($valetPath, '/', $sourceCode);
         }
 
         return $sourceCode;
