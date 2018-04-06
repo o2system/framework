@@ -102,22 +102,6 @@ if ( ! function_exists( 'hooks' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'globals' ) ) {
-    /**
-     * globals
-     *
-     * Convenient shortcut for O2System Framework Globals container.
-     *
-     * @return O2System\Framework\Containers\Globals
-     */
-    function globals ()
-    {
-        return o2system()->__get( 'globals' );
-    }
-}
-
-// ------------------------------------------------------------------------
-
 if ( ! function_exists( 'database' ) ) {
     /**
      * database

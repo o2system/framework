@@ -17,8 +17,9 @@ namespace O2System\Framework\Http;
 
 use O2System\Framework\Datastructures\Module;
 use O2System\Kernel\Http\Message\Uri;
+use O2System\Kernel\Http\Router\Addresses;
+use O2System\Kernel\Http\Router\Datastructures\Action;
 use O2System\Framework\Http\Router\Datastructures\Page;
-use O2System\Framework\Http\Router\Datastructures\Action;
 
 // ------------------------------------------------------------------------
 
@@ -27,10 +28,8 @@ use O2System\Framework\Http\Router\Datastructures\Action;
  *
  * @package O2System
  */
-class Router
+class Router extends \O2System\Kernel\Http\Router
 {
-    protected $addresses;
-    
     public function parseRequest( Uri $uri = null )
     {
         $uri = is_null( $uri ) ? request()->getUri() : $uri;
@@ -54,7 +53,7 @@ class Router
         // Load app addresses config
         $this->addresses = config()->loadFile( 'addresses', true );
 
-        if ( $this->addresses instanceof Router\Addresses ) {
+        if ( $this->addresses instanceof Addresses ) {
             // Domain routing
             if ( null !== ( $domain = $this->addresses->getDomain() ) ) {
                 if ( is_array( $domain ) ) {
@@ -304,6 +303,8 @@ class Router
 
         return false;
     }
+
+    // ------------------------------------------------------------------------
     
     final protected function registerModule(Module $module) 
     {

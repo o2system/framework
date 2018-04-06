@@ -15,6 +15,7 @@ namespace O2System\Framework\Http;
 // ------------------------------------------------------------------------
 
 use O2System\Psr\Patterns\AbstractVariableStoragePattern;
+use O2System\Spl\Traits\Collectors\ConfigCollectorTrait;
 
 /**
  * Class Presenter
@@ -23,6 +24,8 @@ use O2System\Psr\Patterns\AbstractVariableStoragePattern;
  */
 class Presenter extends AbstractVariableStoragePattern
 {
+    use ConfigCollectorTrait;
+
     /**
      * Presenter::__construct
      */
@@ -37,15 +40,17 @@ class Presenter extends AbstractVariableStoragePattern
 
     public function initialize()
     {
-        if ( false !== ( $presenter = config()->loadFile( 'presenter', true ) ) ) {
+        if ( false !== ( $config = config()->loadFile( 'presenter', true ) ) ) {
+            $this->setConfig($config);
+
             // autoload presenter assets
-            if ( $presenter->offsetExists( 'assets' ) ) {
-                $this->assets->autoload( $presenter->assets[ 'autoload' ] );
+            if ( $config->offsetExists( 'assets' ) ) {
+                $this->assets->autoload( $config->assets[ 'autoload' ] );
             }
 
             // autoload presenter theme
-            if ( $presenter->offsetExists( 'theme' ) ) {
-                $this->theme->set( $presenter->offsetGet( 'theme' ) );
+            if ( $config->offsetExists( 'theme' ) ) {
+                $this->theme->set( $config->offsetGet( 'theme' ) );
             }
         }
 

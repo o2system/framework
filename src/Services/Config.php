@@ -14,7 +14,7 @@ namespace O2System\Framework\Services;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractVariableStoragePattern;
+use O2System\Kernel\Containers\Environment;
 use O2System\Spl\Datastructures\SplArrayObject;
 
 /**
@@ -22,7 +22,7 @@ use O2System\Spl\Datastructures\SplArrayObject;
  *
  * @package O2System\Framework\Services
  */
-class Config extends AbstractVariableStoragePattern
+class Config extends Environment
 {
     /**
      * Config::loadFile
@@ -88,7 +88,7 @@ class Config extends AbstractVariableStoragePattern
      */
     public function addItem( $offset, $value )
     {
-        $this->store( $offset, $value, true );
+        $this->offsetSet( $offset, $value );
     }
 
     // ------------------------------------------------------------------------
@@ -104,7 +104,7 @@ class Config extends AbstractVariableStoragePattern
      */
     public function &getItem( $offset )
     {
-        $item = parent::getVariable( $offset );
+        $item = parent::offsetGet( $offset );
 
         if ( is_array( $item ) ) {
             if ( is_string( key( $item ) ) ) {
@@ -127,6 +127,6 @@ class Config extends AbstractVariableStoragePattern
      */
     public function setItem( $offset, $value )
     {
-        $this->store( $offset, $value );
+        $this->offsetSet( $offset, $value );
     }
 }

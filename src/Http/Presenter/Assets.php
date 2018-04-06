@@ -14,6 +14,8 @@
 namespace O2System\Framework\Http\Presenter;
 
 // ------------------------------------------------------------------------
+use MatthiasMullie\Minify\CSS;
+use MatthiasMullie\Minify\JS;
 
 /**
  * Class Assets
@@ -287,7 +289,7 @@ class Assets
         $valetPath = dirname($_SERVER[ 'DOCUMENT_URI' ]) . DIRECTORY_SEPARATOR;
         $valetPath = $valetPath === '//' ? null : $valetPath;
 
-        if($valetPath !== '//') {
+        if ($valetPath !== '//') {
             $sourceCode = str_replace($valetPath, '/', $sourceCode);
         }
 

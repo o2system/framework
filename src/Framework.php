@@ -141,13 +141,6 @@ require __DIR__ . '/Helpers/Framework.php';
 class Framework extends Kernel
 {
     /**
-     * Framework Container Globals
-     *
-     * @var Framework\Containers\Globals
-     */
-    private $globals;
-
-    /**
      * Framework Database Connection Pools
      *
      * @var Framework\Containers\Globals
@@ -203,10 +196,6 @@ class Framework extends Kernel
         }
 
         $this->addService( $hooks );
-
-        // Instantiate Globals Container
-        profiler()->watch( 'INSTANTIATE_GLOBALS_CONTAINER' );
-        $this->globals = new Framework\Containers\Globals();
 
         if ( $config = config()->loadFile( 'database', true ) ) {
             if ( ! empty( $config[ 'default' ][ 'hostname' ] ) AND ! empty( $config[ 'default' ][ 'username' ] ) ) {

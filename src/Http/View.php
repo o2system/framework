@@ -323,11 +323,12 @@ class View
             if (false !== ($layout = presenter()->theme->active->getLayout())) {
                 parser()->loadFile($layout->getRealPath());
                 $htmlOutput = parser()->parse();
-                $this->document->loadHTML(presenter()->assets->parseSourceCode($htmlOutput));
             }
         } else {
             $this->document->find('body')->append(presenter()->partials->__get('content'));
         }
+
+        $this->document->loadHTML(presenter()->assets->parseSourceCode($htmlOutput));
 
         // Single-Sign-On iFrame
         if (o2system()->hasService('user')) {
