@@ -61,10 +61,8 @@ class Row extends SplArrayObject
 
     public function offsetGet($offset)
     {
-        $model = models($this->model->getParameter());
-
-        if (method_exists($model, $offset)) {
-            return $this->__call($offset);
+        if (null !== ($result = $this->__call($offset))) {
+            return $result;
         }
 
         return parent::offsetGet($offset);
@@ -72,18 +70,6 @@ class Row extends SplArrayObject
 
     // ------------------------------------------------------------------------
 
-    /**
-     * Call Override
-     *
-     * This method is act as magic method, inspired from Laravel Eloquent ORM
-     *
-     * @access  public
-     *
-     * @param   string $method
-     * @param   array  $args
-     *
-     * @return  mixed
-     */
     public function __call($method, $args = [])
     {
         $model = models($this->model->getParameter());

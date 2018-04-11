@@ -151,6 +151,27 @@ class Router extends \O2System\Kernel\Http\Router
                                 break;
                             }
                         }
+                    } elseif( class_exists( $controllerClassName = $controllerNamespace . 'Pages')) {
+                        $modelClassName = str_replace('Controllers', 'Models', $controllerClassName);
+
+                        if(class_exists($modelClassName)) {
+                            models()->register('controller', new $modelClassName);
+
+                            if(false !== ($page = models()->controller->find($uriString, 'segments'))) {
+                                $controller = new $controllerClassName();
+
+                                if ( method_exists( $controller, 'setPage' ) ) {
+                                    $controller->setPage( $page );
+
+                                    $this->setController(
+                                        ( new Router\Datastructures\Controller( $controller ) )
+                                            ->setRequestMethod( 'index' )
+                                    );
+
+                                    return true;
+                                }
+                            }
+                        }
                     }
                 }
 

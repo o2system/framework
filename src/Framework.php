@@ -528,6 +528,13 @@ class Framework extends Kernel
                                 presenter()->partials->offsetSet( 'content', $requestControllerOutput );
                             }
 
+                            view()->load($controllerParameter);
+                            $requestControllerOutput = view()->render($controllerParameter, [], true);
+
+                            if( $requestControllerOutput !== '' ) {
+                                presenter()->partials->offsetSet( 'content', $requestControllerOutput );
+                            }
+
                             if ( presenter()->partials->offsetExists( 'content' ) ) {
                                 profiler()->watch( 'VIEW_SERVICE_RENDER' );
                                 view()->render();
