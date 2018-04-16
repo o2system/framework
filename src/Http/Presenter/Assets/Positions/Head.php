@@ -85,7 +85,10 @@ class Head extends Abstracts\AbstractPosition
                 if ($webpack) {
                     $minifyCssHandler->add($css);
                 } else {
-                    $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $this->getUrl($css) . '">';
+                    $url = $this->getUrl( $css );
+                    $url = str_replace('/.css', '/index.css', $url);
+
+                    $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $url . '">';
                 }
             }
 
@@ -111,7 +114,10 @@ class Head extends Abstracts\AbstractPosition
                 if ($webpack) {
                     $minifyJsHandler->add($javascript);
                 } else {
-                    $output[] = '<script type="text/javascript" src="' . $this->getUrl($javascript) . '"></script>';
+                    $url = $this->getUrl( $javascript );
+                    $url = str_replace('/.js', '/index.js', $url);
+
+                    $output[] = '<script type="text/javascript" src="' . $url . '"></script>';
                 }
             }
 

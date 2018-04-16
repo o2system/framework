@@ -241,13 +241,11 @@ class Framework extends Kernel
      */
     public function &__get( $property )
     {
-        $get[ $property ] = false;
-
         if ( isset( $this->{$property} ) ) {
             return $this->{$property};
         }
 
-        return $get[ $property ];
+        return $this->getService($property, true);
     }
 
     // ------------------------------------------------------------------------

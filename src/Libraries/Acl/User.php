@@ -104,13 +104,15 @@ class User
                 }
 
                 // set user single-sign-on (sso)
-                if (method_exists(models('users'), 'insertSignature')) {
-                    models('users')->insertSignature(new Signature([
-                        'id_sys_user' => $account->id,
-                        'code'        => $account[ 'ssid' ] = md5(json_encode($account) . mt_srand() . time()),
-                    ]));
+                if($this->sso->enable === true) {
+                    if (method_exists(models('users'), 'insertSignature')) {
+                        models('users')->insertSignature(new Signature([
+                            'id_sys_user' => $account->id,
+                            'code'        => $account[ 'ssid' ] = md5(json_encode($account) . mt_srand() . time()),
+                        ]));
 
-                    set_cookie('ssid', $account[ 'ssid' ]);
+                        set_cookie('ssid', $account[ 'ssid' ]);
+                    }
                 }
 
                 // set user session

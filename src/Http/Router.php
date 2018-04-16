@@ -236,7 +236,14 @@ class Router extends \O2System\Kernel\Http\Router
         // Add Controller PSR4 Namespace
         loader()->addNamespace( $controller->getNamespaceName(), $controller->getFileInfo()->getPath() );
 
-        $controllerMethod = camelcase( reset( $uriSegments ) );
+        $possibleControllerMethod = reset( $uriSegments );
+
+        if(null == pathinfo($possibleControllerMethod, PATHINFO_EXTENSION)) {
+            $controllerMethod = camelcase( $possibleControllerMethod );
+        } else {
+            $controllerMethod = $possibleControllerMethod;
+        }
+
         $controllerMethodParams = array_slice( $uriSegments, 1 );
 
         if ( null !== $controller->getRequestMethod() ) {

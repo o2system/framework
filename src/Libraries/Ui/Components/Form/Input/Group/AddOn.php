@@ -32,7 +32,7 @@ class AddOn extends Element
     public function __construct( $position = self::ADDON_LEFT )
     {
         parent::__construct( 'span' );
-        $this->attributes->addAttributeClass( 'input-group-addon' );
+        $this->attributes->addAttributeClass( 'input-group-text' );
         $this->setPosition( $position );
     }
 
@@ -49,8 +49,7 @@ class AddOn extends Element
     {
         if ( $this->hasChildNodes() ) {
             if ( $this->childNodes->first() instanceof Button ) {
-                $this->attributes->removeAttributeClass( 'input-group-addon' );
-                $this->attributes->addAttributeClass( 'input-group-btn' );
+                $this->attributes->removeAttributeClass( 'input-group-text' );
             }
         }
 

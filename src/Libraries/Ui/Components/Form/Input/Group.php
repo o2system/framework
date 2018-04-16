@@ -128,9 +128,14 @@ class Group extends Element
 
         // AddOn Left
         if ( count( $addOnsLeft ) ) {
+            $prependContainer = new Element('div');
+            $prependContainer->attributes->addAttributeClass('input-group-prepend');
+
             foreach ( $addOnsLeft as $addOn ) {
-                $output[] = $addOn;
+                $prependContainer->childNodes->push($addOn);
             }
+
+            $output[] = $prependContainer;
         }
 
         // Input
@@ -138,9 +143,14 @@ class Group extends Element
 
         // AddOn Right
         if ( count( $addOnsRight ) ) {
+            $appendContainer = new Element('div');
+            $appendContainer->attributes->addAttributeClass('input-group-prepend');
+
             foreach ( $addOnsRight as $addOn ) {
-                $output[] = $addOn;
+                $appendContainer->childNodes->push($addOn);
             }
+
+            $output[] = $appendContainer;
         }
 
         if ( $this->hasChildNodes() ) {
