@@ -215,7 +215,7 @@ class Restful extends Controller
 
     // ------------------------------------------------------------------------
 
-    protected function sendError($code, $message = null)
+    public function sendError($code, $message = null)
     {
         if($this->ajaxOnly === false) {
             output()->setContentType('application/json');
@@ -242,7 +242,7 @@ class Restful extends Controller
      * @param mixed $data        The payload data to-be send.
      * @param bool  $longPooling Long pooling flag mode.
      */
-    protected function sendPayload($data, $longPooling = false)
+    public function sendPayload($data, $longPooling = false)
     {
         if ($longPooling === false) {
             if ($this->ajaxOnly) {

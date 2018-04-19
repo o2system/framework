@@ -48,7 +48,12 @@ class Images extends Controller
 
     public function route()
     {
-        $segments = array_merge([func_get_arg(0)], func_get_arg(1));
+        if(func_get_arg(0) === 'index') {
+            $segments = func_get_arg(1);
+        } else {
+            $segments = array_merge([func_get_arg(0)], func_get_arg(1));
+        }
+
         $this->imageFilePath = $this->imageNotFound;
 
         $this->imageSize[ 'width' ] = input()->get('width');
