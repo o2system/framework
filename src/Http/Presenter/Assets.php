@@ -286,12 +286,7 @@ class Assets
         }
 
         // Valet path fixes
-        if(isset($_SERVER['DOCUMENT_URI'])) {
-            $valetPath = dirname($_SERVER[ 'DOCUMENT_URI' ]) . DIRECTORY_SEPARATOR;
-        } else {
-            $valetPath = dirname($_SERVER[ 'DOCUMENT_ROOT' ]) . DIRECTORY_SEPARATOR;
-        }
-
+        $valetPath = dirname($_SERVER[ 'DOCUMENT_URI' ]) . DIRECTORY_SEPARATOR;
         $valetPath = $valetPath === '//' ? null : $valetPath;
 
         if ($valetPath !== '//') {

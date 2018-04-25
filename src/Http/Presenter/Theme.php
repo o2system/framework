@@ -38,9 +38,6 @@ class Theme
                 define( 'PATH_THEME', $this->active->getRealPath() );
             }
 
-            // add theme view directory
-            view()->addFilePath($this->active->getRealPath());
-
             // add theme output directory
             output()->setFileDirName( 'views' ); // replace views folder base on theme structure
             output()->addFilePath( $this->active->getRealPath(), 'theme' );

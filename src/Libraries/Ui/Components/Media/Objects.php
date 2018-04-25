@@ -31,35 +31,31 @@ class Objects extends Element
     use HeadingSetterTrait;
     use ParagraphSetterTrait;
 
+    public $container;
     public $body;
-    public $alignment;
 
     public function __construct()
     {
         parent::__construct( 'div' );
         $this->attributes->addAttributeClass( 'media' );
 
+        $this->container = new Element( 'div' );
+        $this->container->attributes->addAttributeClass( 'media-left' );
+
         $this->body = new Element( 'div' );
         $this->body->attributes->addAttributeClass( 'media-body' );
     }
 
-    public function alignTop()
-    {
-        $this->alignment = 'TOP';
-
-        return $this;
-    }
-
     public function alignMiddle()
     {
-        $this->alignment = 'MIDDLE';
+        $this->container->attributes->addAttributeClass( 'media-middle' );
 
         return $this;
     }
 
     public function alignBottom()
     {
-        $this->alignment = 'BOTTOM';
+        $this->container->attributes->addAttributeClass( 'media-bottom' );
 
         return $this;
     }
@@ -93,17 +89,8 @@ class Objects extends Element
         $output[] = $this->open();
 
         if ( $this->image instanceof Element ) {
-            $this->image->attributes->addAttributeClass( [ 'mr-3' ] );
-
-            if ( $this->alignment === 'TOP' ) {
-                $this->image->attributes->addAttributeClass( [ 'align-self-start' ] );
-            } elseif ( $this->alignment === 'MIDDLE' ) {
-                $this->image->attributes->addAttributeClass( [ 'align-self-center' ] );
-            } elseif ( $this->alignment === 'BOTTOM' ) {
-                $this->image->attributes->addAttributeClass( [ 'align-self-end' ] );
-            }
-
-            $output[] = $this->image;
+            $this->image->attributes->addAttributeClass( [ 'media-image', 'd-flex', 'mr-3' ] );
+            $this->container->childNodes->push( $this->image );
         }
 
         if ( $this->paragraph instanceof Element ) {
@@ -118,10 +105,11 @@ class Objects extends Element
 
         if ( $this->heading instanceof Element ) {
             $this->heading->tagName = 'h4';
-            $this->heading->attributes->addAttributeClass( [ 'mt-0' ] );
+            $this->heading->attributes->addAttributeClass( [ 'media-heading', 'mt-0' ] );
             $this->body->childNodes->prepend( $this->heading );
         }
 
+        $output[] = $this->container;
         $output[] = $this->body;
 
         $output[] = $this->close();

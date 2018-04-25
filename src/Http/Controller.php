@@ -14,13 +14,22 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
+use O2System\Spl\Info\SplClassInfo;
+
 /**
  * Class Controller
  *
  * @package O2System\Framework\Http
  */
-class Controller extends \O2System\Kernel\Http\Controller
+class Controller
 {
+    public function getClassInfo()
+    {
+        $classInfo = new SplClassInfo( $this );
+
+        return $classInfo;
+    }
+
     public function &__get( $property )
     {
         $get[ $property ] = false;
@@ -34,5 +43,14 @@ class Controller extends \O2System\Kernel\Http\Controller
         }
 
         return $get[ $property ];
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function __call( $method, array $args = [] )
+    {
+        if ( method_exists( $this, $method ) ) {
+            return call_user_func_array( [ $this, $method ], $args );
+        }
     }
 }

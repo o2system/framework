@@ -88,6 +88,7 @@ if ( ! function_exists('format_date')) {
                 )));
         $date = parse_date($timestamp);
 
+        print_out($date);
         $output = $format;
 
         foreach ($date as $replace => $value) {

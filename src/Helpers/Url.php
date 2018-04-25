@@ -37,34 +37,6 @@ if ( ! function_exists( 'base_url' ) ) {
     }
 }
 
-if ( ! function_exists( 'domain_url' ) ) {
-    function domain_url( $segments = null, $query = null )
-    {
-        $uri = ( new \O2System\Kernel\Http\Message\Uri() )
-            ->withSubDomain(null)
-            ->withSegments( new \O2System\Kernel\Http\Message\Uri\Segments( '' ) )
-            ->withQuery( '' );
-
-        if ( $uriConfig = config()->offsetGet( 'uri' ) ) {
-            if ( ! empty( $uriConfig[ 'base' ] ) ) {
-                $base = ( is_https() ? 'https' : 'http' ) . '://' . str_replace( [ 'http://', 'https://' ], '',
-                        $uriConfig[ 'base' ] );
-                $uri = new \O2System\Kernel\Http\Message\Uri( $base );
-            }
-        }
-
-        if ( isset( $segments ) ) {
-            $uri = $uri->addSegments( $segments );
-        }
-
-        if ( isset( $query ) ) {
-            $uri = $uri->addQuery( $query );
-        }
-
-        return $uri->__toString();
-    }
-}
-
 // ------------------------------------------------------------------------
 
 if ( ! function_exists( 'current_url' ) ) {

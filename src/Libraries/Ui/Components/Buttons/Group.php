@@ -72,7 +72,6 @@ class Group extends Element
 
     public function verticalStacked()
     {
-        $this->attributes->removeAttributeClass('btn-group');
         $this->attributes->addAttributeClass( 'btn-group-vertical' );
 
         return $this;

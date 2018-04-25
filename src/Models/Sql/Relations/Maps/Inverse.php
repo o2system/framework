@@ -93,8 +93,8 @@ class Inverse
         $this->mapReferenceModel( $referenceModel );
 
         // Map Relation Primary Key
-        $this->relationForeignKey = ( isset( $relationForeignKey ) ? $relationForeignKey
-            : $this->mapRelationForeignKey() );
+        $this->relationForeignKey = isset( $relationForeignKey ) ? $relationForeignKey
+            : $this->mapRelationForeignKey();
     }
 
     // ------------------------------------------------------------------------

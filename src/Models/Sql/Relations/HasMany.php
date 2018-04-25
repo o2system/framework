@@ -39,7 +39,7 @@ class HasMany extends Sql\Relations\Abstracts\AbstractRelation
             if ( $this->map->relationModel instanceof Sql\Model ) {
                 $result = $this->map->relationModel->qb
                     ->from( $this->map->relationTable )
-                    ->getWhere( $conditions );
+                    ->getWhere( $conditions, 1 );
 
                 if( $result instanceof Result ) {
                     if ( $result->count() > 0 ) {
@@ -49,7 +49,7 @@ class HasMany extends Sql\Relations\Abstracts\AbstractRelation
             } elseif( ! empty( $this->map->relationTable ) ) {
                 $result = $this->map->referenceModel->qb
                     ->from( $this->map->relationTable )
-                    ->getWhere( $conditions );
+                    ->getWhere( $conditions, 1 );
 
                 if( $result instanceof Result ) {
                     if ( $result->count() > 0 ) {

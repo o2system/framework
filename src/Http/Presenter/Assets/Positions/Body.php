@@ -53,10 +53,7 @@ class Body extends Abstracts\AbstractPosition
                 if($webpack) {
                     $minifyJsHandler->add($javascript);
                 } else {
-                    $url = $this->getUrl( $javascript );
-                    $url = str_replace('/.js', '/index.js', $url);
-
-                    $output[] = '<script type="text/javascript" src="' . $url . '"></script>';
+                    $output[] = '<script type="text/javascript" src="' . $this->getUrl( $javascript ) . '"></script>';
                 }
             }
 

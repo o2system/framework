@@ -96,8 +96,8 @@ class Reference
         $this->mapRelationModel( $relationModel );
 
         // Map Relation Foreign Key
-        $this->relationForeignKey = $this->relationTable . '.' . ( isset( $relationForeignKey ) ? $relationForeignKey
-            : $this->mapRelationForeignKey() );
+        $this->relationForeignKey = isset( $relationForeignKey ) ? $relationForeignKey
+            : $this->mapRelationForeignKey();
     }
 
     // ------------------------------------------------------------------------

@@ -14,7 +14,7 @@ namespace O2System\Framework\Cli\Commanders;
 
 // ------------------------------------------------------------------------
 
-use O2System\Kernel\Cli\Commander;
+use O2System\Framework\Cli\Commander;
 
 /**
  * Class Make
@@ -115,13 +115,5 @@ class Make extends Commander
     public function optionNamespace( $namespace )
     {
         $this->namespace = $namespace;
-    }
-
-    public function getPhpTemplateFile($filename)
-    {
-        $directories = [
-            PATH_FRAMEWORK . 'Config' . DIRECTORY_SEPARATOR . 'PhpTemplateFiles'
-        ];
-
     }
 }

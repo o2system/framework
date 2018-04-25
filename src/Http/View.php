@@ -150,8 +150,8 @@ class View
             $error = new ErrorException(
                 'E_VIEW_NOT_FOUND',
                 0,
-                @$backtrace[ 0 ][ 'file' ],
-                @$backtrace[ 0 ][ 'line' ],
+                $backtrace[ 0 ][ 'file' ],
+                $backtrace[ 0 ][ 'line' ],
                 [trim($filename)]
             );
 
@@ -207,7 +207,7 @@ class View
         }
     }
 
-    public function getFilePath($filename)
+    private function getFilePath($filename)
     {
         $filename = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $filename);
 
@@ -216,8 +216,6 @@ class View
         } else {
             $viewsFileExtensions = $this->fileExtensions;
             $viewsDirectories = modules()->getDirs('Views');
-            $viewsDirectories = array_merge($viewsDirectories, $this->filePaths);
-            $viewsDirectories = array_unique($viewsDirectories);
 
             if (presenter()->theme->use === true) {
 
@@ -276,7 +274,6 @@ class View
 
     public function render($return = false)
     {
-        $htmlOutput = '';
         parser()->loadVars(presenter()->getArrayCopy());
 
         // set document meta title
@@ -311,9 +308,9 @@ class View
             }
         }
 
-        if(false !== ($controller = controller() )) {
-            presenter()->meta->offsetSet('module-controller', $controller->getClassInfo()->getParameter());
-        }
+        // set module meta
+        presenter()->meta->offsetSet('module-parameter', modules()->current()->getParameter());
+        presenter()->meta->offsetSet('module-controller', controller()->getClassInfo()->getParameter());
 
         $meta = presenter()->meta->getArrayCopy();
 
