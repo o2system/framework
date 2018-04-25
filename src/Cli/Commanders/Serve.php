@@ -14,7 +14,7 @@ namespace O2System\Framework\Cli\Commanders;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Cli\Commander;
+use O2System\Kernel\Cli\Commander;
 use O2System\Kernel\Cli\Writers\Format;
 
 /**

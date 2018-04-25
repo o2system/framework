@@ -286,10 +286,23 @@ class Assets
         }
 
         // Valet path fixes
-        $valetPath = dirname($_SERVER[ 'DOCUMENT_URI' ]) . DIRECTORY_SEPARATOR;
-        $valetPath = $valetPath === '//' ? null : $valetPath;
+        if(isset($_SERVER['SCRIPT_FILENAME'])) {
+            $valetPath = dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR;
+        } else {
+            $PATH_ROOT = $_SERVER['DOCUMENT_ROOT'];
 
-        if ($valetPath !== '//') {
+            if(isset($_SERVER['PHP_SELF'])) {
+                $valetPath = $PATH_ROOT . dirname($_SERVER['PHP_SELF']) . DIRECTORY_SEPARATOR;
+            } elseif(isset($_SERVER['DOCUMENT_URI'])) {
+                $valetPath = $PATH_ROOT . dirname($_SERVER[ 'DOCUMENT_URI' ]) . DIRECTORY_SEPARATOR;
+            } elseif(isset($_SERVER['REQUEST_URI'])) {
+                $valetPath = $PATH_ROOT . dirname($_SERVER[ 'REQUEST_URI' ]) . DIRECTORY_SEPARATOR;
+            } elseif(isset($_SERVER['SCRIPT_NAME'])) {
+                $valetPath = $PATH_ROOT . dirname($_SERVER[ 'SCRIPT_NAME' ]) . DIRECTORY_SEPARATOR;
+            }
+        }
+
+        if(isset($valetPath)) {
             $sourceCode = str_replace($valetPath, '/', $sourceCode);
         }
 

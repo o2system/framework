@@ -8,12 +8,14 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Services;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Datastructures\Module;
 use O2System\Psr\Loader\AutoloadInterface;
 
 /**
@@ -75,10 +77,10 @@ class Loader implements AutoloadInterface
         $this->register();
 
         // Add Kernel Namespace
-        $this->addNamespace( 'O2System\Kernel', PATH_KERNEL );
+        $this->addNamespace('O2System\Kernel', PATH_KERNEL);
 
-        if ( class_exists( 'O2System', false ) ) {
-            $this->addNamespace( 'O2System\Framework', PATH_FRAMEWORK );
+        if (class_exists('O2System', false)) {
+            $this->addNamespace('O2System\Framework', PATH_FRAMEWORK);
         }
     }
 
@@ -92,10 +94,10 @@ class Loader implements AutoloadInterface
     public function register()
     {
         // Prepend the PSR4 autoloader for maximum performance.
-        spl_autoload_register( [ &$this, 'loadClass' ], true, true );
+        spl_autoload_register([&$this, 'loadClass'], true, true);
 
         // Append the custom modular PSR4 autoloader.
-        spl_autoload_register( [ &$this, 'loadModuleClass' ], true, false );
+        spl_autoload_register([&$this, 'loadModuleClass'], true, false);
     }
 
     // ------------------------------------------------------------------------
@@ -107,15 +109,15 @@ class Loader implements AutoloadInterface
      *
      * @param string $publicDir
      */
-    public function addPublicDir( $publicDir, $offset = null )
+    public function addPublicDir($publicDir, $offset = null)
     {
         // normalize the public directory with a trailing separator
-        $publicDir = str_replace( [ '/', '\\' ], DIRECTORY_SEPARATOR, $publicDir );
-        $publicDir = PATH_PUBLIC . str_replace( PATH_PUBLIC, '', $publicDir );
-        $publicDir = rtrim( $publicDir, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR;
+        $publicDir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $publicDir);
+        $publicDir = PATH_PUBLIC . str_replace(PATH_PUBLIC, '', $publicDir);
+        $publicDir = rtrim($publicDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
-        if ( is_dir( $publicDir ) and ! in_array( $publicDir, $this->publicDirs ) ) {
-            if( isset( $offset ) ) {
+        if (is_dir($publicDir) and ! in_array($publicDir, $this->publicDirs)) {
+            if (isset($offset)) {
                 $this->publicDirs[ $offset ] = $publicDir;
             } else {
                 $this->publicDirs[] = $publicDir;
@@ -134,9 +136,9 @@ class Loader implements AutoloadInterface
      *
      * @return array
      */
-    public function getPublicDirs( $reverse = false )
+    public function getPublicDirs($reverse = false)
     {
-        return $reverse === true ? array_reverse( $this->publicDirs ) : $this->publicDirs;
+        return $reverse === true ? array_reverse($this->publicDirs) : $this->publicDirs;
     }
 
     // ------------------------------------------------------------------------
@@ -153,45 +155,50 @@ class Loader implements AutoloadInterface
      *
      * @return void
      */
-    public function addNamespace( $namespace, $baseDirectory, $prepend = false )
+    public function addNamespace($namespace, $baseDirectory, $prepend = false)
     {
         // normalize namespace prefix
-        $namespace = trim( $namespace, '\\' ) . '\\';
+        $namespace = trim($namespace, '\\') . '\\';
 
-        if ( empty( $namespace ) OR $namespace === '\\' ) {
+        if (empty($namespace) OR $namespace === '\\') {
             return;
         }
 
         // normalize the base directory with a trailing separator
-        $baseDirectory = str_replace( [ '/', '\\' ], DIRECTORY_SEPARATOR, $baseDirectory );
-        $baseDirectory = rtrim( $baseDirectory, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR;
+        $baseDirectory = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $baseDirectory);
+        $baseDirectory = rtrim($baseDirectory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
-        if ( is_dir( $baseDirectory ) ) {
+        if (is_dir($baseDirectory)) {
             // initialize the namespace prefix array
-            if ( isset( $this->namespaceDirs[ $namespace ] ) === false ) {
+            if (isset($this->namespaceDirs[ $namespace ]) === false) {
                 $this->namespaceDirs[ $namespace ] = [];
             }
 
             // retain the base directory for the namespace prefix
-            if ( ! in_array( $baseDirectory, $this->namespaceDirs[ $namespace ] ) ) {
-                if ( $prepend ) {
-                    array_unshift( $this->namespaceDirs[ $namespace ], $baseDirectory );
+            if ( ! in_array($baseDirectory, $this->namespaceDirs[ $namespace ])) {
+                if ($prepend) {
+                    array_unshift($this->namespaceDirs[ $namespace ], $baseDirectory);
                 } else {
-                    array_push( $this->namespaceDirs[ $namespace ], $baseDirectory );
+                    array_push($this->namespaceDirs[ $namespace ], $baseDirectory);
                 }
             }
 
             $this->namespaceDirsMap[ $baseDirectory ] = $namespace;
 
             // Register Namespace Language
-            language()->addFilePath( $baseDirectory );
+            language()->addFilePath($baseDirectory);
 
-            // Register Namespace Views
-            output()->addFilePath( $baseDirectory );
+            // Register Namespace Output FilePath
+            output()->addFilePath($baseDirectory);
+
+            // Register Namespace Views FilePath
+            if (o2system()->hasService('view')) {
+                view()->addFilePath($baseDirectory);
+            }
 
             // Autoload Composer
-            if ( is_file( $baseDirectory . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php' ) ) {
-                require( $baseDirectory . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php' );
+            if (is_file($baseDirectory . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php')) {
+                require($baseDirectory . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
             }
         }
     }
@@ -207,14 +214,14 @@ class Loader implements AutoloadInterface
      *
      * @return string|bool
      */
-    public function getDirNamespace( $dir )
+    public function getDirNamespace($dir)
     {
-        $dir = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $dir );
+        $dir = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $dir);
 
-        $dir = realpath( $dir );
-        $dir = rtrim( $dir, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR;
+        $dir = realpath($dir);
+        $dir = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
-        if ( array_key_exists( $dir, $this->namespaceDirsMap ) ) {
+        if (array_key_exists($dir, $this->namespaceDirsMap)) {
             return $this->namespaceDirsMap[ $dir ];
         }
 
@@ -230,13 +237,13 @@ class Loader implements AutoloadInterface
      *
      * @return string|null
      */
-    public function getClassNamespaceDirs( $className )
+    public function getClassNamespaceDirs($className)
     {
-        $className = ltrim( $className, '\\' );
+        $className = ltrim($className, '\\');
         $namespace = null;
 
-        if ( $lastNsPos = strripos( $className, '\\' ) ) {
-            return $this->getNamespaceDirs( substr( $className, 0, $lastNsPos ) );
+        if ($lastNsPos = strripos($className, '\\')) {
+            return $this->getNamespaceDirs(substr($className, 0, $lastNsPos));
         }
 
         return false;
@@ -251,11 +258,11 @@ class Loader implements AutoloadInterface
      *
      * @return string
      */
-    public function getNamespaceDirs( $namespace )
+    public function getNamespaceDirs($namespace)
     {
-        $namespace = trim( $namespace, '\\' ) . '\\';
+        $namespace = trim($namespace, '\\') . '\\';
 
-        if ( array_key_exists( $namespace, $this->namespaceDirs ) ) {
+        if (array_key_exists($namespace, $this->namespaceDirs)) {
             return $this->namespaceDirs[ $namespace ];
         }
 
@@ -264,22 +271,22 @@ class Loader implements AutoloadInterface
 
     // ------------------------------------------------------------------------
 
-    public function loadHelpers( array $helpers )
+    public function loadHelpers(array $helpers)
     {
-        foreach ( $helpers as $helper ) {
-            $this->loadHelper( $helper );
+        foreach ($helpers as $helper) {
+            $this->loadHelper($helper);
         }
     }
 
-    public function loadHelper( $helper )
+    public function loadHelper($helper)
     {
-        if ( array_key_exists( $helper, $this->loadedHelpers ) ) {
+        if (array_key_exists($helper, $this->loadedHelpers)) {
 
             return;
         }
 
-        if ( $this->requireFile( $helper ) ) {
-            $this->loadedHelpers[ pathinfo( $helper, PATHINFO_FILENAME ) ][] = $helper;
+        if ($this->requireFile($helper)) {
+            $this->loadedHelpers[ pathinfo($helper, PATHINFO_FILENAME) ][] = $helper;
 
             return;
         }
@@ -290,21 +297,21 @@ class Loader implements AutoloadInterface
             PATH_APP . 'Helpers' . DIRECTORY_SEPARATOR,
         ];
 
-        if ( method_exists( modules(), 'current' ) ) {
-            array_push( $helperDirectories, modules()->current()->getPath() . 'Helpers' . DIRECTORY_SEPARATOR );
+        if (method_exists(modules(), 'current')) {
+            array_push($helperDirectories, modules()->current()->getPath() . 'Helpers' . DIRECTORY_SEPARATOR);
         }
 
-        if ( ! array_key_exists( $helper, $this->loadedHelpers ) ) {
+        if ( ! array_key_exists($helper, $this->loadedHelpers)) {
             $this->loadedHelpers[ $helper ] = [];
         }
 
-        foreach ( $helperDirectories as $helperDirectory ) {
+        foreach ($helperDirectories as $helperDirectory) {
 
-            $helperFilePath = $helperDirectory . studlycase( $helper ) . '.php';
+            $helperFilePath = $helperDirectory . studlycase($helper) . '.php';
 
-            if ( in_array( $helperFilePath, $this->loadedHelpers[ $helper ] ) ) {
+            if (in_array($helperFilePath, $this->loadedHelpers[ $helper ])) {
                 continue;
-            } elseif ( $this->requireFile( $helperFilePath ) ) {
+            } elseif ($this->requireFile($helperFilePath)) {
                 $this->loadedHelpers[ $helper ][] = $helperFilePath;
             }
         }
@@ -317,9 +324,9 @@ class Loader implements AutoloadInterface
      *
      * @return bool True if the file exists, false if not.
      */
-    public function requireFile( $file )
+    public function requireFile($file)
     {
-        if ( is_file( $file ) ) {
+        if (is_file($file)) {
             require_once $file;
 
             return true;
@@ -338,29 +345,29 @@ class Loader implements AutoloadInterface
      * @return mixed The mapped file name on success, or boolean false on
      * failure.
      */
-    public function loadClass( $class )
+    public function loadClass($class)
     {
         // the current namespace prefix
         $namespace = $class;
 
         // work backwards through the namespace names of the fully-qualified
         // class name to find a mapped file name
-        while ( false !== $pos = strrpos( $namespace, '\\' ) ) {
+        while (false !== $pos = strrpos($namespace, '\\')) {
             // retain the trailing namespace separator in the prefix
-            $namespace = substr( $class, 0, $pos + 1 );
+            $namespace = substr($class, 0, $pos + 1);
 
             // the rest is the relative class name
-            $relativeClass = substr( $class, $pos + 1 );
+            $relativeClass = substr($class, $pos + 1);
 
             // try to load a mapped file for the prefix and relative class
-            $mappedFile = $this->loadMappedFile( $namespace, $relativeClass );
-            if ( $mappedFile ) {
+            $mappedFile = $this->loadMappedFile($namespace, $relativeClass);
+            if ($mappedFile) {
                 return $mappedFile;
             }
 
             // remove the trailing namespace separator for the next iteration
             // of strrpos()
-            $namespace = rtrim( $namespace, '\\' );
+            $namespace = rtrim($namespace, '\\');
         }
 
         // never found a mapped file
@@ -376,25 +383,25 @@ class Loader implements AutoloadInterface
      * @return mixed Boolean false if no mapped file can be loaded, or the
      * name of the mapped file that was loaded.
      */
-    public function loadMappedFile( $namespace, $relativeClass )
+    public function loadMappedFile($namespace, $relativeClass)
     {
         // are there any base directories for this namespace prefix?
-        if ( isset( $this->namespaceDirs[ $namespace ] ) === false ) {
+        if (isset($this->namespaceDirs[ $namespace ]) === false) {
             return false;
         }
 
         // look through base directories for this namespace prefix
-        foreach ( $this->namespaceDirs[ $namespace ] as $namespaceDirectory ) {
+        foreach ($this->namespaceDirs[ $namespace ] as $namespaceDirectory) {
 
             // replace the namespace prefix with the base directory,
             // replace namespace separators with directory separators
             // in the relative class name, append with .php
             $file = $namespaceDirectory
-                . str_replace( '\\', '/', $relativeClass )
+                . str_replace('\\', '/', $relativeClass)
                 . '.php';
 
             // if the mapped file exists, require it
-            if ( $this->requireFile( $file ) ) {
+            if ($this->requireFile($file)) {
                 // yes, we're done
                 return $file;
             }
@@ -406,68 +413,31 @@ class Loader implements AutoloadInterface
 
     // ------------------------------------------------------------------------
 
-    public function loadModuleClass( $class )
+    public function loadModuleClass($class)
     {
-        static $namespaceDirs = [];
-        static $namespaceDirsMap = [];
+        static $namespaceModules = [];
 
-        // the current namespace prefix
-        $namespace = $class;
+        // class namespace
+        $namespaceParts = explode('\\', get_namespace($class));
+        $namespaceParts = array_filter($namespaceParts);
 
-        if ( empty( $namespaceDirs ) and empty( $namespaceDirsMap ) and modules() !== false ) {
-            if( false !== ( $modules = modules()->getRegistry() ) ) {
-                foreach ( $modules as $module ) {
-                    $namespaceDirs[ $module->getNamespace() ] = [
-                        $module->getRealPath(),
-                    ];
+        $namespace = reset($namespaceParts) . '\\';
 
-                    $namespaceDirsMap[ $module->getRealPath() ] = $module->getNamespace();
-                }
-            }
-        }
-
-        // work backwards through the namespace names of the fully-qualified
-        // class name to find a mapped file name
-        while ( false !== $pos = strrpos( $namespace, '\\' ) ) {
-            // retain the trailing namespace separator in the prefix
-            $namespace = substr( $class, 0, $pos + 1 );
-
-            // the rest is the relative class name
-            $relativeClass = substr( $class, $pos + 1 );
-
-            /**
-             * @todo: find-out what for.. i'm totally forgot
-             */
-            //$namespaceParts = explode( '\\', trim( $namespace, '\\' ) );
-            //$namespaceTotalParts = count( $namespaceParts );
-
-            if ( isset( $namespaceDirs[ $namespace ] ) ) {
-                // look through base directories for this namespace prefix
-                foreach ( $namespaceDirs[ $namespace ] as $namespaceDirectory ) {
-
-                    // replace the namespace prefix with the base directory,
-                    // replace namespace separators with directory separators
-                    // in the relative class name, append with .php
-                    $file = $namespaceDirectory
-                        . str_replace( '\\', '/', $relativeClass )
-                        . '.php';
-
-                    // if the mapped file exists, require it
-                    if ( is_file( $file ) ) {
-                        require_once $file;
-
-                        // yes, we're done
-                        return $file;
+        if (empty($namespaceModules) && modules() !== false) {
+            if (false !== ($modules = modules()->getRegistry())) {
+                foreach ($modules as $module) {
+                    if ($module instanceof Module) {
+                        $namespaceModules[ $module->getNamespace() ] = $module;
                     }
                 }
             }
-
-            // remove the trailing namespace separator for the next iteration
-            // of strrpos()
-            $namespace = rtrim( $namespace, '\\' );
         }
 
-        // never found a mapped file
-        return false;
+        if (isset($namespaceModules[ $namespace ])) {
+            $module = $namespaceModules[ $namespace ];
+            $this->addNamespace($module->getNamespace(), $module->getRealPath());
+        }
+
+        return $this->loadClass($class);
     }
 }

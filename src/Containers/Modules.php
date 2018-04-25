@@ -87,6 +87,10 @@ class Modules extends SplArrayStack
      */
     public function push( $module )
     {
+        if(loader()->getNamespaceDirs($module->getNamespace())) {
+
+        }
+
         // Register Framework\Services\Loader Namespace
         loader()->addNamespace( $module->getNamespace(), $module->getRealPath() );
 
@@ -655,7 +659,7 @@ class Modules extends SplArrayStack
     }
 
     // ------------------------------------------------------------------------
-    
+
     public function first()
     {
         if( isset( $this->registry[ '' ] ) ) {
@@ -665,8 +669,8 @@ class Modules extends SplArrayStack
         }
 
         return false;
-    } 
-    
+    }
+
     /**
      * Modules::isExists
      *

@@ -10,15 +10,15 @@
  */
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Cli;
+namespace O2System\Framework\Models\Files\Traits;
 
 // ------------------------------------------------------------------------
 
 /**
- * Class Router
- * @package O2System\Framework\Cli
+ * Trait ModifierTrait
+ * @package O2System\Framework\Models\Files\Traits
  */
-class Router extends \O2System\Kernel\Cli\Router
+trait ModifierTrait
 {
 
 }
