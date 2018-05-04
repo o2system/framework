@@ -14,14 +14,14 @@ namespace O2System\Framework\Http\Presenter;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Partials
  *
  * @package O2System\Framework\Http\Presenter
  */
-class Partials extends AbstractItemStoragePattern
+class Partials extends AbstractRepository
 {
     public function hasPartial( $partialOffset )
     {
@@ -33,9 +33,9 @@ class Partials extends AbstractItemStoragePattern
         $this->store( $partialOffset, $partialFilePath );
     }
 
-    public function __get( $partial )
+    public function get( $partial )
     {
-        $partialContent = parent::__get( $partial );
+        $partialContent = parent::get( $partial );
 
         if ( is_file( $partialContent ) ) {
             parser()->loadFile( $partialContent );

@@ -18,14 +18,14 @@ namespace O2System\Framework\Libraries\Acl\Datastructures;
 use O2System\Framework\Datastructures\Commons\Metadata;
 use O2System\Framework\Datastructures\Commons\Name;
 use O2System\Framework\Libraries\Acl\Datastructures\Profile\Images;
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Profile
  *
  * @package O2System\Framework\Libraries\Acl\Datastructures
  */
-class Profile extends AbstractItemStoragePattern
+class Profile extends AbstractRepository
 {
     /**
      * Profile::__construct

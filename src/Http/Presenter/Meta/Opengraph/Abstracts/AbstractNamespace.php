@@ -15,14 +15,14 @@ namespace O2System\Framework\Http\Presenter\Meta\Opengraph\Abstracts;
 // ------------------------------------------------------------------------
 
 use O2System\Html\Element;
-use O2System\Psr\Patterns\AbstractDataStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class AbstractNamespace
  *
  * @package O2System\Framework\Http\Presenter\Meta\Opengraph
  */
-abstract class AbstractNamespace extends AbstractDataStoragePattern
+abstract class AbstractNamespace extends AbstractRepository
 {
     public $namespace = 'og';
 
@@ -35,7 +35,7 @@ abstract class AbstractNamespace extends AbstractDataStoragePattern
         $element->attributes[ 'name' ] = $property;
         $element->attributes[ 'content' ] = ( is_array( $content ) ? implode( ', ', $content ) : trim( $content ) );
 
-        parent::offsetSet( $property, $element );
+        $this->store( $property, $element );
 
         return $this;
     }

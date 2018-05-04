@@ -14,14 +14,14 @@ namespace O2System\Framework\Libraries\Acl\Datastructures;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Account
  *
  * @package O2System\Framework\Libraries\Acl\Datastructures
  */
-class Account extends AbstractItemStoragePattern
+class Account extends AbstractRepository
 {
     /**
      * Account::__construct
@@ -73,7 +73,7 @@ class Account extends AbstractItemStoragePattern
         if( $offset === 'profile' ) {
             $value = new Profile( $value );
         } elseif( $offset === 'role' ) {
-            $value = new Role( $value );
+            $value = new Roles\Role( $value );
         }
 
         parent::store( $offset, $value );

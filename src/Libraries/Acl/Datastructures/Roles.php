@@ -14,16 +14,14 @@ namespace O2System\Framework\Libraries\Acl\Datastructures;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractObjectRegistryPattern;
-use O2System\Framework\Libraries\Acl\Datastructures\Roles\Access;
-use O2System\Framework\Libraries\Acl\Datastructures\Roles\Role;
+use O2System\Psr\Patterns\Structural\Provider\AbstractProvider;
 
 /**
  * Class Roles
  *
  * @package O2System\Framework\Libraries\Acl\Datastructures
  */
-class Roles extends AbstractObjectRegistryPattern
+class Roles extends AbstractProvider
 {
     /**
      * Roles::isValid
@@ -36,7 +34,7 @@ class Roles extends AbstractObjectRegistryPattern
      */
     protected function isValid( $object )
     {
-        if( $object instanceof Role ) {
+        if( $object instanceof Roles\Role ) {
             return true;
         }
 

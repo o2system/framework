@@ -14,14 +14,14 @@ namespace O2System\Framework\Libraries\Acl\Datastructures\Roles;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Access
  *
  * @package O2System\Framework\Libraries\Acl\Datastructures\Role
  */
-class Access extends AbstractItemStoragePattern
+class Access extends AbstractRepository
 {
     /**
      * Access::__construct

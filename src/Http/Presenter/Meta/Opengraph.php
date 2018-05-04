@@ -14,16 +14,15 @@ namespace O2System\Framework\Http\Presenter\Meta;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Presenter\Meta\Opengraph\Abstracts\AbstractNamespace;
 use O2System\Html\Element;
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Opengraph
  *
  * @package O2System\Framework\Http\Presenter\Meta
  */
-class Opengraph extends AbstractItemStoragePattern
+class Opengraph extends AbstractRepository
 {
     public $prefix;
 
@@ -32,7 +31,7 @@ class Opengraph extends AbstractItemStoragePattern
         $this->prefix = 'http://ogp.me/ns#';
     }
 
-    public function setNamespace( AbstractNamespace $namespace )
+    public function setNamespace( Opengraph\Abstracts\AbstractNamespace $namespace )
     {
         $this->prefix = 'http://ogp.me/ns# ' . $namespace->namespace . ": http://ogp.me/ns/$namespace->namespace#";
         $this->offsetSet( 'type', $namespace->namespace );

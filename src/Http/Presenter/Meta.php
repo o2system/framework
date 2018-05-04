@@ -15,14 +15,14 @@ namespace O2System\Framework\Http\Presenter;
 // ------------------------------------------------------------------------
 
 use O2System\Html\Element;
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Meta
  *
  * @package O2System\Framework\Http\Presenter
  */
-class Meta extends AbstractItemStoragePattern
+class Meta extends AbstractRepository
 {
     public $title;
     public $opengraph;
@@ -51,14 +51,14 @@ class Meta extends AbstractItemStoragePattern
         $this->offsetSet( 'url', current_url() );
     }
 
-    public function offsetSet( $offset, $value )
+    public function store( $offset, $value )
     {
         $element = new Element( 'meta' );
 
         if ( $offset === 'http-equiv' ) {
             $element->attributes[ 'http-equiv' ] = $value[ 'property' ];
             $element->attributes[ 'content' ] = $value[ 'content' ];
-            parent::offsetSet( camelcase( 'http_equiv_' . $value[ 'property' ] ), $element );
+            parent::store( camelcase( 'http_equiv_' . $value[ 'property' ] ), $element );
         } else {
             $element->attributes[ 'name' ] = $offset;
 
@@ -80,7 +80,7 @@ class Meta extends AbstractItemStoragePattern
                 $this->opengraph->setObject( $element->attributes[ 'name' ], $element->attributes[ 'content' ] );
             }
 
-            parent::offsetSet( camelcase( $offset ), $element );
+            parent::store( camelcase( $offset ), $element );
         }
     }
 

@@ -14,7 +14,8 @@ namespace O2System\Framework\Http\Presenter;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractVariableStoragePattern;
+use O2System\Psr\Patterns\Structural\Composite\RenderableInterface;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 use O2System\Spl\Info\SplClassInfo;
 
 /**
@@ -22,7 +23,7 @@ use O2System\Spl\Info\SplClassInfo;
  *
  * @package O2System\Framework\Http\Presenter
  */
-class Widget extends AbstractVariableStoragePattern
+class Widget extends AbstractRepository implements RenderableInterface
 {
     public function getClassInfo()
     {
@@ -36,7 +37,7 @@ class Widget extends AbstractVariableStoragePattern
      *
      * @return string
      */
-    public function render()
+    public function render(array $options = [])
     {
 
     }

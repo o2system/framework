@@ -25,6 +25,11 @@ class Controller extends \O2System\Kernel\Http\Controller
     {
         $get[ $property ] = false;
 
+        // CodeIgniter property aliasing
+        if($property === 'load') {
+            $property = 'loader';
+        }
+
         if ( o2system()->hasService( $property ) ) {
             return o2system()->getService( $property );
         } elseif ( o2system()->__isset( $property ) ) {

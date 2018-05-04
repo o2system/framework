@@ -208,6 +208,8 @@ class Model
                  return $this->loadSubModel( $property );
             } elseif ( o2system()->__isset( $property ) ) {
                 return o2system()->__get( $property );
+            } elseif( models()->__isset($property) ) {
+                return models()->get( $property );
             }
         }
     }

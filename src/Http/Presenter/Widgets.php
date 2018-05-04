@@ -15,14 +15,14 @@ namespace O2System\Framework\Http\Presenter;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Datastructures\Module\Widget;
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Widgets
  *
  * @package O2System\Framework\Http\Presenter
  */
-class Widgets extends AbstractItemStoragePattern
+class Widgets extends AbstractRepository
 {
     public function hasWidget( $widgetOffset )
     {
@@ -41,9 +41,9 @@ class Widgets extends AbstractItemStoragePattern
         return $this->exists( $widgetOffset );
     }
 
-    public function __get( $offset )
+    public function get( $offset )
     {
-        if ( null !== ( $widget = parent::__get( $offset ) ) ) {
+        if ( null !== ( $widget = parent::get( $offset ) ) ) {
 
             $widgetViewFilePath = $widget->getRealPath() . 'Views' . DIRECTORY_SEPARATOR . $offset . '.phtml';
 

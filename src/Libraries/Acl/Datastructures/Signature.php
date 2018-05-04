@@ -15,13 +15,13 @@ namespace O2System\Framework\Libraries\Acl\Datastructures;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Signature
  * @package O2System\Framework\Libraries\Acl\Datastructures
  */
-class Signature extends AbstractItemStoragePattern
+class Signature extends AbstractRepository
 {
     public function __construct(array $signature = [])
     {

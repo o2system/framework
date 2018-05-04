@@ -440,4 +440,18 @@ class Loader implements AutoloadInterface
 
         return $this->loadClass($class);
     }
+
+    // ------------------------------------------------------------------------
+
+    public function view($file, array $vars = [], $return = false)
+    {
+        return view($file, $vars, $return);
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function page($file, array $vars = [], $return = false)
+    {
+        return view()->page($file, $vars, $return);
+    }
 }

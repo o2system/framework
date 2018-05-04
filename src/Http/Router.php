@@ -113,7 +113,8 @@ class Router extends Kernel\Http\Router
             for ($i = 0; $i <= $uriTotalSegments; $i++) {
                 $uriRoutedSegments = array_slice($uriSegments, 0, ($uriTotalSegments - $i));
 
-                foreach (modules()->getArrayCopy() as $module) {
+                $modules = modules()->getArrayCopy();
+                foreach ($modules as $module) {
 
                     $controllerNamespace = $module->getNamespace() . 'Controllers\\';
                     if ($module->getNamespace() === 'O2System\Framework\\') {
@@ -197,11 +198,11 @@ class Router extends Kernel\Http\Router
                     ->setRequestMethod('index'),
                 $uriSegments
             );
-        } elseif ($closure instanceof Controller) {
+        } elseif ($closure instanceof Kernel\Http\Router\Datastructures\Controller) {
             $this->setController($closure, $action->getClosureParameters());
         } elseif (is_array($closure)) {
-            $uri = (new \O2System\Kernel\Http\Message\Uri())
-                ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
+            $uri = (new Kernel\Http\Message\Uri())
+                ->withSegments(new Kernel\Http\Message\Uri\Segments(''))
                 ->withQuery('');
             $this->parseRequest($uri->addSegments($closure));
         } else {
@@ -247,84 +248,6 @@ class Router extends Kernel\Http\Router
             }
         }
     }
-
-    final protected function setController(
-        Kernel\Http\Router\Datastructures\Controller $controller,
-        array $uriSegments = []
-    ) {
-        if ( ! $controller->isValid()) {
-            output()->sendError(400);
-        }
-
-        // Add Controller PSR4 Namespace
-        loader()->addNamespace($controller->getNamespaceName(), $controller->getFileInfo()->getPath());
-
-        $controllerMethod = $controller->getRequestMethod();
-        $controllerMethod = empty($controllerMethod) ? reset($uriSegments) : $controllerMethod;
-        $controllerMethod = camelcase($controllerMethod);
-
-        // Set default controller method to index
-        if ( ! $controller->hasMethod($controllerMethod) &&
-            ! $controller->hasMethod('route')
-        ) {
-            $controllerMethod = 'index';
-        }
-
-        // has route method, controller method set to index as default
-        if (empty($controllerMethod)) {
-            $controllerMethod = 'index';
-        }
-
-        if (camelcase(reset($uriSegments)) === $controllerMethod) {
-            array_shift($uriSegments);
-        }
-
-        $controllerMethodParams = $uriSegments;
-
-        if ($controller->hasMethod('route')) {
-            $controller->setRequestMethod('route');
-            $controller->setRequestMethodArgs([
-                $controllerMethod,
-                $controllerMethodParams,
-            ]);
-        } elseif ($controller->hasMethod($controllerMethod)) {
-            $method = $controller->getMethod($controllerMethod);
-
-            // Method doesn't need any parameters
-            if ($method->getNumberOfParameters() == 0) {
-                // But there is parameters requested
-                if (count($controllerMethodParams)) {
-                    output()->sendError(404);
-                } else {
-                    $controller->setRequestMethod($controllerMethod);
-                }
-            } else {
-                $parameters = [];
-
-                if (count($controllerMethodParams)) {
-                    if (is_numeric(key($controllerMethodParams))) {
-                        $parameters = $controllerMethodParams;
-                    } else {
-                        foreach ($method->getParameters() as $index => $parameter) {
-                            if (isset($uriSegments[ $parameter->name ])) {
-                                $parameters[ $index ] = $controllerMethodParams[ $parameter->name ];
-                            } else {
-                                $parameters[ $index ] = null;
-                            }
-                        }
-                    }
-                }
-
-                $controller->setRequestMethod($controllerMethod);
-                $controller->setRequestMethodArgs($parameters);
-            }
-        }
-
-        // Set Controller
-        o2system()->addService($controller, 'controller');
-    }
-
-    // ------------------------------------------------------------------------
 
     final protected function setPage(Router\Datastructures\Page $page)
     {

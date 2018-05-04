@@ -14,14 +14,14 @@ namespace O2System\Framework\Libraries;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Cart
  *
  * @package O2System\Framework\Libraries
  */
-class Cart extends AbstractItemStoragePattern
+class Cart extends AbstractRepository
 {
     /**
      * Cart::__construct

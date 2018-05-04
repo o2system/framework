@@ -14,7 +14,7 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractVariableStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 use O2System\Spl\Traits\Collectors\ConfigCollectorTrait;
 
 /**
@@ -22,7 +22,7 @@ use O2System\Spl\Traits\Collectors\ConfigCollectorTrait;
  *
  * @package O2System\Framework\Http
  */
-class Presenter extends AbstractVariableStoragePattern
+class Presenter extends AbstractRepository
 {
     use ConfigCollectorTrait;
 
@@ -83,7 +83,7 @@ class Presenter extends AbstractVariableStoragePattern
         return $storage;
     }
 
-    public function &__get( $property )
+    public function get( $property )
     {
         if ( o2system()->hasService( $property ) ) {
             return o2system()->getService( $property );
@@ -93,7 +93,7 @@ class Presenter extends AbstractVariableStoragePattern
             return $this->{$property};
         }
 
-        return parent::__get( $property );
+        return parent::get( $property );
     }
 
     // ------------------------------------------------------------------------

@@ -21,6 +21,7 @@ use O2System\Framework\Http\Router\Datastructures\Page;
 use O2System\Gear\Toolbar;
 use O2System\Html;
 use O2System\Psr\Cache\CacheItemPoolInterface;
+use O2System\Psr\Patterns\Structural\Composite\RenderableInterface;
 use O2System\Spl\Exceptions\ErrorException;
 use O2System\Spl\Traits\Collectors\FileExtensionCollectorTrait;
 use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
@@ -30,7 +31,7 @@ use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
  *
  * @package O2System
  */
-class View
+class View implements RenderableInterface
 {
     use FilePathCollectorTrait;
     use FileExtensionCollectorTrait;
@@ -131,7 +132,7 @@ class View
         if (false !== ($filePath = $this->getFilePath($filename))) {
             if ($return === false) {
 
-                $partials = presenter()->getVariable('partials');
+                $partials = presenter()->get('partials');
 
                 if ($partials->hasPartial('content') === false) {
                     $partials->addPartial('content', $filePath);
@@ -164,7 +165,7 @@ class View
 
             if ($return === false) {
 
-                $partials = presenter()->getVariable('partials');
+                $partials = presenter()->get('partials');
 
                 if ($partials->hasPartial('content') === false) {
                     $partials->addPartial('content', $content);
@@ -195,7 +196,7 @@ class View
         presenter()->merge($vars);
 
         if ($return === false) {
-            $partials = presenter()->getVariable('partials');
+            $partials = presenter()->get('partials');
 
             if ($partials->hasPartial('content') === false) {
                 $partials->addPartial('content', $filename);
@@ -274,7 +275,7 @@ class View
         return false;
     }
 
-    public function render($return = false)
+    public function render(array $options = [])
     {
         $htmlOutput = '';
         parser()->loadVars(presenter()->getArrayCopy());
@@ -347,10 +348,6 @@ class View
         }
 
         $htmlOutput = $this->document->saveHTML();
-
-        if ($return === true) {
-            return $htmlOutput;
-        }
 
         if (presenter()->offsetExists('cacheOutput')) {
             $cacheKey = 'o2output_' . underscore(request()->getUri()->getSegments()->getString());

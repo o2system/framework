@@ -15,13 +15,13 @@ namespace O2System\Framework\Libraries\Acl\Datastructures;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Credential
  * @package O2System\Framework\Libraries\Acl\Datastructures
  */
-class Credential extends AbstractItemStoragePattern
+class Credential extends AbstractRepository
 {
     public function __construct(array $credential = [])
     {

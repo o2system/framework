@@ -8,10 +8,9 @@
 
 namespace O2System\Framework\Datastructures\Commons;
 
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
-
-class Money extends AbstractItemStoragePattern
+class Money extends AbstractRepository
 {
     public function __construct($amount)
     {
@@ -35,9 +34,9 @@ class Money extends AbstractItemStoragePattern
         return short_format($this->amount, $decimals);
     }
 
-    public function currencyFormat($locale = 'id_ID', $currency = 'IDR', $decimal = 0, $addSpace = true)
+    public function currencyFormat($locale = 'id_ID', $currency = 'IDR', $addSpace = true)
     {
-        return currency_format($this->amount, 'id_ID', 'IDR', $decimal, $addSpace);
+        return currency_format($this->amount, 'id_ID', 'IDR', $addSpace);
     }
 
     public function numberFormat($decimals = 0, $thousandSeparator = '.', $decimalSeparator = ',')

@@ -8,16 +8,18 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Containers;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\Sql\Model as SqlModel;
-use O2System\Framework\Models\NoSql\Model as NoSqlModel;
 use O2System\Spl\Containers\Datastructures\SplServiceRegistry;
 use O2System\Spl\Containers\SplServiceContainer;
+use O2System\Framework\Models\Sql\Model as SqlModel;
+use O2System\Framework\Models\NoSql\Model as NoSqlModel;
+use O2System\Framework\Models\Files\Model as FileModel;
 
 /**
  * Class Models
@@ -26,22 +28,22 @@ use O2System\Spl\Containers\SplServiceContainer;
  */
 class Models extends SplServiceContainer
 {
-    public function load( $model )
+    public function load($model)
     {
-        if ( is_string( $model ) ) {
-            $service = new SplServiceRegistry( $model );
-        } elseif ( $model instanceof SplServiceRegistry ) {
+        if (is_string($model)) {
+            $service = new SplServiceRegistry($model);
+        } elseif ($model instanceof SplServiceRegistry) {
             $service = $model;
         }
 
-        if( isset( $service ) && $service instanceof SplServiceRegistry ) {
-            $offset = strtolower( $service->getClassName() );
+        if (isset($service) && $service instanceof SplServiceRegistry) {
+            $offset = strtolower($service->getClassName());
 
-            if ( $service->isSubclassOf( 'O2System\Framework\Models\Sql\Model' ) ||
-                $service->isSubclassOf( 'O2System\Framework\Models\NoSql\Model' ) ||
-                $service->isSubclassOf( 'O2System\Framework\Models\Files\Model' )
+            if ($service->isSubclassOf('O2System\Framework\Models\Sql\Model') ||
+                $service->isSubclassOf('O2System\Framework\Models\NoSql\Model') ||
+                $service->isSubclassOf('O2System\Framework\Models\Files\Model')
             ) {
-                models()->attach( $offset, $service );
+                models()->attach($offset, $service);
             }
         }
     }
@@ -49,14 +51,14 @@ class Models extends SplServiceContainer
     /**
      * Models::register
      *
-     * @param string                                                                      $offset
+     * @param string                                                                                                             $offset
      * @param \O2System\Framework\Models\Sql\Model|\O2System\Framework\Models\NoSql\Model|\O2System\Framework\Models\Files\Model $model
      */
-    public function register( $offset, $model )
+    public function register($offset, $model)
     {
-        if ( $model instanceof SqlModel OR $model instanceof NoSqlModel ) {
+        if ($model instanceof SqlModel OR $model instanceof NoSqlModel OR $model instanceof FileModel) {
 
-            parent::attach( $offset, new SplServiceRegistry( $model ) );
+            parent::attach($offset, new SplServiceRegistry($model));
         }
     }
 }

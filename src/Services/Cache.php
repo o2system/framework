@@ -339,7 +339,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
         $result = new ArrayIterator();
 
         foreach ($keys as $key) {
-            if ($this->has($key)) {
+            if ($this->exists($key)) {
                 $result[ $key ] = $this->get($key, $default);
             }
         }

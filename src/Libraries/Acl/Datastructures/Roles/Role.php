@@ -14,14 +14,14 @@ namespace O2System\Framework\Libraries\Acl\Datastructures\Roles;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Role
  *
  * @package O2System\Framework\Libraries\Acl\Datastructures
  */
-class Role extends AbstractItemStoragePattern
+class Role extends AbstractRepository
 {
     /**
      * Role::__construct
@@ -44,8 +44,8 @@ class Role extends AbstractItemStoragePattern
 
     public function __toString()
     {
-        if( $this->offsetExists( 'label' ) ) {
-            return $this->offsetGet( 'label' );
+        if( $this->exists( 'label' ) ) {
+            return $this->get( 'label' );
         }
 
         return '';

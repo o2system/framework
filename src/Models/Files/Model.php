@@ -12,9 +12,9 @@ namespace O2System\Framework\Models\Files;
 use O2System\Filesystem\Files\JsonFile;
 use O2System\Filesystem\Files\XmlFile;
 use O2System\Framework\Models\Files\Traits\FinderTrait;
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
-class Model extends AbstractItemStoragePattern
+class Model extends AbstractRepository
 {
     use FinderTrait;
 
@@ -24,7 +24,7 @@ class Model extends AbstractItemStoragePattern
 
     public function __construct()
     {
-        if(! empty($this->file)) {
+        if ( ! empty($this->file)) {
             $extension = pathinfo($this->file, PATHINFO_EXTENSION);
 
             switch ($extension) {
@@ -39,7 +39,7 @@ class Model extends AbstractItemStoragePattern
             }
 
             $first = reset($this->storage);
-            if(! $first->offsetExists($this->primaryKey)) {
+            if ( ! isset($first[ $this->primaryKey ])) {
                 $keys = $first->getKeys();
                 $this->primaryKey = reset($keys);
             }

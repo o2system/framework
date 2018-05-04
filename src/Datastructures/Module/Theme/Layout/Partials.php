@@ -14,7 +14,7 @@ namespace O2System\Framework\Datastructures\Module\Theme\Layout;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 use O2System\Spl\Info\SplFileInfo;
 
 /**
@@ -22,7 +22,7 @@ use O2System\Spl\Info\SplFileInfo;
  *
  * @package O2System\Framework\Datastructures\Module\Theme\Layout
  */
-class Partials extends AbstractItemStoragePattern
+class Partials extends AbstractRepository
 {
     protected $path;
     protected $extension;
@@ -80,9 +80,9 @@ class Partials extends AbstractItemStoragePattern
         return $this->__isset( $partialOffset );
     }
 
-    public function &__get( $partial )
+    public function get( $partial )
     {
-        $partialContent = parent::__get( $partial );
+        $partialContent = parent::get( $partial );
 
         if ( is_file( $partialContent ) ) {
             parser()->loadFile( $partialContent );

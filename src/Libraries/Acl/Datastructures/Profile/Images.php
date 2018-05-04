@@ -15,15 +15,14 @@ namespace O2System\Framework\Libraries\Acl\Datastructures\Profile;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Acl\Datastructures\Profile;
-use O2System\Psr\Patterns\AbstractItemStoragePattern;
+use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Images
  *
  * @package O2System\Framework\Libraries\Acl\Datastructures\Profile
  */
-class Images extends AbstractItemStoragePattern
+class Images extends AbstractRepository
 {
     protected $filePath;
 
