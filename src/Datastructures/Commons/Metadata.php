@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Datastructures\Commons;
@@ -28,14 +29,14 @@ class Metadata extends AbstractRepository
      *
      * @param array $metadata
      */
-    public function __construct( array $metadata = [] )
+    public function __construct(array $metadata = [])
     {
-        foreach( $metadata as $name => $content ) {
-            if( is_array( $content ) ) {
-                $content = new self( $content );
+        foreach ($metadata as $name => $content) {
+            if (is_array($content)) {
+                $content = new self($content);
             }
 
-            $this->store( $name, $content );
+            $this->store($name, $content);
         }
     }
 }

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Setters;
@@ -21,13 +22,13 @@ namespace O2System\Framework\Libraries\Ui\Traits\Setters;
  */
 trait TooltipSetterTrait
 {
-    public function setTooltip( $text, $placement = 'right' )
+    public function setTooltip($text, $placement = 'right')
     {
-        $placement = in_array( $placement, [ 'top', 'bottom', 'left', 'right' ] ) ? $placement : 'right';
+        $placement = in_array($placement, ['top', 'bottom', 'left', 'right']) ? $placement : 'right';
 
-        $this->attributes->addAttribute( 'data-toggle', 'tooltip' );
-        $this->attributes->addAttribute( 'data-placement', $placement );
-        $this->attributes->addAttribute( 'title', $text );
+        $this->attributes->addAttribute('data-toggle', 'tooltip');
+        $this->attributes->addAttribute('data-placement', $placement);
+        $this->attributes->addAttribute('title', $text);
 
         return $this;
     }

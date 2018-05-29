@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Carousel;
@@ -31,19 +32,19 @@ class Slides extends Element
 
     public function __construct()
     {
-        parent::__construct( 'div', 'slides' );
-        $this->attributes->addAttributeClass( 'carousel-inner' );
+        parent::__construct('div', 'slides');
+        $this->attributes->addAttributeClass('carousel-inner');
         $this->attributes->addAttribute('role', 'listbox');
     }
 
-    public function setTarget( $target )
+    public function setTarget($target)
     {
         $this->target = $target;
 
         return $this;
     }
 
-    public function setIndicators( Indicators &$indicators )
+    public function setIndicators(Indicators &$indicators)
     {
         $this->indicators =& $indicators;
 
@@ -52,13 +53,13 @@ class Slides extends Element
 
     public function createSlide()
     {
-        $this->childNodes->push( new Slide() );
+        $this->childNodes->push(new Slide());
 
         $slideNo = $this->childNodes->key();
-        $indicator = $this->indicators->childNodes->createNode( 'li' );
-        $indicator->entity->setEntityName( 'indicator-' . $slideNo );
-        $indicator->attributes->addAttribute( 'data-target', '#' . $this->target );
-        $indicator->attributes->addAttribute( 'data-slide-to', $slideNo );
+        $indicator = $this->indicators->childNodes->createNode('li');
+        $indicator->entity->setEntityName('indicator-' . $slideNo);
+        $indicator->attributes->addAttribute('data-target', '#' . $this->target);
+        $indicator->attributes->addAttribute('data-slide-to', $slideNo);
 
         return $this->childNodes->last();
     }

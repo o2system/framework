@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Contents\Table;
@@ -25,13 +26,13 @@ class Body extends Element
 {
     public function __construct()
     {
-        parent::__construct( 'tbody' );
+        parent::__construct('tbody');
     }
 
     public function createRow()
     {
         $row = new Row();
-        $this->childNodes->push( $row );
+        $this->childNodes->push($row);
 
         return $this->childNodes->last();
     }

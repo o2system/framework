@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Setters;
@@ -25,10 +26,10 @@ trait HeadingSetterTrait
 {
     public $heading;
 
-    public function setHeading( $text, $level = 3 )
+    public function setHeading($text, $level = 3)
     {
-        $this->heading = new Heading( $text, $level );
-        $this->heading->entity->setEntityName( $text );
+        $this->heading = new Heading($text, $level);
+        $this->heading->entity->setEntityName($text);
 
         return $this;
     }

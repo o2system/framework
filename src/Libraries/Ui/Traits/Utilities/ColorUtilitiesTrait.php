@@ -25,7 +25,7 @@ trait ColorUtilitiesTrait
 {
     public function textPrimary()
     {
-        $this->attributes->addAttributeClass( 'text-primary' );
+        $this->attributes->addAttributeClass('text-primary');
 
         return $this;
     }
@@ -34,7 +34,7 @@ trait ColorUtilitiesTrait
 
     public function textSecondary()
     {
-        $this->attributes->addAttributeClass( 'text-secondary' );
+        $this->attributes->addAttributeClass('text-secondary');
 
         return $this;
     }
@@ -43,7 +43,7 @@ trait ColorUtilitiesTrait
 
     public function textSuccess()
     {
-        $this->attributes->addAttributeClass( 'text-success' );
+        $this->attributes->addAttributeClass('text-success');
 
         return $this;
     }
@@ -52,7 +52,7 @@ trait ColorUtilitiesTrait
 
     public function textDanger()
     {
-        $this->attributes->addAttributeClass( 'text-danger' );
+        $this->attributes->addAttributeClass('text-danger');
 
         return $this;
     }
@@ -61,7 +61,7 @@ trait ColorUtilitiesTrait
 
     public function textWarning()
     {
-        $this->attributes->addAttributeClass( 'text-warning' );
+        $this->attributes->addAttributeClass('text-warning');
 
         return $this;
     }
@@ -70,25 +70,7 @@ trait ColorUtilitiesTrait
 
     public function textInfo()
     {
-        $this->attributes->addAttributeClass( 'text-info' );
-
-        return $this;
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function textLight()
-    {
-        $this->attributes->addAttributeClass( 'text-light' );
-
-        return $this;
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function textDark()
-    {
-        $this->attributes->addAttributeClass( 'text-dark' );
+        $this->attributes->addAttributeClass('text-info');
 
         return $this;
     }
@@ -97,7 +79,7 @@ trait ColorUtilitiesTrait
 
     public function textMuted()
     {
-        $this->attributes->addAttributeClass( 'text-muted' );
+        $this->attributes->addAttributeClass('text-muted');
 
         return $this;
     }
@@ -106,90 +88,108 @@ trait ColorUtilitiesTrait
 
     public function textWhite()
     {
-        $this->attributes->addAttributeClass( 'text-white' );
+        $this->attributes->addAttributeClass('text-white');
 
         return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function backgroundPrimary( $gradient = false )
+    public function backgroundPrimary($gradient = false)
     {
-        $this->attributes->addAttributeClass( 'bg-' . ( $gradient === true ? 'gradient-' : '' ) . 'primary' );
+        $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'primary');
 
         return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function backgroundSecondary( $gradient = false )
+    public function backgroundSecondary($gradient = false)
     {
-        $this->attributes->addAttributeClass( 'bg-' . ( $gradient === true ? 'gradient-' : '' ) . 'secondary' );
+        $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'secondary');
 
         return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function backgroundSuccess( $gradient = false )
+    public function backgroundSuccess($gradient = false)
     {
-        $this->attributes->addAttributeClass( 'bg-' . ( $gradient === true ? 'gradient-' : '' ) . 'success' );
+        $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'success');
 
         return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function backgroundDanger( $gradient = false )
+    public function backgroundDanger($gradient = false)
     {
-        $this->attributes->addAttributeClass( 'bg-' . ( $gradient === true ? 'gradient-' : '' ) . 'danger' );
+        $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'danger');
 
         return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function backgroundWarning( $gradient = false )
+    public function backgroundWarning($gradient = false)
     {
-        $this->attributes->addAttributeClass( 'bg-' . ( $gradient === true ? 'gradient-' : '' ) . 'warning' );
+        $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'warning');
 
         return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function backgroundInfo( $gradient = false )
+    public function backgroundInfo($gradient = false)
     {
-        $this->attributes->addAttributeClass( 'bg-' . ( $gradient === true ? 'gradient-' : '' ) . 'info' );
+        $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'info');
 
         return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function backgroundLight( $gradient = false )
+    public function backgroundLight($gradient = false)
     {
         $this->textDark();
-        $this->attributes->addAttributeClass( 'bg-' . ( $gradient === true ? 'gradient-' : '' ) . 'light' );
+        $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'light');
 
         return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function backgroundDark( $gradient = false )
+    public function textDark()
+    {
+        $this->attributes->addAttributeClass('text-dark');
+
+        return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function backgroundDark($gradient = false)
     {
         $this->textLight();
-        $this->attributes->addAttributeClass( 'bg-' . ( $gradient === true ? 'gradient-' : '' ) . 'dark' );
+        $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'dark');
 
         return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function backgroundWhite( $gradient = false )
+    public function textLight()
     {
-        $this->attributes->addAttributeClass( 'bg-' . ( $gradient === true ? 'gradient-' : '' ) . 'white' );
+        $this->attributes->addAttributeClass('text-light');
+
+        return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function backgroundWhite($gradient = false)
+    {
+        $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'white');
 
         return $this;
     }

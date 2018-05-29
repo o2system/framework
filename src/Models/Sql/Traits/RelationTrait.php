@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Traits;
@@ -15,8 +16,8 @@ namespace O2System\Framework\Models\Sql\Traits;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Models\Sql\DataObjects\Result;
-use O2System\Framework\Models\Sql\Model;
 use O2System\Framework\Models\Sql\DataObjects\Result\Row;
+use O2System\Framework\Models\Sql\Model;
 use O2System\Framework\Models\Sql\Relations;
 
 /**
@@ -37,11 +38,11 @@ trait RelationTrait
      *
      * @return Row|bool
      */
-    public function belongsTo( $referenceModel, $foreignKey = null, $primaryKey = null )
+    public function belongsTo($referenceModel, $foreignKey = null, $primaryKey = null)
     {
-        return ( new Relations\BelongsTo(
-            new Relations\Maps\Inverse( $this, $referenceModel, $foreignKey, $primaryKey )
-        ) )->getResult();
+        return (new Relations\BelongsTo(
+            new Relations\Maps\Inverse($this, $referenceModel, $foreignKey, $primaryKey)
+        ))->getResult();
     }
 
     // ------------------------------------------------------------------------
@@ -52,16 +53,16 @@ trait RelationTrait
      * Belongs To is the inverse of one to many relationship.
      *
      * @param string|Model $relationModel String of table name or AbstractModel
-     * @param string|null          $foreignKey
-     * @param string|null          $primaryKey
+     * @param string|null  $foreignKey
+     * @param string|null  $primaryKey
      *
      * @return Row|bool
      */
-    public function belongsToMany( $relationModel, $pivotTable = null, $foreignKey = null, $primaryKey = null )
+    public function belongsToMany($relationModel, $pivotTable = null, $foreignKey = null, $primaryKey = null)
     {
-        return ( new Relations\BelongsToMany(
-            new Relations\Maps\Intermediary( $this, $relationModel, $pivotTable, $foreignKey, $primaryKey )
-        ) )->getResult();
+        return (new Relations\BelongsToMany(
+            new Relations\Maps\Intermediary($this, $relationModel, $pivotTable, $foreignKey, $primaryKey)
+        ))->getResult();
     }
 
     // ------------------------------------------------------------------------
@@ -73,16 +74,16 @@ trait RelationTrait
      * with one relation model / table.
      *
      * @param string|Model $relationModel String of table name or AbstractModel
-     * @param string|null          $foreignKey
-     * @param string|null          $primaryKey
+     * @param string|null  $foreignKey
+     * @param string|null  $primaryKey
      *
      * @return Row|bool
      */
-    public function hasOne( $relationModel, $foreignKey = null, $primaryKey = null )
+    public function hasOne($relationModel, $foreignKey = null, $primaryKey = null)
     {
-        return ( new Relations\HasOne(
-            new Relations\Maps\Reference( $this, $relationModel, $foreignKey, $primaryKey )
-        ) )->getResult();
+        return (new Relations\HasOne(
+            new Relations\Maps\Reference($this, $relationModel, $foreignKey, $primaryKey)
+        ))->getResult();
     }
 
     // ------------------------------------------------------------------------
@@ -94,16 +95,16 @@ trait RelationTrait
      * reference model owns any amount of others relation model.
      *
      * @param string|Model $relationModel String of table name or AbstractModel
-     * @param string|null          $foreignKey
-     * @param string|null          $primaryKey
+     * @param string|null  $foreignKey
+     * @param string|null  $primaryKey
      *
      * @return Result|bool
      */
-    public function hasMany( $relationModel, $foreignKey = null, $primaryKey = null )
+    public function hasMany($relationModel, $foreignKey = null, $primaryKey = null)
     {
-        return ( new Relations\HasMany(
-            new Relations\Maps\Reference( $this, $relationModel, $foreignKey, $primaryKey )
-        ) )->getResult();
+        return (new Relations\HasMany(
+            new Relations\Maps\Reference($this, $relationModel, $foreignKey, $primaryKey)
+        ))->getResult();
     }
 
     // ------------------------------------------------------------------------
@@ -121,10 +122,10 @@ trait RelationTrait
      *
      * @return Result|bool
      */
-    public function hasManyThrough( $relationModel, $referenceModel, $pivotForeignKey = null, $relationForeignKey = null )
+    public function hasManyThrough($relationModel, $referenceModel, $pivotForeignKey = null, $relationForeignKey = null)
     {
-        return ( new Relations\HasManyThrough(
-            new Relations\Maps\Through( $this, $pivotForeignKey, $relationModel, $relationForeignKey, $referenceModel )
-        ) )->getResult();
+        return (new Relations\HasManyThrough(
+            new Relations\Maps\Through($this, $pivotForeignKey, $relationModel, $relationForeignKey, $referenceModel)
+        ))->getResult();
     }
 }

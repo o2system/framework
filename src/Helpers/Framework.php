@@ -10,7 +10,7 @@
  */
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'o2system' ) ) {
+if ( ! function_exists('o2system')) {
     /**
      * o2system
      *
@@ -18,7 +18,7 @@ if ( ! function_exists( 'o2system' ) ) {
      *
      * @return O2System\Framework
      */
-    function o2system ()
+    function o2system()
     {
         return O2System\Framework::getInstance();
     }
@@ -26,7 +26,7 @@ if ( ! function_exists( 'o2system' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'loader' ) ) {
+if ( ! function_exists('loader')) {
     /**
      * loader
      *
@@ -34,15 +34,15 @@ if ( ! function_exists( 'loader' ) ) {
      *
      * @return O2System\Framework\Services\Loader
      */
-    function loader ()
+    function loader()
     {
-        return o2system()->getService( 'loader' );
+        return o2system()->getService('loader');
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'config' ) ) {
+if ( ! function_exists('config')) {
     /**
      * config
      *
@@ -50,27 +50,27 @@ if ( ! function_exists( 'config' ) ) {
      *
      * @return O2System\Framework\Services\Config|\O2System\Kernel\Datastructures\Config
      */
-    function config ()
+    function config()
     {
         $args = func_get_args();
 
-        if ( $countArgs = count( $args ) ) {
-            $config =& o2system()->getService( 'config' );
+        if ($countArgs = count($args)) {
+            $config =& o2system()->getService('config');
 
-            if ( $countArgs == 1 ) {
-                return call_user_func_array( [ &$config, 'getItem' ], $args );
+            if ($countArgs == 1) {
+                return call_user_func_array([&$config, 'getItem'], $args);
             } else {
-                return call_user_func_array( [ &$config, 'loadFile' ], $args );
+                return call_user_func_array([&$config, 'loadFile'], $args);
             }
         }
 
-        return o2system()->getService( 'config' );
+        return o2system()->getService('config');
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'cache' ) ) {
+if ( ! function_exists('cache')) {
     /**
      * cache
      *
@@ -78,15 +78,15 @@ if ( ! function_exists( 'cache' ) ) {
      *
      * @return O2System\Framework\Services\Cache
      */
-    function cache ()
+    function cache()
     {
-        return o2system()->getService( 'cache' );
+        return o2system()->getService('cache');
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'hooks' ) ) {
+if ( ! function_exists('hooks')) {
     /**
      * hooks
      *
@@ -94,15 +94,15 @@ if ( ! function_exists( 'hooks' ) ) {
      *
      * @return O2System\Framework\Services\Hooks
      */
-    function hooks ()
+    function hooks()
     {
-        return o2system()->getService( 'hooks' );
+        return o2system()->getService('hooks');
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'database' ) ) {
+if ( ! function_exists('database')) {
     /**
      * database
      *
@@ -110,15 +110,15 @@ if ( ! function_exists( 'database' ) ) {
      *
      * @return O2System\Database\Connections
      */
-    function database ()
+    function database()
     {
-        return o2system()->__get( 'database' );
+        return o2system()->__get('database');
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'services' ) ) {
+if ( ! function_exists('services')) {
     /**
      * services
      *
@@ -126,12 +126,12 @@ if ( ! function_exists( 'services' ) ) {
      *
      * @return mixed
      */
-    function services ()
+    function services()
     {
         $args = func_get_args();
 
-        if ( count( $args ) ) {
-            return o2system()->getService( $args[ 0 ], true );
+        if (count($args)) {
+            return o2system()->getService($args[ 0 ], true);
         }
 
         return o2system();
@@ -140,7 +140,7 @@ if ( ! function_exists( 'services' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'models' ) ) {
+if ( ! function_exists('models')) {
     /**
      * models
      *
@@ -148,21 +148,21 @@ if ( ! function_exists( 'models' ) ) {
      *
      * @return O2System\Framework\Containers\Models|O2System\Framework\Models\Sql\Model|O2System\Framework\Models\NoSql\Model
      */
-    function &models ()
+    function &models()
     {
         $args = func_get_args();
 
-        if ( count( $args ) ) {
-            return o2system()->__get( 'models' )->get( $args[ 0 ] );
+        if (count($args)) {
+            return o2system()->__get('models')->get($args[ 0 ]);
         }
 
-        return o2system()->__get( 'models' );
+        return o2system()->__get('models');
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'modules' ) ) {
+if ( ! function_exists('modules')) {
     /**
      * modules
      *
@@ -170,15 +170,15 @@ if ( ! function_exists( 'modules' ) ) {
      *
      * @return O2System\Framework\Containers\Modules
      */
-    function modules ()
+    function modules()
     {
-        return o2system()->__get( 'modules' );
+        return o2system()->__get('modules');
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'router' ) ) {
+if ( ! function_exists('router')) {
     /**
      * router
      *
@@ -186,15 +186,15 @@ if ( ! function_exists( 'router' ) ) {
      *
      * @return O2System\Framework\Http\Router|O2System\Framework\Cli\Router
      */
-    function router ()
+    function router()
     {
-        return o2system()->getService( 'router' );
+        return o2system()->getService('router');
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'session' ) ) {
+if ( ! function_exists('session')) {
     /**
      * session
      *
@@ -202,15 +202,15 @@ if ( ! function_exists( 'session' ) ) {
      *
      * @return O2System\Session
      */
-    function session ()
+    function session()
     {
-        return o2system()->getService( 'session' );
+        return o2system()->getService('session');
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'middleware' ) ) {
+if ( ! function_exists('middleware')) {
     /**
      * O2System
      *
@@ -218,15 +218,15 @@ if ( ! function_exists( 'middleware' ) ) {
      *
      * @return O2System\Framework\Http\Middleware
      */
-    function middleware ()
+    function middleware()
     {
-        return o2system()->getService( 'middleware' );
+        return o2system()->getService('middleware');
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'view' ) ) {
+if ( ! function_exists('view')) {
     /**
      * view
      *
@@ -234,23 +234,23 @@ if ( ! function_exists( 'view' ) ) {
      *
      * @return O2System\Framework\Http\View|string
      */
-    function view ()
+    function view()
     {
         $args = func_get_args();
 
-        if ( count( $args ) ) {
-            $view =& o2system()->getService( 'view' );
+        if (count($args)) {
+            $view =& o2system()->getService('view');
 
-            call_user_func_array( [ &$view, 'load' ], $args );
+            return call_user_func_array([&$view, 'load'], $args);
         }
 
-        return o2system()->getService( 'view' );
+        return o2system()->getService('view');
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'parser' ) ) {
+if ( ! function_exists('parser')) {
     /**
      * parser
      *
@@ -258,15 +258,15 @@ if ( ! function_exists( 'parser' ) ) {
      *
      * @return O2System\Framework\Http\Parser
      */
-    function parser ()
+    function parser()
     {
-        return o2system()->getService( 'parser' );
+        return o2system()->getService('parser');
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'presenter' ) ) {
+if ( ! function_exists('presenter')) {
     /**
      * presenter
      *
@@ -274,15 +274,15 @@ if ( ! function_exists( 'presenter' ) ) {
      *
      * @return O2System\Framework\Http\Presenter|object
      */
-    function presenter ()
+    function presenter()
     {
-        return o2system()->getService( 'presenter' );
+        return o2system()->getService('presenter');
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'controller' ) ) {
+if ( ! function_exists('controller')) {
     /**
      * controller
      *
@@ -290,17 +290,17 @@ if ( ! function_exists( 'controller' ) ) {
      *
      * @return O2System\Framework\Http\Controller|bool
      */
-    function controller ()
+    function controller()
     {
         $args = func_get_args();
 
-        if ( count( $args ) ) {
-            $controller =& o2system()->getService( 'controller' );
+        if (count($args)) {
+            $controller =& o2system()->getService('controller');
 
-            return call_user_func_array( [ &$controller, '__call' ], $args );
+            return call_user_func_array([&$controller, '__call'], $args);
         }
 
-        return o2system()->getService( 'controller' );
+        return o2system()->getService('controller');
     }
 }
 

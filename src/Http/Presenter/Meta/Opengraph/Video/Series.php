@@ -8,13 +8,12 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph\Video;
 
 // ------------------------------------------------------------------------
-
-use O2System\Framework\Http\Presenter\Meta\Opengraph\Abstracts\AbstractNamespace;
 
 /**
  * Class Series
@@ -27,9 +26,9 @@ class Series extends Movie
 
     // ------------------------------------------------------------------------
 
-    public function setActor( Actor $actor )
+    public function setActor(Actor $actor)
     {
-        $this->merge( $actor->getArrayCopy() );
+        $this->merge($actor->getArrayCopy());
 
         return $this;
     }

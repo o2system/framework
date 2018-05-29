@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Cli\Commanders;
@@ -78,12 +79,12 @@ class Serve extends Commander
      */
     protected $optionPort;
 
-    public function optionHost( $host )
+    public function optionHost($host)
     {
         $this->optionHost = $host;
     }
 
-    public function optionPort( $port )
+    public function optionPort($port)
     {
         $this->optionPort = $port;
     }
@@ -92,7 +93,7 @@ class Serve extends Commander
     {
         $options = input()->get();
 
-        if ( empty( $options ) ) {
+        if (empty($options)) {
             $_GET[ 'host' ] = 'localhost';
             $_GET[ 'port' ] = 8000;
         }
@@ -100,26 +101,26 @@ class Serve extends Commander
         parent::execute();
 
         output()->write(
-            ( new Format() )
-                ->setContextualClass( Format::SUCCESS )
-                ->setString( language()->getLine( 'CLI_SERVE_STARTED', [ $this->optionHost, $this->optionPort ] ) )
-                ->setNewLinesAfter( 1 )
+            (new Format())
+                ->setContextualClass(Format::SUCCESS)
+                ->setString(language()->getLine('CLI_SERVE_STARTED', [$this->optionHost, $this->optionPort]))
+                ->setNewLinesAfter(1)
         );
 
         $_SERVER[ 'DOCUMENT_ROOT' ] = PATH_PUBLIC;
 
         output()->write(
-            ( new Format() )
-                ->setContextualClass( Format::INFO )
-                ->setString( language()->getLine( 'CLI_SERVE_DOC_ROOT', [ $_SERVER[ 'DOCUMENT_ROOT' ] ] ) )
-                ->setNewLinesAfter( 1 )
+            (new Format())
+                ->setContextualClass(Format::INFO)
+                ->setString(language()->getLine('CLI_SERVE_DOC_ROOT', [$_SERVER[ 'DOCUMENT_ROOT' ]]))
+                ->setNewLinesAfter(1)
         );
 
         output()->write(
-            ( new Format() )
-                ->setContextualClass( Format::WARNING )
-                ->setString( language()->getLine( 'CLI_SERVE_STOP' ) )
-                ->setNewLinesAfter( 1 )
+            (new Format())
+                ->setContextualClass(Format::WARNING)
+                ->setString(language()->getLine('CLI_SERVE_STOP'))
+                ->setNewLinesAfter(1)
         );
 
         /*
@@ -127,12 +128,12 @@ class Serve extends Commander
          * base path to the public folder, and to use the rewrite file
          * to ensure our environment is set and it simulates basic mod_rewrite.
          */
-        passthru( 'php -S ' .
+        passthru('php -S ' .
             $this->optionHost .
             ':' .
             $this->optionPort .
             ' -t ' .
-            str_replace( '\\', DIRECTORY_SEPARATOR, DIR_PUBLIC ) . ' ' . PATH_ROOT . 'server.php'
+            str_replace('\\', DIRECTORY_SEPARATOR, DIR_PUBLIC) . ' ' . PATH_ROOT . 'server.php'
         );
     }
 }

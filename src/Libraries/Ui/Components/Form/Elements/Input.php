@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Form\Elements;
@@ -27,44 +28,44 @@ class Input extends Element
 {
     use SizingSetterTrait;
 
-    public function __construct( array $attributes = [] )
+    public function __construct(array $attributes = [])
     {
-        parent::__construct( 'input' );
+        parent::__construct('input');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( 'input-' . $attributes[ 'id' ] );
-        } elseif ( isset( $attributes[ 'name' ] )  ) {
-            $this->entity->setEntityName( 'input-' . $attributes[ 'name' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName('input-' . $attributes[ 'id' ]);
+        } elseif (isset($attributes[ 'name' ])) {
+            $this->entity->setEntityName('input-' . $attributes[ 'name' ]);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
 
-        $this->attributes->addAttributeClass( 'form-control' );
+        $this->attributes->addAttributeClass('form-control');
 
-        $this->setSizingClassPrefix( 'form-control' );
+        $this->setSizingClassPrefix('form-control');
     }
 
     public function autofocus()
     {
-        $this->attributes->addAttribute( 'autofocus', 'autofocus' );
+        $this->attributes->addAttribute('autofocus', 'autofocus');
 
         return $this;
     }
 
     public function disabled()
     {
-        $this->attributes->addAttribute( 'disabled', 'disabled' );
+        $this->attributes->addAttribute('disabled', 'disabled');
 
         return $this;
     }
 
     public function readOnly()
     {
-        $this->attributes->addAttribute( 'readonly', 'readonly' );
+        $this->attributes->addAttribute('readonly', 'readonly');
 
         return $this;
     }

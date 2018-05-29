@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
@@ -23,7 +24,7 @@ trait TextUtilitiesTrait
 {
     public function textHide()
     {
-        $this->attributes->addAttributeClass( 'text-hide' );
+        $this->attributes->addAttributeClass('text-hide');
 
         return $this;
     }
@@ -32,7 +33,7 @@ trait TextUtilitiesTrait
 
     public function textLeft()
     {
-        $this->attributes->addAttributeClass( 'text-left' );
+        $this->attributes->addAttributeClass('text-left');
 
         return $this;
     }
@@ -41,7 +42,7 @@ trait TextUtilitiesTrait
 
     public function textRight()
     {
-        $this->attributes->addAttributeClass( 'text-right' );
+        $this->attributes->addAttributeClass('text-right');
 
         return $this;
     }
@@ -50,7 +51,7 @@ trait TextUtilitiesTrait
 
     public function textJustify()
     {
-        $this->attributes->addAttributeClass( 'text-justify' );
+        $this->attributes->addAttributeClass('text-justify');
 
         return $this;
     }
@@ -59,7 +60,7 @@ trait TextUtilitiesTrait
 
     public function textCenter()
     {
-        $this->attributes->addAttributeClass( 'text-center' );
+        $this->attributes->addAttributeClass('text-center');
 
         return $this;
     }
@@ -68,7 +69,7 @@ trait TextUtilitiesTrait
 
     public function textNowrap()
     {
-        $this->attributes->addAttributeClass( 'text-nowrap' );
+        $this->attributes->addAttributeClass('text-nowrap');
 
         return $this;
     }
@@ -77,7 +78,7 @@ trait TextUtilitiesTrait
 
     public function textTruncate()
     {
-        $this->attributes->addAttributeClass( 'text-truncate' );
+        $this->attributes->addAttributeClass('text-truncate');
 
         return $this;
     }
@@ -86,7 +87,7 @@ trait TextUtilitiesTrait
 
     public function textLowercase()
     {
-        $this->attributes->addAttributeClass( 'text-lowercase' );
+        $this->attributes->addAttributeClass('text-lowercase');
 
         return $this;
     }
@@ -95,7 +96,7 @@ trait TextUtilitiesTrait
 
     public function textUppercase()
     {
-        $this->attributes->addAttributeClass( 'text-uppercase' );
+        $this->attributes->addAttributeClass('text-uppercase');
 
         return $this;
     }
@@ -104,7 +105,7 @@ trait TextUtilitiesTrait
 
     public function textCapitalize()
     {
-        $this->attributes->addAttributeClass( 'text-capitalize' );
+        $this->attributes->addAttributeClass('text-capitalize');
 
         return $this;
     }
@@ -113,7 +114,7 @@ trait TextUtilitiesTrait
 
     public function textFontBold()
     {
-        $this->attributes->addAttributeClass( 'font-weight-bold' );
+        $this->attributes->addAttributeClass('font-weight-bold');
 
         return $this;
     }
@@ -122,7 +123,7 @@ trait TextUtilitiesTrait
 
     public function textFontNormal()
     {
-        $this->attributes->addAttributeClass( 'font-weight-normal' );
+        $this->attributes->addAttributeClass('font-weight-normal');
 
         return $this;
     }
@@ -131,7 +132,7 @@ trait TextUtilitiesTrait
 
     public function textFontLight()
     {
-        $this->attributes->addAttributeClass( 'font-weight-light' );
+        $this->attributes->addAttributeClass('font-weight-light');
 
         return $this;
     }
@@ -140,7 +141,7 @@ trait TextUtilitiesTrait
 
     public function textFontItalic()
     {
-        $this->attributes->addAttributeClass( 'font-italic' );
+        $this->attributes->addAttributeClass('font-italic');
 
         return $this;
     }

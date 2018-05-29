@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
@@ -23,40 +24,40 @@ trait BorderUtilitiesTrait
 {
     public function removeBorder()
     {
-        $this->attributes->addAttributeClass( 'border-0' );
+        $this->attributes->addAttributeClass('border-0');
 
         return $this;
     }
 
     public function removeBorderTop()
     {
-        $this->attributes->addAttributeClass( 'border-top-0' );
+        $this->attributes->addAttributeClass('border-top-0');
 
         return $this;
     }
 
     public function removeBorderBottom()
     {
-        $this->attributes->addAttributeClass( 'border-bottom-0' );
+        $this->attributes->addAttributeClass('border-bottom-0');
 
         return $this;
     }
 
     public function removeBorderLeft()
     {
-        $this->attributes->addAttributeClass( 'border-left-0' );
+        $this->attributes->addAttributeClass('border-left-0');
 
         return $this;
     }
 
     public function removeBorderRight()
     {
-        $this->attributes->addAttributeClass( 'border-right-0' );
+        $this->attributes->addAttributeClass('border-right-0');
     }
 
     public function contextBorderDefault()
     {
-        $this->attributes->addAttributeClass( 'border-default' );
+        $this->attributes->addAttributeClass('border-default');
 
         return $this;
     }
@@ -65,7 +66,7 @@ trait BorderUtilitiesTrait
 
     public function contextBorderPrimary()
     {
-        $this->attributes->addAttributeClass( 'border-primary' );
+        $this->attributes->addAttributeClass('border-primary');
 
         return $this;
     }
@@ -74,7 +75,7 @@ trait BorderUtilitiesTrait
 
     public function contextBorderSecondary()
     {
-        $this->attributes->addAttributeClass( 'border-secondary' );
+        $this->attributes->addAttributeClass('border-secondary');
 
         return $this;
     }
@@ -83,7 +84,7 @@ trait BorderUtilitiesTrait
 
     public function contextBorderSuccess()
     {
-        $this->attributes->addAttributeClass( 'border-success' );
+        $this->attributes->addAttributeClass('border-success');
 
         return $this;
     }
@@ -92,7 +93,7 @@ trait BorderUtilitiesTrait
 
     public function contextBorderInfo()
     {
-        $this->attributes->addAttributeClass( 'border-info' );
+        $this->attributes->addAttributeClass('border-info');
 
         return $this;
     }
@@ -101,7 +102,7 @@ trait BorderUtilitiesTrait
 
     public function contextBorderWarning()
     {
-        $this->attributes->addAttributeClass( 'border-warning' );
+        $this->attributes->addAttributeClass('border-warning');
 
         return $this;
     }
@@ -110,21 +111,21 @@ trait BorderUtilitiesTrait
 
     public function contextBorderDanger()
     {
-        $this->attributes->addAttributeClass( 'border-danger' );
+        $this->attributes->addAttributeClass('border-danger');
 
         return $this;
     }
 
     public function contextBorderLight()
     {
-        $this->attributes->addAttributeClass( 'border-light' );
+        $this->attributes->addAttributeClass('border-light');
 
         return $this;
     }
 
     public function contextBorderDark()
     {
-        $this->attributes->addAttributeClass( 'border-dark' );
+        $this->attributes->addAttributeClass('border-dark');
 
         return $this;
     }

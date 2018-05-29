@@ -8,14 +8,15 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Element;
 use O2System\Framework\Libraries\Ui\Contents;
+use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Accordion
@@ -24,41 +25,41 @@ use O2System\Framework\Libraries\Ui\Contents;
  */
 class Accordion extends Element
 {
-    public function __construct( $id = null )
+    public function __construct($id = null)
     {
-        parent::__construct( 'div', 'group' );
-        $this->attributes->addAttributeClass( 'accordion' );
-        $this->attributes->addAttribute( 'role', 'tablist' );
-        $this->attributes->addAttribute( 'aria-multiselectable', true );
+        parent::__construct('div', 'group');
+        $this->attributes->addAttributeClass('accordion');
+        $this->attributes->addAttribute('role', 'tablist');
+        $this->attributes->addAttribute('aria-multiselectable', true);
 
-        $id = empty( $id ) ? 'accordion-' . mt_rand( 1, 1000 ) : $id;
-        $this->attributes->setAttributeId( $id );
+        $id = empty($id) ? 'accordion-' . mt_rand(1, 1000) : $id;
+        $this->attributes->setAttributeId($id);
     }
 
-    public function createCard( $title, $paragraph = null )
+    public function createCard($title, $paragraph = null)
     {
-        $collapseId = dash( $title );
-        $link = new Contents\Link( $title, '#' . $collapseId );
-        $link->attributes->addAttribute( 'data-toggle', 'collapse' );
-        $link->attributes->addAttribute( 'data-parent', '#' . $this->attributes->getAttributeId() );
+        $collapseId = dash($title);
+        $link = new Contents\Link($title, '#' . $collapseId);
+        $link->attributes->addAttribute('data-toggle', 'collapse');
+        $link->attributes->addAttribute('data-parent', '#' . $this->attributes->getAttributeId());
 
         $card = new \O2System\Framework\Libraries\Ui\Components\Accordion\Card();
 
-        $card->header->attributes->addAttribute( 'role', 'tab' );
-        $card->header->childNodes->push( $link );
+        $card->header->attributes->addAttribute('role', 'tab');
+        $card->header->childNodes->push($link);
 
         $block = $card->createBlock();
-        $block->attributes->setAttributeId( $collapseId );
+        $block->attributes->setAttributeId($collapseId);
 
-        if ( isset( $paragraph ) ) {
-            $block->setParagraph( $paragraph );
+        if (isset($paragraph)) {
+            $block->setParagraph($paragraph);
         }
 
-        if( $this->childNodes->count() > 0 ) {
+        if ($this->childNodes->count() > 0) {
             $card->hide();
         }
 
-        $this->childNodes->push( $card );
+        $this->childNodes->push($card);
 
         return $this->childNodes->last();
     }

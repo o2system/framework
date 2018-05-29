@@ -29,24 +29,24 @@ class Paragraph extends Element
      *
      * @param array $attributes
      */
-    public function __construct( array $attributes = [] )
+    public function __construct(array $attributes = [])
     {
-        parent::__construct( 'p' );
+        parent::__construct('p');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( $attributes[ 'id' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName($attributes[ 'id' ]);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
     }
 
     public function lead()
     {
-        $this->attributes->addAttributeClass( 'lead ' );
+        $this->attributes->addAttributeClass('lead ');
 
         return $this;
     }

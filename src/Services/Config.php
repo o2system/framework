@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Services;
@@ -32,7 +33,7 @@ class Config extends Environment
      *
      * @return mixed
      */
-    public function loadFile( $offset, $return = false )
+    public function loadFile($offset, $return = false)
     {
         $basename = pathinfo($offset, PATHINFO_BASENAME);
         $filename = studlycase($basename);
@@ -45,29 +46,29 @@ class Config extends Environment
             PATH_APP . 'Config' . DIRECTORY_SEPARATOR,
         ];
 
-        if ( method_exists( modules(), 'getDirs' ) ) {
-            $configDirs = modules()->getDirs( 'Config', true );
+        if (method_exists(modules(), 'getDirs')) {
+            $configDirs = modules()->getDirs('Config', true);
         }
 
-        foreach ( $configDirs as $configDir ) {
-            if ( is_file(
+        foreach ($configDirs as $configDir) {
+            if (is_file(
                 $filePath = $configDir . ucfirst(
-                        strtolower( ENVIRONMENT )
+                        strtolower(ENVIRONMENT)
                     ) . DIRECTORY_SEPARATOR . $configFile . '.php'
-            ) ) {
-                include( $filePath );
-            } elseif ( is_file( $filePath = $configDir . DIRECTORY_SEPARATOR . $configFile . '.php' ) ) {
-                include( $filePath );
+            )) {
+                include($filePath);
+            } elseif (is_file($filePath = $configDir . DIRECTORY_SEPARATOR . $configFile . '.php')) {
+                include($filePath);
             }
         }
 
-        if ( isset( $$offset ) ) {
-            $this->addItem( $offset, $$offset );
+        if (isset($$offset)) {
+            $this->addItem($offset, $$offset);
 
-            unset( $$offset );
+            unset($$offset);
 
-            if ( $return ) {
-                return $this->getItem( $offset );
+            if ($return) {
+                return $this->getItem($offset);
             }
 
             return true;
@@ -86,9 +87,9 @@ class Config extends Environment
      * @param string $offset
      * @param mixed  $value
      */
-    public function addItem( $offset, $value )
+    public function addItem($offset, $value)
     {
-        $this->offsetSet( $offset, $value );
+        $this->offsetSet($offset, $value);
     }
 
     // ------------------------------------------------------------------------
@@ -102,13 +103,13 @@ class Config extends Environment
      *
      * @return mixed|\O2System\Spl\Datastructures\SplArrayObject
      */
-    public function &getItem( $offset )
+    public function &getItem($offset)
     {
-        $item = parent::offsetGet( $offset );
+        $item = parent::offsetGet($offset);
 
-        if ( is_array( $item ) ) {
-            if ( is_string( key( $item ) ) ) {
-                $item = new SplArrayObject( $item );
+        if (is_array($item)) {
+            if (is_string(key($item))) {
+                $item = new SplArrayObject($item);
             }
         }
 
@@ -125,8 +126,8 @@ class Config extends Environment
      * @param string $offset
      * @param mixed  $value
      */
-    public function setItem( $offset, $value )
+    public function setItem($offset, $value)
     {
-        $this->offsetSet( $offset, $value );
+        $this->offsetSet($offset, $value);
     }
 }

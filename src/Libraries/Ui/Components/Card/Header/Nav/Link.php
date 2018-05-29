@@ -8,14 +8,12 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Card\Header\Nav;
 
 // ------------------------------------------------------------------------
-
-use O2System\Framework\Libraries\Ui\Contents\Icon;
-use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Link
@@ -26,24 +24,24 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Link extends \O2System\Framework\Libraries\Ui\Contents\Link
 {
-    public function __construct( $label = null, $href = null )
+    public function __construct($label = null, $href = null)
     {
-        parent::__construct( $label, $href );
-        $this->attributes->addAttributeClass( 'nav-link' );
+        parent::__construct($label, $href);
+        $this->attributes->addAttributeClass('nav-link');
     }
 
     // ------------------------------------------------------------------------
 
     public function active()
     {
-        $this->attributes->addAttributeClass( 'active' );
+        $this->attributes->addAttributeClass('active');
 
         return $this;
     }
 
     public function disabled()
     {
-        $this->attributes->addAttributeClass( 'disabled' );
+        $this->attributes->addAttributeClass('disabled');
 
         return $this;
     }

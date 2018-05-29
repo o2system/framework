@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 
@@ -27,7 +28,7 @@ class Form extends Components\Form
     public function __construct()
     {
         parent::__construct();
-        $this->attributes->addAttributeClass( [ 'form-inline', 'my-2', 'my-lg-0' ] );
+        $this->attributes->addAttributeClass(['form-inline', 'my-2', 'my-lg-0']);
     }
 
     /**
@@ -35,44 +36,44 @@ class Form extends Components\Form
      *
      * @return \O2System\Framework\Libraries\Ui\Components\Form\Elements\Input
      */
-    public function createInput( array $attributes = [] )
+    public function createInput(array $attributes = [])
     {
         $field = new Components\Form\Elements\Input();
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $field->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $field->attributes->addAttribute($name, $value);
 
-                if ( $name === 'name' ) {
-                    $this->entity->setEntityName( 'input-' . $value );
+                if ($name === 'name') {
+                    $this->entity->setEntityName('input-' . $value);
 
-                    if ( ! array_key_exists( 'id', $attributes ) ) {
-                        $field->attributes->setAttributeId( 'input-' . $value );
+                    if ( ! array_key_exists('id', $attributes)) {
+                        $field->attributes->setAttributeId('input-' . $value);
                     }
                 }
             }
         }
 
-        $this->childNodes->push( $field );
+        $this->childNodes->push($field);
 
         return $this->childNodes->last();
     }
 
-    public function createButton( $label, array $attributes = [] )
+    public function createButton($label, array $attributes = [])
     {
-        $button = new Components\Form\Elements\Button( $label );
+        $button = new Components\Form\Elements\Button($label);
 
-        if ( ! array_key_exists( 'class', $attributes ) ) {
-            $button->attributes->addAttributeClass( [ 'btn', 'my-2', 'my-sm-0' ] );
+        if ( ! array_key_exists('class', $attributes)) {
+            $button->attributes->addAttributeClass(['btn', 'my-2', 'my-sm-0']);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $button->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $button->attributes->addAttribute($name, $value);
             }
         }
 
-        $this->childNodes->push( $button );
+        $this->childNodes->push($button);
 
         return $this->childNodes->last();
     }

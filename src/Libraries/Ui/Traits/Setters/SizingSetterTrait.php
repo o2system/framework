@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Setters;
@@ -26,41 +27,32 @@ trait SizingSetterTrait
 
     // ------------------------------------------------------------------------
 
-    protected function setSizingClassPrefix( $prefix )
+    public function extraLargeSize()
     {
-        $this->sizingClassPrefix = $prefix;
+        $this->setsizingClassSuffix('xl');
 
         return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function setSizingClassSuffix( $suffix )
+    public function setSizingClassSuffix($suffix)
     {
-        $this->attributes->addAttributeClass( $this->sizingClassPrefix . '-' . $suffix );
-
-        return $this;
-    }
-
-    public function extraLargeSize()
-    {
-        $this->setsizingClassSuffix( 'xl' );
+        $this->attributes->addAttributeClass($this->sizingClassPrefix . '-' . $suffix);
 
         return $this;
     }
 
     public function largeSize()
     {
-        $this->setsizingClassSuffix( 'lg' );
+        $this->setsizingClassSuffix('lg');
 
         return $this;
     }
 
-    // ------------------------------------------------------------------------
-
     public function mediumSize()
     {
-        $this->setsizingClassSuffix( 'm' );
+        $this->setsizingClassSuffix('m');
 
         return $this;
     }
@@ -69,7 +61,7 @@ trait SizingSetterTrait
 
     public function smallSize()
     {
-        $this->setsizingClassSuffix( 'sm' );
+        $this->setsizingClassSuffix('sm');
 
         return $this;
     }
@@ -78,7 +70,16 @@ trait SizingSetterTrait
 
     public function extraSmallSize()
     {
-        $this->setsizingClassSuffix( 'xs' );
+        $this->setsizingClassSuffix('xs');
+
+        return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
+    protected function setSizingClassPrefix($prefix)
+    {
+        $this->sizingClassPrefix = $prefix;
 
         return $this;
     }

@@ -28,6 +28,20 @@ use O2System\Html\Element;
 class Table extends Ui\Contents\Table
 {
     /**
+     * Table::$rows
+     *
+     * Table rows resource object.
+     *
+     * @var \O2System\Database\DataObjects\Result
+     */
+    public $rows;
+    /**
+     * Table::$columns
+     *
+     * @var array
+     */
+    public $columns = [];
+    /**
      * Table::$config
      *
      * Table configuration.
@@ -54,7 +68,6 @@ class Table extends Ui\Contents\Table
             'step'    => 10,
         ],
     ];
-
     protected $tools = [
         'create'    => [
             'label'      => true,
@@ -99,7 +112,6 @@ class Table extends Ui\Contents\Table
             'href'       => false,
         ],
     ];
-
     protected $options = [
         'grid'    => [
             'label'      => true,
@@ -137,7 +149,6 @@ class Table extends Ui\Contents\Table
             'href'       => false,
         ],
     ];
-
     protected $actions = [
         'view'    => [
             'label'      => false,
@@ -183,22 +194,6 @@ class Table extends Ui\Contents\Table
         ],
     ];
 
-    /**
-     * Table::$rows
-     *
-     * Table rows resource object.
-     *
-     * @var \O2System\Database\DataObjects\Result
-     */
-    public $rows;
-
-    /**
-     * Table::$columns
-     *
-     * @var array
-     */
-    public $columns = [];
-
     // ------------------------------------------------------------------------
 
     /**
@@ -206,15 +201,15 @@ class Table extends Ui\Contents\Table
      *
      * @param array $config
      */
-    public function __construct( array $config = [] )
+    public function __construct(array $config = [])
     {
         parent::__construct();
 
-        language()->loadFile( 'crud/table' );
-        presenter()->assets->loadJs( 'crud/table' );
+        language()->loadFile('crud/table');
+        presenter()->assets->loadJs('crud/table');
 
-        $this->attributes->addAttributeClass( [ 'table-striped', 'table-hover', 'mb-0' ] );
-        $this->setConfig( $config );
+        $this->attributes->addAttributeClass(['table-striped', 'table-hover', 'mb-0']);
+        $this->setConfig($config);
     }
 
     // ------------------------------------------------------------------------
@@ -226,11 +221,11 @@ class Table extends Ui\Contents\Table
      *
      * @param array $config
      */
-    public function setConfig( array $config )
+    public function setConfig(array $config)
     {
-        $this->config = array_merge( $this->config, $config );
+        $this->config = array_merge($this->config, $config);
 
-        if ( $this->config[ 'responsive' ] ) {
+        if ($this->config[ 'responsive' ]) {
             $this->responsive();
         }
 
@@ -239,14 +234,14 @@ class Table extends Ui\Contents\Table
 
     // ------------------------------------------------------------------------
 
-    public function setRows( Result $rows )
+    public function setRows(Result $rows)
     {
         $this->rows = $rows;
 
         return $this;
     }
 
-    public function setColumns( array $columns )
+    public function setColumns(array $columns)
     {
         $defaultColumn = [
             'field'   => 'label',
@@ -268,8 +263,8 @@ class Table extends Ui\Contents\Table
 
         $this->setPrependColumns();
 
-        foreach ( $columns as $key => $column ) {
-            $column = array_merge( $defaultColumn, $column );
+        foreach ($columns as $key => $column) {
+            $column = array_merge($defaultColumn, $column);
             $this->columns[ $key ] = $column;
         }
 
@@ -311,9 +306,9 @@ class Table extends Ui\Contents\Table
             ],
             'checkbox'  => [
                 'field'   => 'id',
-                'label'   => new Ui\Components\Form\Elements\Checkbox( [
+                'label'   => new Ui\Components\Form\Elements\Checkbox([
                     'data-toggle' => 'table-crud-checkbox',
-                ] ),
+                ]),
                 'attr'    => [
                     'width' => '2%',
                 ],
@@ -339,8 +334,8 @@ class Table extends Ui\Contents\Table
             ],
         ];
 
-        foreach ( $prependColumns as $key => $column ) {
-            if ( $this->config[ $key ] === true ) {
+        foreach ($prependColumns as $key => $column) {
+            if ($this->config[ $key ] === true) {
                 $this->columns[ $key ] = $column;
             }
         }
@@ -412,106 +407,106 @@ class Table extends Ui\Contents\Table
             ],
         ];
 
-        foreach ( $appendColumns as $key => $column ) {
-            if ( $this->config[ $key ] === true ) {
+        foreach ($appendColumns as $key => $column) {
+            if ($this->config[ $key ] === true) {
                 $this->columns[ $key ] = $column;
             }
         }
     }
 
-    public function setActions( array $actions )
+    public function setActions(array $actions)
     {
-        $this->actions = array_merge( $this->actions, $actions );
+        $this->actions = array_merge($this->actions, $actions);
 
         return $this;
     }
 
-    public function setTools( array $tools )
+    public function setTools(array $tools)
     {
-        $this->tools = array_merge( $this->tools, $tools );
+        $this->tools = array_merge($this->tools, $tools);
 
         return $this;
     }
 
-    public function setOptions( array $options )
+    public function setOptions(array $options)
     {
-        $this->options = array_merge( $this->options, $options );
+        $this->options = array_merge($this->options, $options);
 
         return $this;
     }
 
     public function render()
     {
-        if ( $this->config[ 'ordering' ] ) {
-            $this->attributes->addAttributeClass( 'table-ordering' );
+        if ($this->config[ 'ordering' ]) {
+            $this->attributes->addAttributeClass('table-ordering');
         }
 
         // Render header
         $tr = $this->header->createRow();
 
-        foreach ( $this->columns as $key => $column ) {
+        foreach ($this->columns as $key => $column) {
 
-            $th = $tr->createColumn( 'th' );
+            $th = $tr->createColumn('th');
 
             $column[ 'attr' ][ 'data-column' ] = $key;
 
-            foreach ( $column[ 'attr' ] as $name => $value ) {
-                if ( ! empty( $value ) ) {
-                    $th->attributes->addAttribute( $name, $value );
+            foreach ($column[ 'attr' ] as $name => $value) {
+                if ( ! empty($value)) {
+                    $th->attributes->addAttribute($name, $value);
                 }
             }
 
-            if ( $column[ 'sorting' ] === true ) {
-                $icon = new Ui\Contents\Icon( 'fa fa-sort' );
-                $icon->attributes->addAttributeClass( [ 'text-muted', 'float-right', 'mt-1' ] );
+            if ($column[ 'sorting' ] === true) {
+                $icon = new Ui\Contents\Icon('fa fa-sort');
+                $icon->attributes->addAttributeClass(['text-muted', 'float-right', 'mt-1']);
 
-                $th->attributes->addAttributeClass( 'col-sortable' );
-                $th->attributes->addAttribute( 'data-toggle', 'sort' );
-                $th->childNodes->push( $icon );
+                $th->attributes->addAttributeClass('col-sortable');
+                $th->attributes->addAttribute('data-toggle', 'sort');
+                $th->childNodes->push($icon);
             }
 
-            if ( $column[ 'show' ] === false ) {
-                $th->attributes->addAttributeClass( 'hidden' );
+            if ($column[ 'show' ] === false) {
+                $th->attributes->addAttributeClass('hidden');
             }
 
-            $th->textContent->push( language()->getLine( $column[ 'label' ] ) );
+            $th->textContent->push(language()->getLine($column[ 'label' ]));
         }
 
         // Render tbody
-        if ( $this->rows->count() > 0 ) {
+        if ($this->rows->count() > 0) {
             $totalEntries = $this->rows->count();
             $totalRows = $this->rows->countAll();
-            $currentPage = input()->get( 'page' ) ? input()->get( 'page' ) : 1;
+            $currentPage = input()->get('page') ? input()->get('page') : 1;
             $startNumber = $currentPage == 1 ? 1 : $currentPage * $this->config[ 'entries' ][ 'minimum' ];
-            $totalPages = round( $totalRows / $this->config[ 'entries' ][ 'minimum' ] );
+            $totalPages = round($totalRows / $this->config[ 'entries' ][ 'minimum' ]);
             $totalPages = $totalPages == 0 && $totalRows > 0 ? 1 : $totalPages;
 
             $i = $startNumber;
-            foreach ( $this->rows as $row ) {
+            foreach ($this->rows as $row) {
                 $row->numbering = $i;
                 $tr = $this->body->createRow();
-                $tr->attributes->addAttribute( 'data-id', $row->id );
+                $tr->attributes->addAttribute('data-id', $row->id);
 
-                foreach ( $this->columns as $key => $column ) {
+                foreach ($this->columns as $key => $column) {
 
                     $column[ 'key' ] = $key;
                     $td = $tr->createColumn();
 
                     $column[ 'attr' ][ 'data-column' ] = $key;
 
-                    foreach ( $column[ 'attr' ] as $name => $value ) {
-                        if ( ! empty( $value ) ) {
-                            $td->attributes->addAttribute( $name, $value );
+                    foreach ($column[ 'attr' ] as $name => $value) {
+                        if ( ! empty($value)) {
+                            $td->attributes->addAttribute($name, $value);
                         }
                     }
 
-                    if ( $column[ 'show' ] === false ) {
-                        $td->attributes->addAttributeClass( 'hidden' );
+                    if ($column[ 'show' ] === false) {
+                        $td->attributes->addAttributeClass('hidden');
                     }
 
-                    $td->attributes->addAttributeClass( 'col-body-' . $key );
+                    $td->attributes->addAttributeClass('col-body-' . $key);
 
-                    $this->renderBodyColumn( $td, $column, $row );
+                    $this->renderBodyColumn($td, $column, $row);
                 }
 
                 $i++;
@@ -524,233 +519,233 @@ class Table extends Ui\Contents\Table
             $totalPages = 0;
         }
 
-        $showEntries = input()->get( 'entries' ) ? input()->get( 'entries' ) : $this->config[ 'entries' ][ 'minimum' ];
+        $showEntries = input()->get('entries') ? input()->get('entries') : $this->config[ 'entries' ][ 'minimum' ];
 
         // Build table card
         $card = new Ui\Components\Card();
-        $card->attributes->addAttribute( 'data-role', 'table-crud' );
-        $card->attributes->addAttributeClass( 'card-table' );
+        $card->attributes->addAttribute('data-role', 'table-crud');
+        $card->attributes->addAttributeClass('card-table');
 
         // Build table header tools
-        $tools = new Element( 'div', 'cardHeaderTools' );
-        $tools->attributes->addAttributeClass( [ 'card-tools', 'float-left' ] );
+        $tools = new Element('div', 'cardHeaderTools');
+        $tools->attributes->addAttributeClass(['card-tools', 'float-left']);
 
         $buttons = new Ui\Components\Buttons\Group();
-        foreach ( $this->tools as $key => $tool ) {
-            if ( $tool[ 'show' ] === false ) {
+        foreach ($this->tools as $key => $tool) {
+            if ($tool[ 'show' ] === false) {
                 continue;
             }
 
-            if ( $tool[ 'label' ] === true ) {
-                $button = $buttons->createButton( language()->getLine( 'TABLE_BUTTON_' . strtoupper( $key ) ) );
-                if ( ! empty( $tool[ 'icon' ] ) ) {
-                    $button->setIcon( $tool[ 'icon' ] );
+            if ($tool[ 'label' ] === true) {
+                $button = $buttons->createButton(language()->getLine('TABLE_BUTTON_' . strtoupper($key)));
+                if ( ! empty($tool[ 'icon' ])) {
+                    $button->setIcon($tool[ 'icon' ]);
                 }
             } else {
-                $button = $buttons->createButton( new Ui\Contents\Icon( $tool[ 'icon' ] ) );
-                $button->attributes->addAttribute( 'data-toggle', 'tooltip' );
-                $button->attributes->addAttribute( 'title',
-                    language()->getLine( 'TABLE_BUTTON_' . strtoupper( $key ) ) );
+                $button = $buttons->createButton(new Ui\Contents\Icon($tool[ 'icon' ]));
+                $button->attributes->addAttribute('data-toggle', 'tooltip');
+                $button->attributes->addAttribute('title',
+                    language()->getLine('TABLE_BUTTON_' . strtoupper($key)));
             }
 
-            if ( ! empty( $tool[ 'href' ] ) ) {
+            if ( ! empty($tool[ 'href' ])) {
                 $tool[ 'data-url' ] = $tool[ 'href' ];
             }
 
-            if ( isset( $tool[ 'attr' ] ) ) {
-                foreach ( $tool[ 'attr' ] as $name => $value ) {
-                    $button->attributes->addAttribute( $name, $value );
+            if (isset($tool[ 'attr' ])) {
+                foreach ($tool[ 'attr' ] as $name => $value) {
+                    $button->attributes->addAttribute($name, $value);
                 }
             }
 
-            $button->setContextualClass( $tool[ 'contextual' ] );
+            $button->setContextualClass($tool[ 'contextual' ]);
             $button->smallSize();
-            $button->attributes->addAttribute( 'data-action', $key );
+            $button->attributes->addAttribute('data-action', $key);
         }
 
-        $tools->childNodes->push( $buttons );
+        $tools->childNodes->push($buttons);
 
-        $card->header->childNodes->push( $tools );
+        $card->header->childNodes->push($tools);
 
         // Build table header options
-        $options = new Element( 'div', 'cardHeaderOptions' );
-        $options->attributes->addAttributeClass( [ 'card-options', 'float-right' ] );
+        $options = new Element('div', 'cardHeaderOptions');
+        $options->attributes->addAttributeClass(['card-options', 'float-right']);
 
         $buttons = new Ui\Components\Buttons\Group();
-        foreach ( $this->options as $key => $option ) {
-            if ( $option[ 'show' ] === false ) {
+        foreach ($this->options as $key => $option) {
+            if ($option[ 'show' ] === false) {
                 continue;
             }
 
-            if ( $option[ 'label' ] === true ) {
-                $button = $buttons->createButton( language()->getLine( 'TABLE_BUTTON_' . strtoupper( $key ) ) );
-                if ( ! empty( $option[ 'icon' ] ) ) {
-                    $button->setIcon( $option[ 'icon' ] );
+            if ($option[ 'label' ] === true) {
+                $button = $buttons->createButton(language()->getLine('TABLE_BUTTON_' . strtoupper($key)));
+                if ( ! empty($option[ 'icon' ])) {
+                    $button->setIcon($option[ 'icon' ]);
                 }
             } else {
-                $button = $buttons->createButton( new Ui\Contents\Icon( $option[ 'icon' ] ) );
-                $button->attributes->addAttribute( 'data-toggle', 'tooltip' );
-                $button->attributes->addAttribute( 'title',
-                    language()->getLine( 'TABLE_BUTTON_' . strtoupper( $key ) ) );
+                $button = $buttons->createButton(new Ui\Contents\Icon($option[ 'icon' ]));
+                $button->attributes->addAttribute('data-toggle', 'tooltip');
+                $button->attributes->addAttribute('title',
+                    language()->getLine('TABLE_BUTTON_' . strtoupper($key)));
             }
 
-            if ( ! empty( $option[ 'href' ] ) ) {
+            if ( ! empty($option[ 'href' ])) {
                 $option[ 'data-url' ] = $option[ 'href' ];
             }
 
-            if ( isset( $option[ 'attr' ] ) ) {
-                foreach ( $option[ 'attr' ] as $name => $value ) {
-                    $button->attributes->addAttribute( $name, $value );
+            if (isset($option[ 'attr' ])) {
+                foreach ($option[ 'attr' ] as $name => $value) {
+                    $button->attributes->addAttribute($name, $value);
                 }
             }
 
-            $button->setContextualClass( $option[ 'contextual' ] );
+            $button->setContextualClass($option[ 'contextual' ]);
             $button->smallSize();
-            $button->attributes->addAttribute( 'data-action', $key );
+            $button->attributes->addAttribute('data-action', $key);
         }
 
-        $options->childNodes->push( $buttons );
+        $options->childNodes->push($buttons);
 
-        $card->header->childNodes->push( $options );
+        $card->header->childNodes->push($options);
 
         // Build table body
         $cardBody = $card->createBody();
         $cardBodyRow = $cardBody->createRow();
 
-        $columnSearch = $cardBodyRow->createColumn( [ 'class' => 'col-md-4' ] );
-        $columnShow = $cardBodyRow->createColumn( [ 'class' => 'col-md-8' ] );
+        $columnSearch = $cardBodyRow->createColumn(['class' => 'col-md-4']);
+        $columnShow = $cardBodyRow->createColumn(['class' => 'col-md-8']);
 
         // Search
-        $search = new Ui\Components\Form\Elements\Input( [
+        $search = new Ui\Components\Form\Elements\Input([
             'name'        => 'query',
             'data-role'   => 'table-crud-search',
-            'placeholder' => language()->getLine( 'TABLE_LABEL_SEARCH' ),
-            'value'       => input()->get( 'query' ),
-        ] );
+            'placeholder' => language()->getLine('TABLE_LABEL_SEARCH'),
+            'value'       => input()->get('query'),
+        ]);
 
-        $columnSearch->childNodes->push( $search );
+        $columnSearch->childNodes->push($search);
 
         // Show
         $inputGroup = new Ui\Components\Form\Input\Group();
 
         $addOn = new Ui\Components\Form\Input\Group\AddOn();
-        $addOn->textContent->push( language()->getLine( 'TABLE_LABEL_SHOW' ) );
+        $addOn->textContent->push(language()->getLine('TABLE_LABEL_SHOW'));
 
-        $inputGroup->childNodes->push( $addOn );
+        $inputGroup->childNodes->push($addOn);
 
         $options = [];
-        foreach ( range( (int) $this->config[ 'entries' ][ 'minimum' ], (int) $this->config[ 'entries' ][ 'maximum' ],
-            (int) $this->config[ 'entries' ][ 'step' ] ) as $entries ) {
+        foreach (range((int)$this->config[ 'entries' ][ 'minimum' ], (int)$this->config[ 'entries' ][ 'maximum' ],
+            (int)$this->config[ 'entries' ][ 'step' ]) as $entries) {
             $options[ $entries ] = $entries;
         }
 
-        $columnsDropdown = new Ui\Components\Dropdown( language()->getLine( 'TABLE_LABEL_COLUMNS' ) );
-        $columnsDropdown->attributes->addAttribute( 'data-role', 'table-crud-columns' );
+        $columnsDropdown = new Ui\Components\Dropdown(language()->getLine('TABLE_LABEL_COLUMNS'));
+        $columnsDropdown->attributes->addAttribute('data-role', 'table-crud-columns');
 
-        foreach ( $this->columns as $key => $column ) {
+        foreach ($this->columns as $key => $column) {
 
-            if ( $column[ 'hiding' ] === false ) {
+            if ($column[ 'hiding' ] === false) {
                 continue;
             }
 
             $label = new Ui\Components\Form\Elements\Label();
-            $label->attributes->addAttributeClass( 'form-check-label' );
-            $label->textContent->push( language()->getLine( $column[ 'label' ] ) );
+            $label->attributes->addAttributeClass('form-check-label');
+            $label->textContent->push(language()->getLine($column[ 'label' ]));
 
-            $checkbox = new Ui\Components\Form\Elements\Input( [
+            $checkbox = new Ui\Components\Form\Elements\Input([
                 'type'        => 'checkbox',
                 'class'       => 'form-check-input',
                 'data-toggle' => 'table-crud-columns',
                 'data-column' => $key,
-            ] );
+            ]);
 
-            $checkbox->attributes->removeAttributeClass( 'form-control' );
+            $checkbox->attributes->removeAttributeClass('form-control');
 
-            if ( $column[ 'show' ] === true ) {
-                $checkbox->attributes->addAttribute( 'checked', 'checked' );
+            if ($column[ 'show' ] === true) {
+                $checkbox->attributes->addAttribute('checked', 'checked');
             }
 
-            $label->childNodes->push( $checkbox );
+            $label->childNodes->push($checkbox);
 
-            $columnsDropdown->menu->createItem( $label );
+            $columnsDropdown->menu->createItem($label);
         }
 
-        $inputGroup->childNodes->push( $columnsDropdown );
+        $inputGroup->childNodes->push($columnsDropdown);
 
         $select = new Ui\Components\Form\Elements\Select();
-        $select->attributes->addAttribute( 'name', 'entries' );
-        $select->createOptions( $options, $showEntries );
-        $inputGroup->childNodes->push( $select );
+        $select->attributes->addAttribute('name', 'entries');
+        $select->createOptions($options, $showEntries);
+        $inputGroup->childNodes->push($select);
 
         $addOn = new Ui\Components\Form\Input\Group\AddOn();
-        $addOn->textContent->push( language()->getLine( 'TABLE_LABEL_PAGE', [
+        $addOn->textContent->push(language()->getLine('TABLE_LABEL_PAGE', [
             $startNumber,
             $totalEntries,
             $totalRows,
             $currentPage,
             $totalPages,
-        ] ) );
+        ]));
 
-        $inputGroup->childNodes->push( $addOn );
+        $inputGroup->childNodes->push($addOn);
 
-        $input = new Ui\Components\Form\Elements\Input( [
+        $input = new Ui\Components\Form\Elements\Input([
             'name'        => 'page',
-            'placeholder' => language()->getLine( 'TABLE_LABEL_GOTO' ),
-        ] );
+            'placeholder' => language()->getLine('TABLE_LABEL_GOTO'),
+        ]);
 
-        $inputGroup->childNodes->push( $input );
+        $inputGroup->childNodes->push($input);
 
-        $pagination = new Ui\Components\Pagination( $totalRows, $showEntries );
-        $inputGroup->childNodes->push( $pagination );
+        $pagination = new Ui\Components\Pagination($totalRows, $showEntries);
+        $inputGroup->childNodes->push($pagination);
 
-        $columnShow->childNodes->push( $inputGroup );
+        $columnShow->childNodes->push($inputGroup);
 
-        $card->textContent->push( parent::render() );
+        $card->textContent->push(parent::render());
 
         return $card->render();
     }
 
-    protected function renderBodyColumn( $td, array $column, Result\Row $row )
+    protected function renderBodyColumn($td, array $column, Result\Row $row)
     {
-        switch ( $column[ 'format' ] ) {
+        switch ($column[ 'format' ]) {
             default:
-                if ( is_callable( $column[ 'format' ] ) ) {
-                    if ( is_array( $column[ 'field' ] ) ) {
-                        foreach ( $column[ 'field' ] as $field ) {
-                            $args[ $field ] = $row->offsetGet( $field );
+                if (is_callable($column[ 'format' ])) {
+                    if (is_array($column[ 'field' ])) {
+                        foreach ($column[ 'field' ] as $field) {
+                            $args[ $field ] = $row->offsetGet($field);
                         }
-                        $textContent = call_user_func_array( $column[ 'format' ], $args );
-                    } elseif ( $row->offsetExists( $column[ 'field' ] ) ) {
-                        $textContent = call_user_func_array( $column[ 'format' ],
-                            [ $row->offsetGet( $column[ 'field' ] ) ] );
+                        $textContent = call_user_func_array($column[ 'format' ], $args);
+                    } elseif ($row->offsetExists($column[ 'field' ])) {
+                        $textContent = call_user_func_array($column[ 'format' ],
+                            [$row->offsetGet($column[ 'field' ])]);
                     }
 
-                    $td->textContent->push( $textContent );
+                    $td->textContent->push($textContent);
 
-                } elseif ( strpos( $column[ 'format' ], '{{' ) !== false ) {
-                    $textContent = str_replace( [ '{{', '}}' ], '', $column[ 'format' ] );
-                    if ( is_array( $column[ 'field' ] ) ) {
-                        foreach ( $column[ 'field' ] as $field ) {
-                            if ( $row->offsetExists( $field ) ) {
-                                $textContent = str_replace( '$' . $field, $row->offsetGet( $field ), $textContent );
+                } elseif (strpos($column[ 'format' ], '{{') !== false) {
+                    $textContent = str_replace(['{{', '}}'], '', $column[ 'format' ]);
+                    if (is_array($column[ 'field' ])) {
+                        foreach ($column[ 'field' ] as $field) {
+                            if ($row->offsetExists($field)) {
+                                $textContent = str_replace('$' . $field, $row->offsetGet($field), $textContent);
                             } else {
-                                $textContent = str_replace( '$' . $field, '', $textContent );
+                                $textContent = str_replace('$' . $field, '', $textContent);
                             }
                         }
-                    } elseif ( $row->offsetExists( $column[ 'field' ] ) ) {
-                        $textContent = str_replace( '$' . $column[ 'field' ], $row->offsetGet( $column[ 'field' ] ),
-                            $textContent );
+                    } elseif ($row->offsetExists($column[ 'field' ])) {
+                        $textContent = str_replace('$' . $column[ 'field' ], $row->offsetGet($column[ 'field' ]),
+                            $textContent);
                     }
 
-                    $td->textContent->push( $textContent );
+                    $td->textContent->push($textContent);
                 }
                 break;
 
             case 'checkbox':
-                $checkbox = new Ui\Components\Form\Elements\Checkbox( [
+                $checkbox = new Ui\Components\Form\Elements\Checkbox([
                     'data-role' => 'table-crud-checkbox',
-                ] );
-                $td->childNodes->push( $checkbox );
+                ]);
+                $td->childNodes->push($checkbox);
                 break;
 
             case 'number':
@@ -758,18 +753,18 @@ class Table extends Ui\Contents\Table
             case 'text':
             case 'price':
             case 'number':
-                if ( $row->offsetExists( $column[ 'field' ] ) ) {
-                    $td->textContent->push( $row->offsetGet( $column[ 'field' ] ) );
+                if ($row->offsetExists($column[ 'field' ])) {
+                    $td->textContent->push($row->offsetGet($column[ 'field' ]));
                 }
                 break;
             case 'date':
-                if ( $row->offsetExists( $column[ 'field' ] ) ) {
-                    print_out( 'date' );
+                if ($row->offsetExists($column[ 'field' ])) {
+                    print_out('date');
                 }
                 break;
 
             case 'status':
-                if ( $row->offsetExists( $column[ 'field' ] ) ) {
+                if ($row->offsetExists($column[ 'field' ])) {
                     $options = [
                         'PUBLISH'   => 'success',
                         'UNPUBLISH' => 'warning',
@@ -779,11 +774,11 @@ class Table extends Ui\Contents\Table
                     ];
 
                     $badge = new Ui\Components\Badge(
-                        language()->getLine( 'TABLE_OPTION_' . $row->offsetGet( $column[ 'field' ] ) ),
-                        $options[ $row->offsetGet( $column[ 'field' ] ) ]
+                        language()->getLine('TABLE_OPTION_' . $row->offsetGet($column[ 'field' ])),
+                        $options[ $row->offsetGet($column[ 'field' ]) ]
                     );
 
-                    $td->childNodes->push( $badge );
+                    $td->childNodes->push($badge);
                 }
 
                 break;
@@ -792,36 +787,36 @@ class Table extends Ui\Contents\Table
 
                 $buttons = new Ui\Components\Buttons\Group();
 
-                foreach ( $this->actions as $key => $action ) {
+                foreach ($this->actions as $key => $action) {
 
-                    if ( $action[ 'show' ] === false ) {
+                    if ($action[ 'show' ] === false) {
                         continue;
                     }
 
-                    if ( $action[ 'label' ] === true ) {
-                        $button = $buttons->createButton( language()->getLine( 'TABLE_BUTTON_' . strtoupper( $key ) ) );
-                        if ( ! empty( $action[ 'icon' ] ) ) {
-                            $button->setIcon( $action[ 'icon' ] );
+                    if ($action[ 'label' ] === true) {
+                        $button = $buttons->createButton(language()->getLine('TABLE_BUTTON_' . strtoupper($key)));
+                        if ( ! empty($action[ 'icon' ])) {
+                            $button->setIcon($action[ 'icon' ]);
                         }
                     } else {
-                        $button = $buttons->createButton( new Ui\Contents\Icon( $action[ 'icon' ] ) );
-                        $button->attributes->addAttribute( 'data-toggle', 'tooltip' );
-                        $button->attributes->addAttribute( 'title',
-                            language()->getLine( 'TABLE_BUTTON_' . strtoupper( $key ) ) );
+                        $button = $buttons->createButton(new Ui\Contents\Icon($action[ 'icon' ]));
+                        $button->attributes->addAttribute('data-toggle', 'tooltip');
+                        $button->attributes->addAttribute('title',
+                            language()->getLine('TABLE_BUTTON_' . strtoupper($key)));
                     }
 
-                    if ( isset( $action[ 'attr' ] ) ) {
-                        foreach ( $action[ 'attr' ] as $name => $value ) {
-                            $button->attributes->addAttribute( $name, $value );
+                    if (isset($action[ 'attr' ])) {
+                        foreach ($action[ 'attr' ] as $name => $value) {
+                            $button->attributes->addAttribute($name, $value);
                         }
                     }
 
-                    $button->setContextualClass( $action[ 'contextual' ] );
+                    $button->setContextualClass($action[ 'contextual' ]);
                     $button->smallSize();
-                    $button->attributes->addAttribute( 'data-action', $key );
+                    $button->attributes->addAttribute('data-action', $key);
                 }
 
-                $td->childNodes->push( $buttons );
+                $td->childNodes->push($buttons);
 
                 break;
         }

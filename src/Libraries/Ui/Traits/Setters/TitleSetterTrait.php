@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Setters;
@@ -26,20 +27,20 @@ trait TitleSetterTrait
     public $title;
     public $subTitle;
 
-    public function setTitle( $text, $tagName = 'h4' )
+    public function setTitle($text, $tagName = 'h4')
     {
-        $this->title = new Element( $tagName, 'title' );
-        $this->title->entity->setEntityName( $text );
-        $this->title->textContent->push( $text );
+        $this->title = new Element($tagName, 'title');
+        $this->title->entity->setEntityName($text);
+        $this->title->textContent->push($text);
 
         return $this;
     }
 
-    public function setSubTitle( $text, $tagName = 'h6' )
+    public function setSubTitle($text, $tagName = 'h6')
     {
-        $this->subTitle = new Element( $tagName, 'subTitle' );
-        $this->subTitle->entity->setEntityName( $text );
-        $this->subTitle->textContent->push( $text );
+        $this->subTitle = new Element($tagName, 'subTitle');
+        $this->subTitle->entity->setEntityName($text);
+        $this->subTitle->textContent->push($text);
 
         return $this;
     }

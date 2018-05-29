@@ -8,13 +8,13 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Panel;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Panel;
 use O2System\Framework\Libraries\Ui\Element;
 
 /**
@@ -26,13 +26,13 @@ class Group extends Element
 {
     public function __construct()
     {
-        parent::__construct( 'div', 'group' );
-        $this->attributes->addAttributeClass( 'panel-group' );
+        parent::__construct('div', 'group');
+        $this->attributes->addAttributeClass('panel-group');
     }
 
     public function createPanel()
     {
-        $this->childNodes->push( new Panel() );
+        $this->childNodes->push(new Panel());
 
         return $this->childNodes->last();
     }

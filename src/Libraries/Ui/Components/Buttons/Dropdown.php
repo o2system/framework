@@ -8,12 +8,10 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Buttons;
-
-use O2System\Framework\Libraries\Ui\Components\Button;
-use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Dropdown
@@ -25,12 +23,12 @@ class Dropdown extends \O2System\Framework\Libraries\Ui\Components\Dropdown
     public $toggle;
     public $toggleButton;
 
-    public function __construct( $label = null )
+    public function __construct($label = null)
     {
-        parent::__construct( $label );
+        parent::__construct($label);
 
-        $this->attributes->removeAttributeClass( 'dropdown' );
-        $this->attributes->addAttributeClass( 'btn-group' );
-        $this->attributes->addAttribute( 'role', 'group' );
+        $this->attributes->removeAttributeClass('dropdown');
+        $this->attributes->addAttributeClass('btn-group');
+        $this->attributes->addAttribute('role', 'group');
     }
 }

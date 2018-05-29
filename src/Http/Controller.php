@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http;
@@ -21,21 +22,21 @@ namespace O2System\Framework\Http;
  */
 class Controller extends \O2System\Kernel\Http\Controller
 {
-    public function &__get( $property )
+    public function &__get($property)
     {
         $get[ $property ] = false;
 
         // CodeIgniter property aliasing
-        if($property === 'load') {
+        if ($property === 'load') {
             $property = 'loader';
         }
 
-        if ( o2system()->hasService( $property ) ) {
-            return o2system()->getService( $property );
-        } elseif ( o2system()->__isset( $property ) ) {
-            return o2system()->__get( $property );
-        } elseif( $property === 'model' ) {
-            return models( 'controller' );
+        if (o2system()->hasService($property)) {
+            return o2system()->getService($property);
+        } elseif (o2system()->__isset($property)) {
+            return o2system()->__get($property);
+        } elseif ($property === 'model') {
+            return models('controller');
         }
 
         return $get[ $property ];

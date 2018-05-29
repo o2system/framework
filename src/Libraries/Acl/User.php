@@ -18,7 +18,6 @@ namespace O2System\Framework\Libraries\Acl;
 use O2System\Framework\Http\Message\Request;
 use O2System\Framework\Libraries\Acl\Datastructures\Account;
 use O2System\Framework\Libraries\Acl\Datastructures\Signature;
-use O2System\Spl\Datastructures\SplArrayObject;
 use O2System\Spl\Exceptions\RuntimeException;
 use O2System\Spl\Iterators\ArrayIterator;
 
@@ -79,9 +78,13 @@ class User
 
     // ------------------------------------------------------------------------
 
-    public function login($username, $password, $remember = false)
+    public function login($username, $password = null, $remember = false)
     {
-        if (false !== ($account = $this->findAccount($username))) {
+        if ($username instanceof Account) {
+            // set user session
+            unset($username[ 'password' ], $username[ 'pin' ]);
+            session()->offsetSet('account', $username);
+        } elseif (false !== ($account = $this->findAccount($username))) {
             if (password_verify($password, $account->password)) {
 
                 if ( ! empty($this->options)) {
@@ -104,7 +107,7 @@ class User
                 }
 
                 // set user single-sign-on (sso)
-                if($this->sso->enable === true) {
+                if ($this->sso->enable === true) {
                     if (method_exists(models('users'), 'insertSignature')) {
                         models('users')->insertSignature(new Signature([
                             'id_sys_user' => $account->id,
@@ -157,42 +160,9 @@ class User
 
     // ------------------------------------------------------------------------
 
-    public function validate($ssid)
-    {
-        if (method_exists(models('users'), 'findSignature')) {
-            if (($account = models('users')->findSignature($ssid)) instanceof Account
-            ) {
-                // set user session
-                unset($account[ 'password' ], $account[ 'pin' ]);
-                session()->offsetSet('account', $account);
-
-                if (method_exists(models('users'), 'deleteSignature')) {
-                    models('users')->deleteSignature($account);
-                }
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    // ------------------------------------------------------------------------
-
     public function getCurrentAttempts()
     {
         return (int)$this->currentAttempts;
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function getAccount()
-    {
-        if (session()->offsetExists('account')) {
-            return session()->offsetGet('account');
-        }
-
-        return false;
     }
 
     // ------------------------------------------------------------------------
@@ -210,25 +180,10 @@ class User
 
     // ------------------------------------------------------------------------
 
-    public function getRoles()
+    public function getAccount()
     {
-        if (false !== ($account = $this->getAccount())) {
-            if (method_exists(models('users'), 'getRoles')) {
-                return models('users')->getRoles($account->id);
-            }
-        }
-
-        return false;
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function getRolesAccess()
-    {
-        if (false !== ($account = $this->getAccount())) {
-            if (method_exists(models('users'), 'getRolesAccess')) {
-                return models('users')->getRolesAccess($account->id);
-            }
+        if (session()->offsetExists('account')) {
+            return session()->offsetGet('account');
         }
 
         return false;
@@ -265,6 +220,32 @@ class User
 
     // ------------------------------------------------------------------------
 
+    public function getRoles()
+    {
+        if (false !== ($account = $this->getAccount())) {
+            if (method_exists(models('users'), 'getRoles')) {
+                return models('users')->getRoles($account->id);
+            }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function getRolesAccess()
+    {
+        if (false !== ($account = $this->getAccount())) {
+            if (method_exists(models('users'), 'getRolesAccess')) {
+                return models('users')->getRolesAccess($account->id);
+            }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
     public function getIframeCode()
     {
         if ($this->sso[ 'enable' ] && $this->loggedIn() === false) {
@@ -273,13 +254,6 @@ class User
         }
 
         return '';
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function getIframeScript()
-    {
-        return '<script>window.parent.location.reload();</script>';
     }
 
     // ------------------------------------------------------------------------
@@ -293,6 +267,35 @@ class User
         }
 
         return (bool)session()->offsetExists('account');
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function validate($ssid)
+    {
+        if (method_exists(models('users'), 'findSignature')) {
+            if (($account = models('users')->findSignature($ssid)) instanceof Account
+            ) {
+                // set user session
+                unset($account[ 'password' ], $account[ 'pin' ]);
+                session()->offsetSet('account', $account);
+
+                if (method_exists(models('users'), 'deleteSignature')) {
+                    models('users')->deleteSignature($account);
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function getIframeScript()
+    {
+        return '<script>window.parent.location.reload();</script>';
     }
 
     // ------------------------------------------------------------------------

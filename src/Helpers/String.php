@@ -10,7 +10,7 @@
  */
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_echo' ) ) {
+if ( ! function_exists('str_echo')) {
     /**
      * str_echo
      *
@@ -23,14 +23,14 @@ if ( ! function_exists( 'str_echo' ) ) {
      *
      * @return string
      */
-    function str_echo( $string, $prefix = null, $suffix = null, $glue = '' )
+    function str_echo($string, $prefix = null, $suffix = null, $glue = '')
     {
-        if ( ! empty( $string ) OR $string !== '' ) {
-            return implode( $glue, array_filter([
+        if ( ! empty($string) OR $string !== '') {
+            return implode($glue, array_filter([
                 $prefix,
                 $string,
-                $suffix
-            ]) );
+                $suffix,
+            ]));
         }
 
         return '';
@@ -39,7 +39,7 @@ if ( ! function_exists( 'str_echo' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_email' ) ) {
+if ( ! function_exists('str_email')) {
     /**
      * str_email
      *
@@ -49,9 +49,9 @@ if ( ! function_exists( 'str_email' ) ) {
      *
      * @return string
      */
-    function str_email( $string )
+    function str_email($string)
     {
-        if ( ! empty( $string ) or $string != '' ) {
+        if ( ! empty($string) or $string != '') {
             return str_replace(
                 [
                     '.',
@@ -61,7 +61,7 @@ if ( ! function_exists( 'str_email' ) ) {
                     ' [dot] ',
                     ' [at] ',
                 ],
-                trim( $string )
+                trim($string)
             );
         }
 
@@ -71,7 +71,7 @@ if ( ! function_exists( 'str_email' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_alphanumeric' ) ) {
+if ( ! function_exists('str_alphanumeric')) {
     /**
      * str_alphanumeric
      *
@@ -82,19 +82,19 @@ if ( ! function_exists( 'str_alphanumeric' ) ) {
      *
      * @return    string
      */
-    function str_alphanumeric( $string )
+    function str_alphanumeric($string)
     {
-        if ( ! empty( $string ) or $string != '' ) {
-            $string = preg_replace( "/[^a-zA-Z0-9\s]/", "", $string );
+        if ( ! empty($string) or $string != '') {
+            $string = preg_replace("/[^a-zA-Z0-9\s]/", "", $string);
         }
 
-        return trim( $string );
+        return trim($string);
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_numeric' ) ) {
+if ( ! function_exists('str_numeric')) {
     /**
      * str_numeric
      *
@@ -107,19 +107,19 @@ if ( ! function_exists( 'str_numeric' ) ) {
      *
      * @return    string
      */
-    function str_numeric( $string )
+    function str_numeric($string)
     {
-        if ( ! empty( $string ) or $string != '' ) {
-            $string = preg_replace( "/[^0-9\s]/", "", $string );
+        if ( ! empty($string) or $string != '') {
+            $string = preg_replace("/[^0-9\s]/", "", $string);
         }
 
-        return trim( $string );
+        return trim($string);
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_truncate' ) ) {
+if ( ! function_exists('str_truncate')) {
     /**
      * str_truncate
      *
@@ -131,12 +131,12 @@ if ( ! function_exists( 'str_truncate' ) ) {
      *
      * @return string
      */
-    function str_truncate( $string, $limit = 25, $ending = '' )
+    function str_truncate($string, $limit = 25, $ending = '')
     {
-        if ( strlen( $string ) > $limit ) {
-            $string = strip_tags( $string );
-            $string = substr( $string, 0, $limit );
-            $string = substr( $string, 0, -( strlen( strrchr( $string, ' ' ) ) ) );
+        if (strlen($string) > $limit) {
+            $string = strip_tags($string);
+            $string = substr($string, 0, $limit);
+            $string = substr($string, 0, -(strlen(strrchr($string, ' '))));
             $string = $string . $ending;
         }
 
@@ -146,7 +146,7 @@ if ( ! function_exists( 'str_truncate' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_shorten' ) ) {
+if ( ! function_exists('str_shorten')) {
     /**
      * str_shorten
      *
@@ -158,11 +158,11 @@ if ( ! function_exists( 'str_shorten' ) ) {
      *
      * @return string
      */
-    function str_shorten( $string, $limit = 25 )
+    function str_shorten($string, $limit = 25)
     {
-        if ( strlen( $string ) > $limit ) {
-            $prefix = substr( $string, 0, ( $limit / 2 ) );
-            $suffix = substr( $string, -( $limit / 2 ) );
+        if (strlen($string) > $limit) {
+            $prefix = substr($string, 0, ($limit / 2));
+            $suffix = substr($string, -($limit / 2));
             $string = $prefix . ' ... ' . $suffix;
         }
 
@@ -172,7 +172,7 @@ if ( ! function_exists( 'str_shorten' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_obfuscate' ) ) {
+if ( ! function_exists('str_obfuscate')) {
     /**
      * str_obfuscate
      *
@@ -182,12 +182,12 @@ if ( ! function_exists( 'str_obfuscate' ) ) {
      *
      * @return string
      */
-    function str_obfuscate( $string )
+    function str_obfuscate($string)
     {
-        $length = strlen( $string );
+        $length = strlen($string);
         $scrambled = '';
-        for ( $i = 0; $i < $length; ++$i ) {
-            $scrambled .= '&#' . ord( substr( $string, $i, 1 ) ) . ';';
+        for ($i = 0; $i < $length; ++$i) {
+            $scrambled .= '&#' . ord(substr($string, $i, 1)) . ';';
         }
 
         return $scrambled;
@@ -196,7 +196,7 @@ if ( ! function_exists( 'str_obfuscate' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_symbol_to_entities' ) ) {
+if ( ! function_exists('str_symbol_to_entities')) {
 
     /**
      * str_symbol_to_entities
@@ -207,7 +207,7 @@ if ( ! function_exists( 'str_symbol_to_entities' ) ) {
      *
      * @param  string $string
      */
-    function str_symbol_to_entities( $string )
+    function str_symbol_to_entities($string)
     {
         static $symbols = [
             '‚',
@@ -458,13 +458,13 @@ if ( ! function_exists( 'str_symbol_to_entities' ) ) {
             '&micro;',
         ];
 
-        return str_replace( $symbols, $entities, $string );
+        return str_replace($symbols, $entities, $string);
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_strip_slashes' ) ) {
+if ( ! function_exists('str_strip_slashes')) {
     /**
      * str_strip_slashes
      *
@@ -474,14 +474,14 @@ if ( ! function_exists( 'str_strip_slashes' ) ) {
      *
      * @return    mixed    string or array
      */
-    function str_strip_slashes( $string )
+    function str_strip_slashes($string)
     {
-        if ( ! is_array( $string ) ) {
-            return stripslashes( $string );
+        if ( ! is_array($string)) {
+            return stripslashes($string);
         }
 
-        foreach ( $string as $key => $val ) {
-            $string[ $key ] = str_strip_slashes( $val );
+        foreach ($string as $key => $val) {
+            $string[ $key ] = str_strip_slashes($val);
         }
 
         return $string;
@@ -490,7 +490,7 @@ if ( ! function_exists( 'str_strip_slashes' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_quote_strip' ) ) {
+if ( ! function_exists('str_quote_strip')) {
     /**
      * str_quote_strip
      *
@@ -500,15 +500,15 @@ if ( ! function_exists( 'str_quote_strip' ) ) {
      *
      * @return    string
      */
-    function str_quote_strip( $str )
+    function str_quote_strip($str)
     {
-        return str_replace( [ '"', "'" ], '', $str );
+        return str_replace(['"', "'"], '', $str);
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_quote_to_entities' ) ) {
+if ( ! function_exists('str_quote_to_entities')) {
     /**
      * str_quote_to_entities
      *
@@ -518,16 +518,16 @@ if ( ! function_exists( 'str_quote_to_entities' ) ) {
      *
      * @return    string
      */
-    function str_quote_to_entities( $string )
+    function str_quote_to_entities($string)
     {
-        return str_replace( [ "\'", "\"", "'", '"' ], [ "&#39;", "&quot;", "&#39;", "&quot;" ], $string );
+        return str_replace(["\'", "\"", "'", '"'], ["&#39;", "&quot;", "&#39;", "&quot;"], $string);
     }
 }
 
 // ------------------------------------------------------------------------
 
 
-if ( ! function_exists( 'str_filter_char' ) ) {
+if ( ! function_exists('str_filter_char')) {
     /**
      * str_filter_char
      *
@@ -545,17 +545,17 @@ if ( ! function_exists( 'str_filter_char' ) ) {
      *
      * @return  string
      */
-    function str_filter_char( $str, $character = ',', $trim = false )
+    function str_filter_char($str, $character = ',', $trim = false)
     {
-        $str = preg_replace( '#' . preg_quote( $character, '#' ) . '{2,}#', $character, $str );
+        $str = preg_replace('#' . preg_quote($character, '#') . '{2,}#', $character, $str);
 
-        return ( $trim === true ) ? trim( $str, $character ) : $str;
+        return ($trim === true) ? trim($str, $character) : $str;
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_rand' ) ) {
+if ( ! function_exists('str_rand')) {
     /**
      * str_rand
      *
@@ -567,16 +567,16 @@ if ( ! function_exists( 'str_rand' ) ) {
      *
      * @return  string
      */
-    function str_rand( $type = 'alnum', $length = 8 )
+    function str_rand($type = 'alnum', $length = 8)
     {
-        switch ( $type ) {
+        switch ($type) {
             case 'basic':
                 return mt_rand();
             case 'alnum':
             case 'numeric':
             case 'nozero':
             case 'alpha':
-                switch ( $type ) {
+                switch ($type) {
                     case 'alpha':
                         $pool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
                         break;
@@ -591,42 +591,42 @@ if ( ! function_exists( 'str_rand' ) ) {
                         break;
                 }
 
-                return substr( str_shuffle( str_repeat( $pool, ceil( $length / strlen( $pool ) ) ) ), 0, $length );
+                return substr(str_shuffle(str_repeat($pool, ceil($length / strlen($pool)))), 0, $length);
             case 'unique': // todo: remove in 3.1+
             case 'md5':
-                return md5( uniqid( mt_rand() ) );
+                return md5(uniqid(mt_rand()));
             case 'encrypt': // todo: remove in 3.1+
             case 'sha1':
-                return sha1( uniqid( mt_rand(), true ) );
+                return sha1(uniqid(mt_rand(), true));
         }
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_inc' ) ) {
+if ( ! function_exists('str_inc')) {
     /**
      * str_inc
      *
      * Add's _1 to a string or increment the ending number to allow _2, _3, etc.
      *
-     * @param   string  $string      The string to be increased.
-     * @param   string  $separator   What should the duplicate number be appended with.
-     * @param   string  $first       Which number should be used for the first dupe increment
+     * @param   string $string    The string to be increased.
+     * @param   string $separator What should the duplicate number be appended with.
+     * @param   string $first     Which number should be used for the first dupe increment
      *
      * @return  string
      */
-    function str_inc( $string, $separator = '_', $first = 1 )
+    function str_inc($string, $separator = '_', $first = 1)
     {
-        preg_match( '/(.+)' . $separator . '([0-9]+)$/', $string, $match );
+        preg_match('/(.+)' . $separator . '([0-9]+)$/', $string, $match);
 
-        return isset( $match[ 2 ] ) ? $match[ 1 ] . $separator . ( $match[ 2 ] + 1 ) : $string . $separator . $first;
+        return isset($match[ 2 ]) ? $match[ 1 ] . $separator . ($match[ 2 ] + 1) : $string . $separator . $first;
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'str_alt' ) ) {
+if ( ! function_exists('str_alt')) {
     /**
      * str_alt
      *
@@ -640,7 +640,7 @@ if ( ! function_exists( 'str_alt' ) ) {
     {
         static $i;
 
-        if ( func_num_args() === 0 ) {
+        if (func_num_args() === 0) {
             $i = 0;
 
             return '';
@@ -648,25 +648,25 @@ if ( ! function_exists( 'str_alt' ) ) {
 
         $args = func_get_args();
 
-        return $args[ ( $i++ % count( $args ) ) ];
+        return $args[ ($i++ % count($args)) ];
     }
 }
 
-if ( ! function_exists( 'str_char_to_ascii' ) ) {
+if ( ! function_exists('str_char_to_ascii')) {
     /**
      * str_char_to_ascii
      *
      * Convert accented foreign characters to ASCII.
      *
-     * @param   string  $string The string to be converted.
+     * @param   string $string The string to be converted.
      *
      * @return  string
      */
-    function str_chars_to_ascii( $string )
+    function str_chars_to_ascii($string)
     {
         static $array_from, $array_to;
 
-        if ( ! is_array( $array_from ) ) {
+        if ( ! is_array($array_from)) {
             $foreign_characters = [
                 '/ä|æ|ǽ/'                                                     => 'ae',
                 '/ö|œ/'                                                       => 'oe',
@@ -759,18 +759,18 @@ if ( ! function_exists( 'str_char_to_ascii' ) ) {
                 '/я/'                                                         => 'ya',
             ];
 
-            $array_from = array_keys( $foreign_characters );
-            $array_to = array_values( $foreign_characters );
+            $array_from = array_keys($foreign_characters);
+            $array_to = array_values($foreign_characters);
         }
 
-        return preg_replace( $array_from, $array_to, $string );
+        return preg_replace($array_from, $array_to, $string);
     }
 }
 
 // ------------------------------------------------------------------------
 
 
-if ( ! function_exists( 'str_entities_to_ascii' ) ) {
+if ( ! function_exists('str_entities_to_ascii')) {
     /**
      * str_entities_to_ascii
      *
@@ -781,32 +781,32 @@ if ( ! function_exists( 'str_entities_to_ascii' ) ) {
      *
      * @return  string
      */
-    function str_entities_to_ascii( $string, $all = true )
+    function str_entities_to_ascii($string, $all = true)
     {
-        if ( preg_match_all( '/\&#(\d+)\;/', $string, $matches ) ) {
-            for ( $i = 0, $s = count( $matches[ 0 ] ); $i < $s; $i++ ) {
+        if (preg_match_all('/\&#(\d+)\;/', $string, $matches)) {
+            for ($i = 0, $s = count($matches[ 0 ]); $i < $s; $i++) {
                 $digits = $matches[ 1 ][ $i ];
                 $out = '';
 
-                if ( $digits < 128 ) {
-                    $out .= chr( $digits );
+                if ($digits < 128) {
+                    $out .= chr($digits);
 
-                } elseif ( $digits < 2048 ) {
-                    $out .= chr( 192 + ( ( $digits - ( $digits % 64 ) ) / 64 ) ) . chr( 128 + ( $digits % 64 ) );
+                } elseif ($digits < 2048) {
+                    $out .= chr(192 + (($digits - ($digits % 64)) / 64)) . chr(128 + ($digits % 64));
                 } else {
-                    $out .= chr( 224 + ( ( $digits - ( $digits % 4096 ) ) / 4096 ) )
-                        . chr( 128 + ( ( ( $digits % 4096 ) - ( $digits % 64 ) ) / 64 ) )
-                        . chr( 128 + ( $digits % 64 ) );
+                    $out .= chr(224 + (($digits - ($digits % 4096)) / 4096))
+                        . chr(128 + ((($digits % 4096) - ($digits % 64)) / 64))
+                        . chr(128 + ($digits % 64));
                 }
 
-                $string = str_replace( $matches[ 0 ][ $i ], $out, $string );
+                $string = str_replace($matches[ 0 ][ $i ], $out, $string);
             }
         }
 
-        if ( $all ) {
+        if ($all) {
             return str_replace(
-                [ '&amp;', '&lt;', '&gt;', '&quot;', '&apos;', '&#45;' ],
-                [ '&', '<', '>', '"', "'", '-' ],
+                ['&amp;', '&lt;', '&gt;', '&quot;', '&apos;', '&#45;'],
+                ['&', '<', '>', '"', "'", '-'],
                 $string
             );
         }
@@ -818,7 +818,7 @@ if ( ! function_exists( 'str_entities_to_ascii' ) ) {
 // ------------------------------------------------------------------------
 
 
-if ( ! function_exists( 'str_ascii_to_entities' ) ) {
+if ( ! function_exists('str_ascii_to_entities')) {
     /**
      * str_ascii_to_entities
      *
@@ -828,41 +828,41 @@ if ( ! function_exists( 'str_ascii_to_entities' ) ) {
      *
      * @return string
      */
-    function str_ascii_to_entities( $string )
+    function str_ascii_to_entities($string)
     {
         $out = '';
-        for ( $i = 0, $s = strlen( $string ) - 1, $count = 1, $temp = []; $i <= $s; $i++ ) {
-            $ordinal = ord( $string[ $i ] );
+        for ($i = 0, $s = strlen($string) - 1, $count = 1, $temp = []; $i <= $s; $i++) {
+            $ordinal = ord($string[ $i ]);
 
-            if ( $ordinal < 128 ) {
+            if ($ordinal < 128) {
                 /*
                     If the $temp array has a value but we have moved on, then it seems only
                     fair that we output that entity and restart $temp before continuing. -Paul
                 */
-                if ( count( $temp ) === 1 ) {
-                    $out .= '&#' . array_shift( $temp ) . ';';
+                if (count($temp) === 1) {
+                    $out .= '&#' . array_shift($temp) . ';';
                     $count = 1;
                 }
 
                 $out .= $string[ $i ];
             } else {
-                if ( count( $temp ) === 0 ) {
-                    $count = ( $ordinal < 224 ) ? 2 : 3;
+                if (count($temp) === 0) {
+                    $count = ($ordinal < 224) ? 2 : 3;
                 }
 
                 $temp[] = $ordinal;
 
-                if ( count( $temp ) === $count ) {
-                    $number = ( $count === 3 )
-                        ? ( ( $temp[ 0 ] % 16 ) * 4096 ) + ( ( $temp[ 1 ] % 64 ) * 64 ) + ( $temp[ 2 ] % 64 )
-                        : ( ( $temp[ 0 ] % 32 ) * 64 ) + ( $temp[ 1 ] % 64 );
+                if (count($temp) === $count) {
+                    $number = ($count === 3)
+                        ? (($temp[ 0 ] % 16) * 4096) + (($temp[ 1 ] % 64) * 64) + ($temp[ 2 ] % 64)
+                        : (($temp[ 0 ] % 32) * 64) + ($temp[ 1 ] % 64);
 
                     $out .= '&#' . $number . ';';
                     $count = 1;
                     $temp = [];
                 } // If this is the last iteration, just output whatever we have
-                elseif ( $i === $s ) {
-                    $out .= '&#' . implode( ';', $temp ) . ';';
+                elseif ($i === $s) {
+                    $out .= '&#' . implode(';', $temp) . ';';
                 }
             }
         }

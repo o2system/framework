@@ -12,7 +12,6 @@ namespace O2System\Framework\Libraries;
 use O2System\Email\Datastructures\Config;
 use O2System\Email\Message;
 use O2System\Email\Spool;
-use O2System\Kernel\Http\Message\Uri;
 use O2System\Spl\Traits\Collectors\ConfigCollectorTrait;
 
 class Email extends Message
@@ -21,7 +20,7 @@ class Email extends Message
 
     public function __construct()
     {
-        if($config = config()->loadFile( 'email', true )) {
+        if ($config = config()->loadFile('email', true)) {
             $this->setConfig($config->getArrayCopy());
         }
     }
@@ -33,7 +32,8 @@ class Email extends Message
         return parent::subject($subject);
     }
 
-    public function with($vars, $value = null) {
+    public function with($vars, $value = null)
+    {
         view()->with($vars, $value);
 
         return $this;
@@ -41,7 +41,7 @@ class Email extends Message
 
     public function template($filename, array $vars = [])
     {
-        if($view = view()->load($filename, $vars, true)) {
+        if ($view = view()->load($filename, $vars, true)) {
             $this->body($view);
         }
 
@@ -52,6 +52,6 @@ class Email extends Message
     {
         $spool = new Spool(new Config($this->config));
 
-        return (bool) $spool->send($this);
+        return (bool)$spool->send($this);
     }
 }

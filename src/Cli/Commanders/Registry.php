@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Cli\Commanders;
@@ -67,10 +68,10 @@ class Registry extends Commander
         ],
     ];
 
-    public function optionUpdate( $type = null )
+    public function optionUpdate($type = null)
     {
-        if ( in_array( $type, [ 'modules', 'languages' ] ) ) {
-            switch ( $type ) {
+        if (in_array($type, ['modules', 'languages'])) {
+            switch ($type) {
                 case 'modules':
                     modules()->updateRegistry();
                     break;
@@ -84,13 +85,13 @@ class Registry extends Commander
             language()->updateRegistry();
         }
 
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
     }
 
-    public function optionFlush( $type = null )
+    public function optionFlush($type = null)
     {
-        if ( in_array( $type, [ 'modules', 'languages' ] ) ) {
-            switch ( $type ) {
+        if (in_array($type, ['modules', 'languages'])) {
+            switch ($type) {
                 case 'modules':
                     modules()->flushRegistry();
                     break;
@@ -105,7 +106,7 @@ class Registry extends Commander
             language()->flushRegistry();
         }
 
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
     }
 
     public function optionInfo()
@@ -113,46 +114,46 @@ class Registry extends Commander
         $table = new Table();
 
         $table
-            ->addHeader( 'Metadata' )
-            ->addHeader( 'Total' );
+            ->addHeader('Metadata')
+            ->addHeader('Total');
 
         $table
             ->addRow()
-            ->addColumn( 'Modules' )
-            ->addColumn( modules()->getTotalRegistry() );
+            ->addColumn('Modules')
+            ->addColumn(modules()->getTotalRegistry());
 
         $table
             ->addRow()
-            ->addColumn( 'Language' )
-            ->addColumn( language()->getTotalRegistry() );
+            ->addColumn('Language')
+            ->addColumn(language()->getTotalRegistry());
 
         output()->write(
-            ( new Format() )
-                ->setString( $table->render() )
-                ->setNewLinesBefore( 1 )
-                ->setNewLinesAfter( 2 )
+            (new Format())
+                ->setString($table->render())
+                ->setNewLinesBefore(1)
+                ->setNewLinesAfter(2)
         );
 
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
     }
 
-    public function optionMetadata( $type )
+    public function optionMetadata($type)
     {
-        if ( in_array( $type, [ 'modules', 'languages' ] ) ) {
-            switch ( $type ) {
+        if (in_array($type, ['modules', 'languages'])) {
+            switch ($type) {
                 case 'modules':
-                    $line = PHP_EOL . print_r( modules()->getRegistry(), true );
+                    $line = PHP_EOL . print_r(modules()->getRegistry(), true);
                     break;
 
                 case 'languages':
-                    $line = PHP_EOL . print_r( language()->getRegistry(), true );
+                    $line = PHP_EOL . print_r(language()->getRegistry(), true);
                     break;
             }
 
-            if ( isset( $line ) ) {
-                output()->write( $line );
+            if (isset($line)) {
+                output()->write($line);
 
-                exit( EXIT_SUCCESS );
+                exit(EXIT_SUCCESS);
             }
         }
     }

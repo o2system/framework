@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Relations\Abstracts;
@@ -36,7 +37,7 @@ abstract class AbstractRelation
      *
      * @param Relations\Maps\Reference|Relations\Maps\Inverse|Relations\Maps\Intermediary|\O2System\Framework\Models\Sql\Relations\Maps\Through $map
      */
-    public function __construct( $map )
+    public function __construct($map)
     {
         $this->map = $map;
     }

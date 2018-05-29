@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Collectors;
@@ -26,24 +27,24 @@ trait LinksCollectorTrait
 {
     public $links;
 
-    public function createLink( $label, $href = null )
+    public function createLink($label, $href = null)
     {
-        $link = new Link( $label, $href );
+        $link = new Link($label, $href);
 
-        if( ! $this->links instanceof ArrayIterator ) {
+        if ( ! $this->links instanceof ArrayIterator) {
             $this->links = new ArrayIterator();
         }
 
-        $this->links->push( $link );
+        $this->links->push($link);
     }
 
-    public function addLink( Link $link )
+    public function addLink(Link $link)
     {
-        if( ! $this->links instanceof ArrayIterator ) {
+        if ( ! $this->links instanceof ArrayIterator) {
             $this->links = new ArrayIterator();
         }
 
-        $this->links->push( $link );
+        $this->links->push($link);
 
         return $this;
     }

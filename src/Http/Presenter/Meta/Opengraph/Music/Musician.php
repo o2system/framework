@@ -8,14 +8,13 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph\Music;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Presenter\Meta\Opengraph\Audio;
-use O2System\Framework\Http\Presenter\Meta\Opengraph\Image;
 use O2System\Framework\Http\Presenter\Meta\Opengraph\Profile;
 
 /**

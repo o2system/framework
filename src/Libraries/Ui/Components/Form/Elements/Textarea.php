@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Form\Elements;
@@ -15,8 +16,8 @@ namespace O2System\Framework\Libraries\Ui\Components\Form\Elements;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Libraries\Ui\Contents\Form;
-use O2System\Framework\Libraries\Ui\Traits\Setters\SizingSetterTrait;
 use O2System\Framework\Libraries\Ui\Element;
+use O2System\Framework\Libraries\Ui\Traits\Setters\SizingSetterTrait;
 
 /**
  * Class Textarea
@@ -27,37 +28,37 @@ class Textarea extends Element
 {
     use SizingSetterTrait;
 
-    public function __construct( array $attributes = [] )
+    public function __construct(array $attributes = [])
     {
-        parent::__construct( 'textarea' );
+        parent::__construct('textarea');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( 'textarea-' . $attributes[ 'id' ] );
-        } elseif ( isset( $attributes[ 'name' ] )  ) {
-            $this->entity->setEntityName( 'textarea-' . $attributes[ 'name' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName('textarea-' . $attributes[ 'id' ]);
+        } elseif (isset($attributes[ 'name' ])) {
+            $this->entity->setEntityName('textarea-' . $attributes[ 'name' ]);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
 
-        $this->attributes->addAttributeClass( 'form-control' );
+        $this->attributes->addAttributeClass('form-control');
 
-        $this->setSizingClassPrefix( 'form-control' );
+        $this->setSizingClassPrefix('form-control');
     }
 
     public function disabled()
     {
-        $this->attributes->addAttribute( 'disabled', 'disabled' );
+        $this->attributes->addAttribute('disabled', 'disabled');
 
         return $this;
     }
 
     public function readOnly()
     {
-        $this->attributes->addAttribute( 'readonly', 'readonly' );
+        $this->attributes->addAttribute('readonly', 'readonly');
 
         return $this;
     }

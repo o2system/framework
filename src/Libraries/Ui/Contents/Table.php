@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Contents;
@@ -17,8 +18,8 @@ namespace O2System\Framework\Libraries\Ui\Contents;
 use O2System\Framework\Libraries\Ui\Contents\Table\Body;
 use O2System\Framework\Libraries\Ui\Contents\Table\Footer;
 use O2System\Framework\Libraries\Ui\Contents\Table\Header;
-use O2System\Framework\Libraries\Ui\Traits\Setters\SizingSetterTrait;
 use O2System\Framework\Libraries\Ui\Element;
+use O2System\Framework\Libraries\Ui\Traits\Setters\SizingSetterTrait;
 
 /**
  * Class Table
@@ -37,8 +38,8 @@ class Table extends Element
 
     public function __construct()
     {
-        parent::__construct( 'table' );
-        $this->attributes->addAttributeClass( 'table' );
+        parent::__construct('table');
+        $this->attributes->addAttributeClass('table');
 
         $this->setSizingClassPrefix('table');
 
@@ -49,35 +50,35 @@ class Table extends Element
 
     public function responsive()
     {
-        $this->responsive  = true;
+        $this->responsive = true;
 
         return $this;
     }
 
     public function addHoverEffect()
     {
-        $this->attributes->addAttributeClass( 'table-hover' );
+        $this->attributes->addAttributeClass('table-hover');
 
         return $this;
     }
 
     public function striped()
     {
-        $this->attributes->addAttributeClass( 'table-striped' );
+        $this->attributes->addAttributeClass('table-striped');
 
         return $this;
     }
 
     public function bordered()
     {
-        $this->attributes->addAttributeClass( 'table-bordered' );
+        $this->attributes->addAttributeClass('table-bordered');
 
         return $this;
     }
 
     public function condensed()
     {
-        $this->attributes->addAttributeClass( 'table-condensed' );
+        $this->attributes->addAttributeClass('table-condensed');
 
         return $this;
     }
@@ -100,19 +101,19 @@ class Table extends Element
 
     public function render()
     {
-        if ( $this->header->hasChildNodes() ) {
-            $this->childNodes->push( $this->header );
+        if ($this->header->hasChildNodes()) {
+            $this->childNodes->push($this->header);
         }
 
-        if ( $this->body->hasChildNodes() ) {
-            $this->childNodes->push( $this->body );
+        if ($this->body->hasChildNodes()) {
+            $this->childNodes->push($this->body);
         }
 
-        if ( $this->footer->hasChildNodes() ) {
-            $this->childNodes->push( $this->footer );
+        if ($this->footer->hasChildNodes()) {
+            $this->childNodes->push($this->footer);
         }
 
-        if( $this->responsive ) {
+        if ($this->responsive) {
             $this->attributes->addAttributeClass('table-responsive');
         }
 

@@ -8,16 +8,17 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph\Music;
 
 // ------------------------------------------------------------------------
 
-use O2System\Html\Document;
 use O2System\Framework\Http\Presenter\Meta\Opengraph\Audio;
 use O2System\Framework\Http\Presenter\Meta\Opengraph\Basic;
 use O2System\Framework\Http\Presenter\Meta\Opengraph\Image;
+use O2System\Html\Document;
 
 /**
  * Class Radio
@@ -31,11 +32,11 @@ class Radio extends Basic
      *
      * @param \O2System\Html\Document $document
      */
-    public function __construct( Document $document )
+    public function __construct(Document $document)
     {
-        parent::__construct( $document );
+        parent::__construct($document);
 
-        $this->setType( 'music.radio_station' );
+        $this->setType('music.radio_station');
     }
 
     // ------------------------------------------------------------------------
@@ -47,9 +48,9 @@ class Radio extends Basic
      *
      * @return static
      */
-    public function setSiteName( $name )
+    public function setSiteName($name)
     {
-        $this->setMetadata( 'site_name', $name );
+        $this->setMetadata('site_name', $name);
 
         return $this;
     }
@@ -63,10 +64,10 @@ class Radio extends Basic
      *
      * @return static
      */
-    public function setUrl( $url )
+    public function setUrl($url)
     {
-        if ( strpos( $url, 'http' ) !== false ) {
-            parent::setMetadata( 'url', $url );
+        if (strpos($url, 'http') !== false) {
+            parent::setMetadata('url', $url);
         }
 
         return $this;
@@ -81,7 +82,7 @@ class Radio extends Basic
      */
     public function createImage()
     {
-        return new Image( $this->ownerDocument );
+        return new Image($this->ownerDocument);
     }
 
     // ------------------------------------------------------------------------
@@ -93,6 +94,6 @@ class Radio extends Basic
      */
     public function createAudio()
     {
-        return new Audio( $this->ownerDocument );
+        return new Audio($this->ownerDocument);
     }
 }

@@ -32,24 +32,24 @@ class Ribbon extends Element implements ContextualInterface
 
     public $position;
 
-    public function __construct( $textContent = null, $contextualClass = 'default', $position = self::LEFT_RIBBON )
+    public function __construct($textContent = null, $contextualClass = 'default', $position = self::LEFT_RIBBON)
     {
-        parent::__construct( 'span' );
-        $this->attributes->addAttributeClass( 'ribbon' );
-        $this->setContextualClassPrefix( 'ribbon' );
-        $this->setContextualClassSuffix( $contextualClass );
+        parent::__construct('span');
+        $this->attributes->addAttributeClass('ribbon');
+        $this->setContextualClassPrefix('ribbon');
+        $this->setContextualClassSuffix($contextualClass);
 
-        if ( isset( $textContent ) ) {
-            $this->setTextContent( $textContent );
+        if (isset($textContent)) {
+            $this->setTextContent($textContent);
         }
 
         $this->position = $position;
     }
 
-    public function setTextContent( $textContent )
+    public function setTextContent($textContent)
     {
-        $this->entity->setEntityName( 'ribbon-' . $textContent );
-        $this->textContent->push( $textContent );
+        $this->entity->setEntityName('ribbon-' . $textContent);
+        $this->textContent->push($textContent);
 
         return $this;
     }

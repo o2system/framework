@@ -15,8 +15,8 @@ namespace O2System\Framework\Libraries\Ui\Grid;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Traits\Setters\SizingSetterTrait;
 use O2System\Framework\Libraries\Ui\Element;
+use O2System\Framework\Libraries\Ui\Traits\Setters\SizingSetterTrait;
 
 /**
  * Class Column
@@ -26,27 +26,27 @@ class Column extends Element
 {
     use SizingSetterTrait;
 
-    public function __construct( array $attributes = [] )
+    public function __construct(array $attributes = [])
     {
-        parent::__construct( 'div' );
+        parent::__construct('div');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( $attributes[ 'id' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName($attributes[ 'id' ]);
         }
 
-        $this->setSizingClassPrefix( 'col' );
+        $this->setSizingClassPrefix('col');
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
     }
 
     public function render()
     {
-        if ( $this->attributes->hasAttribute( 'class' ) === false ) {
-            $this->attributes->addAttributeClass( 'col' );
+        if ($this->attributes->hasAttribute('class') === false) {
+            $this->attributes->addAttributeClass('col');
         }
 
         return parent::render();

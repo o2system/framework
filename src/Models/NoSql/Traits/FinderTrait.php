@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\NoSql\Traits;
@@ -34,16 +35,16 @@ trait FinderTrait
      * @access  protected
      * @return  DataObjects\Result|bool Returns FALSE if failed.
      */
-    public function all( $fields = null )
+    public function all($fields = null)
     {
-        if ( isset( $fields ) ) {
-            $this->db->select( $fields );
+        if (isset($fields)) {
+            $this->db->select($fields);
         }
 
-        $result = $this->db->from( $this->collection )->get();
+        $result = $this->db->from($this->collection)->get();
 
-        if ( $result->count() > 0 ) {
-            $this->result = new DataObjects\Result( $result, $this );
+        if ($result->count() > 0) {
+            $this->result = new DataObjects\Result($result, $this);
 
             return $this->result;
         }
@@ -62,22 +63,22 @@ trait FinderTrait
      *
      * @return  DataObjects\Result|bool Returns FALSE if failed.
      */
-    public function find( $criteria, $field = null, $limit = null )
+    public function find($criteria, $field = null, $limit = null)
     {
-        if ( is_array( $criteria ) ) {
-            return $this->findIn( $criteria, $field );
+        if (is_array($criteria)) {
+            return $this->findIn($criteria, $field);
         }
 
-        $field = isset( $field ) ? $field : $this->primaryKey;
+        $field = isset($field) ? $field : $this->primaryKey;
 
         $result = $this->db
-            ->from( $this->collection )
-            ->getWhere( [ $field => $criteria ], $limit );
+            ->from($this->collection)
+            ->getWhere([$field => $criteria], $limit);
 
-        if ( $result->count() > 0 ) {
-            $this->result = new DataObjects\Result( $result, $this );
+        if ($result->count() > 0) {
+            $this->result = new DataObjects\Result($result, $this);
 
-            if( $result->count() == 1 ) {
+            if ($result->count() == 1) {
                 return $this->result->first();
             }
 
@@ -98,17 +99,17 @@ trait FinderTrait
      *
      * @return  DataObjects\Result|bool Returns FALSE if failed.
      */
-    public function findIn( array $inCriteria, $field = null )
+    public function findIn(array $inCriteria, $field = null)
     {
-        $field = isset( $field ) ? $field : $this->primaryKey;
+        $field = isset($field) ? $field : $this->primaryKey;
 
         $result = $this->db
-            ->from( $this->collection )
-            ->whereIn( $field, $inCriteria )
+            ->from($this->collection)
+            ->whereIn($field, $inCriteria)
             ->get();
 
-        if ( $result->count() > 0 ) {
-            $this->result = new DataObjects\Result( $result, $this );
+        if ($result->count() > 0) {
+            $this->result = new DataObjects\Result($result, $this);
 
             return $this->result;
         }
@@ -127,16 +128,16 @@ trait FinderTrait
      * @access  protected
      * @return  DataObjects\Result|bool Returns FALSE if failed.
      */
-    public function findWhere( array $conditions, $limit = null )
+    public function findWhere(array $conditions, $limit = null)
     {
         $result = $this->db
-            ->from( $this->collection )
-            ->getWhere( $conditions, $limit );
+            ->from($this->collection)
+            ->getWhere($conditions, $limit);
 
-        if ( $result->count() > 0 ) {
-            $this->result = new DataObjects\Result( $result, $this );
+        if ($result->count() > 0) {
+            $this->result = new DataObjects\Result($result, $this);
 
-            if( $limit == 1 ) {
+            if ($limit == 1) {
                 return $this->result->first();
             }
 
@@ -157,17 +158,17 @@ trait FinderTrait
      *
      * @return  DataObjects\Result|bool Returns FALSE if failed.
      */
-    public function findNotIn( array $notInCriteria, $field = null )
+    public function findNotIn(array $notInCriteria, $field = null)
     {
-        $field = isset( $field ) ? $field : $this->primaryKey;
+        $field = isset($field) ? $field : $this->primaryKey;
 
         $result = $this->db
-            ->from( $this->collection )
-            ->whereNotIn( $field, $notInCriteria )
+            ->from($this->collection)
+            ->whereNotIn($field, $notInCriteria)
             ->get();
 
-        if ( $result->count() > 0 ) {
-            $this->result = new DataObjects\Result( $result, $this );
+        if ($result->count() > 0) {
+            $this->result = new DataObjects\Result($result, $this);
 
             return $this->result;
         }

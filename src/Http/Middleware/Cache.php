@@ -15,86 +15,40 @@ namespace O2System\Framework\Http\Middleware;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Http\Message\RequestInterface;
-use O2System\Psr\Http\Middleware\MiddlewareServiceInterface;
+use O2System\Psr\Http\Message\ServerRequestInterface;
+use O2System\Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Class Cache
  *
  * @package O2System\Framework\Http\Middleware
  */
-class Cache implements MiddlewareServiceInterface
+class Cache implements RequestHandlerInterface
 {
     /**
-     * Cache::$cacheKey
+     * Environment::handle
      *
-     * @var string
+     * Handles a request and produces a response
+     *
+     * May call other collaborating code to generate the response.
      */
-    protected $cacheKey;
-
-    /**
-     * Cache::$cacheHandle
-     *
-     * @var \O2System\Psr\Cache\CacheItemPoolInterface
-     */
-    protected $cacheHandle;
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Cache::validate
-     *
-     * @param \O2System\Psr\Http\Message\RequestInterface $request
-     *
-     * @return bool
-     */
-    public function validate( RequestInterface $request )
+    public function handle(ServerRequestInterface $request)
     {
         // Try to get from cache
-        $this->cacheKey = 'o2output_' . underscore( request()->getUri()->getSegments()->getString() );
+        $cacheKey = 'o2output_' . underscore(server_request()->getUri()->getSegments()->getString());
 
-        $this->cacheHandle = cache()->getItemPool( 'default' );
+        $cacheHandle = cache()->getItemPool('default');
 
-        if ( cache()->hasItemPool( 'output' ) ) {
-            $this->cacheHandle = cache()->getItemPool( 'output' );
+        if (cache()->hasItemPool('output')) {
+            $cacheHandle = cache()->getItemPool('output');
         }
 
-        if ( $this->cacheHandle instanceof \O2System\Psr\Cache\CacheItemPoolInterface ) {
-            if ( $this->cacheHandle->hasItem( $this->cacheKey ) ) {
-                return true;
+        if ($cacheHandle instanceof \O2System\Psr\Cache\CacheItemPoolInterface) {
+            if($cacheHandle->hasItem($cacheKey)) {
+                output()
+                    ->setContentType('text/html')
+                    ->send($cacheHandle->getItem($cacheKey)->get());
             }
         }
-
-        return false;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Cache::handle
-     *
-     * @param \O2System\Psr\Http\Message\RequestInterface $request
-     *
-     * @return void
-     */
-    public function handle( RequestInterface $request )
-    {
-        output()
-            ->setContentType('text/html')
-            ->send( $this->cacheHandle->getItem( $this->cacheKey )->get() );
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Cache::terminate
-     *
-     * @param \O2System\Psr\Http\Message\RequestInterface $request
-     *
-     * @return void
-     */
-    public function terminate( RequestInterface $request )
-    {
-        // Nothing to be terminated
     }
 }

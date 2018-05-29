@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Media;
@@ -15,10 +16,10 @@ namespace O2System\Framework\Libraries\Ui\Components\Media;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Libraries\Ui\Components\Lists\Item;
+use O2System\Framework\Libraries\Ui\Element;
 use O2System\Framework\Libraries\Ui\Traits\Setters\HeadingSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ImageSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
-use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Objects
@@ -36,11 +37,11 @@ class Objects extends Element
 
     public function __construct()
     {
-        parent::__construct( 'div' );
-        $this->attributes->addAttributeClass( 'media' );
+        parent::__construct('div');
+        $this->attributes->addAttributeClass('media');
 
-        $this->body = new Element( 'div' );
-        $this->body->attributes->addAttributeClass( 'media-body' );
+        $this->body = new Element('div');
+        $this->body->attributes->addAttributeClass('media-body');
     }
 
     public function alignTop()
@@ -64,26 +65,26 @@ class Objects extends Element
         return $this;
     }
 
-    public function createNestedObject( $list = null )
+    public function createNestedObject($list = null)
     {
         $node = new Objects();
         $node->tagName = 'div';
 
-        if ( $list instanceof Objects ) {
+        if ($list instanceof Objects) {
             $node = $list;
-        } elseif ( $list instanceof Element ) {
-            $node->entity->setEntityName( $list->entity->getEntityName() );
-            $node->childNodes->push( $list );
+        } elseif ($list instanceof Element) {
+            $node->entity->setEntityName($list->entity->getEntityName());
+            $node->childNodes->push($list);
         } else {
-            $node->entity->setEntityName( 'media-nested-' . ( $this->childNodes->count() + 1 ) );
+            $node->entity->setEntityName('media-nested-' . ($this->childNodes->count() + 1));
 
-            if ( isset( $list ) ) {
-                $node->entity->setEntityName( $list );
-                $node->textContent->push( $list );
+            if (isset($list)) {
+                $node->entity->setEntityName($list);
+                $node->textContent->push($list);
             }
         }
 
-        $this->childNodes->push( $node );
+        $this->childNodes->push($node);
 
         return $this->childNodes->last();
     }
@@ -92,40 +93,40 @@ class Objects extends Element
     {
         $output[] = $this->open();
 
-        if ( $this->image instanceof Element ) {
-            $this->image->attributes->addAttributeClass( [ 'mr-3' ] );
+        if ($this->image instanceof Element) {
+            $this->image->attributes->addAttributeClass(['mr-3']);
 
-            if ( $this->alignment === 'TOP' ) {
-                $this->image->attributes->addAttributeClass( [ 'align-self-start' ] );
-            } elseif ( $this->alignment === 'MIDDLE' ) {
-                $this->image->attributes->addAttributeClass( [ 'align-self-center' ] );
-            } elseif ( $this->alignment === 'BOTTOM' ) {
-                $this->image->attributes->addAttributeClass( [ 'align-self-end' ] );
+            if ($this->alignment === 'TOP') {
+                $this->image->attributes->addAttributeClass(['align-self-start']);
+            } elseif ($this->alignment === 'MIDDLE') {
+                $this->image->attributes->addAttributeClass(['align-self-center']);
+            } elseif ($this->alignment === 'BOTTOM') {
+                $this->image->attributes->addAttributeClass(['align-self-end']);
             }
 
             $output[] = $this->image;
         }
 
-        if ( $this->paragraph instanceof Element ) {
-            $this->body->childNodes->prepend( $this->paragraph );
+        if ($this->paragraph instanceof Element) {
+            $this->body->childNodes->prepend($this->paragraph);
         }
 
-        if ( $this->hasChildNodes() ) {
-            foreach ( $this->childNodes as $childNode ) {
-                $this->body->childNodes->push( $childNode );
+        if ($this->hasChildNodes()) {
+            foreach ($this->childNodes as $childNode) {
+                $this->body->childNodes->push($childNode);
             }
         }
 
-        if ( $this->heading instanceof Element ) {
+        if ($this->heading instanceof Element) {
             $this->heading->tagName = 'h4';
-            $this->heading->attributes->addAttributeClass( [ 'mt-0' ] );
-            $this->body->childNodes->prepend( $this->heading );
+            $this->heading->attributes->addAttributeClass(['mt-0']);
+            $this->body->childNodes->prepend($this->heading);
         }
 
         $output[] = $this->body;
 
         $output[] = $this->close();
 
-        return implode( PHP_EOL, $output );
+        return implode(PHP_EOL, $output);
     }
 }

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Traits;
@@ -26,27 +27,28 @@ trait FinderTrait
 {
     /**
      * FinderTrait::all
-     * 
+     *
      * @param null $fields
      * @param null $limit
+     *
      * @return bool|DataObjects\Result
      */
-    public function all( $fields = null, $limit = null )
+    public function all($fields = null, $limit = null)
     {
-        if ( isset( $fields ) ) {
-            $this->qb->select( $fields );
+        if (isset($fields)) {
+            $this->qb->select($fields);
         }
 
-        if( isset( $limit ) ) {
-            $this->qb->limit( $limit );
+        if (isset($limit)) {
+            $this->qb->limit($limit);
         }
-        
-        $result = $this->qb->from( $this->table )->get();
 
-        if( $result instanceof Result ) {
-            if ( $result->count() > 0 ) {
-                $this->result = new DataObjects\Result( $result, $this );
-                $this->result->setInfo( $result->getInfo() );
+        $result = $this->qb->from($this->table)->get();
+
+        if ($result instanceof Result) {
+            if ($result->count() > 0) {
+                $this->result = new DataObjects\Result($result, $this);
+                $this->result->setInfo($result->getInfo());
 
                 return $this->result;
             }
@@ -63,26 +65,26 @@ trait FinderTrait
      *
      * @param int $page
      */
-    public function page( $fields = null, $page = 1, $entries = 5 )
+    public function page($fields = null, $page = 1, $entries = 5)
     {
         $page = empty($page) ? 1 : $page;
         $entries = empty($entries) ? 5 : $entries;
 
-        if ( isset( $fields ) ) {
-            if(is_numeric($fields)) {
+        if (isset($fields)) {
+            if (is_numeric($fields)) {
                 $page = $fields;
             } else {
-                $this->qb->select( $fields );
+                $this->qb->select($fields);
             }
         }
 
-        $this->qb->page( $page, $entries );
+        $this->qb->page($page, $entries);
 
-        $result = $this->qb->from( $this->table )->get();
+        $result = $this->qb->from($this->table)->get();
 
-        if ( $result->count() > 0 ) {
-            $this->result = new DataObjects\Result( $result, $this );
-            $this->result->setInfo( $result->getInfo() );
+        if ($result->count() > 0) {
+            $this->result = new DataObjects\Result($result, $this);
+            $this->result->setInfo($result->getInfo());
 
             return $this->result;
         }
@@ -101,24 +103,24 @@ trait FinderTrait
      *
      * @return  DataObjects\Result|DataObjects\Result\Row|bool Returns FALSE if failed.
      */
-    public function find( $criteria, $field = null, $limit = null )
+    public function find($criteria, $field = null, $limit = null)
     {
-        if ( is_array( $criteria ) ) {
-            return $this->findIn( $criteria, $field );
+        if (is_array($criteria)) {
+            return $this->findIn($criteria, $field);
         }
 
-        $field = isset( $field ) ? $field : $this->primaryKey;
+        $field = isset($field) ? $field : $this->primaryKey;
 
         $result = $this->qb
-            ->from( $this->table )
-            ->getWhere( [ $field => $criteria ], $limit );
+            ->from($this->table)
+            ->getWhere([$field => $criteria], $limit);
 
-        if( $result instanceof Result ) {
-            if ( $result->count() > 0 ) {
-                $this->result = new DataObjects\Result( $result, $this );
-                $this->result->setInfo( $result->getInfo() );
+        if ($result instanceof Result) {
+            if ($result->count() > 0) {
+                $this->result = new DataObjects\Result($result, $this);
+                $this->result->setInfo($result->getInfo());
 
-                if( $this->result->count() == 1 ) {
+                if ($this->result->count() == 1) {
                     return $this->result->first();
                 }
 
@@ -140,18 +142,18 @@ trait FinderTrait
      *
      * @return  DataObjects\Result|bool Returns FALSE if failed.
      */
-    public function findIn( array $inCriteria, $field = null )
+    public function findIn(array $inCriteria, $field = null)
     {
-        $field = isset( $field ) ? $field : $this->primaryKey;
+        $field = isset($field) ? $field : $this->primaryKey;
 
         $result = $this->qb
-            ->from( $this->table )
-            ->whereIn( $field, $inCriteria )
+            ->from($this->table)
+            ->whereIn($field, $inCriteria)
             ->get();
 
-        if ( $result->count() > 0 ) {
-            $this->result = new DataObjects\Result( $result, $this );
-            $this->result->setInfo( $result->getInfo() );
+        if ($result->count() > 0) {
+            $this->result = new DataObjects\Result($result, $this);
+            $this->result->setInfo($result->getInfo());
 
             return $this->result;
         }
@@ -170,17 +172,17 @@ trait FinderTrait
      * @access  protected
      * @return  DataObjects\Result|bool Returns FALSE if failed.
      */
-    public function findWhere( array $conditions, $limit = null )
+    public function findWhere(array $conditions, $limit = null)
     {
         $result = $this->qb
-            ->from( $this->table )
-            ->getWhere( $conditions, $limit );
+            ->from($this->table)
+            ->getWhere($conditions, $limit);
 
-        if ( $result->count() > 0 ) {
-            $this->result = new DataObjects\Result( $result, $this );
-            $this->result->setInfo( $result->getInfo() );
+        if ($result->count() > 0) {
+            $this->result = new DataObjects\Result($result, $this);
+            $this->result->setInfo($result->getInfo());
 
-            if( $limit == 1 ) {
+            if ($limit == 1) {
                 return $this->result->first();
             }
 
@@ -201,18 +203,18 @@ trait FinderTrait
      *
      * @return  DataObjects\Result|bool Returns FALSE if failed.
      */
-    public function findNotIn( array $notInCriteria, $field = null )
+    public function findNotIn(array $notInCriteria, $field = null)
     {
-        $field = isset( $field ) ? $field : $this->primaryKey;
+        $field = isset($field) ? $field : $this->primaryKey;
 
         $result = $this->qb
-            ->from( $this->table )
-            ->whereNotIn( $field, $notInCriteria )
+            ->from($this->table)
+            ->whereNotIn($field, $notInCriteria)
             ->get();
 
-        if ( $result->count() > 0 ) {
-            $this->result = new DataObjects\Result( $result, $this );
-            $this->result->setInfo( $result->getInfo() );
+        if ($result->count() > 0) {
+            $this->result = new DataObjects\Result($result, $this);
+            $this->result->setInfo($result->getInfo());
 
             return $this->result;
         }

@@ -24,10 +24,10 @@ use O2System\Framework\Libraries\Ui\Components\Card\Image\Overlay;
  */
 class Image extends \O2System\Framework\Libraries\Ui\Contents\Image
 {
-    public function __construct( $src = null, $alt = null )
+    public function __construct($src = null, $alt = null)
     {
-        parent::__construct( $src, $alt );
-        $this->attributes->addAttributeClass( 'img-fluid' );
+        parent::__construct($src, $alt);
+        $this->attributes->addAttributeClass('img-fluid');
     }
 
     /**
@@ -35,7 +35,7 @@ class Image extends \O2System\Framework\Libraries\Ui\Contents\Image
      */
     public function createOverlay()
     {
-        $this->childNodes->push( new Overlay() );
+        $this->childNodes->push(new Overlay());
 
         return $this->childNodes->last();
     }
@@ -44,10 +44,10 @@ class Image extends \O2System\Framework\Libraries\Ui\Contents\Image
     {
         $output[] = $this->open();
 
-        if ( $this->hasChildNodes() ) {
-            $output[] = implode( PHP_EOL, $this->childNodes->getArrayCopy() );
+        if ($this->hasChildNodes()) {
+            $output[] = implode(PHP_EOL, $this->childNodes->getArrayCopy());
         }
 
-        return implode( PHP_EOL, $output );
+        return implode(PHP_EOL, $output);
     }
 }

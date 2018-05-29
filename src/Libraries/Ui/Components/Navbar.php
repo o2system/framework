@@ -40,39 +40,39 @@ class Navbar extends Element
      */
     public $form;
 
-    public function __construct( $id = null )
+    public function __construct($id = null)
     {
-        $id = empty( $id ) ? 'navbar-' . mt_rand( 0, 100 ) : $id;
+        $id = empty($id) ? 'navbar-' . mt_rand(0, 100) : $id;
 
-        parent::__construct( 'nav', 'navbar' );
-        $this->attributes->addAttributeClass( [ 'navbar', 'navbar-expand-lg', 'navbar-light' ] );
+        parent::__construct('nav', 'navbar');
+        $this->attributes->addAttributeClass(['navbar', 'navbar-expand-lg', 'navbar-light']);
 
         // Toogle Button
         $button = new Button();
-        $button->attributes->addAttributeClass( [ 'navbar-toggler', 'navbar-toggler-right' ] );
-        $button->attributes->addAttribute( 'type', 'button' );
-        $button->attributes->addAttribute( 'data-toggle', 'collapse' );
-        $button->attributes->addAttribute( 'data-target', '#' . $id );
-        $button->attributes->addAttribute( 'aria-controls', $id );
-        $button->attributes->addAttribute( 'aria-expanded', false );
-        $button->attributes->addAttribute( 'aria-label', 'Toggle navigation' );
+        $button->attributes->addAttributeClass(['navbar-toggler', 'navbar-toggler-right']);
+        $button->attributes->addAttribute('type', 'button');
+        $button->attributes->addAttribute('data-toggle', 'collapse');
+        $button->attributes->addAttribute('data-target', '#' . $id);
+        $button->attributes->addAttribute('aria-controls', $id);
+        $button->attributes->addAttribute('aria-expanded', false);
+        $button->attributes->addAttribute('aria-label', 'Toggle navigation');
 
-        $span = new Element( 'span' );
-        $span->attributes->addAttributeClass( 'navbar-toggler-icon' );
+        $span = new Element('span');
+        $span->attributes->addAttributeClass('navbar-toggler-icon');
 
-        $button->childNodes->push( $span );
+        $button->childNodes->push($span);
 
-        $this->childNodes->push( $button );
+        $this->childNodes->push($button);
 
         // Collapse
-        $collapse = new Element( 'div', 'collapse' );
-        $collapse->attributes->addAttributeClass( [ 'collapse', 'navbar-collapse' ] );
-        $collapse->attributes->setAttributeId( $id );
-        $collapse->childNodes->push( new Navbar\Nav() );
+        $collapse = new Element('div', 'collapse');
+        $collapse->attributes->addAttributeClass(['collapse', 'navbar-collapse']);
+        $collapse->attributes->setAttributeId($id);
+        $collapse->childNodes->push(new Navbar\Nav());
 
         $this->nav = $collapse->childNodes->last();
 
-        $this->childNodes->push( $collapse );
+        $this->childNodes->push($collapse);
         $this->collapse = $this->childNodes->last();
     }
 
@@ -81,19 +81,19 @@ class Navbar extends Element
      *
      * @return \O2System\Framework\Libraries\Ui\Contents\Link
      */
-    public function createBrand( $label )
+    public function createBrand($label)
     {
         $brand = new Link();
-        $brand->attributes->addAttributeClass( 'navbar-brand' );
-        $brand->setAttributeHref( base_url() );
+        $brand->attributes->addAttributeClass('navbar-brand');
+        $brand->setAttributeHref(base_url());
 
-        if ( is_object( $label ) ) {
-            $brand->childNodes->push( $label );
+        if (is_object($label)) {
+            $brand->childNodes->push($label);
         } else {
-            $brand->textContent->push( $label );
+            $brand->textContent->push($label);
         }
 
-        $this->childNodes->unshift( $brand );
+        $this->childNodes->unshift($brand);
 
         return $this->brand = $this->childNodes->last();
     }
@@ -103,30 +103,30 @@ class Navbar extends Element
      */
     public function createForm()
     {
-        $this->collapse->childNodes->push( new Navbar\Form() );
+        $this->collapse->childNodes->push(new Navbar\Form());
 
         return $this->form = $this->collapse->childNodes->last();
     }
 
     public function dark()
     {
-        $this->attributes->removeAttributeClass( 'navbar-light' );
-        $this->attributes->addAttributeClass( 'navbar-dark' );
+        $this->attributes->removeAttributeClass('navbar-light');
+        $this->attributes->addAttributeClass('navbar-dark');
 
         return $this->backgroundDark();
     }
 
     public function light()
     {
-        $this->attributes->removeAttributeClass( 'navbar-dark' );
-        $this->attributes->addAttributeClass( 'navbar-light' );
+        $this->attributes->removeAttributeClass('navbar-dark');
+        $this->attributes->addAttributeClass('navbar-light');
 
         return $this->backgroundLight();
     }
 
     public function render()
     {
-        if($this->nav->childNodes->count() || $this->textContent->count()) {
+        if ($this->nav->childNodes->count() || $this->textContent->count()) {
             return parent::render();
         }
 

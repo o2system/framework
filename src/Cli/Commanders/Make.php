@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Cli\Commanders;
@@ -86,33 +87,33 @@ class Make extends Commander
      */
     protected $optionFilename;
 
-    public function optionPath( $path )
+    public function optionPath($path)
     {
-        $path = str_replace( [ '\\', '/' ], DIRECTORY_SEPARATOR, $path );
-        $path = PATH_ROOT . str_replace( PATH_ROOT, '', $path );
+        $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
+        $path = PATH_ROOT . str_replace(PATH_ROOT, '', $path);
 
-        if ( pathinfo( $path, PATHINFO_EXTENSION ) ) {
-            $this->optionFilename( pathinfo( $path, PATHINFO_FILENAME ) );
-            $path = dirname( $path );
+        if (pathinfo($path, PATHINFO_EXTENSION)) {
+            $this->optionFilename(pathinfo($path, PATHINFO_FILENAME));
+            $path = dirname($path);
         }
 
-        $this->optionPath = rtrim( $path, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR;
+        $this->optionPath = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     }
 
-    public function optionFilename( $name )
+    public function optionFilename($name)
     {
-        $name = str_replace( '.php', '', $name );
-        $this->optionFilename = prepare_filename( $name ) . '.php';
+        $name = str_replace('.php', '', $name);
+        $this->optionFilename = prepare_filename($name) . '.php';
 
-        $this->optionPath = empty( $this->optionPath ) ? modules()->current()->getRealPath() : $this->optionPath;
+        $this->optionPath = empty($this->optionPath) ? modules()->current()->getRealPath() : $this->optionPath;
     }
 
-    public function optionName( $name )
+    public function optionName($name)
     {
-        $this->optionFilename( $name );
+        $this->optionFilename($name);
     }
 
-    public function optionNamespace( $namespace )
+    public function optionNamespace($namespace)
     {
         $this->namespace = $namespace;
     }
@@ -120,7 +121,7 @@ class Make extends Commander
     public function getPhpTemplateFile($filename)
     {
         $directories = [
-            PATH_FRAMEWORK . 'Config' . DIRECTORY_SEPARATOR . 'PhpTemplateFiles'
+            PATH_FRAMEWORK . 'Config' . DIRECTORY_SEPARATOR . 'PhpTemplateFiles',
         ];
 
     }

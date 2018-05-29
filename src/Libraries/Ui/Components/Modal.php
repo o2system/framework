@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components;
@@ -31,23 +32,23 @@ class Modal extends Element
 
     public function __construct()
     {
-        parent::__construct( 'div', 'modal' );
-        $this->attributes->addAttributeClass( 'modal' );
-        $this->attributes->addAttribute( 'role', 'dialog' );
-        $this->attributes->addAttribute( 'tab-index', '-1' );
+        parent::__construct('div', 'modal');
+        $this->attributes->addAttributeClass('modal');
+        $this->attributes->addAttribute('role', 'dialog');
+        $this->attributes->addAttribute('tab-index', '-1');
 
-        $this->childNodes->push( new Dialog() );
+        $this->childNodes->push(new Dialog());
         $this->dialog = $this->childNodes->last();
     }
 
-    public function setTitle( $text, $tagName = 'h5', array $attributes = [] )
+    public function setTitle($text, $tagName = 'h5', array $attributes = [])
     {
         $this->dialog->content->header->tagName = $tagName;
-        $this->dialog->content->header->textContent->push( $text );
+        $this->dialog->content->header->textContent->push($text);
 
-        if( count( $this->attributes ) ) {
-            foreach( $attributes as $name => $value ) {
-                $this->dialog->content->header->attributes->addAttribute( $name, $value );
+        if (count($this->attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->dialog->content->header->attributes->addAttribute($name, $value);
             }
         }
 

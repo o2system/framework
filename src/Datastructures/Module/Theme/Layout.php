@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Datastructures\Module\Theme;
@@ -26,18 +27,18 @@ class Layout extends SplFileInfo
 {
     protected $partials;
 
-    public function __construct( $filePath )
+    public function __construct($filePath)
     {
-        parent::__construct( $filePath );
+        parent::__construct($filePath);
 
         $this->partials = new Partials();
 
-        $filenameParts = explode( '.', pathinfo( $filePath, PATHINFO_BASENAME ) );
-        array_shift( $filenameParts );
+        $filenameParts = explode('.', pathinfo($filePath, PATHINFO_BASENAME));
+        array_shift($filenameParts);
 
         $this->partials
-            ->setPath( $this->getPath() . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR )
-            ->setExtension( implode( '.', $filenameParts ) )
+            ->setPath($this->getPath() . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR)
+            ->setExtension(implode('.', $filenameParts))
             ->autoload();
     }
 
@@ -48,6 +49,6 @@ class Layout extends SplFileInfo
 
     public function getContents()
     {
-        return file_get_contents( $this->getRealPath() );
+        return file_get_contents($this->getRealPath());
     }
 }

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http;
@@ -151,11 +152,11 @@ class UserAgent
      */
     public function __construct()
     {
-        if ( isset( $_SERVER[ 'HTTP_USER_AGENT' ] ) ) {
-            $this->string = trim( $_SERVER[ 'HTTP_USER_AGENT' ] );
+        if (isset($_SERVER[ 'HTTP_USER_AGENT' ])) {
+            $this->string = trim($_SERVER[ 'HTTP_USER_AGENT' ]);
         }
 
-        if ( $this->string !== null && $this->loadAgentFile() ) {
+        if ($this->string !== null && $this->loadAgentFile()) {
             $this->compileData();
         }
     }
@@ -169,37 +170,37 @@ class UserAgent
      */
     protected function loadAgentFile()
     {
-        if ( ( $found = is_file( PATH_FRAMEWORK . 'Config/UserAgents.php' ) ) ) {
-            include( PATH_FRAMEWORK . 'Config/UserAgents.php' );
+        if (($found = is_file(PATH_FRAMEWORK . 'Config/UserAgents.php'))) {
+            include(PATH_FRAMEWORK . 'Config/UserAgents.php');
         }
 
-        if ( $found !== true ) {
+        if ($found !== true) {
             return false;
         }
 
         $return = false;
 
-        if ( isset( $platforms ) ) {
+        if (isset($platforms)) {
             static::$platforms = $platforms;
-            unset( $platforms );
+            unset($platforms);
             $return = true;
         }
 
-        if ( isset( $browsers ) ) {
+        if (isset($browsers)) {
             static::$browsers = $browsers;
-            unset( $browsers );
+            unset($browsers);
             $return = true;
         }
 
-        if ( isset( $mobiles ) ) {
+        if (isset($mobiles)) {
             static::$mobiles = $mobiles;
-            unset( $mobiles );
+            unset($mobiles);
             $return = true;
         }
 
-        if ( isset( $robots ) ) {
+        if (isset($robots)) {
             static::$robots = $robots;
-            unset( $robots );
+            unset($robots);
             $return = true;
         }
 
@@ -217,8 +218,8 @@ class UserAgent
     {
         $this->setPlatform();
 
-        foreach ( [ 'setRobot', 'setBrowser', 'setMobile' ] as $function ) {
-            if ( $this->$function() === true ) {
+        foreach (['setRobot', 'setBrowser', 'setMobile'] as $function) {
+            if ($this->$function() === true) {
                 break;
             }
         }
@@ -233,9 +234,9 @@ class UserAgent
      */
     protected function setPlatform()
     {
-        if ( is_array( static::$platforms ) && count( static::$platforms ) > 0 ) {
-            foreach ( static::$platforms as $key => $val ) {
-                if ( preg_match( '|' . preg_quote( $key ) . '|i', $this->string ) ) {
+        if (is_array(static::$platforms) && count(static::$platforms) > 0) {
+            foreach (static::$platforms as $key => $val) {
+                if (preg_match('|' . preg_quote($key) . '|i', $this->string)) {
                     $this->platform = $val;
 
                     return true;
@@ -257,19 +258,19 @@ class UserAgent
      *
      * @return    bool
      */
-    public function isBrowser( $key = null )
+    public function isBrowser($key = null)
     {
-        if ( ! $this->isBrowser ) {
+        if ( ! $this->isBrowser) {
             return false;
         }
 
         // No need to be specific, it's a browser
-        if ( $key === null ) {
+        if ($key === null) {
             return true;
         }
 
         // Check for a specific browser
-        return ( isset( static::$browsers[ $key ] ) && $this->browser === static::$browsers[ $key ] );
+        return (isset(static::$browsers[ $key ]) && $this->browser === static::$browsers[ $key ]);
     }
 
     // --------------------------------------------------------------------
@@ -281,19 +282,19 @@ class UserAgent
      *
      * @return    bool
      */
-    public function isRobot( $key = null )
+    public function isRobot($key = null)
     {
-        if ( ! $this->isRobot ) {
+        if ( ! $this->isRobot) {
             return false;
         }
 
         // No need to be specific, it's a robot
-        if ( $key === null ) {
+        if ($key === null) {
             return true;
         }
 
         // Check for a specific robot
-        return ( isset( static::$robots[ $key ] ) && $this->robot === static::$robots[ $key ] );
+        return (isset(static::$robots[ $key ]) && $this->robot === static::$robots[ $key ]);
     }
 
     // --------------------------------------------------------------------
@@ -305,19 +306,19 @@ class UserAgent
      *
      * @return    bool
      */
-    public function isMobile( $key = null )
+    public function isMobile($key = null)
     {
-        if ( ! $this->isMobile ) {
+        if ( ! $this->isMobile) {
             return false;
         }
 
         // No need to be specific, it's a mobile
-        if ( $key === null ) {
+        if ($key === null) {
             return true;
         }
 
         // Check for a specific robot
-        return ( isset( static::$mobiles[ $key ] ) && $this->mobile === static::$mobiles[ $key ] );
+        return (isset(static::$mobiles[ $key ]) && $this->mobile === static::$mobiles[ $key ]);
     }
 
     // --------------------------------------------------------------------
@@ -329,14 +330,14 @@ class UserAgent
      */
     public function isReferral()
     {
-        if ( ! isset( $this->referer ) ) {
-            if ( empty( $_SERVER[ 'HTTP_REFERER' ] ) ) {
+        if ( ! isset($this->referer)) {
+            if (empty($_SERVER[ 'HTTP_REFERER' ])) {
                 $this->referer = false;
             } else {
-                $referer_host = @parse_url( $_SERVER[ 'HTTP_REFERER' ], PHP_URL_HOST );
-                $own_host = parse_url( o2system()->config->base_url(), PHP_URL_HOST );
+                $referer_host = @parse_url($_SERVER[ 'HTTP_REFERER' ], PHP_URL_HOST);
+                $own_host = parse_url(o2system()->config->base_url(), PHP_URL_HOST);
 
-                $this->referer = ( $referer_host && $referer_host !== $own_host );
+                $this->referer = ($referer_host && $referer_host !== $own_host);
             }
         }
 
@@ -424,7 +425,7 @@ class UserAgent
      */
     public function referrer()
     {
-        return empty( $_SERVER[ 'HTTP_REFERER' ] ) ? '' : trim( $_SERVER[ 'HTTP_REFERER' ] );
+        return empty($_SERVER[ 'HTTP_REFERER' ]) ? '' : trim($_SERVER[ 'HTTP_REFERER' ]);
     }
 
     // --------------------------------------------------------------------
@@ -436,9 +437,9 @@ class UserAgent
      *
      * @return    bool
      */
-    public function acceptLang( $lang = 'en' )
+    public function acceptLang($lang = 'en')
     {
-        return in_array( strtolower( $lang ), $this->languages(), true );
+        return in_array(strtolower($lang), $this->languages(), true);
     }
 
     // --------------------------------------------------------------------
@@ -450,7 +451,7 @@ class UserAgent
      */
     public function languages()
     {
-        if ( count( $this->languages ) === 0 ) {
+        if (count($this->languages) === 0) {
             $this->setLanguages();
         }
 
@@ -466,19 +467,19 @@ class UserAgent
      */
     protected function setLanguages()
     {
-        if ( ( count( $this->languages ) === 0 ) && ! empty( $_SERVER[ 'HTTP_ACCEPT_LANGUAGE' ] ) ) {
+        if ((count($this->languages) === 0) && ! empty($_SERVER[ 'HTTP_ACCEPT_LANGUAGE' ])) {
             $this->languages = explode(
                 ',',
                 preg_replace(
                     '/(;\s?q=[0-9\.]+)|\s/i',
                     '',
-                    strtolower( trim( $_SERVER[ 'HTTP_ACCEPT_LANGUAGE' ] ) )
+                    strtolower(trim($_SERVER[ 'HTTP_ACCEPT_LANGUAGE' ]))
                 )
             );
         }
 
-        if ( count( $this->languages ) === 0 ) {
-            $this->languages = [ 'Undefined' ];
+        if (count($this->languages) === 0) {
+            $this->languages = ['Undefined'];
         }
     }
     // --------------------------------------------------------------------
@@ -490,9 +491,9 @@ class UserAgent
      *
      * @return    bool
      */
-    public function acceptCharset( $charset = 'utf-8' )
+    public function acceptCharset($charset = 'utf-8')
     {
-        return in_array( strtolower( $charset ), $this->charsets(), true );
+        return in_array(strtolower($charset), $this->charsets(), true);
     }
 
     // --------------------------------------------------------------------
@@ -504,7 +505,7 @@ class UserAgent
      */
     public function charsets()
     {
-        if ( count( $this->charsets ) === 0 ) {
+        if (count($this->charsets) === 0) {
             $this->setCharsets();
         }
 
@@ -520,19 +521,19 @@ class UserAgent
      */
     protected function setCharsets()
     {
-        if ( ( count( $this->charsets ) === 0 ) && ! empty( $_SERVER[ 'HTTP_ACCEPT_CHARSET' ] ) ) {
+        if ((count($this->charsets) === 0) && ! empty($_SERVER[ 'HTTP_ACCEPT_CHARSET' ])) {
             $this->charsets = explode(
                 ',',
                 preg_replace(
                     '/(;\s?q=.+)|\s/i',
                     '',
-                    strtolower( trim( $_SERVER[ 'HTTP_ACCEPT_CHARSET' ] ) )
+                    strtolower(trim($_SERVER[ 'HTTP_ACCEPT_CHARSET' ]))
                 )
             );
         }
 
-        if ( count( $this->charsets ) === 0 ) {
-            $this->charsets = [ 'Undefined' ];
+        if (count($this->charsets) === 0) {
+            $this->charsets = ['Undefined'];
         }
     }
 
@@ -545,7 +546,7 @@ class UserAgent
      *
      * @return    void
      */
-    public function parse( $string )
+    public function parse($string)
     {
         // Reset values
         $this->isBrowser = false;
@@ -559,7 +560,7 @@ class UserAgent
         // Set the new user-agent string and parse it, unless empty
         $this->string = $string;
 
-        if ( ! empty( $string ) ) {
+        if ( ! empty($string)) {
             $this->compileData();
         }
     }
@@ -573,9 +574,9 @@ class UserAgent
      */
     protected function setBrowser()
     {
-        if ( is_array( static::$browsers ) && count( static::$browsers ) > 0 ) {
-            foreach ( static::$browsers as $key => $val ) {
-                if ( preg_match( '|' . $key . '.*?([0-9\.]+)|i', $this->string, $match ) ) {
+        if (is_array(static::$browsers) && count(static::$browsers) > 0) {
+            foreach (static::$browsers as $key => $val) {
+                if (preg_match('|' . $key . '.*?([0-9\.]+)|i', $this->string, $match)) {
                     $this->isBrowser = true;
                     $this->version = $match[ 1 ];
                     $this->browser = $val;
@@ -598,9 +599,9 @@ class UserAgent
      */
     protected function setMobile()
     {
-        if ( is_array( static::$mobiles ) && count( static::$mobiles ) > 0 ) {
-            foreach ( static::$mobiles as $key => $val ) {
-                if ( false !== ( stripos( $this->string, $key ) ) ) {
+        if (is_array(static::$mobiles) && count(static::$mobiles) > 0) {
+            foreach (static::$mobiles as $key => $val) {
+                if (false !== (stripos($this->string, $key))) {
                     $this->isMobile = true;
                     $this->mobile = $val;
 
@@ -621,9 +622,9 @@ class UserAgent
      */
     protected function setRobot()
     {
-        if ( is_array( static::$robots ) && count( static::$robots ) > 0 ) {
-            foreach ( static::$robots as $key => $val ) {
-                if ( preg_match( '|' . preg_quote( $key ) . '|i', $this->string ) ) {
+        if (is_array(static::$robots) && count(static::$robots) > 0) {
+            foreach (static::$robots as $key => $val) {
+                if (preg_match('|' . preg_quote($key) . '|i', $this->string)) {
                     $this->isRobot = true;
                     $this->robot = $val;
                     $this->setMobile();

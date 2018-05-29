@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Controllers;
@@ -28,14 +29,24 @@ class Error extends Controller
      *
      * @param int $code
      */
-    public function index( $code = 500 )
+    public function index($code = 500)
     {
-        $codeString = $code . '_' . error_code_string( $code );
+        $codeString = $code . '_' . error_code_string($code);
 
-        echo $this->view->load( 'error-code', [
+        if (presenter()->theme->use === true) {
+            presenter()->theme->setLayout('error');
+
+            if (false !== ($layout = presenter()->theme->active->getLayout())) {
+                if ($layout->getFilename() === 'theme') {
+                    presenter()->theme->set(false);
+                }
+            }
+        }
+
+        view('error-code', [
             'code'    => $code,
-            'title'   => language()->getLine( $codeString . '_TITLE' ),
-            'message' => language()->getLine( $codeString . '_MESSAGE' ),
-        ], true );
+            'title'   => language()->getLine($codeString . '_TITLE'),
+            'message' => language()->getLine($codeString . '_MESSAGE'),
+        ]);
     }
 }

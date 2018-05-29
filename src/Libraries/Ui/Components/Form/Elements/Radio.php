@@ -21,9 +21,9 @@ namespace O2System\Framework\Libraries\Ui\Components\Form\Elements;
  */
 class Radio extends Checkbox
 {
-    public function __construct( $label = null, array $attributes = [] )
+    public function __construct($label = null, array $attributes = [])
     {
         parent::__construct();
-        $this->input->attributes->addAttribute( 'type', 'radio' );
+        $this->input->attributes->addAttribute('type', 'radio');
     }
 }

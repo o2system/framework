@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Icons;
@@ -23,9 +24,9 @@ use O2System\Framework\Libraries\Ui\Components\Icons\Abstracts\AbstractIcon;
  */
 class Glyphicon extends AbstractIcon
 {
-    public function __construct( $iconName = null )
+    public function __construct($iconName = null)
     {
         $this->iconPrefixClass = 'glyphicon';
-        parent::__construct( $iconName );
+        parent::__construct($iconName);
     }
 }

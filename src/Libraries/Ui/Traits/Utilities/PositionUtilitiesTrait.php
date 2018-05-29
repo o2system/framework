@@ -23,7 +23,7 @@ trait PositionUtilitiesTrait
 {
     public function positionStatic()
     {
-        $this->attributes->addAttributeClass( 'position-static' );
+        $this->attributes->addAttributeClass('position-static');
 
         return $this;
     }
@@ -32,7 +32,7 @@ trait PositionUtilitiesTrait
 
     public function positionRelative()
     {
-        $this->attributes->addAttributeClass( 'position-relative' );
+        $this->attributes->addAttributeClass('position-relative');
 
         return $this;
     }
@@ -41,7 +41,7 @@ trait PositionUtilitiesTrait
 
     public function positionAbsolute()
     {
-        $this->attributes->addAttributeClass( 'position-absolute' );
+        $this->attributes->addAttributeClass('position-absolute');
 
         return $this;
     }
@@ -50,7 +50,7 @@ trait PositionUtilitiesTrait
 
     public function positionFixed()
     {
-        $this->attributes->addAttributeClass( 'position-fixed' );
+        $this->attributes->addAttributeClass('position-fixed');
 
         return $this;
     }
@@ -59,7 +59,7 @@ trait PositionUtilitiesTrait
 
     public function positionSticky()
     {
-        $this->attributes->addAttributeClass( 'position-sticky' );
+        $this->attributes->addAttributeClass('position-sticky');
 
         return $this;
     }
@@ -68,7 +68,7 @@ trait PositionUtilitiesTrait
 
     public function positionFixedTop()
     {
-        $this->attributes->addAttributeClass( 'fixed-top' );
+        $this->attributes->addAttributeClass('fixed-top');
 
         return $this;
     }
@@ -77,7 +77,7 @@ trait PositionUtilitiesTrait
 
     public function positionFixedBottom()
     {
-        $this->attributes->addAttributeClass( 'fixed-bottom' );
+        $this->attributes->addAttributeClass('fixed-bottom');
 
         return $this;
     }
@@ -86,7 +86,7 @@ trait PositionUtilitiesTrait
 
     public function positionStickyTop()
     {
-        $this->attributes->addAttributeClass( 'sticky-top' );
+        $this->attributes->addAttributeClass('sticky-top');
 
         return $this;
     }

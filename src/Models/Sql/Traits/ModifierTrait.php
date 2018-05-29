@@ -23,70 +23,6 @@ namespace O2System\Framework\Models\Sql\Traits;
 trait ModifierTrait
 {
     /**
-     * List of Before Process Methods
-     *
-     * @access  protected
-     * @type    array
-     */
-    protected $beforeModifyProcess = [];
-
-    /**
-     * List of After Process Methods
-     *
-     * @access  protected
-     * @type    array
-     */
-    protected $afterModifyProcess = [];
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Before Process
-     *
-     * Process row data before insert or update
-     *
-     * @param $row
-     * @param $table
-     *
-     * @access  protected
-     * @return  mixed
-     */
-    protected function beforeProcess($row, $table)
-    {
-        if ( ! empty($this->beforeModifyProcess)) {
-            foreach ($this->beforeModifyProcess as $processMethod) {
-                $row = $this->{$processMethod}($row, $table);
-            }
-        }
-
-        return $row;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * After Process
-     *
-     * Runs all after process method actions
-     *
-     * @access  protected
-     * @return  array
-     */
-    protected function afterProcess()
-    {
-        $report = [];
-
-        if ( ! empty($this->afterModifyProcess)) {
-            foreach ($this->afterModifyProcess as $processMethod) {
-                $report[ $processMethod ] = $this->{$processMethod}();
-            }
-        }
-
-        return $report;
-    }
-    // ------------------------------------------------------------------------
-
-    /**
      * Insert Data
      *
      * Method to input data as well as equipping the data in accordance with the fields
@@ -104,18 +40,32 @@ trait ModifierTrait
     {
         $table = isset($table) ? $table : $this->table;
 
-        $sets = $this->beforeProcess($sets, $table);
+        if (method_exists($this, 'insertRecordSets')) {
+            $this->insertRecordSets($sets);
+        }
+
+        if (method_exists($this, 'beforeInsert')) {
+            $this->beforeInsert($sets);
+        }
+
+        if (method_exists($this, 'getRecordOrdering')) {
+            if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
+                $sets[ 'record_ordering' ] = $this->getRecordOrdering($table);
+            }
+        }
 
         if ($this->qb->table($table)->insert($sets)) {
-            if (empty($this->afterModifyProcess)) {
-                return true;
+            if (method_exists($this, 'afterInsert')) {
+                return $this->afterInsert();
             }
 
-            return $this->afterProcess();
+            return true;
         }
 
         return false;
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * Update Data
@@ -149,15 +99,27 @@ trait ModifierTrait
         $this->primaryKey = 'id';
         $this->primaryKeys = [];
 
-        $sets = $this->beforeProcess($sets, $table);
+        if (method_exists($this, 'updateRecordSets')) {
+            $this->updateRecordSets($sets);
+        }
+
+        if (method_exists($this, 'beforeUpdate')) {
+            $sets = $this->beforeUpdate($sets);
+        }
+
+        if (method_exists($this, 'getRecordOrdering')) {
+            if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
+                $sets[ 'record_ordering' ] = $this->getRecordOrdering($table);
+            }
+        }
 
         if ($this->qb->table($table)->update($sets, $where)) {
 
-            if (empty($this->afterModifyProcess)) {
-                return true;
+            if (method_exists($this, 'afterUpdate')) {
+                return $this->afterUpdate();
             }
 
-            return $this->afterProcess();
+            return true;
         }
 
         return false;
@@ -167,14 +129,26 @@ trait ModifierTrait
     {
         $table = isset($table) ? $table : $this->table;
 
-        $sets = $this->beforeProcess($sets, $table);
+        if (method_exists($this, 'insertRecordSets')) {
+            foreach ($sets as $set) {
+                $this->insertRecordSets($set);
+
+                if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
+                    $set[ 'record_ordering' ] = $this->getRecordOrdering($table);
+                }
+            }
+        }
+
+        if (method_exists($this, 'beforeInsertMany')) {
+            $this->beforeInsertMany($sets);
+        }
 
         if ($this->qb->table($table)->insertBatch($sets)) {
-            if (empty($this->afterModifyProcess)) {
-                return true;
+            if (method_exists($this, 'afterInsertMany')) {
+                return $this->afterInsertMany();
             }
 
-            return $this->afterProcess();
+            return true;
         }
 
         return false;
@@ -201,15 +175,26 @@ trait ModifierTrait
         $this->primaryKey = 'id';
         $this->primaryKeys = [];
 
-        $sets = $this->beforeProcess($sets, $table);
+        if (method_exists($this, 'updateRecordSets')) {
+            foreach ($sets as $set) {
+                $this->updateRecordSets($set);
+
+                if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
+                    $set[ 'record_ordering' ] = $this->getRecordOrdering($table);
+                }
+            }
+        }
+
+        if (method_exists($this, 'beforeUpdateMany')) {
+            $this->beforeUpdateMany($sets);
+        }
 
         if ($this->qb->table($table)->updateBatch($sets, $where)) {
-
-            if (empty($this->afterModifyProcess)) {
-                return true;
+            if (method_exists($this, 'afterUpdateMany')) {
+                return $this->afterUpdateMany();
             }
 
-            return $this->afterProcess();
+            return true;
         }
 
         return false;
@@ -230,13 +215,7 @@ trait ModifierTrait
         $table = isset($table) ? $table : $this->table;
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
-        $sets[ 'record_status' ] = 'TRASH';
-        $sets[ 'record_delete_timestamp' ] = date('Y-m-d H:i:s');
-
-        if (services()->has('user')) {
-            $sets[ 'record_delete_user' ] = services()->user->getAccount()->id;
-        }
-
+        $sets = [];
         $where = [];
 
         if (empty($this->primaryKeys)) {
@@ -259,14 +238,21 @@ trait ModifierTrait
         $this->primaryKey = 'id';
         $this->primaryKeys = [];
 
-        $sets = $this->beforeProcess($sets, $table);
+        if (method_exists($this, 'updateRecordSets')) {
+            $this->setRecordStatus('TRASH');
+            $this->updateRecordSets($sets);
+        }
+
+        if (method_exists($this, 'beforeTrash')) {
+            $this->beforeTrash($sets);
+        }
 
         if ($this->qb->table($table)->update($sets, $where)) {
-            if (empty($this->afterModifyProcess)) {
-                return true;
+            if (method_exists($this, 'afterTrash')) {
+                return $this->afterTrash();
             }
 
-            return $this->afterProcess();
+            return true;
         }
 
         return false;
@@ -339,16 +325,22 @@ trait ModifierTrait
         $this->primaryKey = 'id';
         $this->primaryKeys = [];
 
+        if (method_exists($this, 'beforeDelete')) {
+            $this->beforeDelete();
+        }
+
         if ($this->qb->table($table)->delete($where)) {
-            if (empty($this->afterModifyProcess)) {
-                return true;
+            if (method_exists($this, 'afterDelete')) {
+                return $this->afterDelete();
             }
 
-            return $this->afterProcess();
+            return true;
         }
 
         return false;
     }
+
+    // ------------------------------------------------------------------------
 
     public function deleteBy($id, $where = [], $force = false, $table = null)
     {
@@ -370,8 +362,6 @@ trait ModifierTrait
         return $affectedRows;
     }
 
-    // ------------------------------------------------------------------------
-
     public function deleteManyBy(array $ids, $where = [], $force = false, $table = null)
     {
         $affectedRows = [];
@@ -390,15 +380,7 @@ trait ModifierTrait
         $table = isset($table) ? $table : $this->table;
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
-        $sets[ 'record_status' ] = 'PUBLISH';
-        $sets[ 'record_update_timestamp' ] = date('Y-m-d H:i:s');
-        $sets[ 'record_delete_timestamp' ] = null;
-
-        if (services()->has('user')) {
-            $sets[ 'record_update_user' ] = services()->user->getAccount()->id;
-            $sets[ 'record_delete_user' ] = null;
-        }
-
+        $sets = [];
         $where = [];
 
         if (empty($this->primaryKeys)) {
@@ -421,14 +403,21 @@ trait ModifierTrait
         $this->primaryKey = 'id';
         $this->primaryKeys = [];
 
-        $sets = $this->beforeProcess($sets, $table);
+        if (method_exists($this, 'updateRecordSets')) {
+            $this->setRecordStatus('PUBLISH');
+            $this->updateRecordSets($sets);
+        }
+
+        if (method_exists($this, 'beforePublish')) {
+            $this->beforePublish($sets);
+        }
 
         if ($this->qb->table($table)->update($sets, $where)) {
-            if (empty($this->afterModifyProcess)) {
-                return true;
+            if (method_exists($this, 'afterPublish')) {
+                return $this->afterPublish();
             }
 
-            return $this->afterProcess();
+            return true;
         }
 
         return false;
@@ -445,12 +434,12 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function publishMany(array $ids, $force = false, $table = null)
+    public function publishMany(array $ids, $table = null)
     {
         $affectedRows = [];
 
         foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->publish($id, $force, $table);
+            $affectedRows[ $id ] = $this->publish($id, $table);
         }
 
         return $affectedRows;
@@ -485,9 +474,9 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function restoreMany(array $ids, $force = false, $table = null)
+    public function restoreMany(array $ids, $table = null)
     {
-        return $this->publishMany($ids, $force, $table);
+        return $this->publishMany($ids, $table);
     }
 
     // ------------------------------------------------------------------------

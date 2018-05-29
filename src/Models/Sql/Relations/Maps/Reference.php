@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Relations\Maps;
@@ -74,8 +75,8 @@ class Reference
      *
      * @param Model        $referenceModel
      * @param string|Model $relationModel
-     * @param string|null          $relationForeignKey
-     * @param string|null          $referencePrimaryKey
+     * @param string|null  $relationForeignKey
+     * @param string|null  $referencePrimaryKey
      */
     public function __construct(
         Model $referenceModel,
@@ -90,14 +91,14 @@ class Reference
         $this->referenceTable = $referenceModel->table;
 
         // Map Reference Primary Key
-        $this->referencePrimaryKey = isset( $referencePrimaryKey ) ? $referencePrimaryKey : $referenceModel->primaryKey;
+        $this->referencePrimaryKey = isset($referencePrimaryKey) ? $referencePrimaryKey : $referenceModel->primaryKey;
 
         // Map Relation Model
-        $this->mapRelationModel( $relationModel );
+        $this->mapRelationModel($relationModel);
 
         // Map Relation Foreign Key
-        $this->relationForeignKey = $this->relationTable . '.' . ( isset( $relationForeignKey ) ? $relationForeignKey
-            : $this->mapRelationForeignKey() );
+        $this->relationForeignKey = $this->relationTable . '.' . (isset($relationForeignKey) ? $relationForeignKey
+                : $this->mapRelationForeignKey());
     }
 
     // ------------------------------------------------------------------------
@@ -109,12 +110,12 @@ class Reference
      *
      * @return void
      */
-    private function mapRelationModel( $relationModel )
+    private function mapRelationModel($relationModel)
     {
-        if ( $relationModel instanceof Model ) {
+        if ($relationModel instanceof Model) {
             $this->relationModel = $relationModel;
             $this->relationTable = $this->relationModel->table;
-        } elseif ( class_exists( $relationModel ) ) {
+        } elseif (class_exists($relationModel)) {
             $this->relationModel = new $relationModel();
             $this->relationTable = $this->relationModel->table;
         } else {
@@ -138,6 +139,6 @@ class Reference
             'tb_',
         ];
 
-        return $this->referencePrimaryKey . '_' . str_replace( $tablePrefixes, '', $this->referenceTable );
+        return $this->referencePrimaryKey . '_' . str_replace($tablePrefixes, '', $this->referenceTable);
     }
 }

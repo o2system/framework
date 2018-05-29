@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Setters;
@@ -21,11 +22,11 @@ namespace O2System\Framework\Libraries\Ui\Traits\Setters;
  */
 trait PopoverSetterTrait
 {
-    public function setPopover( $title, $content )
+    public function setPopover($title, $content)
     {
-        $this->attributes->addAttribute( 'data-toggle', 'popover' );
-        $this->attributes->addAttribute( 'title', $title );
-        $this->attributes->addAttribute( 'data-content', $content );
+        $this->attributes->addAttribute('data-toggle', 'popover');
+        $this->attributes->addAttribute('title', $title);
+        $this->attributes->addAttribute('data-content', $content);
 
         return $this;
     }

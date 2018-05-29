@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Relations;
@@ -31,18 +32,18 @@ class BelongsToMany extends Sql\Relations\Abstracts\AbstractRelation
      */
     public function getResult()
     {
-        if ( $this->map->relationModel->row instanceof Sql\DataObjects\Result\Row ) {
+        if ($this->map->relationModel->row instanceof Sql\DataObjects\Result\Row) {
             $result = $this->map->relationModel->qb
-                ->from( $this->map->referenceTable )
-                ->join( $this->map->pivotTable, implode( ' = ', [
-                        $this->map->pivotReferenceKey,
-                        $this->map->referencePrimaryKey
-                    ] ) )
-                ->getWhere( [ $this->map->pivotRelationKey => $this->map->relationModel->row->offsetGet( $this->map->relationPrimaryKey ) ] );
+                ->from($this->map->referenceTable)
+                ->join($this->map->pivotTable, implode(' = ', [
+                    $this->map->pivotReferenceKey,
+                    $this->map->referencePrimaryKey,
+                ]))
+                ->getWhere([$this->map->pivotRelationKey => $this->map->relationModel->row->offsetGet($this->map->relationPrimaryKey)]);
 
-            if( $result instanceof Result ) {
-                if ( $result->count() > 0 ) {
-                    return new Sql\DataObjects\Result( $result, $this->map->relationModel );
+            if ($result instanceof Result) {
+                if ($result->count() > 0) {
+                    return new Sql\DataObjects\Result($result, $this->map->relationModel);
                 }
             }
         }

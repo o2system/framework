@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Cli\Commanders\Make;
@@ -37,42 +38,42 @@ class Helper extends Make
     {
         parent::execute();
 
-        if ( empty( $this->optionFilename ) ) {
+        if (empty($this->optionFilename)) {
             output()->write(
-                ( new Format() )
-                    ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'CLI_MAKE_HELPER_E_FILENAME' ) )
-                    ->setNewLinesAfter( 1 )
+                (new Format())
+                    ->setContextualClass(Format::DANGER)
+                    ->setString(language()->getLine('CLI_MAKE_HELPER_E_FILENAME'))
+                    ->setNewLinesAfter(1)
             );
 
-            exit( EXIT_ERROR );
+            exit(EXIT_ERROR);
         }
 
-        if ( strpos( $this->optionPath, 'Helpers' ) === false ) {
+        if (strpos($this->optionPath, 'Helpers') === false) {
             $filePath = $this->optionPath . 'Helpers' . DIRECTORY_SEPARATOR . $this->optionFilename;
         } else {
             $filePath = $this->optionPath . $this->optionFilename;
         }
 
-        if ( ! is_dir( dirname( $filePath ) ) ) {
-            mkdir( dirname( $filePath ), 777, true );
+        if ( ! is_dir(dirname($filePath))) {
+            mkdir(dirname($filePath), 0777, true);
         }
 
-        if ( is_file( $filePath ) ) {
+        if (is_file($filePath)) {
             output()->write(
-                ( new Format() )
-                    ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'CLI_MAKE_HELPER_E_EXISTS', [ $filePath ] ) )
-                    ->setNewLinesAfter( 1 )
+                (new Format())
+                    ->setContextualClass(Format::DANGER)
+                    ->setString(language()->getLine('CLI_MAKE_HELPER_E_EXISTS', [$filePath]))
+                    ->setNewLinesAfter(1)
             );
 
-            exit( EXIT_ERROR );
+            exit(EXIT_ERROR);
         }
 
-        $vars[ 'CREATE_DATETIME' ] = date( 'd/m/Y H:m' );
+        $vars[ 'CREATE_DATETIME' ] = date('d/m/Y H:m');
         $vars[ 'HELPER' ] = underscore(
             snakecase(
-                pathinfo( $filePath, PATHINFO_FILENAME )
+                pathinfo($filePath, PATHINFO_FILENAME)
             )
         );
         $vars[ 'FILEPATH' ] = $filePath;
@@ -95,18 +96,18 @@ if ( ! function_exists( 'HELPER' ) ) {
 }
 PHPTEMPLATE;
 
-        $fileContent = str_replace( array_keys( $vars ), array_values( $vars ), $phpTemplate );
-        file_put_contents( $filePath, $fileContent );
+        $fileContent = str_replace(array_keys($vars), array_values($vars), $phpTemplate);
+        file_put_contents($filePath, $fileContent);
 
-        if ( is_file( $filePath ) ) {
+        if (is_file($filePath)) {
             output()->write(
-                ( new Format() )
-                    ->setContextualClass( Format::SUCCESS )
-                    ->setString( language()->getLine( 'CLI_MAKE_HELPER_S_MAKE', [ $filePath ] ) )
-                    ->setNewLinesAfter( 1 )
+                (new Format())
+                    ->setContextualClass(Format::SUCCESS)
+                    ->setString(language()->getLine('CLI_MAKE_HELPER_S_MAKE', [$filePath]))
+                    ->setNewLinesAfter(1)
             );
 
-            exit( EXIT_SUCCESS );
+            exit(EXIT_SUCCESS);
         }
     }
 }

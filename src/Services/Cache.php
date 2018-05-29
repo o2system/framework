@@ -44,56 +44,6 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
 
     // ------------------------------------------------------------------------
 
-    public function callPoolOffset($method, array $args = [])
-    {
-        $poolOffset = $this->poolOffset;
-        
-        if ( ! $this->exists($poolOffset)) {
-            $poolOffset = 'default';
-        }
-
-        $itemPool = $this->getItemPool($poolOffset);
-
-        if ($itemPool instanceof AbstractItemPool) {
-            if (method_exists($itemPool, $method)) {
-                return call_user_func_array([&$itemPool, $method], $args);
-            }
-        }
-
-        return false;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Cache::getItem
-     *
-     * Returns a Cache Item representing the specified key.
-     *
-     * This method must always return a CacheItemInterface object, even in case of
-     * a cache miss. It MUST NOT return null.
-     *
-     * @param string $key
-     *   The key for which to return the corresponding Cache Item.
-     *
-     * @throws InvalidArgumentException
-     *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
-     *   MUST be thrown.
-     *
-     * @return CacheItemInterface
-     *   The corresponding Cache Item.
-     */
-    public function getItem($key)
-    {
-        if (false !== ($cacheItem = $this->callPoolOffset('getItem', [$key]))) {
-            return $cacheItem;
-        }
-
-        return new Item(null, null);
-    }
-
-    // ------------------------------------------------------------------------
-
     /**
      * Adapters::getItems
      *
@@ -123,28 +73,23 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
 
     // ------------------------------------------------------------------------
 
-    /**
-     * Adapters::hasItem
-     *
-     * Confirms if the cache contains specified cache item.
-     *
-     * Note: This method MAY avoid retrieving the cached value for performance reasons.
-     * This could result in a race condition with CacheItemInterface::get(). To avoid
-     * such situation use CacheItemInterface::isHit() instead.
-     *
-     * @param string $key
-     *   The key for which to check existence.
-     *
-     * @throws InvalidArgumentException
-     *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
-     *   MUST be thrown.
-     *
-     * @return bool
-     *   True if item exists in the cache, false otherwise.
-     */
-    public function hasItem($key)
+    public function callPoolOffset($method, array $args = [])
     {
-        return $this->callPoolOffset('hasItem', [$key]);
+        $poolOffset = $this->poolOffset;
+
+        if ( ! $this->exists($poolOffset)) {
+            $poolOffset = 'default';
+        }
+
+        $itemPool = $this->getItemPool($poolOffset);
+
+        if ($itemPool instanceof AbstractItemPool) {
+            if (method_exists($itemPool, $method)) {
+                return call_user_func_array([&$itemPool, $method], $args);
+            }
+        }
+
+        return false;
     }
 
     // ------------------------------------------------------------------------
@@ -160,68 +105,6 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     public function clear()
     {
         return $this->callPoolOffset('clear');
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Adapters::deleteItem
-     *
-     * Removes the item from the pool.
-     *
-     * @param string $key
-     *   The key to delete.
-     *
-     * @throws InvalidArgumentException
-     *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
-     *   MUST be thrown.
-     *
-     * @return bool
-     *   True if the item was successfully removed. False if there was an error.
-     */
-    public function deleteItem($key)
-    {
-        return $this->callPoolOffset('deleteItem', [$key]);
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Adapters::deleteItems
-     *
-     * Removes multiple items from the pool.
-     *
-     * @param string[] $keys
-     *   An array of keys that should be removed from the pool.
-     *
-     * @throws InvalidArgumentException
-     *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
-     *   MUST be thrown.
-     *
-     * @return bool
-     *   True if the items were successfully removed. False if there was an error.
-     */
-    public function deleteItems(array $keys = [])
-    {
-        return $this->callPoolOffset('deleteItems', [$keys]);
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Adapters::save
-     *
-     * Persists a cache item immediately.
-     *
-     * @param CacheItemInterface $item
-     *   The cache item to save.
-     *
-     * @return bool
-     *   True if the item was successfully persisted. False if there was an error.
-     */
-    public function save(CacheItemInterface $item)
-    {
-        return $this->callPoolOffset('save', [$item]);
     }
 
     // ------------------------------------------------------------------------
@@ -260,51 +143,6 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
-     * Fetches a value from the cache.
-     *
-     * @param string $key     The unique key of this item in the cache.
-     * @param mixed  $default Default value to return if the key does not exist.
-     *
-     * @return mixed The value of the item from the cache, or $default in case of cache miss.
-     *
-     * @throws \O2System\Psr\SimpleCache\InvalidArgumentException
-     *   MUST be thrown if the $key string is not a legal value.
-     */
-    public function get($key, $default = null)
-    {
-        if ($this->hasItem($key)) {
-            $item = $this->getItem($key);
-
-            return $item->get();
-        }
-
-        return $default;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Persists data in the cache, uniquely referenced by a key with an optional expiration TTL time.
-     *
-     * @param string                 $key   The key of the item to store.
-     * @param mixed                  $value The value of the item to store, must be serializable.
-     * @param null|int|\DateInterval $ttl   Optional. The TTL value of this item. If no value is sent and
-     *                                      the driver supports TTL then the library may set a default value
-     *                                      for it or let the driver take care of that.
-     *
-     * @return bool True on success and false on failure.
-     *
-     * @throws \O2System\Psr\SimpleCache\InvalidArgumentException
-     *   MUST be thrown if the $key string is not a legal value.
-     */
-    public function set($key, $value, $ttl = null)
-    {
-        return $this->save(new Item($key, $value, $ttl));
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
      * Delete an item from the cache by its unique key.
      *
      * @param string $key The unique cache key of the item to delete.
@@ -317,6 +155,28 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     public function delete($key)
     {
         return (bool)$this->deleteItem($key);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Adapters::deleteItem
+     *
+     * Removes the item from the pool.
+     *
+     * @param string $key
+     *   The key to delete.
+     *
+     * @throws InvalidArgumentException
+     *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
+     *   MUST be thrown.
+     *
+     * @return bool
+     *   True if the item was successfully removed. False if there was an error.
+     */
+    public function deleteItem($key)
+    {
+        return $this->callPoolOffset('deleteItem', [$key]);
     }
 
     // ------------------------------------------------------------------------
@@ -345,6 +205,85 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
         }
 
         return $result;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Fetches a value from the cache.
+     *
+     * @param string $key     The unique key of this item in the cache.
+     * @param mixed  $default Default value to return if the key does not exist.
+     *
+     * @return mixed The value of the item from the cache, or $default in case of cache miss.
+     *
+     * @throws \O2System\Psr\SimpleCache\InvalidArgumentException
+     *   MUST be thrown if the $key string is not a legal value.
+     */
+    public function get($key, $default = null)
+    {
+        if ($this->hasItem($key)) {
+            $item = $this->getItem($key);
+
+            return $item->get();
+        }
+
+        return $default;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Adapters::hasItem
+     *
+     * Confirms if the cache contains specified cache item.
+     *
+     * Note: This method MAY avoid retrieving the cached value for performance reasons.
+     * This could result in a race condition with CacheItemInterface::get(). To avoid
+     * such situation use CacheItemInterface::isHit() instead.
+     *
+     * @param string $key
+     *   The key for which to check existence.
+     *
+     * @throws InvalidArgumentException
+     *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
+     *   MUST be thrown.
+     *
+     * @return bool
+     *   True if item exists in the cache, false otherwise.
+     */
+    public function hasItem($key)
+    {
+        return $this->callPoolOffset('hasItem', [$key]);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Cache::getItem
+     *
+     * Returns a Cache Item representing the specified key.
+     *
+     * This method must always return a CacheItemInterface object, even in case of
+     * a cache miss. It MUST NOT return null.
+     *
+     * @param string $key
+     *   The key for which to return the corresponding Cache Item.
+     *
+     * @throws InvalidArgumentException
+     *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
+     *   MUST be thrown.
+     *
+     * @return CacheItemInterface
+     *   The corresponding Cache Item.
+     */
+    public function getItem($key)
+    {
+        if (false !== ($cacheItem = $this->callPoolOffset('getItem', [$key]))) {
+            return $cacheItem;
+        }
+
+        return new Item(null, null);
     }
 
     // ------------------------------------------------------------------------
@@ -379,6 +318,45 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
+     * Persists data in the cache, uniquely referenced by a key with an optional expiration TTL time.
+     *
+     * @param string                 $key   The key of the item to store.
+     * @param mixed                  $value The value of the item to store, must be serializable.
+     * @param null|int|\DateInterval $ttl   Optional. The TTL value of this item. If no value is sent and
+     *                                      the driver supports TTL then the library may set a default value
+     *                                      for it or let the driver take care of that.
+     *
+     * @return bool True on success and false on failure.
+     *
+     * @throws \O2System\Psr\SimpleCache\InvalidArgumentException
+     *   MUST be thrown if the $key string is not a legal value.
+     */
+    public function set($key, $value, $ttl = null)
+    {
+        return $this->save(new Item($key, $value, $ttl));
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Adapters::save
+     *
+     * Persists a cache item immediately.
+     *
+     * @param CacheItemInterface $item
+     *   The cache item to save.
+     *
+     * @return bool
+     *   True if the item was successfully persisted. False if there was an error.
+     */
+    public function save(CacheItemInterface $item)
+    {
+        return $this->callPoolOffset('save', [$item]);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
      * Deletes multiple cache items in a single operation.
      *
      * @param iterable $keys A list of string-based keys to be deleted.
@@ -392,6 +370,28 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     public function deleteMultiple($keys)
     {
         return (bool)$this->deleteItems($keys);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Adapters::deleteItems
+     *
+     * Removes multiple items from the pool.
+     *
+     * @param string[] $keys
+     *   An array of keys that should be removed from the pool.
+     *
+     * @throws InvalidArgumentException
+     *   If any of the keys in $keys are not a legal value a \Psr\Cache\InvalidArgumentException
+     *   MUST be thrown.
+     *
+     * @return bool
+     *   True if the items were successfully removed. False if there was an error.
+     */
+    public function deleteItems(array $keys = [])
+    {
+        return $this->callPoolOffset('deleteItems', [$keys]);
     }
 
     // ------------------------------------------------------------------------

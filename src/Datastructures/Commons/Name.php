@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Datastructures\Commons;
@@ -28,35 +29,35 @@ class Name extends AbstractRepository
      *
      * @param string $name
      */
-    public function __construct( $name )
+    public function __construct($name)
     {
-        if( is_string( $name ) ) {
-            $parts = explode( ' ', trim( $name ) );
+        if (is_string($name)) {
+            $parts = explode(' ', trim($name));
             $name = [];
 
-            if ( count( $parts ) == 1 ) {
+            if (count($parts) == 1) {
                 $name[ 'first' ] = $parts[ 0 ];
                 $name[ 'middle' ] = null;
-                $name['last'] = null;
-            } elseif ( count( $parts ) == 2 ) {
+                $name[ 'last' ] = null;
+            } elseif (count($parts) == 2) {
                 $name[ 'first' ] = $parts[ 0 ];
                 $name[ 'middle' ] = null;
-                $name['last'] = $parts[ 1 ];
-            } elseif( count( $parts ) == 3 ) {
+                $name[ 'last' ] = $parts[ 1 ];
+            } elseif (count($parts) == 3) {
                 $name[ 'first' ] = $parts[ 0 ];
                 $name[ 'middle' ] = $parts[ 1 ];
-                $name['last'] = $parts[ 2 ];
+                $name[ 'last' ] = $parts[ 2 ];
             } else {
                 $name[ 'first' ] = $parts[ 0 ];
                 $name[ 'middle' ] = $parts[ 1 ];
 
-                $parts = array_slice( $parts, 2 );
-                $name['last'] = implode( ' ', $parts );
+                $parts = array_slice($parts, 2);
+                $name[ 'last' ] = implode(' ', $parts);
             }
         }
 
-        foreach( $name as $key => $value ) {
-            $this->store( $key, $value );
+        foreach ($name as $key => $value) {
+            $this->store($key, $value);
         }
     }
 
@@ -64,14 +65,14 @@ class Name extends AbstractRepository
     {
         $name = $this->offsetGet('first');
 
-        if($this->offsetExists('middle')) {
-            $name.= ' ' . $this->offsetGet('middle');
+        if ($this->offsetExists('middle')) {
+            $name .= ' ' . $this->offsetGet('middle');
         }
 
-        if($this->offsetExists('last')) {
-            $name.= ' ' . $this->offsetGet('last');
+        if ($this->offsetExists('last')) {
+            $name .= ' ' . $this->offsetGet('last');
         }
 
-        return (string) trim( $name );
+        return (string)trim($name);
     }
 }

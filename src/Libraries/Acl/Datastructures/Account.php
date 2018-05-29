@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Acl\Datastructures;
@@ -29,7 +30,7 @@ class Account extends AbstractRepository
      * @param array $account
      * @param bool  $hash Hashed password and pin options.
      */
-    public function __construct( $account = [], $hash = true )
+    public function __construct($account = [], $hash = true)
     {
         $defaultAccount = [
             'id'       => null,
@@ -40,42 +41,44 @@ class Account extends AbstractRepository
             'pin'      => null,
         ];
 
-        foreach ( $defaultAccount as $item => $value ) {
-            if ( in_array( $item, [ 'password', 'pin' ] ) and $hash === true ) {
-                if( isset( $account[ $item ] ) ) {
-                    $config = config( 'acl', true) ;
+        foreach ($defaultAccount as $item => $value) {
+            if (in_array($item, ['password', 'pin']) and $hash === true) {
+                if (isset($account[ $item ])) {
+                    $config = config('acl', true);
 
-                    if( empty( $config ) ) {
+                    if (empty($config)) {
                         $this->store(
                             $item,
-                            password_hash( $account[ $item ], PASSWORD_DEFAULT )
+                            password_hash($account[ $item ], PASSWORD_DEFAULT)
                         );
                     } else {
 
-                        if( ! empty( $config->options ) ) {
+                        if ( ! empty($config->options)) {
                             $config->algorithm = PASSWORD_BCRYPT;
                         }
 
                         $this->store(
                             $item,
-                            password_hash( $account[ $item ], $config->algorithm, $config->options )
+                            password_hash($account[ $item ], $config->algorithm, $config->options)
                         );
                     }
                 }
             } else {
-                $this->store( $item, ( isset( $account[ $item ] ) ? $account[ $item ] : null ) );
+                $this->store($item, (isset($account[ $item ]) ? $account[ $item ] : null));
             }
         }
     }
 
-    public function store( $offset, $value )
+    public function store($offset, $value)
     {
-        if( $offset === 'profile' ) {
-            $value = new Profile( $value );
-        } elseif( $offset === 'role' ) {
-            $value = new Roles\Role( $value );
+        if ($offset === 'profile') {
+            if (empty($this->storage[ 'profile' ])) {
+                $value = new Profile($value);
+            }
+        } elseif ($offset === 'role') {
+            $value = new Roles\Role($value);
         }
 
-        parent::store( $offset, $value );
+        $this->storage[ $offset ] = $value;
     }
 }

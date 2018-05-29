@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
@@ -20,89 +21,89 @@ namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
  */
 trait DisplayUtilitiesTrait
 {
-    public function displayNone( $size = null )
+    public function displayNone($size = null)
     {
-        if ( empty( $size ) ) {
-            $this->attributes->addAttributeClass( 'd-none' );
-        } elseif ( in_array( $size, [ 'xs', 'sm', 'md', 'lg', 'xl' ] ) ) {
-            $this->attributes->addAttributeClass( 'd-' . $size . '-none' );
+        if (empty($size)) {
+            $this->attributes->addAttributeClass('d-none');
+        } elseif (in_array($size, ['xs', 'sm', 'md', 'lg', 'xl'])) {
+            $this->attributes->addAttributeClass('d-' . $size . '-none');
         }
 
         return $this;
     }
 
-    public function displayInline( $size = null )
+    public function displayInline($size = null)
     {
-        if ( empty( $size ) ) {
-            $this->attributes->addAttributeClass( 'd-inline' );
-        } elseif ( in_array( $size, [ 'xs', 'sm', 'md', 'lg', 'xl' ] ) ) {
-            $this->attributes->addAttributeClass( 'd-' . $size . '-inline' );
+        if (empty($size)) {
+            $this->attributes->addAttributeClass('d-inline');
+        } elseif (in_array($size, ['xs', 'sm', 'md', 'lg', 'xl'])) {
+            $this->attributes->addAttributeClass('d-' . $size . '-inline');
         }
 
         return $this;
     }
 
-    public function displayInlineBlock( $size = null )
+    public function displayInlineBlock($size = null)
     {
-        if ( empty( $size ) ) {
-            $this->attributes->addAttributeClass( 'd-inline-block' );
-        } elseif ( in_array( $size, [ 'xs', 'sm', 'md', 'lg', 'xl' ] ) ) {
-            $this->attributes->addAttributeClass( 'd-' . $size . '-inline-block' );
+        if (empty($size)) {
+            $this->attributes->addAttributeClass('d-inline-block');
+        } elseif (in_array($size, ['xs', 'sm', 'md', 'lg', 'xl'])) {
+            $this->attributes->addAttributeClass('d-' . $size . '-inline-block');
         }
 
         return $this;
     }
 
-    public function displayBlock( $size = null )
+    public function displayBlock($size = null)
     {
-        if ( empty( $size ) ) {
-            $this->attributes->addAttributeClass( 'd-block' );
-        } elseif ( in_array( $size, [ 'xs', 'sm', 'md', 'lg', 'xl' ] ) ) {
-            $this->attributes->addAttributeClass( 'd-' . $size . '-block' );
+        if (empty($size)) {
+            $this->attributes->addAttributeClass('d-block');
+        } elseif (in_array($size, ['xs', 'sm', 'md', 'lg', 'xl'])) {
+            $this->attributes->addAttributeClass('d-' . $size . '-block');
         }
 
         return $this;
     }
 
-    public function displayTable( $size = null )
+    public function displayTable($size = null)
     {
-        if ( empty( $size ) ) {
-            $this->attributes->addAttributeClass( 'd-table' );
-        } elseif ( in_array( $size, [ 'xs', 'sm', 'md', 'lg', 'xl' ] ) ) {
-            $this->attributes->addAttributeClass( 'd-' . $size . '-table' );
+        if (empty($size)) {
+            $this->attributes->addAttributeClass('d-table');
+        } elseif (in_array($size, ['xs', 'sm', 'md', 'lg', 'xl'])) {
+            $this->attributes->addAttributeClass('d-' . $size . '-table');
         }
 
         return $this;
     }
 
-    public function displayTableCell( $size = null )
+    public function displayTableCell($size = null)
     {
-        if ( empty( $size ) ) {
-            $this->attributes->addAttributeClass( 'd-table-cell' );
-        } elseif ( in_array( $size, [ 'xs', 'sm', 'md', 'lg', 'xl' ] ) ) {
-            $this->attributes->addAttributeClass( 'd-' . $size . '-table-cell' );
+        if (empty($size)) {
+            $this->attributes->addAttributeClass('d-table-cell');
+        } elseif (in_array($size, ['xs', 'sm', 'md', 'lg', 'xl'])) {
+            $this->attributes->addAttributeClass('d-' . $size . '-table-cell');
         }
 
         return $this;
     }
 
-    public function displayFlex( $size = null )
+    public function displayFlex($size = null)
     {
-        if ( empty( $size ) ) {
-            $this->attributes->addAttributeClass( 'd-flex' );
-        } elseif ( in_array( $size, [ 'xs', 'sm', 'md', 'lg', 'xl' ] ) ) {
-            $this->attributes->addAttributeClass( 'd-' . $size . '-flex' );
+        if (empty($size)) {
+            $this->attributes->addAttributeClass('d-flex');
+        } elseif (in_array($size, ['xs', 'sm', 'md', 'lg', 'xl'])) {
+            $this->attributes->addAttributeClass('d-' . $size . '-flex');
         }
 
         return $this;
     }
 
-    public function displayInlineFlex( $size = null )
+    public function displayInlineFlex($size = null)
     {
-        if ( empty( $size ) ) {
-            $this->attributes->addAttributeClass( 'd-inline-flex' );
-        } elseif ( in_array( $size, [ 'xs', 'sm', 'md', 'lg', 'xl' ] ) ) {
-            $this->attributes->addAttributeClass( 'd-' . $size . '-inline-flex' );
+        if (empty($size)) {
+            $this->attributes->addAttributeClass('d-inline-flex');
+        } elseif (in_array($size, ['xs', 'sm', 'md', 'lg', 'xl'])) {
+            $this->attributes->addAttributeClass('d-' . $size . '-inline-flex');
         }
 
         return $this;
@@ -110,28 +111,28 @@ trait DisplayUtilitiesTrait
 
     public function displayPrintBlock()
     {
-        $this->attributes->addAttributeClass( 'd-print-block' );
+        $this->attributes->addAttributeClass('d-print-block');
 
         return $this;
     }
 
     public function displayPrintInline()
     {
-        $this->attributes->addAttributeClass( 'd-print-inline' );
+        $this->attributes->addAttributeClass('d-print-inline');
 
         return $this;
     }
 
     public function displayPrintInlineBlock()
     {
-        $this->attributes->addAttributeClass( 'd-print-inline-block' );
+        $this->attributes->addAttributeClass('d-print-inline-block');
 
         return $this;
     }
 
     public function displayPrintNone()
     {
-        $this->attributes->addAttributeClass( 'd-print-none' );
+        $this->attributes->addAttributeClass('d-print-none');
 
         return $this;
     }

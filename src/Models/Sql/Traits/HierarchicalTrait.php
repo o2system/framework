@@ -41,46 +41,46 @@ trait HierarchicalTrait
         $result = $this->qb
             ->table($this->table)
             ->select('id')
-            ->where('id_parent',$idParent)
+            ->where('id_parent', $idParent)
             ->orderBy('id')
             ->get();
 
         $right = $left + 1;
 
-        if($result) {
+        if ($result) {
             $i = 0;
-            foreach($result as $row) {
-                if($i == 0) {
+            foreach ($result as $row) {
+                if ($i == 0) {
                     $this->qb
                         ->table($this->table)
                         ->where('id', $row->id)
                         ->update($update = [
                             'record_left'  => $left,
                             'record_right' => $right,
-                            'record_depth' => $depth
+                            'record_depth' => $depth,
                         ]);
                 } else {
                     $this->qb
                         ->table($this->table)
                         ->where('id', $row->id)
                         ->update($update = [
-                            'record_left'  => $left = $right+1,
-                            'record_right' => $right = $left+1,
-                            'record_depth' => $depth
+                            'record_left'  => $left = $right + 1,
+                            'record_right' => $right = $left + 1,
+                            'record_depth' => $depth,
                         ]);
                 }
 
-                $update['id'] = $row->id;
+                $update[ 'id' ] = $row->id;
 
-                if($this->hasChild($row->id)) {
+                if ($this->hasChild($row->id)) {
                     $right = $this->rebuild($row->id, $right, $depth + 1);
                     $this->qb
                         ->table($this->table)
                         ->where('id', $row->id)
                         ->update($update = [
-                            'record_right' => $right
+                            'record_right' => $right,
                         ]);
-                    $update['id'] = $row->id;
+                    $update[ 'id' ] = $row->id;
                 }
 
                 $i++;
@@ -89,89 +89,6 @@ trait HierarchicalTrait
 
         return $right + 1;
     }
-
-    /**
-     * Find Parents
-     *
-     * Retreive parents of a record
-     *
-     * @param numeric $id Record ID
-     *
-     * @access public
-     * @return array
-     */
-    public function getParents($id, &$parents = [])
-    {
-        $result = $this->qb
-            ->table($this->table)
-            ->whereIn('id', $this->qb
-                ->subQuery()
-                ->table($this->table)
-                ->select('id_parent')
-                ->where('id', $id)
-            )
-            ->get();
-
-        if ($result) {
-            if($result->count()) {
-                $parents[] = $row = $result->first();
-
-                if($this->hasParent($row->id_parent)) {
-                    $this->getParents($row->id, $parents);
-                }
-            }
-        }
-
-        return array_reverse($parents);
-    }
-    // ------------------------------------------------------------------------
-
-    public function hasParent($idParent)
-    {
-        $result = $this->qb
-            ->table($this->table)
-            ->select('id')
-            ->where('id', $idParent)
-            ->get();
-
-        if ($result) {
-            return (bool)($result->count() == 0 ? false : true);
-        }
-
-        return false;
-    }
-
-    /**
-     * Find Childs
-     *
-     * Retreive all childs
-     *
-     * @param numeric $idParent Parent ID
-     *
-     * @access public
-     * @return array
-     */
-    public function getChilds($idParent)
-    {
-        $result = $this->qb
-            ->table($this->table)
-            ->where('id_parent', $idParent)
-            ->get();
-
-        $childs = [];
-
-        if ($result) {
-            foreach($result as $row) {
-                $childs[] = $row;
-                if( $this->hasChild( $row->id ) ) {
-                    $row->childs = $this->getChilds($row->id);
-                }
-            }
-        }
-
-        return $childs;
-    }
-    // ------------------------------------------------------------------------
 
     /**
      * Has Childs
@@ -196,6 +113,90 @@ trait HierarchicalTrait
         }
 
         return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Find Parents
+     *
+     * Retreive parents of a record
+     *
+     * @param numeric $id Record ID
+     *
+     * @access public
+     * @return array
+     */
+    public function getParents($id, &$parents = [])
+    {
+        $result = $this->qb
+            ->table($this->table)
+            ->whereIn('id', $this->qb
+                ->subQuery()
+                ->table($this->table)
+                ->select('id_parent')
+                ->where('id', $id)
+            )
+            ->get();
+
+        if ($result) {
+            if ($result->count()) {
+                $parents[] = $row = $result->first();
+
+                if ($this->hasParent($row->id_parent)) {
+                    $this->getParents($row->id, $parents);
+                }
+            }
+        }
+
+        return array_reverse($parents);
+    }
+
+    public function hasParent($idParent)
+    {
+        $result = $this->qb
+            ->table($this->table)
+            ->select('id')
+            ->where('id', $idParent)
+            ->get();
+
+        if ($result) {
+            return (bool)($result->count() == 0 ? false : true);
+        }
+
+        return false;
+    }
+    // ------------------------------------------------------------------------
+
+    /**
+     * Find Childs
+     *
+     * Retreive all childs
+     *
+     * @param numeric $idParent Parent ID
+     *
+     * @access public
+     * @return array
+     */
+    public function getChilds($idParent)
+    {
+        $result = $this->qb
+            ->table($this->table)
+            ->where('id_parent', $idParent)
+            ->get();
+
+        $childs = [];
+
+        if ($result) {
+            foreach ($result as $row) {
+                $childs[] = $row;
+                if ($this->hasChild($row->id)) {
+                    $row->childs = $this->getChilds($row->id);
+                }
+            }
+        }
+
+        return $childs;
     }
     // ------------------------------------------------------------------------
 

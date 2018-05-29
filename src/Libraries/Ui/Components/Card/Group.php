@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Card;
@@ -26,8 +27,8 @@ class Group extends Element
 {
     public function __construct()
     {
-        parent::__construct( 'div', 'group' );
-        $this->attributes->addAttributeClass( 'card-group' );
+        parent::__construct('div', 'group');
+        $this->attributes->addAttributeClass('card-group');
     }
 
     /**
@@ -36,17 +37,17 @@ class Group extends Element
      *
      * @return Card
      */
-    public function createCard( $contextualClass = Card::DEFAULT_CONTEXT, $inverse = false )
+    public function createCard($contextualClass = Card::DEFAULT_CONTEXT, $inverse = false)
     {
-        $card = new Card( $contextualClass, $inverse );
-        $this->childNodes->push( $card );
+        $card = new Card($contextualClass, $inverse);
+        $this->childNodes->push($card);
 
         return $this->childNodes->last();
     }
 
-    public function addCard( Card $card )
+    public function addCard(Card $card)
     {
-        $this->childNodes->push( $card );
+        $this->childNodes->push($card);
 
         return $this;
     }

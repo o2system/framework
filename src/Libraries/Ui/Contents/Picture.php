@@ -32,34 +32,34 @@ class Picture extends Element
      *
      * @param array $attributes
      */
-    public function __construct( array $attributes = [] )
+    public function __construct(array $attributes = [])
     {
-        parent::__construct( 'picture' );
+        parent::__construct('picture');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( $attributes[ 'id' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName($attributes[ 'id' ]);
         }
 
-        $this->source = new \O2System\Html\Element( 'source', 'source' );
+        $this->source = new \O2System\Html\Element('source', 'source');
 
-        if ( isset( $attributes[ 'srcset' ] ) ) {
-            $this->source->attributes->addAttribute( 'srcset', $attributes[ 'srcset' ] );
-            unset( $attributes[ 'srcset' ] );
+        if (isset($attributes[ 'srcset' ])) {
+            $this->source->attributes->addAttribute('srcset', $attributes[ 'srcset' ]);
+            unset($attributes[ 'srcset' ]);
         }
 
-        if ( isset( $attributes[ 'type' ] ) ) {
-            $this->source->attributes->addAttribute( 'type', $attributes[ 'type' ] );
-            unset( $attributes[ 'type' ] );
+        if (isset($attributes[ 'type' ])) {
+            $this->source->attributes->addAttribute('type', $attributes[ 'type' ]);
+            unset($attributes[ 'type' ]);
         }
 
         $this->image = new Image();
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->image->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->image->attributes->addAttribute($name, $value);
             }
         }
 
-        $this->childNodes->push( $this->image );
+        $this->childNodes->push($this->image);
     }
 }

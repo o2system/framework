@@ -34,11 +34,6 @@ class Money extends AbstractRepository
         return short_format($this->amount, $decimals);
     }
 
-    public function currencyFormat($locale = 'id_ID', $currency = 'IDR', $addSpace = true)
-    {
-        return currency_format($this->amount, 'id_ID', 'IDR', $addSpace);
-    }
-
     public function numberFormat($decimals = 0, $thousandSeparator = '.', $decimalSeparator = ',')
     {
         $decimalSeparator = $thousandSeparator === '.' ? ',' : '.';
@@ -60,5 +55,10 @@ class Money extends AbstractRepository
         loader()->loadHelper('number');
 
         return $this->currencyFormat();
+    }
+
+    public function currencyFormat($locale = 'id_ID', $currency = 'IDR', $addSpace = true)
+    {
+        return currency_format($this->amount, 'id_ID', 'IDR', $addSpace);
     }
 }

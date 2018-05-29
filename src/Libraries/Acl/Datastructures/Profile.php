@@ -118,6 +118,6 @@ class Profile extends AbstractRepository
             $value = trim($value);
         }
 
-        parent::store($offset, $value);
+        $this->storage[ $offset ] = $value;
     }
 }

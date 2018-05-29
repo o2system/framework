@@ -28,8 +28,8 @@ class Signature extends AbstractRepository
         $defaultSignature = [
             'id_sys_user' => null,
             'code'        => null,
-            'ip_address'  => request()->getClientIpAddress(),
-            'user_agent'  => request()->getClientUserAgent(),
+            'ip_address'  => server_request()->getClientIpAddress(),
+            'user_agent'  => server_request()->getClientUserAgent(),
         ];
 
         foreach ($defaultSignature as $item => $value) {

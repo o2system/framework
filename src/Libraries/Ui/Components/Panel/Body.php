@@ -8,14 +8,15 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Panel;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Traits\Collectors\ParagraphsCollectorTrait;
 use O2System\Framework\Libraries\Ui\Element;
+use O2System\Framework\Libraries\Ui\Traits\Collectors\ParagraphsCollectorTrait;
 
 /**
  * Class Body
@@ -28,7 +29,7 @@ class Body extends Element
 
     public function __construct()
     {
-        parent::__construct( 'div', 'body' );
-        $this->attributes->addAttributeClass( 'panel-body' );
+        parent::__construct('div', 'body');
+        $this->attributes->addAttributeClass('panel-body');
     }
 }

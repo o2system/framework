@@ -8,15 +8,15 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Modal\Dialog\Content;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Traits\Collectors\ParagraphsCollectorTrait;
 use O2System\Framework\Libraries\Ui\Element;
-use O2System\Spl\Iterators\ArrayIterator;
+use O2System\Framework\Libraries\Ui\Traits\Collectors\ParagraphsCollectorTrait;
 
 /**
  * Class Body
@@ -29,15 +29,15 @@ class Body extends Element
 
     public function __construct()
     {
-        parent::__construct( 'div', 'body' );
-        $this->attributes->addAttributeClass( 'modal-body' );
+        parent::__construct('div', 'body');
+        $this->attributes->addAttributeClass('modal-body');
     }
 
     public function render()
     {
-        if( $this->hasParagraphs() ) {
-            foreach( $this->paragraphs as $paragraph ) {
-                $this->childNodes->push( $paragraph );
+        if ($this->hasParagraphs()) {
+            foreach ($this->paragraphs as $paragraph) {
+                $this->childNodes->push($paragraph);
             }
         }
 

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Message;
@@ -16,14 +17,13 @@ namespace O2System\Framework\Http\Message;
 
 use O2System\Framework\Http\Router\Datastructures\Controller;
 use O2System\Kernel\Http\Message;
-use Traversable;
 
 /**
- * Class Request
+ * Class ServerRequest
  *
  * @package O2System\Framework\Http\Message
  */
-class Request extends Message\Request implements \IteratorAggregate
+class ServerRequest extends Message\ServerRequest implements \IteratorAggregate
 {
     /**
      * Request::$controller
@@ -55,7 +55,7 @@ class Request extends Message\Request implements \IteratorAggregate
      */
     public function getController()
     {
-        if( false !== ( $controller = services( 'controller' ) ) ) {
+        if (false !== ($controller = services('controller'))) {
             return $controller;
         }
 

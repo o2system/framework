@@ -16,9 +16,6 @@ namespace O2System\Framework\Libraries\Ui\Components\Card;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Libraries\Ui\Components;
-use O2System\Framework\Libraries\Ui\Element;
-use O2System\Framework\Libraries\Ui\Interfaces\ContextualInterface;
-use O2System\Framework\Libraries\Ui\Traits\Setters\ContextualClassSetterTrait;
 
 /**
  * Class Badge
@@ -32,9 +29,9 @@ class Badge extends Components\Badge
 
     public $position;
 
-    public function __construct( $textContent = null, $contextualClass = 'default', $position = self::LEFT_BADGE )
+    public function __construct($textContent = null, $contextualClass = 'default', $position = self::LEFT_BADGE)
     {
-        parent::__construct( $textContent, $contextualClass );
+        parent::__construct($textContent, $contextualClass);
         $this->position = $position;
     }
 }

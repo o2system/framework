@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Cli;
@@ -32,19 +33,19 @@ class App extends \O2System\Kernel\Cli\App
      */
     public function optionVersion()
     {
-        if ( property_exists( $this, 'version' ) ) {
-            if ( ! empty( $this->version ) ) {
+        if (property_exists($this, 'version')) {
+            if ( ! empty($this->version)) {
                 output()->write(
-                    ( new Format() )
-                        ->setString( $this->name . ' v' . $this->version . ' Copyright (c) 2011 - ' . date( 'Y' ) . ' Steeve Andrian Salim' )
-                        ->setNewLinesAfter( 1 )
+                    (new Format())
+                        ->setString($this->name . ' v' . $this->version . ' Copyright (c) 2011 - ' . date('Y') . ' Steeve Andrian Salim')
+                        ->setNewLinesAfter(1)
                 );
 
                 output()->write(
-                    ( new Format() )
-                        ->setIndent( 2 )
-                        ->setString( 'this framework is trademark of Steeve Andrian Salim' )
-                        ->setNewLinesAfter( 1 )
+                    (new Format())
+                        ->setIndent(2)
+                        ->setString('this framework is trademark of Steeve Andrian Salim')
+                        ->setNewLinesAfter(1)
                 );
             }
         }

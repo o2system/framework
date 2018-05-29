@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Relations\Maps;
@@ -90,11 +91,11 @@ class Inverse
         $this->relationTable = $relationModel->table;
 
         // Map Reference Model
-        $this->mapReferenceModel( $referenceModel );
+        $this->mapReferenceModel($referenceModel);
 
         // Map Relation Primary Key
-        $this->relationForeignKey = ( isset( $relationForeignKey ) ? $relationForeignKey
-            : $this->mapRelationForeignKey() );
+        $this->relationForeignKey = (isset($relationForeignKey) ? $relationForeignKey
+            : $this->mapRelationForeignKey());
     }
 
     // ------------------------------------------------------------------------
@@ -106,13 +107,13 @@ class Inverse
      *
      * @return void
      */
-    private function mapReferenceModel( $referenceModel )
+    private function mapReferenceModel($referenceModel)
     {
-        if ( $referenceModel instanceof Model ) {
+        if ($referenceModel instanceof Model) {
             $this->referenceModel = $referenceModel;
             $this->referenceTable = $this->referenceModel->table;
             $this->referencePrimaryKey = $this->referenceModel->primaryKey;
-        } elseif ( class_exists( $referenceModel ) ) {
+        } elseif (class_exists($referenceModel)) {
             $this->referenceModel = new $referenceModel();
             $this->referenceTable = $this->referenceModel->table;
             $this->referencePrimaryKey = $this->referenceModel->primaryKey;
@@ -138,6 +139,6 @@ class Inverse
             'tb_',
         ];
 
-        return $this->referencePrimaryKey . '_' . str_replace( $tablePrefixes, '', $this->referenceTable );
+        return $this->referencePrimaryKey . '_' . str_replace($tablePrefixes, '', $this->referenceTable);
     }
 }

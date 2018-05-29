@@ -32,41 +32,41 @@ class Figure extends Element
      *
      * @param array $attributes
      */
-    public function __construct( array $attributes = [] )
+    public function __construct(array $attributes = [])
     {
-        parent::__construct( 'figure' );
+        parent::__construct('figure');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( $attributes[ 'id' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName($attributes[ 'id' ]);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
     }
 
-    public function createImage( $src = null, $alt = null )
+    public function createImage($src = null, $alt = null)
     {
-        $this->image = new Image( $src, $alt );
-        $this->image->attributes->addAttributeClass( [ 'figure-img', 'img-fluid' ] );
+        $this->image = new Image($src, $alt);
+        $this->image->attributes->addAttributeClass(['figure-img', 'img-fluid']);
 
-        $this->childNodes->push( $this->image );
+        $this->childNodes->push($this->image);
 
         return $this->childNodes->last();
     }
 
-    public function createCaption( $textContent = null, array $attributes = [] )
+    public function createCaption($textContent = null, array $attributes = [])
     {
-        $this->caption = new Figure\Caption( $attributes );
-        $this->caption->attributes->addAttributeClass( 'figure-caption' );
+        $this->caption = new Figure\Caption($attributes);
+        $this->caption->attributes->addAttributeClass('figure-caption');
 
-        if ( isset( $textContent ) ) {
-            $this->textContent->push( $textContent );
+        if (isset($textContent)) {
+            $this->textContent->push($textContent);
         }
 
-        $this->childNodes->push( $this->caption );
+        $this->childNodes->push($this->caption);
 
         return $this->childNodes->last();
     }

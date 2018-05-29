@@ -137,7 +137,7 @@ class Restful extends Controller
 
         if (is_ajax()) {
             output()->setContentType('application/json');
-        } elseif($this->ajaxOnly === false) {
+        } elseif ($this->ajaxOnly === false) {
             output()->setContentType('application/json');
         } else {
             output()->setContentType('text/html');
@@ -194,7 +194,8 @@ class Restful extends Controller
 
             // Set response access control max age header
             if ($this->accessControlMaxAge > 0) {
-                output()->addHeader(ResponseFieldInterface::RESPONSE_ACCESS_CONTROL_MAX_AGE, $this->accessControlMaxAge);
+                output()->addHeader(ResponseFieldInterface::RESPONSE_ACCESS_CONTROL_MAX_AGE,
+                    $this->accessControlMaxAge);
             }
         }
 
@@ -217,7 +218,7 @@ class Restful extends Controller
 
     public function sendError($code, $message = null)
     {
-        if($this->ajaxOnly === false) {
+        if ($this->ajaxOnly === false) {
             output()->setContentType('application/json');
         }
 

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Controllers;
@@ -40,25 +41,29 @@ class Pages extends Controller
      *
      * @return void
      */
-    public function setPage( Page $page )
+    public function setPage(Page $page)
     {
         $this->page = $page;
 
-        if ( false !== ( $settings = $this->page->getSettings() ) ) {
-            if ( $settings->offsetExists( 'theme' ) ) {
-                presenter()->setTheme( $settings->theme );
+        if (false !== ($settings = $this->page->getSettings())) {
+            if ($settings->offsetExists('theme')) {
+                presenter()->theme->set($settings->theme);
             }
 
-            if ( $settings->offsetExists( 'title' ) ) {
-                presenter()->meta->title->append( $settings->title );
+            if ($settings->offsetExists('layout')) {
+                presenter()->theme->setLayout($settings->layout);
             }
 
-            if ( $settings->offsetExists( 'pageTitle' ) ) {
-                presenter()->meta->title->append( $settings->pageTitle );
+            if ($settings->offsetExists('title')) {
+                presenter()->meta->title->append($settings->title);
             }
 
-            if ( $settings->offsetExists( 'browserTitle' ) ) {
-                presenter()->meta->title->replace( $settings->browserTitle );
+            if ($settings->offsetExists('pageTitle')) {
+                presenter()->meta->title->append($settings->pageTitle);
+            }
+
+            if ($settings->offsetExists('browserTitle')) {
+                presenter()->meta->title->replace($settings->browserTitle);
             }
         }
     }
@@ -72,6 +77,6 @@ class Pages extends Controller
      */
     public function index()
     {
-        view()->page( $this->page );
+        view()->page($this->page);
     }
 }

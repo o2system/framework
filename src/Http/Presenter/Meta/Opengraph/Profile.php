@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph;
@@ -25,38 +26,38 @@ class Profile extends AbstractNamespace
 {
     public $namespace = 'profile';
 
-    public function setName( $name )
+    public function setName($name)
     {
-        $xName = explode( ' ', $name );
+        $xName = explode(' ', $name);
         $firstName = $xName[ 0 ];
 
-        array_shift( $xName );
+        array_shift($xName);
 
-        $lastName = implode( ' ', $xName );
+        $lastName = implode(' ', $xName);
 
-        $this->setObject( 'first_name', $firstName );
-        $this->setObject( 'last_name', $lastName );
-
-        return $this;
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function setUsername( $username )
-    {
-        $this->setObject( 'username', $username );
+        $this->setObject('first_name', $firstName);
+        $this->setObject('last_name', $lastName);
 
         return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function setGender( $gender )
+    public function setUsername($username)
     {
-        $gender = strtolower( $gender );
+        $this->setObject('username', $username);
 
-        if ( in_array( $gender, [ 'male', 'female' ] ) ) {
-            $this->setObject( 'gender', $gender );
+        return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function setGender($gender)
+    {
+        $gender = strtolower($gender);
+
+        if (in_array($gender, ['male', 'female'])) {
+            $this->setObject('gender', $gender);
         }
 
         return $this;

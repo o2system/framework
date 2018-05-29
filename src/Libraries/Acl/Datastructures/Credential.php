@@ -28,8 +28,8 @@ class Credential extends AbstractRepository
         $defaultCredential = [
             'id_sys_user' => null,
             'token'       => null,
-            'ip_address'  => request()->getClientIpAddress(),
-            'user_agent'  => request()->getClientUserAgent(),
+            'ip_address'  => server_request()->getClientIpAddress(),
+            'user_agent'  => server_request()->getClientUserAgent(),
         ];
 
         foreach ($defaultCredential as $item => $value) {

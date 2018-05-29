@@ -173,6 +173,12 @@ class Framework extends Kernel
         // Add App Views Folder
         output()->addFilePath(PATH_APP);
 
+        profiler()->watch('INSTANTIATE_HOOKS_SERVICE');
+        $hooks = new Framework\Services\Hooks();
+
+        profiler()->watch('CALL_HOOKS_PRE_SYSTEM');
+        $hooks->callEvent(Framework\Services\Hooks::PRE_SYSTEM);
+
         profiler()->watch('SYSTEM_START');
 
         // Instantiate Globals Container
@@ -183,15 +189,9 @@ class Framework extends Kernel
         profiler()->watch('INSTANTIATE_ENVIRONMENT_CONTAINER');
         $this->addService(new Kernel\Containers\Environment(), 'environment');
 
-        profiler()->watch('INSTANTIATE_HOOKS_SERVICE');
-        $hooks = new Framework\Services\Hooks();
-
-        profiler()->watch('CALL_HOOKS_PRE_SYSTEM');
-        $hooks->callEvent(Framework\Services\Hooks::PRE_SYSTEM);
-
         profiler()->watch('INSTANTIATE_SYSTEM_SERVICES');
 
-        foreach (['','Loader', 'Config'] as $serviceClassName) {
+        foreach (['Loader', 'Config', 'Logger'] as $serviceClassName) {
             if (class_exists('App\Kernel\Services\\' . $serviceClassName)) {
                 $this->addService(new Kernel\Datastructures\Service('App\Kernel\Services\\' . $serviceClassName));
             } elseif (class_exists('O2System\Framework\Services\\' . $serviceClassName)) {
@@ -362,6 +362,7 @@ class Framework extends Kernel
             profiler()->watch('INSTANTIATE_SESSION_SERVICE');
 
             $session = new Session(config('session', true));
+            $session->setLogger($this->getService('logger'));
 
             if ( ! $session->isStarted()) {
                 $session->start();
@@ -387,7 +388,7 @@ class Framework extends Kernel
             presenter()->initialize();
         }
 
-        $this->addService('O2System\Framework\Http\Message\Request');
+        $this->addService('O2System\Framework\Http\Message\ServerRequest');
 
         // Instantiate Http Middleware Service
         profiler()->watch('INSTANTIATE_HTTP_MIDDLEWARE_SERVICE');
@@ -511,6 +512,8 @@ class Framework extends Kernel
                 ob_start();
                 $requestControllerOutput = $requestController->__call($requestMethod, $requestMethodArgs);
 
+                profiler()->watch('END_REQUESTED_CONTROLLER_METHOD');
+
                 if (empty($requestControllerOutput)) {
                     $requestControllerOutput = ob_get_contents();
                     ob_end_clean();
@@ -549,6 +552,8 @@ class Framework extends Kernel
                             array_unshift($filenames, $controllerParameter);
                         }
 
+                        profiler()->watch('VIEW_RENDER_START');
+
                         foreach ($filenames as $filename) {
                             if (view()->getFilePath($filename)) {
                                 view()->load($filename);
@@ -556,8 +561,8 @@ class Framework extends Kernel
                         }
 
                         if (presenter()->partials->offsetExists('content')) {
-                            profiler()->watch('VIEW_SERVICE_RENDER');
                             view()->render();
+                            profiler()->watch('VIEW_RENDER_END');
                             exit(EXIT_SUCCESS);
                         }
                     }
@@ -573,7 +578,7 @@ class Framework extends Kernel
                     } elseif (config('presenter', true)->enabled === true) {
                         presenter()->partials->offsetSet('content', $requestControllerOutput);
 
-                        profiler()->watch('VIEW_SERVICE_RENDER');
+                        profiler()->watch('VIEW_RENDER_END');
                         view()->render();
                     } else {
                         output()->send($requestControllerOutput);

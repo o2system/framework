@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components;
@@ -23,33 +24,33 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Form extends Element
 {
-    public function __construct( array $attributes = [] )
+    public function __construct(array $attributes = [])
     {
-        parent::__construct( 'form' );
+        parent::__construct('form');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( $attributes[ 'id' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName($attributes[ 'id' ]);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
 
-        $this->attributes->addAttribute( 'role', 'form' );
+        $this->attributes->addAttribute('role', 'form');
     }
 
     public function inline()
     {
-        $this->attributes->addAttributeClass( 'form-inline' );
+        $this->attributes->addAttributeClass('form-inline');
 
         return $this;
     }
 
     public function horizontal()
     {
-        $this->attributes->addAttributeClass( 'form-horizontal' );
+        $this->attributes->addAttributeClass('form-horizontal');
 
         return $this;
     }
@@ -59,7 +60,7 @@ class Form extends Element
      */
     public function createFormGroup()
     {
-        $this->childNodes->push( new Form\Group() );
+        $this->childNodes->push(new Form\Group());
 
         return $this->childNodes->last();
     }

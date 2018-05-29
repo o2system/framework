@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Form\Elements\Select;
@@ -25,20 +26,20 @@ class Group extends Element
 {
     use Traits\OptionCreateTrait;
 
-    public function __construct( $attributes = [] )
+    public function __construct($attributes = [])
     {
-        parent::__construct( 'optgroup' );
+        parent::__construct('optgroup');
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
     }
 
     public function disabled()
     {
-        $this->attributes->addAttribute( 'disabled', 'disabled' );
+        $this->attributes->addAttribute('disabled', 'disabled');
 
         return $this;
     }

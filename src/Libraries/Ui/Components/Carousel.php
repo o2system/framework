@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components;
@@ -30,27 +31,27 @@ class Carousel extends Element
     public $control;
     public $slides;
 
-    public function __construct( $id = null )
+    public function __construct($id = null)
     {
-        parent::__construct( 'div', 'carousel' );
-        $this->attributes->addAttributeClass( 'carousel slide' );
-        $this->attributes->addAttribute( 'data-ride', 'carousel' );
+        parent::__construct('div', 'carousel');
+        $this->attributes->addAttributeClass('carousel slide');
+        $this->attributes->addAttribute('data-ride', 'carousel');
 
-        $id = empty( $id ) ? 'carousel-' . mt_rand( 1, 1000 ) : $id;
-        $this->attributes->setAttributeId( $id );
+        $id = empty($id) ? 'carousel-' . mt_rand(1, 1000) : $id;
+        $this->attributes->setAttributeId($id);
 
         $this->indicators = new Indicators();
-        $this->childNodes->push( $this->indicators );
+        $this->childNodes->push($this->indicators);
 
         $this->slides = new Slides();
         $this->slides
-            ->setIndicators( $this->indicators )
-            ->setTarget( $this->attributes->getAttributeId() );
-        $this->childNodes->push( $this->slides );
+            ->setIndicators($this->indicators)
+            ->setTarget($this->attributes->getAttributeId());
+        $this->childNodes->push($this->slides);
 
         $this->control = new Control();
-        $this->control->left->setAttributeHref( '#' . $id );
-        $this->control->right->setAttributeHref( '#' . $id );
-        $this->childNodes->push( $this->control );
+        $this->control->left->setAttributeHref('#' . $id);
+        $this->control->right->setAttributeHref('#' . $id);
+        $this->childNodes->push($this->control);
     }
 }

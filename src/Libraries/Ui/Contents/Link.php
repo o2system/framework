@@ -8,15 +8,16 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Contents;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Libraries\Ui\Element;
 use O2System\Framework\Libraries\Ui\Traits\Setters\PopoverSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\TooltipSetterTrait;
-use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Link
@@ -30,38 +31,38 @@ class Link extends Element
 
     public $icon;
 
-    public function __construct( $label = null, $href = null )
+    public function __construct($label = null, $href = null)
     {
-        parent::__construct( 'a' );
+        parent::__construct('a');
 
-        if ( isset( $label ) ) {
+        if (isset($label)) {
 
-            if ( $label instanceof Element ) {
-                $this->childNodes->prepend( $label );
-                $this->entity->setEntityName( $label->entity->getEntityName() );
+            if ($label instanceof Element) {
+                $this->childNodes->prepend($label);
+                $this->entity->setEntityName($label->entity->getEntityName());
             } else {
-                $this->textContent->prepend( $label );
-                $this->entity->setEntityName( $label );
+                $this->textContent->prepend($label);
+                $this->entity->setEntityName($label);
             }
         }
 
-        if ( isset( $href ) ) {
-            $this->setAttributeHref( $href );
+        if (isset($href)) {
+            $this->setAttributeHref($href);
         }
     }
 
     // ------------------------------------------------------------------------
 
-    public function setAttributeHref( $href )
+    public function setAttributeHref($href)
     {
-        if ( strpos( $href, 'http' ) !== false ) {
-            $this->attributes->addAttribute( 'href', $href );
-        } elseif ( strpos( $href, 'javascript' ) !== false ) {
-            $this->attributes->addAttribute( 'href', $href );
-        } elseif ( strpos( $href, '#' ) !== false ) {
-            $this->attributes->addAttribute( 'href', $href );
-        } elseif ( function_exists( 'base_url' ) ) {
-            $this->attributes->addAttribute( 'href', base_url( $href ) );
+        if (strpos($href, 'http') !== false) {
+            $this->attributes->addAttribute('href', $href);
+        } elseif (strpos($href, 'javascript') !== false) {
+            $this->attributes->addAttribute('href', $href);
+        } elseif (strpos($href, '#') !== false) {
+            $this->attributes->addAttribute('href', $href);
+        } elseif (function_exists('base_url')) {
+            $this->attributes->addAttribute('href', base_url($href));
         }
 
         return $this;
@@ -71,35 +72,30 @@ class Link extends Element
 
     public function getAttributeHref()
     {
-        return $this->attributes->offsetGet( 'href' );
+        return $this->attributes->offsetGet('href');
     }
 
     // ------------------------------------------------------------------------
 
-    public function hasIcon()
-    {
-        return empty( $this->icon ) ? false : true;
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function setIcon( Icon $icon )
+    public function setIcon(Icon $icon)
     {
         $this->icon = $icon;
 
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
     public function active()
     {
-        $this->attributes->addAttributeClass( 'active' );
+        $this->attributes->addAttributeClass('active');
 
         return $this;
     }
 
     public function disabled()
     {
-        $this->attributes->addAttributeClass( 'disabled' );
+        $this->attributes->addAttributeClass('disabled');
 
         return $this;
     }
@@ -108,26 +104,31 @@ class Link extends Element
     {
         $output[] = $this->open();
 
-        if( $this->hasIcon() ) {
+        if ($this->hasIcon()) {
             $output[] = $this->icon;
         }
 
-        if( $this->hasTextContent() ) {
-            $output[] = PHP_EOL . implode( '', $this->textContent->getArrayCopy() ) . PHP_EOL;
+        if ($this->hasTextContent()) {
+            $output[] = PHP_EOL . implode('', $this->textContent->getArrayCopy()) . PHP_EOL;
         }
 
-        if( $this->hasChildNodes() ) {
-            if( ! $this->hasTextContent() ) {
+        if ($this->hasChildNodes()) {
+            if ( ! $this->hasTextContent()) {
                 $output[] = PHP_EOL;
             }
 
-            foreach( $this->childNodes as $childNode ) {
+            foreach ($this->childNodes as $childNode) {
                 $output[] = $childNode . PHP_EOL;
             }
         }
 
         $output[] = $this->close();
 
-        return implode( '', $output );
+        return implode('', $output);
+    }
+
+    public function hasIcon()
+    {
+        return empty($this->icon) ? false : true;
     }
 }

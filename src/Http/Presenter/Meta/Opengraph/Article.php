@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph;
@@ -35,9 +36,9 @@ class Article extends AbstractNamespace
      *
      * @return \O2System\Framework\Http\Presenter\Meta\Opengraph\Article
      */
-    public function setPublishedTime( $datetime )
+    public function setPublishedTime($datetime)
     {
-        return $this->setObject( 'published_time', $datetime );
+        return $this->setObject('published_time', $datetime);
     }
 
     // ------------------------------------------------------------------------
@@ -49,9 +50,9 @@ class Article extends AbstractNamespace
      *
      * @return \O2System\Framework\Http\Presenter\Meta\Opengraph\Article
      */
-    public function setModifiedTime( $datetime )
+    public function setModifiedTime($datetime)
     {
-        return $this->setObject( 'modified_time', $datetime );
+        return $this->setObject('modified_time', $datetime);
     }
 
     // ------------------------------------------------------------------------
@@ -63,9 +64,9 @@ class Article extends AbstractNamespace
      *
      * @return \O2System\Framework\Http\Presenter\Meta\Opengraph\Article
      */
-    public function setExpirationTime( $datetime )
+    public function setExpirationTime($datetime)
     {
-        return $this->setObject( 'expiration_time', $datetime );
+        return $this->setObject('expiration_time', $datetime);
     }
 
     // ------------------------------------------------------------------------
@@ -77,8 +78,8 @@ class Article extends AbstractNamespace
      *
      * @return \O2System\Framework\Http\Presenter\Meta\Opengraph\Article
      */
-    public function setSection( $section )
+    public function setSection($section)
     {
-        return $this->setObject( 'section', $section );
+        return $this->setObject('section', $section);
     }
 }

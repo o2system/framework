@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph;
@@ -32,10 +33,10 @@ class Image extends AbstractNamespace
      *
      * @return static
      */
-    public function setMime( $mime )
+    public function setMime($mime)
     {
-        if ( strpos( $mime, 'image/' ) !== false ) {
-            $this->setObject( 'type', $mime );
+        if (strpos($mime, 'image/') !== false) {
+            $this->setObject('type', $mime);
         }
 
         return $this;
@@ -51,11 +52,11 @@ class Image extends AbstractNamespace
      *
      * @return static
      */
-    public function setSize( $width, $height )
+    public function setSize($width, $height)
     {
-        if ( is_numeric( $width ) AND is_numeric( $height ) ) {
-            $this->setObject( 'width', $width );
-            $this->setObject( 'height', $height );
+        if (is_numeric($width) AND is_numeric($height)) {
+            $this->setObject('width', $width);
+            $this->setObject('height', $height);
         }
 
         return $this;

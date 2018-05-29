@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http;
@@ -31,39 +32,39 @@ class Presenter extends AbstractRepository
      */
     public function __construct()
     {
-        $this->store( 'meta', new Presenter\Meta() );
-        $this->store( 'assets', new Presenter\Assets() );
-        $this->store( 'partials', new Presenter\Partials() );
-        $this->store( 'widgets', new Presenter\Widgets() );
-        $this->store( 'theme', new Presenter\Theme() );
+        $this->store('meta', new Presenter\Meta());
+        $this->store('assets', new Presenter\Assets());
+        $this->store('partials', new Presenter\Partials());
+        $this->store('widgets', new Presenter\Widgets());
+        $this->store('theme', new Presenter\Theme());
+    }
+
+    public function store($offset, $value, $replace = false)
+    {
+        if ($value instanceof \Closure) {
+            parent::store($offset, call_user_func($value, $this));
+        } else {
+            parent::store($offset, $value);
+        }
     }
 
     public function initialize()
     {
-        if ( false !== ( $config = config()->loadFile( 'presenter', true ) ) ) {
+        if (false !== ($config = config()->loadFile('presenter', true))) {
             $this->setConfig($config);
 
             // autoload presenter assets
-            if ( $config->offsetExists( 'assets' ) ) {
-                $this->assets->autoload( $config->assets[ 'autoload' ] );
+            if ($config->offsetExists('assets')) {
+                $this->assets->autoload($config->assets[ 'autoload' ]);
             }
 
             // autoload presenter theme
-            if ( $config->offsetExists( 'theme' ) ) {
-                $this->theme->set( $config->offsetGet( 'theme' ) );
+            if ($config->offsetExists('theme')) {
+                $this->theme->set($config->offsetGet('theme'));
             }
         }
 
         return $this;
-    }
-
-    public function store( $offset, $value, $replace = false )
-    {
-        if ( $value instanceof \Closure ) {
-            parent::store( $offset, call_user_func( $value, $this ) );
-        } else {
-            parent::store( $offset, $value );
-        }
     }
 
     public function getArrayCopy()
@@ -83,25 +84,25 @@ class Presenter extends AbstractRepository
         return $storage;
     }
 
-    public function get( $property )
+    public function get($property)
     {
-        if ( o2system()->hasService( $property ) ) {
-            return o2system()->getService( $property );
-        } elseif ( o2system()->__isset( $property ) ) {
-            return o2system()->__get( $property );
-        } elseif ( property_exists( $this, $property ) ) {
+        if (o2system()->hasService($property)) {
+            return o2system()->getService($property);
+        } elseif (o2system()->__isset($property)) {
+            return o2system()->__get($property);
+        } elseif (property_exists($this, $property)) {
             return $this->{$property};
         }
 
-        return parent::get( $property );
+        return parent::get($property);
     }
 
     // ------------------------------------------------------------------------
 
-    public function __call( $method, array $args = [] )
+    public function __call($method, array $args = [])
     {
-        if ( method_exists( $this, $method ) ) {
-            return call_user_func_array( [ $this, $method ], $args );
+        if (method_exists($this, $method)) {
+            return call_user_func_array([$this, $method], $args);
         }
     }
 }

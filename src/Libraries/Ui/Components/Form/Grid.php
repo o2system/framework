@@ -32,8 +32,8 @@ class Grid extends Row
     public function __construct()
     {
         parent::__construct();
-        $this->attributes->removeAttributeClass( 'row' );
-        $this->attributes->addAttributeClass( 'form-row' );
+        $this->attributes->removeAttributeClass('row');
+        $this->attributes->addAttributeClass('form-row');
     }
 
     /**
@@ -43,9 +43,9 @@ class Grid extends Row
      *
      * @return \O2System\Framework\Libraries\Ui\Components\Form\Group
      */
-    public function createFormGroup( array $attributes = [] )
+    public function createFormGroup(array $attributes = [])
     {
-        $this->childNodes->push( new Group( $attributes ) );
+        $this->childNodes->push(new Group($attributes));
 
         return $this->childNodes->last();
     }

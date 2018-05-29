@@ -30,81 +30,81 @@ abstract class AbstractList extends Element
 
     public function unstyled()
     {
-        $this->attributes->removeAttributeClass( 'list-*' );
-        $this->attributes->addAttributeClass( 'list-unstyled' );
+        $this->attributes->removeAttributeClass('list-*');
+        $this->attributes->addAttributeClass('list-unstyled');
 
         return $this;
     }
 
-    public function inline( $inline = true )
+    public function inline($inline = true)
     {
-        $this->inline = (bool) $inline;
+        $this->inline = (bool)$inline;
 
         return $this;
     }
 
-    public function createLists( array $lists )
+    public function createLists(array $lists)
     {
-        if ( count( $lists ) ) {
-            foreach ( $lists as $list ) {
-                $this->createList( $list );
+        if (count($lists)) {
+            foreach ($lists as $list) {
+                $this->createList($list);
             }
         }
 
         return $this;
     }
 
-    public function createList( $list = null )
+    public function createList($list = null)
     {
         $node = new Item();
 
-        if ( $list instanceof Item ) {
+        if ($list instanceof Item) {
             $node = $list;
-        } elseif ( $list instanceof Element ) {
-            $node->entity->setEntityName( $list->entity->getEntityName() );
-            $node->childNodes->push( $list );
+        } elseif ($list instanceof Element) {
+            $node->entity->setEntityName($list->entity->getEntityName());
+            $node->childNodes->push($list);
         } else {
-            if ( is_numeric( $list ) ) {
-                $node->entity->setEntityName( 'list-' . $list );
+            if (is_numeric($list)) {
+                $node->entity->setEntityName('list-' . $list);
             }
 
-            if ( isset( $list ) ) {
-                $node->entity->setEntityName( $list );
-                $node->textContent->push( $list );
+            if (isset($list)) {
+                $node->entity->setEntityName($list);
+                $node->textContent->push($list);
             }
         }
 
-        $this->pushChildNode( $node );
+        $this->pushChildNode($node);
 
         return $this->childNodes->last();
     }
 
-    protected function pushChildNode( Element $node )
+    protected function pushChildNode(Element $node)
     {
-        if ( $node->hasChildNodes() ) {
-            if ( $node->childNodes->first() instanceof Link ) {
-                if ( $node->childNodes->first()->getAttributeHref() === current_url() ) {
-                    $node->attributes->addAttributeClass( 'active' );
-                    $node->childNodes->first()->attributes->addAttributeClass( 'active' );
+        if ($node->hasChildNodes()) {
+            if ($node->childNodes->first() instanceof Link) {
+                if ($node->childNodes->first()->getAttributeHref() === current_url()) {
+                    $node->attributes->addAttributeClass('active');
+                    $node->childNodes->first()->attributes->addAttributeClass('active');
                 }
             }
         }
 
-        $this->childNodes->push( $node );
+        $this->childNodes->push($node);
     }
 
     public function render()
     {
         $output[] = $this->open();
 
-        if ( $this->hasChildNodes() ) {
-            if ( $this->inline ) {
-                $this->attributes->addAttributeClass( 'list-inline' );
+        if ($this->hasChildNodes()) {
+            if ($this->inline) {
+                $this->attributes->addAttributeClass('list-inline');
             }
 
-            foreach ( $this->childNodes as $childNode ) {
-                if ( $this->inline ) {
-                    $childNode->attributes->addAttributeClass( 'list-inline-item' );
+            foreach ($this->childNodes as $childNode) {
+                if ($this->inline) {
+                    $childNode->attributes->addAttributeClass('list-inline-item');
                 }
 
                 $output[] = $childNode;
@@ -113,6 +113,6 @@ abstract class AbstractList extends Element
 
         $output[] = $this->close();
 
-        return implode( PHP_EOL, $output );
+        return implode(PHP_EOL, $output);
     }
 }

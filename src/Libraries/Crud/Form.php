@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Crud;
@@ -21,25 +22,25 @@ namespace O2System\Framework\Libraries\Crud;
  */
 class Form
 {
-    const DEFAULT_FORM    = 'FORM_GROUP';
-    const VERTICAL_FORM   = 'FORM_GROUP_VERTICAL';
+    const DEFAULT_FORM = 'FORM_GROUP';
+    const VERTICAL_FORM = 'FORM_GROUP_VERTICAL';
     const HORIZONTAL_FORM = 'FORM_GROUP_HORIZONTAL';
-    const INLINE_FORM     = 'FORM_GROUP_INLINE';
+    const INLINE_FORM = 'FORM_GROUP_INLINE';
 
     protected $config = [
         'primary_key' => 'id',
         'buttons'     => [
             'insert' => [
-                'cancel' => TRUE,
-                'reset'  => TRUE,
-                'save'   => TRUE,
+                'cancel' => true,
+                'reset'  => true,
+                'save'   => true,
             ],
             'update' => [
-                'cancel' => TRUE,
-                'reset'  => TRUE,
-                'delete' => TRUE,
-                'update' => TRUE,
-                'as-new' => TRUE,
+                'cancel' => true,
+                'reset'  => true,
+                'delete' => true,
+                'update' => true,
+                'as-new' => true,
             ],
         ],
     ];
@@ -165,43 +166,42 @@ class Form
 
     public function __construct()
     {
-        O2System()->view->assets->addAsset( 'crud-form' );
+        O2System()->view->assets->addAsset('crud-form');
     }
 
-    public function setData( ArrayObject $data )
+    public function setData(ArrayObject $data)
     {
         $this->_data = $data;
     }
 
-    public function setConfig( array $config )
+    public function setConfig(array $config)
     {
-        $this->config = array_merge( $this->config, $config );
+        $this->config = array_merge($this->config, $config);
     }
 
-    public function setAttributes( array $attributes )
+    public function setAttributes(array $attributes)
     {
         $this->attributes = $attributes;
     }
 
-    public function setTitle( $title )
+    public function setTitle($title)
     {
         $this->title = $title;
     }
 
-    public function setFieldsets( array $fieldsets, $group = 'main' )
+    public function setFieldsets(array $fieldsets, $group = 'main')
     {
         $this->fieldsets[ $group ] = $fieldsets;
     }
 
-    public function setFieldset( array $fieldset, $legend = '', $group = 'main' )
+    public function setFieldset(array $fieldset, $legend = '', $group = 'main')
     {
-        if ( array_key_exists( $group, $this->fieldsets ) )
-        {
+        if (array_key_exists($group, $this->fieldsets)) {
             $this->fieldsets[ $group ][ $legend ] = $fieldset;
         }
     }
 
-    public function setButtons( array $buttons )
+    public function setButtons(array $buttons)
     {
         $this->buttons = $buttons;
 
@@ -213,7 +213,7 @@ class Form
      *
      * @return $this
      */
-    public function setFields( array $fields = [ ] )
+    public function setFields(array $fields = [])
     {
         $this->fieldsets[ 'blank' ][ 'fields' ] = $fields;
 
@@ -223,74 +223,66 @@ class Form
     /**
      * @param array $hiddenFields
      */
-    public function setHiddenFields( array $hiddenFields = [ ] )
+    public function setHiddenFields(array $hiddenFields = [])
     {
-        foreach ( $hiddenFields as $hiddenField )
-        {
-            $this->addHiddenFields( $hiddenField );
+        foreach ($hiddenFields as $hiddenField) {
+            $this->addHiddenFields($hiddenField);
         }
     }
 
-    public function addHiddenFields( array $hiddenField )
+    public function addHiddenFields(array $hiddenField)
     {
         $this->hiddenFields[] = $hiddenField;
     }
 
-    public function addHiddenField( array $hiddenField )
+    public function addHiddenField(array $hiddenField)
     {
         $this->hiddenFields[] = $hiddenField;
-    }
-
-    public function render()
-    {
-        $panel[ 'header' ] = new Panel( Panel::DEFAULT_PANEL );
-        $panel[ 'header' ]->setTitle( $this->title );
-        $panel[ 'header' ]->addAttribute( 'data-role', 'form-panel-header' );
-
-        foreach ( $this->fieldsets as $group => $fieldsets )
-        {
-            $panel[ $group ] = new Group( Group::PANEL_GROUP );
-
-            foreach ( $fieldsets as $role => $fieldset )
-            {
-                $attr                = isset( $fieldset[ 'attr' ] ) ? $fieldset[ 'attr' ] : [ ];
-                $attr[ 'data-role' ] = $role;
-
-                if ( isset( $fieldset[ 'collapse' ] ) AND $fieldset[ 'collapse' ] === TRUE )
-                {
-                    $attr[ 'data-state' ] = 'collapse';
-                }
-
-                if ( isset( $fieldset[ 'type' ] ) )
-                {
-                    $panel[ $group ]->addItem(
-                        ( new Fieldset( $fieldset[ 'legend' ], Fieldset::PANEL_FIELDSET ) )
-                            ->addItems( $fieldset[ 'fields' ] )
-                            ->setAttributes( $attr )
-                            ->setGroupType( $fieldset[ 'type' ] ) );
-                }
-                else
-                {
-                    $panel[ $group ]->addItem(
-                        ( new Fieldset( $fieldset[ 'legend' ], Fieldset::PANEL_FIELDSET ) )
-                            ->addItems( $fieldset[ 'fields' ] )
-                            ->setAttributes( $attr ) );
-                }
-
-            }
-        }
-
-        if ( isset( $panel[ 'sidebar' ] ) )
-        {
-            $panel[ 'main' ]->addClass( 'col-sm-8' );
-            $panel[ 'sidebar' ]->addClass( 'col-sm-4' );
-        }
-
-        return ( new Tag( 'form', implode( PHP_EOL, $panel ), $this->attributes ) )->render();
     }
 
     public function __toString()
     {
         return $this->render();
+    }
+
+    public function render()
+    {
+        $panel[ 'header' ] = new Panel(Panel::DEFAULT_PANEL);
+        $panel[ 'header' ]->setTitle($this->title);
+        $panel[ 'header' ]->addAttribute('data-role', 'form-panel-header');
+
+        foreach ($this->fieldsets as $group => $fieldsets) {
+            $panel[ $group ] = new Group(Group::PANEL_GROUP);
+
+            foreach ($fieldsets as $role => $fieldset) {
+                $attr = isset($fieldset[ 'attr' ]) ? $fieldset[ 'attr' ] : [];
+                $attr[ 'data-role' ] = $role;
+
+                if (isset($fieldset[ 'collapse' ]) AND $fieldset[ 'collapse' ] === true) {
+                    $attr[ 'data-state' ] = 'collapse';
+                }
+
+                if (isset($fieldset[ 'type' ])) {
+                    $panel[ $group ]->addItem(
+                        (new Fieldset($fieldset[ 'legend' ], Fieldset::PANEL_FIELDSET))
+                            ->addItems($fieldset[ 'fields' ])
+                            ->setAttributes($attr)
+                            ->setGroupType($fieldset[ 'type' ]));
+                } else {
+                    $panel[ $group ]->addItem(
+                        (new Fieldset($fieldset[ 'legend' ], Fieldset::PANEL_FIELDSET))
+                            ->addItems($fieldset[ 'fields' ])
+                            ->setAttributes($attr));
+                }
+
+            }
+        }
+
+        if (isset($panel[ 'sidebar' ])) {
+            $panel[ 'main' ]->addClass('col-sm-8');
+            $panel[ 'sidebar' ]->addClass('col-sm-4');
+        }
+
+        return (new Tag('form', implode(PHP_EOL, $panel), $this->attributes))->render();
     }
 }

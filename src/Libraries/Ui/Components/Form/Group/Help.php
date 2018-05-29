@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Form\Group;
@@ -23,9 +24,9 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Help extends Element
 {
-    public function __construct( $tagName = 'span' )
+    public function __construct($tagName = 'span')
     {
-        parent::__construct( $tagName );
-        $this->attributes->addAttributeClass( [ 'form-text', 'text-muted', 'form-help' ] );
+        parent::__construct($tagName);
+        $this->attributes->addAttributeClass(['form-text', 'text-muted', 'form-help']);
     }
 }

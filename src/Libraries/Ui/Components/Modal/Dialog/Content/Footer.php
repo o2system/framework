@@ -8,14 +8,15 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Modal\Dialog\Content;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Traits\Collectors\ButtonsCollectorTrait;
 use O2System\Framework\Libraries\Ui\Element;
+use O2System\Framework\Libraries\Ui\Traits\Collectors\ButtonsCollectorTrait;
 
 /**
  * Class Footer
@@ -28,15 +29,15 @@ class Footer extends Element
 
     public function __construct()
     {
-        parent::__construct( 'div', 'header' );
-        $this->attributes->addAttributeClass( 'modal-footer' );
+        parent::__construct('div', 'header');
+        $this->attributes->addAttributeClass('modal-footer');
     }
 
     public function render()
     {
-        if( $this->hasButtons() ) {
-            foreach( $this->buttons as $button ) {
-                $this->childNodes->push( $button );
+        if ($this->hasButtons()) {
+            foreach ($this->buttons as $button) {
+                $this->childNodes->push($button);
             }
         }
 

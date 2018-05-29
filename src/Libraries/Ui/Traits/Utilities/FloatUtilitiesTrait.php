@@ -21,34 +21,34 @@ namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
  */
 trait FloatUtilitiesTrait
 {
-    public function floatLeft( $size = null )
+    public function floatLeft($size = null)
     {
-        if ( empty( $size ) ) {
-            $this->attributes->addAttributeClass( 'float-left' );
-        } elseif ( in_array( $size, [ 'xs', 'sm', 'md', 'lg', 'xl' ] ) ) {
-            $this->attributes->addAttributeClass( 'float-' . $size . '-left' );
+        if (empty($size)) {
+            $this->attributes->addAttributeClass('float-left');
+        } elseif (in_array($size, ['xs', 'sm', 'md', 'lg', 'xl'])) {
+            $this->attributes->addAttributeClass('float-' . $size . '-left');
         }
 
         return $this;
     }
 
-    public function floatRight( $size = null )
+    public function floatRight($size = null)
     {
-        if ( empty( $size ) ) {
-            $this->attributes->addAttributeClass( 'float-right' );
-        } elseif ( in_array( $size, [ 'xs', 'sm', 'md', 'lg', 'xl' ] ) ) {
-            $this->attributes->addAttributeClass( 'float-' . $size . '-right' );
+        if (empty($size)) {
+            $this->attributes->addAttributeClass('float-right');
+        } elseif (in_array($size, ['xs', 'sm', 'md', 'lg', 'xl'])) {
+            $this->attributes->addAttributeClass('float-' . $size . '-right');
         }
 
         return $this;
     }
 
-    public function floatNone( $size = null )
+    public function floatNone($size = null)
     {
-        if ( empty( $size ) ) {
-            $this->attributes->addAttributeClass( 'float-none' );
-        } elseif ( in_array( $size, [ 'xs', 'sm', 'md', 'lg', 'xl' ] ) ) {
-            $this->attributes->addAttributeClass( 'float-' . $size . '-none' );
+        if (empty($size)) {
+            $this->attributes->addAttributeClass('float-none');
+        } elseif (in_array($size, ['xs', 'sm', 'md', 'lg', 'xl'])) {
+            $this->attributes->addAttributeClass('float-' . $size . '-none');
         }
 
         return $this;

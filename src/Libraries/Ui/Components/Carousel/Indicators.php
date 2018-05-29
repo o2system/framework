@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Carousel;
@@ -26,6 +27,6 @@ class Indicators extends Ordered
     public function __construct()
     {
         parent::__construct();
-        $this->attributes->addAttributeClass( 'carousel-indicators' );
+        $this->attributes->addAttributeClass('carousel-indicators');
     }
 }

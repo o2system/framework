@@ -10,55 +10,55 @@
  */
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'base_url' ) ) {
-    function base_url( $segments = null, $query = null )
+if ( ! function_exists('base_url')) {
+    function base_url($segments = null, $query = null)
     {
-        $uri = ( new \O2System\Kernel\Http\Message\Uri() )
-            ->withSegments( new \O2System\Kernel\Http\Message\Uri\Segments( '' ) )
-            ->withQuery( '' );
+        $uri = (new \O2System\Kernel\Http\Message\Uri())
+            ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
+            ->withQuery('');
 
-        if ( $uriConfig = config()->offsetGet( 'uri' ) ) {
-            if ( ! empty( $uriConfig[ 'base' ] ) ) {
-                $base = ( is_https() ? 'https' : 'http' ) . '://' . str_replace( [ 'http://', 'https://' ], '',
-                        $uriConfig[ 'base' ] );
-                $uri = new \O2System\Kernel\Http\Message\Uri( $base );
+        if ($uriConfig = config()->offsetGet('uri')) {
+            if ( ! empty($uriConfig[ 'base' ])) {
+                $base = (is_https() ? 'https' : 'http') . '://' . str_replace(['http://', 'https://'], '',
+                        $uriConfig[ 'base' ]);
+                $uri = new \O2System\Kernel\Http\Message\Uri($base);
             }
         }
 
-        if ( isset( $segments ) ) {
-            $uri = $uri->addSegments( $segments );
+        if (isset($segments)) {
+            $uri = $uri->addSegments($segments);
         }
 
-        if ( isset( $query ) ) {
-            $uri = $uri->addQuery( $query );
+        if (isset($query)) {
+            $uri = $uri->addQuery($query);
         }
 
         return $uri->__toString();
     }
 }
 
-if ( ! function_exists( 'domain_url' ) ) {
-    function domain_url( $segments = null, $query = null )
+if ( ! function_exists('domain_url')) {
+    function domain_url($segments = null, $query = null)
     {
-        $uri = ( new \O2System\Kernel\Http\Message\Uri() )
+        $uri = (new \O2System\Kernel\Http\Message\Uri())
             ->withSubDomain(null)
-            ->withSegments( new \O2System\Kernel\Http\Message\Uri\Segments( '' ) )
-            ->withQuery( '' );
+            ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
+            ->withQuery('');
 
-        if ( $uriConfig = config()->offsetGet( 'uri' ) ) {
-            if ( ! empty( $uriConfig[ 'base' ] ) ) {
-                $base = ( is_https() ? 'https' : 'http' ) . '://' . str_replace( [ 'http://', 'https://' ], '',
-                        $uriConfig[ 'base' ] );
-                $uri = new \O2System\Kernel\Http\Message\Uri( $base );
+        if ($uriConfig = config()->offsetGet('uri')) {
+            if ( ! empty($uriConfig[ 'base' ])) {
+                $base = (is_https() ? 'https' : 'http') . '://' . str_replace(['http://', 'https://'], '',
+                        $uriConfig[ 'base' ]);
+                $uri = new \O2System\Kernel\Http\Message\Uri($base);
             }
         }
 
-        if ( isset( $segments ) ) {
-            $uri = $uri->addSegments( $segments );
+        if (isset($segments)) {
+            $uri = $uri->addSegments($segments);
         }
 
-        if ( isset( $query ) ) {
-            $uri = $uri->addQuery( $query );
+        if (isset($query)) {
+            $uri = $uri->addQuery($query);
         }
 
         return $uri->__toString();
@@ -67,25 +67,25 @@ if ( ! function_exists( 'domain_url' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'current_url' ) ) {
+if ( ! function_exists('current_url')) {
 
-    function current_url( $segments = null, $query = null )
+    function current_url($segments = null, $query = null)
     {
         $uri = new \O2System\Kernel\Http\Message\Uri();
 
-        if ( isset( $segments ) ) {
-            $uri = $uri->addSegments( $segments );
+        if (isset($segments)) {
+            $uri = $uri->addSegments($segments);
         }
 
-        if ( isset( $query ) ) {
-            $uri = $uri->addQuery( $query );
+        if (isset($query)) {
+            $uri = $uri->addQuery($query);
         }
 
         return $uri->__toString();
     }
 }
 
-if ( ! function_exists( 'assets_url' ) ) {
+if ( ! function_exists('assets_url')) {
     /**
      * assets_url
      *
@@ -93,15 +93,15 @@ if ( ! function_exists( 'assets_url' ) ) {
      *
      * @return string
      */
-    function assets_url( $path )
+    function assets_url($path)
     {
-        return presenter()->assets->file( $path );
+        return presenter()->assets->file($path);
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'storage_url' ) ) {
+if ( ! function_exists('storage_url')) {
     /**
      * assets_url
      *
@@ -109,16 +109,17 @@ if ( ! function_exists( 'storage_url' ) ) {
      *
      * @return string
      */
-    function storage_url( $path )
+    function storage_url($path)
     {
-        $urlPath = str_replace( PATH_STORAGE, '', $path );
-        return base_url( 'storage/' . $urlPath );
+        $urlPath = str_replace(PATH_STORAGE, '', $path);
+
+        return base_url('storage/' . $urlPath);
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'images_url' ) ) {
+if ( ! function_exists('images_url')) {
     /**
      * images_url
      *
@@ -126,16 +127,17 @@ if ( ! function_exists( 'images_url' ) ) {
      *
      * @return string
      */
-    function images_url( $path )
+    function images_url($path)
     {
-        $urlPath = str_replace( PATH_STORAGE, '', $path );
-        return base_url( 'images/' . $urlPath );
+        $urlPath = str_replace(PATH_STORAGE, '', $path);
+
+        return base_url('images/' . $urlPath);
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'prepare_url' ) ) {
+if ( ! function_exists('prepare_url')) {
     /**
      * Prep URL
      *
@@ -145,9 +147,9 @@ if ( ! function_exists( 'prepare_url' ) ) {
      *
      * @return    string
      */
-    function prepare_url( $uri = '' )
+    function prepare_url($uri = '')
     {
-        if ( $uri === 'http://' or $uri === 'https://' or $uri === '' ) {
+        if ($uri === 'http://' or $uri === 'https://' or $uri === '') {
             return '';
         }
 
@@ -161,12 +163,12 @@ if ( ! function_exists( 'prepare_url' ) ) {
          *
          * http://www.some-site.com/index.php
          */
-        $uri = preg_replace( '#(^|[^:])//+#', '\\1/', $uri );
+        $uri = preg_replace('#(^|[^:])//+#', '\\1/', $uri);
 
-        $url = parse_url( $uri );
+        $url = parse_url($uri);
 
-        if ( ! $url or ! isset( $url[ 'scheme' ] ) ) {
-            return ( is_https() ? 'https://' : 'http://' ) . $uri;
+        if ( ! $url or ! isset($url[ 'scheme' ])) {
+            return (is_https() ? 'https://' : 'http://') . $uri;
         }
 
         return $uri;
@@ -175,7 +177,7 @@ if ( ! function_exists( 'prepare_url' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'redirect_url' ) ) {
+if ( ! function_exists('redirect_url')) {
     /**
      * Header Redirect
      *
@@ -190,22 +192,22 @@ if ( ! function_exists( 'redirect_url' ) ) {
      *
      * @return    void
      */
-    function redirect_url( $uri = '', $method = 'auto', $code = null )
+    function redirect_url($uri = '', $method = 'auto', $code = null)
     {
-        if ( strpos( $uri, 'http' ) === false ) {
-            $uri = base_url( $uri );
+        if (strpos($uri, 'http') === false) {
+            $uri = base_url($uri);
         }
 
         // IIS environment likely? Use 'refresh' for better compatibility
-        if ( $method === 'auto' && isset( $_SERVER[ 'SERVER_SOFTWARE' ] ) && strpos(
+        if ($method === 'auto' && isset($_SERVER[ 'SERVER_SOFTWARE' ]) && strpos(
                 $_SERVER[ 'SERVER_SOFTWARE' ],
                 'Microsoft-IIS'
             ) !== false
         ) {
             $method = 'refresh';
-        } elseif ( $method !== 'refresh' && ( empty( $code ) OR ! is_numeric( $code ) ) ) {
-            if ( isset( $_SERVER[ 'SERVER_PROTOCOL' ], $_SERVER[ 'REQUEST_METHOD' ] ) && $_SERVER[ 'SERVER_PROTOCOL' ] === 'HTTP/1.1' ) {
-                $code = ( $_SERVER[ 'REQUEST_METHOD' ] !== 'GET' )
+        } elseif ($method !== 'refresh' && (empty($code) OR ! is_numeric($code))) {
+            if (isset($_SERVER[ 'SERVER_PROTOCOL' ], $_SERVER[ 'REQUEST_METHOD' ]) && $_SERVER[ 'SERVER_PROTOCOL' ] === 'HTTP/1.1') {
+                $code = ($_SERVER[ 'REQUEST_METHOD' ] !== 'GET')
                     ? 303    // reference: http://en.wikipedia.org/wiki/Post/Redirect/Get
                     : 307;
             } else {
@@ -213,12 +215,12 @@ if ( ! function_exists( 'redirect_url' ) ) {
             }
         }
 
-        switch ( $method ) {
+        switch ($method) {
             case 'refresh':
-                header( 'Refresh:0;url=' . $uri );
+                header('Refresh:0;url=' . $uri);
                 break;
             default:
-                header( 'Location: ' . $uri, true, $code );
+                header('Location: ' . $uri, true, $code);
                 break;
         }
 

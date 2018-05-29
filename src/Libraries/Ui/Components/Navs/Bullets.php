@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Navs;
@@ -28,34 +29,34 @@ class Bullets extends Base
     {
         parent::__construct();
 
-        $this->attributes->addAttributeClass( 'nav-bullets' );
+        $this->attributes->addAttributeClass('nav-bullets');
     }
 
-    public function createBullet( $bullet, $href = null )
+    public function createBullet($bullet, $href = null)
     {
-        if ( strpos( $bullet, 'http' ) || is_file( $bullet ) ) {
-            $icon = new Image( $bullet );
+        if (strpos($bullet, 'http') || is_file($bullet)) {
+            $icon = new Image($bullet);
         } else {
-            $icon = new Element( 'i', 'bullet' );
-            $icon->attributes->addAttributeClass( $bullet );
+            $icon = new Element('i', 'bullet');
+            $icon->attributes->addAttributeClass($bullet);
         }
 
-        $link = new Link( $icon, $href );
-        $link->attributes->addAttributeClass( 'nav-link' );
+        $link = new Link($icon, $href);
+        $link->attributes->addAttributeClass('nav-link');
 
-        return $this->createList( $link );
+        return $this->createList($link);
     }
 
     public function justified()
     {
-        $this->attributes->addAttributeClass( 'nav-justified' );
+        $this->attributes->addAttributeClass('nav-justified');
 
         return $this;
     }
 
     public function verticalStacked()
     {
-        $this->attributes->addAttributeClass( 'nav-stacked' );
+        $this->attributes->addAttributeClass('nav-stacked');
 
         return $this;
     }

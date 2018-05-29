@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Relations;
@@ -32,22 +33,22 @@ class HasManyThrough extends Sql\Relations\Abstracts\AbstractRelation
     public function getResult()
     {
         // print_out($this->map);
-        if ( $this->map->pivotModel->row instanceof Sql\DataObjects\Result\Row ) {
+        if ($this->map->pivotModel->row instanceof Sql\DataObjects\Result\Row) {
             $result = $this->map->pivotModel->qb
-                ->from( $this->map->relationTable )
-                ->join( $this->map->referenceTable, implode( ' = ', [
+                ->from($this->map->relationTable)
+                ->join($this->map->referenceTable, implode(' = ', [
                     $this->map->referencePrimaryKey,
                     $this->map->relationForeignKey,
-                ] ) )
-                ->getWhere( [ $this->map->referencePrimaryKey => $this->map->pivotModel->row->offsetGet( $this->map->pivotForeignKey ) ] );
+                ]))
+                ->getWhere([$this->map->referencePrimaryKey => $this->map->pivotModel->row->offsetGet($this->map->pivotForeignKey)]);
 
-            if ( $result instanceof Result ) {
-                if ( $result->count() > 0 ) {
-                    if ( $this->map->relationModel instanceof Sql\Model ) {
-                        return new Sql\DataObjects\Result( $result, $this->map->relationModel );
+            if ($result instanceof Result) {
+                if ($result->count() > 0) {
+                    if ($this->map->relationModel instanceof Sql\Model) {
+                        return new Sql\DataObjects\Result($result, $this->map->relationModel);
                     }
 
-                    return new Sql\DataObjects\Result( $result, $this->map->pivotModel );
+                    return new Sql\DataObjects\Result($result, $this->map->pivotModel);
                 }
             }
         }

@@ -18,8 +18,6 @@ namespace O2System\Framework\Http;
 use O2System\Kernel;
 use O2System\Framework;
 
-// ------------------------------------------------------------------------
-
 /**
  * Class Router
  *
@@ -29,7 +27,7 @@ class Router extends Kernel\Http\Router
 {
     public function parseRequest(Kernel\Http\Message\Uri $uri = null)
     {
-        $uri = is_null($uri) ? request()->getUri() : $uri;
+        $uri = is_null($uri) ? server_request()->getUri() : $uri;
         $uriSegments = $uri->getSegments()->getParts();
         $uriString = $uri->getSegments()->getString();
 
@@ -92,7 +90,7 @@ class Router extends Kernel\Http\Router
 
         // Try to translate from uri string
         if (false !== ($action = $this->addresses->getTranslation($uriString))) {
-            if ( ! $action->isValidHttpMethod(request()->getMethod()) && ! $action->isAnyHttpMethod()) {
+            if ( ! $action->isValidHttpMethod(server_request()->getMethod()) && ! $action->isAnyHttpMethod()) {
                 output()->sendError(405);
             } else {
                 if (false !== ($parseSegments = $action->getParseUriString($uriString))) {
@@ -180,6 +178,58 @@ class Router extends Kernel\Http\Router
 
     // ------------------------------------------------------------------------
 
+    final protected function registerModule(Framework\Datastructures\Module $module)
+    {
+        // Push Subdomain App Module
+        modules()->push($module);
+
+        // Load modular addresses config
+        if (false !== ($configDir = $module->getDir('config', true))) {
+            $reconfig = false;
+            if (is_file(
+                $filePath = $configDir . ucfirst(
+                        strtolower(ENVIRONMENT)
+                    ) . DIRECTORY_SEPARATOR . 'Addresses.php'
+            )) {
+                include($filePath);
+                $reconfig = true;
+            } elseif (is_file(
+                $filePath = $configDir . 'Addresses.php'
+            )) {
+                include($filePath);
+                $reconfig = true;
+            }
+
+            if ( ! $reconfig) {
+                $controllerNamespace = $module->getNamespace() . 'Controllers\\';
+                $controllerClassName = $controllerNamespace . studlycase($module->getParameter());
+
+                if (class_exists($controllerClassName)) {
+                    $this->addresses->any(
+                        '/',
+                        function () use ($controllerClassName) {
+                            return new $controllerClassName();
+                        }
+                    );
+                }
+            } elseif (isset($addresses)) {
+                $this->addresses = $addresses;
+            }
+        } else {
+            $controllerNamespace = $module->getNamespace() . 'Controllers\\';
+            $controllerClassName = $controllerNamespace . studlycase($module->getParameter());
+
+            if (class_exists($controllerClassName)) {
+                $this->addresses->any(
+                    '/',
+                    function () use ($controllerClassName) {
+                        return new $controllerClassName();
+                    }
+                );
+            }
+        }
+    }
+
     protected function parseAction(Kernel\Http\Router\Datastructures\Action $action, array $uriSegments = [])
     {
         ob_start();
@@ -249,6 +299,8 @@ class Router extends Kernel\Http\Router
         }
     }
 
+    // ------------------------------------------------------------------------
+
     final protected function setPage(Router\Datastructures\Page $page)
     {
         foreach (modules()->getNamespaces() as $controllersNamespace) {
@@ -277,59 +329,5 @@ class Router extends Kernel\Http\Router
         }
 
         return false;
-    }
-
-    // ------------------------------------------------------------------------
-
-    final protected function registerModule(Framework\Datastructures\Module $module)
-    {
-        // Push Subdomain App Module
-        modules()->push($module);
-
-        // Load modular addresses config
-        if (false !== ($configDir = $module->getDir('config', true))) {
-            $reconfig = false;
-            if (is_file(
-                $filePath = $configDir . ucfirst(
-                        strtolower(ENVIRONMENT)
-                    ) . DIRECTORY_SEPARATOR . 'Addresses.php'
-            )) {
-                include($filePath);
-                $reconfig = true;
-            } elseif (is_file(
-                $filePath = $configDir . 'Addresses.php'
-            )) {
-                include($filePath);
-                $reconfig = true;
-            }
-
-            if ( ! $reconfig) {
-                $controllerNamespace = $module->getNamespace() . 'Controllers\\';
-                $controllerClassName = $controllerNamespace . studlycase($module->getParameter());
-
-                if (class_exists($controllerClassName)) {
-                    $this->addresses->any(
-                        '/',
-                        function () use ($controllerClassName) {
-                            return new $controllerClassName();
-                        }
-                    );
-                }
-            } elseif (isset($addresses)) {
-                $this->addresses = $addresses;
-            }
-        } else {
-            $controllerNamespace = $module->getNamespace() . 'Controllers\\';
-            $controllerClassName = $controllerNamespace . studlycase($module->getParameter());
-
-            if (class_exists($controllerClassName)) {
-                $this->addresses->any(
-                    '/',
-                    function () use ($controllerClassName) {
-                        return new $controllerClassName();
-                    }
-                );
-            }
-        }
     }
 }

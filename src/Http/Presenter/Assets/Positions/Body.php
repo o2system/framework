@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Assets\Positions;
@@ -43,34 +44,34 @@ class Body extends Abstracts\AbstractPosition
         $output = [];
 
         // Render js
-        if ( $this->javascript->count() ) {
+        if ($this->javascript->count()) {
             $minifyJsCollection = $this->javascript->getArrayCopy();
             $minifyJsKey = 'bundle-body-' . md5(serialize($minifyJsCollection));
             $minifyJsFile = PATH_PUBLIC . 'webpack' . DIRECTORY_SEPARATOR . $minifyJsKey . '.js';
             $minifyJsHandler = new JS();
 
-            foreach ( $this->javascript as $javascript ) {
-                if($webpack) {
+            foreach ($this->javascript as $javascript) {
+                if ($webpack) {
                     $minifyJsHandler->add($javascript);
                 } else {
-                    $url = $this->getUrl( $javascript );
+                    $url = $this->getUrl($javascript);
                     $url = str_replace('/.js', '/index.js', $url);
 
                     $output[] = '<script type="text/javascript" src="' . $url . '"></script>';
                 }
             }
 
-            if($webpack) {
+            if ($webpack) {
                 if ( ! is_dir($minifyJsDirectory = dirname($minifyJsFile))) {
                     mkdir($minifyJsDirectory, 0777, true);
                 }
 
                 $minifyJsHandler->minify($minifyJsFile);
 
-                $output[] = '<script type="text/javascript" src="' . $this->getUrl( 'webpack/' . $minifyJsKey . '.js' ) . '"></script>';
+                $output[] = '<script type="text/javascript" src="' . $this->getUrl('webpack/' . $minifyJsKey . '.js') . '"></script>';
             }
         }
 
-        return implode( PHP_EOL, $output );
+        return implode(PHP_EOL, $output);
     }
 }

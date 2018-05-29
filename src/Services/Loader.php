@@ -103,47 +103,6 @@ class Loader implements AutoloadInterface
     // ------------------------------------------------------------------------
 
     /**
-     * Loader::addPublicDir
-     *
-     * Adds a public directory for assets.
-     *
-     * @param string $publicDir
-     */
-    public function addPublicDir($publicDir, $offset = null)
-    {
-        // normalize the public directory with a trailing separator
-        $publicDir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $publicDir);
-        $publicDir = PATH_PUBLIC . str_replace(PATH_PUBLIC, '', $publicDir);
-        $publicDir = rtrim($publicDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-
-        if (is_dir($publicDir) and ! in_array($publicDir, $this->publicDirs)) {
-            if (isset($offset)) {
-                $this->publicDirs[ $offset ] = $publicDir;
-            } else {
-                $this->publicDirs[] = $publicDir;
-            }
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Loader::getPublicDirs
-     *
-     * Gets all public directories
-     *
-     * @param bool $reverse
-     *
-     * @return array
-     */
-    public function getPublicDirs($reverse = false)
-    {
-        return $reverse === true ? array_reverse($this->publicDirs) : $this->publicDirs;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
      * Adds a base directory for a namespace prefix.
      *
      * @param string $namespace     The namespace prefix.
@@ -201,6 +160,47 @@ class Loader implements AutoloadInterface
                 require($baseDirectory . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
             }
         }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Loader::addPublicDir
+     *
+     * Adds a public directory for assets.
+     *
+     * @param string $publicDir
+     */
+    public function addPublicDir($publicDir, $offset = null)
+    {
+        // normalize the public directory with a trailing separator
+        $publicDir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $publicDir);
+        $publicDir = PATH_PUBLIC . str_replace(PATH_PUBLIC, '', $publicDir);
+        $publicDir = rtrim($publicDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+        if (is_dir($publicDir) and ! in_array($publicDir, $this->publicDirs)) {
+            if (isset($offset)) {
+                $this->publicDirs[ $offset ] = $publicDir;
+            } else {
+                $this->publicDirs[] = $publicDir;
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Loader::getPublicDirs
+     *
+     * Gets all public directories
+     *
+     * @param bool $reverse
+     *
+     * @return array
+     */
+    public function getPublicDirs($reverse = false)
+    {
+        return $reverse === true ? array_reverse($this->publicDirs) : $this->publicDirs;
     }
 
     // ------------------------------------------------------------------------
@@ -337,6 +337,34 @@ class Loader implements AutoloadInterface
 
     // ------------------------------------------------------------------------
 
+    public function loadModuleClass($class)
+    {
+        static $namespaceModules = [];
+
+        // class namespace
+        $namespaceParts = explode('\\', get_namespace($class));
+        $namespaceParts = array_filter($namespaceParts);
+
+        $namespace = reset($namespaceParts) . '\\';
+
+        if (empty($namespaceModules) && modules() !== false) {
+            if (false !== ($modules = modules()->getRegistry())) {
+                foreach ($modules as $module) {
+                    if ($module instanceof Module) {
+                        $namespaceModules[ $module->getNamespace() ] = $module;
+                    }
+                }
+            }
+        }
+
+        if (isset($namespaceModules[ $namespace ])) {
+            $module = $namespaceModules[ $namespace ];
+            $this->addNamespace($module->getNamespace(), $module->getRealPath());
+        }
+
+        return $this->loadClass($class);
+    }
+
     /**
      * Loads the class file for a given class name.
      *
@@ -374,6 +402,8 @@ class Loader implements AutoloadInterface
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
      * Load the mapped file for a namespace prefix and relative class.
      *
@@ -409,36 +439,6 @@ class Loader implements AutoloadInterface
 
         // never found it
         return false;
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function loadModuleClass($class)
-    {
-        static $namespaceModules = [];
-
-        // class namespace
-        $namespaceParts = explode('\\', get_namespace($class));
-        $namespaceParts = array_filter($namespaceParts);
-
-        $namespace = reset($namespaceParts) . '\\';
-
-        if (empty($namespaceModules) && modules() !== false) {
-            if (false !== ($modules = modules()->getRegistry())) {
-                foreach ($modules as $module) {
-                    if ($module instanceof Module) {
-                        $namespaceModules[ $module->getNamespace() ] = $module;
-                    }
-                }
-            }
-        }
-
-        if (isset($namespaceModules[ $namespace ])) {
-            $module = $namespaceModules[ $namespace ];
-            $this->addNamespace($module->getNamespace(), $module->getRealPath());
-        }
-
-        return $this->loadClass($class);
     }
 
     // ------------------------------------------------------------------------

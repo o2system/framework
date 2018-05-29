@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta;
@@ -31,187 +32,187 @@ class Opengraph extends AbstractRepository
         $this->prefix = 'http://ogp.me/ns#';
     }
 
-    public function setNamespace( Opengraph\Abstracts\AbstractNamespace $namespace )
+    public function setNamespace(Opengraph\Abstracts\AbstractNamespace $namespace)
     {
         $this->prefix = 'http://ogp.me/ns# ' . $namespace->namespace . ": http://ogp.me/ns/$namespace->namespace#";
-        $this->offsetSet( 'type', $namespace->namespace );
+        $this->offsetSet('type', $namespace->namespace);
 
-        foreach ( $namespace->getArrayCopy() as $property => $element ) {
-            parent::offsetSet( $property, $element );
+        foreach ($namespace->getArrayCopy() as $property => $element) {
+            parent::offsetSet($property, $element);
         }
 
         return $this;
     }
 
-    public function setAppId( $appID )
+    public function setAppId($appID)
     {
-        $element = new Element( 'meta' );
+        $element = new Element('meta');
 
         $element->attributes[ 'name' ] = 'fb:app_id';
         $element->attributes[ 'content' ] = $appID;
 
-        parent::offsetSet( 'fb:app_id', $element );
+        parent::offsetSet('fb:app_id', $element);
 
         return $this;
     }
 
-    public function setUrl( $url )
+    public function setUrl($url)
     {
-        if ( filter_var( $url, FILTER_VALIDATE_URL ) ) {
-            $this->setObject( 'url', $url );
+        if (filter_var($url, FILTER_VALIDATE_URL)) {
+            $this->setObject('url', $url);
         }
 
         return $this;
     }
 
-    public function setSiteName( $siteName )
+    public function setObject($property, $content)
     {
-        $this->setObject( 'site_name', $siteName );
+        $property = 'og:' . $property;
+        $element = new Element('meta');
+
+        $element->attributes[ 'name' ] = $property;
+        $element->attributes[ 'content' ] = (is_array($content) ? implode(', ', $content) : trim($content));
+
+        parent::offsetSet($property, $element);
 
         return $this;
     }
 
-    public function setTitle( $title )
+    public function setSiteName($siteName)
     {
-        $this->setObject( 'title', $title );
+        $this->setObject('site_name', $siteName);
 
         return $this;
     }
 
-    public function setDescription( $description )
+    public function setTitle($title)
     {
-        $this->setObject( 'description', $description );
+        $this->setObject('title', $title);
 
         return $this;
     }
 
-    public function setType( $type )
+    public function setDescription($description)
     {
-        $this->setObject( 'type', $type );
+        $this->setObject('description', $description);
 
         return $this;
     }
 
-    public function setImage( $image )
+    public function setType($type)
     {
-        if ( getimagesize( $image ) ) {
-            if(strpos($image,'http') === false) {
+        $this->setObject('type', $type);
+
+        return $this;
+    }
+
+    public function setImage($image)
+    {
+        if (getimagesize($image)) {
+            if (strpos($image, 'http') === false) {
                 loader()->loadHelper('url');
                 $image = images_url($image);
             }
 
-            $this->setObject( 'image', $image );
+            $this->setObject('image', $image);
         }
 
         return $this;
     }
 
-    public function setDeterminer( $determiner )
+    public function setDeterminer($determiner)
     {
-        $this->setObject( 'determiner', $determiner );
+        $this->setObject('determiner', $determiner);
 
         return $this;
     }
 
-    public function setEmail( $email )
+    public function setEmail($email)
     {
-        if ( filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
-            $this->setObject( 'email', $email );
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->setObject('email', $email);
         }
 
         return $this;
     }
 
-    public function setLocale( $lang, $territory = null )
+    public function setLocale($lang, $territory = null)
     {
-        $lang = strtolower( $lang );
+        $lang = strtolower($lang);
 
         $this->setObject(
             'locale',
-            ( isset( $territory ) ? $lang . '_' . strtoupper( $territory ) : $lang )
+            (isset($territory) ? $lang . '_' . strtoupper($territory) : $lang)
         );
 
         return $this;
     }
 
-    public function setLocaleAlternate( $lang, $territory = null )
+    public function setLocaleAlternate($lang, $territory = null)
     {
-        $lang = strtolower( $lang );
+        $lang = strtolower($lang);
 
         $this->setObject(
             'locale:alternate',
-            ( isset( $territory ) ? $lang . '_' . strtoupper( $territory ) : $lang )
+            (isset($territory) ? $lang . '_' . strtoupper($territory) : $lang)
         );
 
         return $this;
     }
 
-    public function setStreetAddress( $streetAddress )
+    public function setStreetAddress($streetAddress)
     {
-        $this->setObject( 'street_address', $streetAddress );
+        $this->setObject('street_address', $streetAddress);
 
         return $this;
     }
 
-    public function setPostalCode( $postalCode )
+    public function setPostalCode($postalCode)
     {
-        $this->setObject( 'postal_code', $postalCode );
+        $this->setObject('postal_code', $postalCode);
 
         return $this;
     }
 
-    public function setCountryName( $countryName )
+    public function setCountryName($countryName)
     {
-        $this->setObject( 'country_name', $countryName );
+        $this->setObject('country_name', $countryName);
 
         return $this;
     }
 
-    public function setLocacity( $locacity )
+    public function setLocacity($locacity)
     {
-        $this->setObject( 'locacity', $locacity );
+        $this->setObject('locacity', $locacity);
 
         return $this;
     }
 
-    public function setRegion( $region )
+    public function setRegion($region)
     {
-        $this->setObject( 'region', $region );
+        $this->setObject('region', $region);
 
         return $this;
     }
 
-    public function setMap( $latitude, $longitude )
+    public function setMap($latitude, $longitude)
     {
-        $this->setObject( 'latitude', $latitude );
-        $this->setObject( 'longitude', $longitude );
+        $this->setObject('latitude', $latitude);
+        $this->setObject('longitude', $longitude);
 
         return $this;
     }
 
-    public function setPhoneNumber( $phoneNumber )
+    public function setPhoneNumber($phoneNumber)
     {
-        $this->setObject( 'phone_number', $phoneNumber );
+        $this->setObject('phone_number', $phoneNumber);
 
         return $this;
     }
 
-    public function setFaxNumber( $faxNumber )
+    public function setFaxNumber($faxNumber)
     {
-        $this->setObject( 'fax_number', $faxNumber );
-
-        return $this;
-    }
-
-    public function setObject( $property, $content )
-    {
-        $property = 'og:' . $property;
-        $element = new Element( 'meta' );
-
-        $element->attributes[ 'name' ] = $property;
-        $element->attributes[ 'content' ] = ( is_array( $content ) ? implode( ', ', $content ) : trim( $content ) );
-
-        parent::offsetSet( $property, $element );
+        $this->setObject('fax_number', $faxNumber);
 
         return $this;
     }
@@ -220,9 +221,9 @@ class Opengraph extends AbstractRepository
     {
         $output = '';
 
-        if ( $this->count() ) {
-            foreach ( $this->storage as $offset => $tag ) {
-                if ( $tag instanceof Element ) {
+        if ($this->count()) {
+            foreach ($this->storage as $offset => $tag) {
+                if ($tag instanceof Element) {
                     $output .= $tag->render();
                 }
             }

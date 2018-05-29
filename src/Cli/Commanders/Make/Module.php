@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Cli\Commanders\Make;
@@ -37,82 +38,82 @@ class Module extends Make
     {
         parent::execute();
 
-        if ( empty( $this->optionFilename ) ) {
+        if (empty($this->optionFilename)) {
             output()->write(
-                ( new Format() )
-                    ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'CLI_MAKE_MODULE_E_NAME' ) )
-                    ->setNewLinesAfter( 1 )
+                (new Format())
+                    ->setContextualClass(Format::DANGER)
+                    ->setString(language()->getLine('CLI_MAKE_MODULE_E_NAME'))
+                    ->setNewLinesAfter(1)
             );
 
-            exit( EXIT_ERROR );
+            exit(EXIT_ERROR);
         }
 
-        $moduleType = empty( $this->moduleType )
+        $moduleType = empty($this->moduleType)
             ? 'Modules'
-            : ucfirst( plural( $this->moduleType ) );
+            : ucfirst(plural($this->moduleType));
 
-        if ( strpos( $this->optionPath, $moduleType ) === false ) {
+        if (strpos($this->optionPath, $moduleType) === false) {
             $modulePath = $this->optionPath . $moduleType . DIRECTORY_SEPARATOR . $this->optionFilename . DIRECTORY_SEPARATOR;
         } else {
             $modulePath = $this->optionPath . $this->optionFilename . DIRECTORY_SEPARATOR;
         }
 
-        if ( ! is_dir( $modulePath ) ) {
-            mkdir( $modulePath, 777, true );
+        if ( ! is_dir($modulePath)) {
+            mkdir($modulePath, 0777, true);
         } else {
             output()->write(
-                ( new Format() )
-                    ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'CLI_MAKE_MODULE_E_EXISTS', [ $modulePath ] ) )
-                    ->setNewLinesAfter( 1 )
+                (new Format())
+                    ->setContextualClass(Format::DANGER)
+                    ->setString(language()->getLine('CLI_MAKE_MODULE_E_EXISTS', [$modulePath]))
+                    ->setNewLinesAfter(1)
             );
 
-            exit( EXIT_ERROR );
+            exit(EXIT_ERROR);
         }
 
         $jsProps[ 'name' ] = readable(
-            pathinfo( $modulePath, PATHINFO_FILENAME ),
+            pathinfo($modulePath, PATHINFO_FILENAME),
             true
         );
 
-        if ( empty( $this->namespace ) ) {
-            @list( $moduleDirectory, $moduleName ) = explode( $moduleType, dirname( $modulePath ) );
-            $namespace = loader()->getDirNamespace( $moduleDirectory ) .
+        if (empty($this->namespace)) {
+            @list($moduleDirectory, $moduleName) = explode($moduleType, dirname($modulePath));
+            $namespace = loader()->getDirNamespace($moduleDirectory) .
                 $moduleType . '\\' . prepare_class_name(
                     $this->optionFilename
                 ) . '\\';
         } else {
-            $namespace = prepare_class_name( $this->namespace );
-            $jsProps[ 'namespace' ] = rtrim( $namespace, '\\' ) . '\\';
+            $namespace = prepare_class_name($this->namespace);
+            $jsProps[ 'namespace' ] = rtrim($namespace, '\\') . '\\';
         }
 
-        $jsProps[ 'created' ] = date( 'd M Y' );
+        $jsProps[ 'created' ] = date('d M Y');
 
-        loader()->addNamespace( $namespace, $modulePath );
+        loader()->addNamespace($namespace, $modulePath);
 
-        $fileContent = json_encode( $jsProps, JSON_PRETTY_PRINT );
+        $fileContent = json_encode($jsProps, JSON_PRETTY_PRINT);
 
-        $filePath = $modulePath . strtolower( singular( $moduleType ) ) . '.jsprop';
+        $filePath = $modulePath . strtolower(singular($moduleType)) . '.jsprop';
 
-        file_put_contents( $filePath, $fileContent );
+        file_put_contents($filePath, $fileContent);
 
         $this->optionPath = $modulePath;
-        $this->optionFilename = prepare_filename( $this->optionFilename ) . '.php';
+        $this->optionFilename = prepare_filename($this->optionFilename) . '.php';
 
-        ( new Controller() )
-            ->optionPath( $this->optionPath )
-            ->optionFilename( $this->optionFilename );
+        (new Controller())
+            ->optionPath($this->optionPath)
+            ->optionFilename($this->optionFilename);
 
-        if ( is_dir( $modulePath ) ) {
+        if (is_dir($modulePath)) {
             output()->write(
-                ( new Format() )
-                    ->setContextualClass( Format::SUCCESS )
-                    ->setString( language()->getLine( 'CLI_MAKE_MODULE_S_MAKE', [ $modulePath ] ) )
-                    ->setNewLinesAfter( 1 )
+                (new Format())
+                    ->setContextualClass(Format::SUCCESS)
+                    ->setString(language()->getLine('CLI_MAKE_MODULE_S_MAKE', [$modulePath]))
+                    ->setNewLinesAfter(1)
             );
 
-            exit( EXIT_SUCCESS );
+            exit(EXIT_SUCCESS);
         }
     }
 }

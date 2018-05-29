@@ -8,13 +8,12 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph\Traits;
 
 // ------------------------------------------------------------------------
-
-use O2System\Framework\Http\Presenter\Meta\Opengraph\Profile;
 
 /**
  * Class UrlTrait
@@ -23,10 +22,10 @@ use O2System\Framework\Http\Presenter\Meta\Opengraph\Profile;
  */
 trait UrlTrait
 {
-    public function setUrl( $url )
+    public function setUrl($url)
     {
-        if ( filter_var( $url, FILTER_VALIDATE_URL ) ) {
-            $this->offsetSet( 'og:' . $this->namespace, $url );
+        if (filter_var($url, FILTER_VALIDATE_URL)) {
+            $this->offsetSet('og:' . $this->namespace, $url);
         }
 
         return $this;
@@ -34,11 +33,11 @@ trait UrlTrait
 
     // ------------------------------------------------------------------------
 
-    public function setSecureUrl( $url )
+    public function setSecureUrl($url)
     {
-        if ( strpos( $url, 'https://' ) !== false ) {
-            if ( filter_var( $url, FILTER_VALIDATE_URL ) ) {
-                $this->setObject( 'secure_url', $url );
+        if (strpos($url, 'https://') !== false) {
+            if (filter_var($url, FILTER_VALIDATE_URL)) {
+                $this->setObject('secure_url', $url);
             }
         }
 

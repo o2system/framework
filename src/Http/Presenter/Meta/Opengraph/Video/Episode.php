@@ -8,14 +8,12 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph\Video;
 
 // ------------------------------------------------------------------------
-
-use O2System\Html\Document;
-use O2System\Framework\Http\Presenter\Meta\Opengraph\Video;
 
 /**
  * Class Episode
@@ -28,9 +26,9 @@ class Episode extends Movie
 
     // ------------------------------------------------------------------------
 
-    public function setSeries( Series $series )
+    public function setSeries(Series $series)
     {
-        $this->merge( $series->getArrayCopy() );
+        $this->merge($series->getArrayCopy());
 
         return $this;
     }

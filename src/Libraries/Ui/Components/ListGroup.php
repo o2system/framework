@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components;
@@ -27,17 +28,17 @@ class ListGroup extends Lists\Unordered
     public function __construct()
     {
         parent::__construct();
-        $this->attributes->addAttributeClass( 'list-group' );
+        $this->attributes->addAttributeClass('list-group');
     }
 
-    protected function pushChildNode( Element $node )
+    protected function pushChildNode(Element $node)
     {
-        $node->attributes->addAttributeClass( 'list-group-item' );
+        $node->attributes->addAttributeClass('list-group-item');
 
-        if( $node instanceof Lists\Item ) {
-            $node->setContextualClassPrefix( 'list-group-item' );
+        if ($node instanceof Lists\Item) {
+            $node->setContextualClassPrefix('list-group-item');
         }
 
-        parent::pushChildNode( $node );
+        parent::pushChildNode($node);
     }
 }

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph\Music;
@@ -34,10 +35,10 @@ class Album extends AbstractNamespace
      *
      * @return static
      */
-    public function setDisc( $discNumber )
+    public function setDisc($discNumber)
     {
-        if ( is_numeric( $discNumber ) ) {
-            $this->setObject( 'disc', $discNumber );
+        if (is_numeric($discNumber)) {
+            $this->setObject('disc', $discNumber);
         }
 
         return $this;
@@ -52,10 +53,10 @@ class Album extends AbstractNamespace
      *
      * @return static
      */
-    public function setTrack( $trackNumber )
+    public function setTrack($trackNumber)
     {
-        if ( is_numeric( $trackNumber ) ) {
-            $this->setObject( 'track', $trackNumber );
+        if (is_numeric($trackNumber)) {
+            $this->setObject('track', $trackNumber);
         }
 
         return $this;
@@ -63,16 +64,16 @@ class Album extends AbstractNamespace
 
     // ------------------------------------------------------------------------
 
-    public function setMusician( Musician $musician )
+    public function setMusician(Musician $musician)
     {
-        $this->merge( $musician->getArrayCopy() );
+        $this->merge($musician->getArrayCopy());
 
         return $this;
     }
 
-    public function setReleaseDate( $releaseDate )
+    public function setReleaseDate($releaseDate)
     {
-        $this->setObject( 'release_date', $releaseDate );
+        $this->setObject('release_date', $releaseDate);
 
         return $this;
     }

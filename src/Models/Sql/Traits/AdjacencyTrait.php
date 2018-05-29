@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Traits;
@@ -46,13 +47,13 @@ trait AdjacencyTrait
      * @access  public
      * @return  mixed
      */
-    public function getChildren( $id_parent, $table = null )
+    public function getChildren($id_parent, $table = null)
     {
-        $table = isset( $table ) ? $table : $this->table;
+        $table = isset($table) ? $table : $this->table;
 
-        $result = $this->qb->table( $table )->getWhere( [ $this->parentKey => $id_parent ] );
+        $result = $this->qb->table($table)->getWhere([$this->parentKey => $id_parent]);
 
-        if ( $result->count() > 0 ) {
+        if ($result->count() > 0) {
             return $result;
         }
 
@@ -68,15 +69,15 @@ trait AdjacencyTrait
      * @access  public
      * @return  bool
      */
-    public function hasChildren( $id_parent, $table = null )
+    public function hasChildren($id_parent, $table = null)
     {
-        $table = isset( $table ) ? $table : $this->table;
+        $table = isset($table) ? $table : $this->table;
 
-        $result = $this->qb->select( 'id' )->table( $table )->getWhere( [ $this->parentKey => $id_parent ] );
+        $result = $this->qb->select('id')->table($table)->getWhere([$this->parentKey => $id_parent]);
 
         print_out($this->db->getLastQuery());
 
-        if ( $result->count() > 0 ) {
+        if ($result->count() > 0) {
             return true;
         }
 

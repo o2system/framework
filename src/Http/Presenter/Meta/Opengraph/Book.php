@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph;
@@ -37,9 +38,9 @@ class Book extends AbstractNamespace
      *
      * @return \O2System\Framework\Http\Presenter\Meta\Opengraph\Book
      */
-    public function setReleaseDate( $datetime )
+    public function setReleaseDate($datetime)
     {
-        return $this->setObject( 'release_date', $datetime );
+        return $this->setObject('release_date', $datetime);
     }
 
     // ------------------------------------------------------------------------
@@ -51,8 +52,8 @@ class Book extends AbstractNamespace
      *
      * @return \O2System\Framework\Http\Presenter\Meta\Opengraph\Book
      */
-    public function setIsbn( $isbn )
+    public function setIsbn($isbn)
     {
-        return $this->setObject( 'isbn', $isbn );
+        return $this->setObject('isbn', $isbn);
     }
 }

@@ -15,41 +15,30 @@ namespace O2System\Framework\Http\Middleware;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Http\Message\RequestInterface;
-use O2System\Psr\Http\Middleware\MiddlewareServiceInterface;
+use O2System\Psr\Http\Message\ServerRequestInterface;
+use O2System\Psr\Http\Server\RequestHandlerInterface;
+
 
 /**
  * Class Maintenance
  *
  * @package O2System\Framework\Http\Middleware
  */
-class Maintenance implements MiddlewareServiceInterface
+class Maintenance implements RequestHandlerInterface
 {
     /**
-     * validate
+     * Environment::handle
      *
-     * @param \O2System\Psr\Http\Message\RequestInterface $request
+     * Handles a request and produces a response
      *
-     * @return bool
+     * May call other collaborating code to generate the response.
      */
-    public function validate( RequestInterface $request )
+    public function handle(ServerRequestInterface $request)
     {
-        if ( cache()->hasItem( 'maintenance' ) ) {
-            return true;
+        if (cache()->hasItem('maintenance')) {
+            $maintenanceInfo = cache()->getItem('maintenance')->get();
+            echo view()->load('maintenance', $maintenanceInfo, true);
+            exit(EXIT_SUCCESS);
         }
-
-        return false;
-    }
-
-    public function handle( RequestInterface $request )
-    {
-        $maintenanceInfo = cache()->getItem( 'maintenance' )->get();
-        echo view()->load( 'maintenance', $maintenanceInfo, true );
-        exit( EXIT_SUCCESS );
-    }
-
-    public function terminate( RequestInterface $request )
-    {
-        // Nothing to-be terminated
     }
 }

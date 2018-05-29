@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Setters;
@@ -25,11 +26,11 @@ trait ParagraphSetterTrait
 {
     public $paragraph;
 
-    public function setParagraph( $text )
+    public function setParagraph($text)
     {
         $this->paragraph = new Paragraph();
-        $this->paragraph->entity->setEntityName( 'paragraph' );
-        $this->paragraph->textContent->push( $text );
+        $this->paragraph->entity->setEntityName('paragraph');
+        $this->paragraph->textContent->push($text);
 
         return $this;
     }

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries;
@@ -28,7 +29,7 @@ class Cart extends AbstractRepository
      */
     public function __construct()
     {
-        if ( empty( $_SESSION[ 'o2system' ][ 'cart' ] ) ) {
+        if (empty($_SESSION[ 'o2system' ][ 'cart' ])) {
             $_SESSION[ 'o2system' ][ 'cart' ] = [];
         }
 
@@ -42,19 +43,19 @@ class Cart extends AbstractRepository
      *
      * @param array $item
      */
-    public function add( array $item )
+    public function add(array $item)
     {
-        $item = array_merge( [
+        $item = array_merge([
             'id'      => null,
             'sku'     => null,
             'qty'     => 1,
             'price'   => 0,
             'name'    => null,
             'options' => [],
-        ], $item );
+        ], $item);
 
         // set sku
-        $sku = empty( $item[ 'sku' ] ) ? $item[ 'id' ] : $item[ 'sku' ];
+        $sku = empty($item[ 'sku' ]) ? $item[ 'id' ] : $item[ 'sku' ];
 
         // set sub-total
         $item[ 'subTotal' ][ 'price' ] = $item[ 'price' ] * $item[ 'qty' ];
@@ -73,10 +74,10 @@ class Cart extends AbstractRepository
      *
      * @return bool
      */
-    public function update( $sku, array $item )
+    public function update($sku, array $item)
     {
-        if ( $this->offsetExists( $sku ) ) {
-            $item = array_merge( $this->offsetGet( $sku ), $item );
+        if ($this->offsetExists($sku)) {
+            $item = array_merge($this->offsetGet($sku), $item);
 
             // update sub-total
             $item[ 'subTotal' ][ 'price' ] = $item[ 'price' ] * $item[ 'qty' ];
@@ -101,9 +102,9 @@ class Cart extends AbstractRepository
     {
         $totalWeight = 0;
 
-        if ( $this->count() ) {
-            foreach ( $this->storage as $id => $item ) {
-                if ( isset( $item[ 'subTotal' ][ 'weight' ] ) ) {
+        if ($this->count()) {
+            foreach ($this->storage as $id => $item) {
+                if (isset($item[ 'subTotal' ][ 'weight' ])) {
                     $totalWeight += (int)$item[ 'weight' ];
                 }
             }
@@ -123,9 +124,9 @@ class Cart extends AbstractRepository
     {
         $totalPrice = 0;
 
-        if ( $this->count() ) {
-            foreach ( $this->storage as $id => $item ) {
-                if ( isset( $item[ 'subTotal' ][ 'price' ] ) ) {
+        if ($this->count()) {
+            foreach ($this->storage as $id => $item) {
+                if (isset($item[ 'subTotal' ][ 'price' ])) {
                     $totalPrice += (int)$item[ 'price' ];
                 }
             }
@@ -136,7 +137,7 @@ class Cart extends AbstractRepository
 
     public function destroy()
     {
-        unset( $_SESSION[ 'o2system' ][ 'cart' ] );
+        unset($_SESSION[ 'o2system' ][ 'cart' ]);
         parent::destroy();
 
     }

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http;
@@ -25,8 +26,8 @@ class Parser extends Drivers
 {
     public function __construct()
     {
-        $config = config()->loadFile( 'parser', true );
+        $config = config()->loadFile('parser', true);
 
-        parent::__construct( $config );
+        parent::__construct($config);
     }
 }

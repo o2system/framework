@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Modal\Dialog\Content;
@@ -28,33 +29,33 @@ class Header extends Element
 
     public function __construct()
     {
-        parent::__construct( 'div', 'header' );
-        $this->attributes->addAttributeClass( 'modal-header' );
+        parent::__construct('div', 'header');
+        $this->attributes->addAttributeClass('modal-header');
 
-        $title = new Element( 'h5', 'title' );
-        $title->attributes->addAttributeClass( 'modal-title' );
+        $title = new Element('h5', 'title');
+        $title->attributes->addAttributeClass('modal-title');
 
-        $this->childNodes->push( $title );
+        $this->childNodes->push($title);
         $this->title = $this->childNodes->last();
 
-        $button = new Element( 'button', 'button' );
-        $button->attributes->addAttribute( 'type', 'button' );
-        $button->attributes->addAttributeClass( 'close' );
-        $button->attributes->addAttribute( 'data-dismiss', 'modal' );
-        $button->attributes->addAttribute( 'aria-label', 'Close' );
+        $button = new Element('button', 'button');
+        $button->attributes->addAttribute('type', 'button');
+        $button->attributes->addAttributeClass('close');
+        $button->attributes->addAttribute('data-dismiss', 'modal');
+        $button->attributes->addAttribute('aria-label', 'Close');
 
-        $span = new Element( 'span' );
-        $span->attributes->addAttribute( 'aria-hidden', true );
-        $span->textContent->push( '&times;' );
+        $span = new Element('span');
+        $span->attributes->addAttribute('aria-hidden', true);
+        $span->textContent->push('&times;');
 
-        $button->childNodes->push( $span );
+        $button->childNodes->push($span);
 
-        $this->childNodes->push( $button );
+        $this->childNodes->push($button);
         $this->button = $this->childNodes->last();
     }
 
-    public function setTitle( $text )
+    public function setTitle($text)
     {
-        $this->title->textContent->replace( $text );
+        $this->title->textContent->replace($text);
     }
 }

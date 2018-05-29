@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Cli\Commanders\Make;
@@ -37,54 +38,54 @@ class Controller extends Make
     {
         parent::execute();
 
-        if ( empty( $this->optionFilename ) ) {
+        if (empty($this->optionFilename)) {
             output()->write(
-                ( new Format() )
-                    ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'CLI_MAKE_CONTROLLER_E_FILENAME' ) )
-                    ->setNewLinesAfter( 1 )
+                (new Format())
+                    ->setContextualClass(Format::DANGER)
+                    ->setString(language()->getLine('CLI_MAKE_CONTROLLER_E_FILENAME'))
+                    ->setNewLinesAfter(1)
             );
 
-            exit( EXIT_ERROR );
+            exit(EXIT_ERROR);
         }
 
-        if ( strpos( $this->optionPath, 'Controllers' ) === false ) {
+        if (strpos($this->optionPath, 'Controllers') === false) {
             $filePath = $this->optionPath . 'Controllers' . DIRECTORY_SEPARATOR . $this->optionFilename;
         } else {
             $filePath = $this->optionPath . $this->optionFilename;
         }
 
-        if ( ! is_dir( dirname( $filePath ) ) ) {
-            mkdir( dirname( $filePath ), 777, true );
+        if ( ! is_dir(dirname($filePath))) {
+            mkdir(dirname($filePath), 777, true);
         }
 
-        if ( is_file( $filePath ) ) {
+        if (is_file($filePath)) {
             output()->write(
-                ( new Format() )
-                    ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'CLI_MAKE_CONTROLLER_E_EXISTS', [ $filePath ] ) )
-                    ->setNewLinesAfter( 1 )
+                (new Format())
+                    ->setContextualClass(Format::DANGER)
+                    ->setString(language()->getLine('CLI_MAKE_CONTROLLER_E_EXISTS', [$filePath]))
+                    ->setNewLinesAfter(1)
             );
 
-            exit( EXIT_ERROR );
+            exit(EXIT_ERROR);
         }
 
-        $className = prepare_class_name( pathinfo( $filePath, PATHINFO_FILENAME ) );
-        @list( $namespaceDirectory, $subNamespace ) = explode( 'Controllers', dirname( $filePath ) );
+        $className = prepare_class_name(pathinfo($filePath, PATHINFO_FILENAME));
+        @list($namespaceDirectory, $subNamespace) = explode('Controllers', dirname($filePath));
 
         $classNamespace = loader()->getDirNamespace(
                 $namespaceDirectory
-            ) . 'Controllers' . ( empty( $subNamespace )
+            ) . 'Controllers' . (empty($subNamespace)
                 ? null
                 : str_replace(
                     '/',
                     '\\',
                     $subNamespace
-                ) ) . '\\';
+                )) . '\\';
 
-        $vars[ 'CREATE_DATETIME' ] = date( 'd/m/Y H:m' );
-        $vars[ 'NAMESPACE' ] = trim( $classNamespace, '\\' );
-        $vars[ 'PACKAGE' ] = '\\' . trim( $classNamespace, '\\' );
+        $vars[ 'CREATE_DATETIME' ] = date('d/m/Y H:m');
+        $vars[ 'NAMESPACE' ] = trim($classNamespace, '\\');
+        $vars[ 'PACKAGE' ] = '\\' . trim($classNamespace, '\\');
         $vars[ 'CLASS' ] = $className;
         $vars[ 'FILEPATH' ] = $filePath;
 
@@ -120,18 +121,18 @@ class CLASS extends Controller
 }
 PHPTEMPLATE;
 
-        $fileContent = str_replace( array_keys( $vars ), array_values( $vars ), $phpTemplate );
-        file_put_contents( $filePath, $fileContent );
+        $fileContent = str_replace(array_keys($vars), array_values($vars), $phpTemplate);
+        file_put_contents($filePath, $fileContent);
 
-        if ( is_file( $filePath ) ) {
+        if (is_file($filePath)) {
             output()->write(
-                ( new Format() )
-                    ->setContextualClass( Format::SUCCESS )
-                    ->setString( language()->getLine( 'CLI_MAKE_CONTROLLER_S_MAKE', [ $filePath ] ) )
-                    ->setNewLinesAfter( 1 )
+                (new Format())
+                    ->setContextualClass(Format::SUCCESS)
+                    ->setString(language()->getLine('CLI_MAKE_CONTROLLER_S_MAKE', [$filePath]))
+                    ->setNewLinesAfter(1)
             );
 
-            exit( EXIT_SUCCESS );
+            exit(EXIT_SUCCESS);
         }
     }
 }

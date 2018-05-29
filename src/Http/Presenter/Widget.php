@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter;
@@ -27,19 +28,9 @@ class Widget extends AbstractRepository implements RenderableInterface
 {
     public function getClassInfo()
     {
-        $classInfo = new SplClassInfo( $this );
+        $classInfo = new SplClassInfo($this);
 
         return $classInfo;
-    }
-
-    /**
-     * Widget::render
-     *
-     * @return string
-     */
-    public function render(array $options = [])
-    {
-
     }
 
     /**
@@ -50,5 +41,15 @@ class Widget extends AbstractRepository implements RenderableInterface
     public function __toString()
     {
         return $this->render();
+    }
+
+    /**
+     * Widget::render
+     *
+     * @return string
+     */
+    public function render(array $options = [])
+    {
+
     }
 }

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Relations\Maps;
@@ -106,11 +107,11 @@ class Through
         $this->pivotForeignKey = $pivotForeignKey;
 
         // Map Relation Model
-        $this->mapRelationModel( $relationModel );
+        $this->mapRelationModel($relationModel);
         $this->relationForeignKey = $this->relationTable . '.' . $relationForeignKey;
 
         // Map Reference Model
-        $this->mapReferenceModel( $referenceModel );
+        $this->mapReferenceModel($referenceModel);
     }
 
     // ------------------------------------------------------------------------
@@ -122,12 +123,12 @@ class Through
      *
      * @return void
      */
-    private function mapRelationModel( $relationModel )
+    private function mapRelationModel($relationModel)
     {
-        if ( $relationModel instanceof Model ) {
+        if ($relationModel instanceof Model) {
             $this->relationModel = $relationModel;
             $this->relationTable = $this->relationModel->table;
-        } elseif ( class_exists( $relationModel ) ) {
+        } elseif (class_exists($relationModel)) {
             $this->relationModel = new $relationModel();
             $this->relationTable = $this->relationModel->table;
         } else {
@@ -144,13 +145,13 @@ class Through
      *
      * @return void
      */
-    private function mapReferenceModel( $referenceModel )
+    private function mapReferenceModel($referenceModel)
     {
-        if ( $referenceModel instanceof Model ) {
+        if ($referenceModel instanceof Model) {
             $this->referenceModel = $referenceModel;
             $this->referenceTable = $referenceModel->table;
             $this->referencePrimaryKey = $this->referenceModel->table . '.' . $this->referenceModel->primaryKey;
-        } elseif ( class_exists( $referenceModel ) ) {
+        } elseif (class_exists($referenceModel)) {
             $this->referenceModel = new $referenceModel();
             $this->referenceTable = $this->referenceModel->table;
             $this->referencePrimaryKey = $this->referenceModel->table . '.' . $this->referenceModel->primaryKey;

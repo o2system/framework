@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\DataObjects;
@@ -37,32 +38,32 @@ class Result extends ArrayIterator
      *
      * @param array $rows
      */
-    public function __construct( \O2System\Database\DataObjects\Result $result, Model &$model )
+    public function __construct(\O2System\Database\DataObjects\Result $result, Model &$model)
     {
-        if ( $result->count() > 0 ) {
-            $key = empty( $model->foreignKey ) ? $model->primaryKey : $model->foreignKey;
+        if ($result->count() > 0) {
+            $ormResult = new \SplFixedArray($result->count());
 
-            $ormResult = [];
-
-            foreach ( $result as $row ) {
-                $ormResult[ $row[ $key ] ] = new Result\Row( $row, $model );
+            foreach ($result as $key => $row) {
+                $ormResult[ $key ] = new Result\Row($row, $model);
             }
 
-            parent::__construct( $ormResult );
+            parent::__construct($ormResult->toArray());
+
+            unset($ormResult);
         }
     }
 
     // ------------------------------------------------------------------------
+
+    public function getInfo()
+    {
+        return $this->info;
+    }
 
     public function setInfo(Info $info)
     {
         $this->info = $info;
 
         return $this;
-    }
-
-    public function getInfo()
-    {
-        return $this->info;
     }
 }

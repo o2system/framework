@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Modal\Dialog;
@@ -43,22 +44,22 @@ class Content extends Element
 
     public function __construct()
     {
-        parent::__construct( 'div', 'content' );
-        $this->attributes->addAttributeClass( 'modal-content' );
+        parent::__construct('div', 'content');
+        $this->attributes->addAttributeClass('modal-content');
 
-        $this->childNodes->push( new Header() );
+        $this->childNodes->push(new Header());
         $this->header = $this->childNodes->last();
 
-        $this->childNodes->push( new Body() );
+        $this->childNodes->push(new Body());
         $this->body = $this->childNodes->last();
 
-        $this->childNodes->push( new Footer() );
+        $this->childNodes->push(new Footer());
         $this->footer = $this->childNodes->last();
     }
 
     public function render()
     {
-        if( ! $this->footer->hasChildNodes() && ! $this->footer->hasTextContent() && ! $this->footer->hasButtons() ) {
+        if ( ! $this->footer->hasChildNodes() && ! $this->footer->hasTextContent() && ! $this->footer->hasButtons()) {
             $this->childNodes->pop();
         }
 

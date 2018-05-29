@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Relations\Maps;
@@ -99,15 +100,15 @@ class Intermediary
         $referencePrimaryKey = null
     ) {
         // Map Relation Model
-        $this->mapRelationModel( $relationModel );
+        $this->mapRelationModel($relationModel);
 
         // Map Reference Model
-        $this->mapReferenceModel( $referenceModel );
+        $this->mapReferenceModel($referenceModel);
 
         // Map Intermediate Table
         $this->pivotTable = $this->relationTable . '_' . $this->referenceTable;
 
-        if( isset( $pivotTable) ) {
+        if (isset($pivotTable)) {
             $this->pivotTable = $pivotTable;
         }
 
@@ -124,14 +125,14 @@ class Intermediary
      *
      * @return void
      */
-    private function mapRelationModel( $relationModel )
+    private function mapRelationModel($relationModel)
     {
-        if ( $relationModel instanceof Model ) {
+        if ($relationModel instanceof Model) {
             $this->relationModel = $relationModel;
             $this->relationTable = $this->relationModel->table;
             $this->relationPrimaryKey = $this->relationModel->primaryKey;
             $this->pivotRelationKey = $this->relationModel->primaryKey . '_' . $this->relationModel->table;
-        } elseif ( class_exists( $relationModel ) ) {
+        } elseif (class_exists($relationModel)) {
             $this->relationModel = new $relationModel();
             $this->relationTable = $this->relationModel->table;
             $this->relationPrimaryKey = $this->relationModel->table . '.' . $this->relationModel->primaryKey;
@@ -152,13 +153,13 @@ class Intermediary
      *
      * @return void
      */
-    private function mapReferenceModel( $referenceModel )
+    private function mapReferenceModel($referenceModel)
     {
-        if ( $referenceModel instanceof Model ) {
+        if ($referenceModel instanceof Model) {
             $this->referenceTable = $referenceModel->table;
             $this->referencePrimaryKey = $referenceModel->primaryKey;
             $this->pivotReferenceKey = $referenceModel->primaryKey . '_' . $this->referenceTable;
-        } elseif ( class_exists( $referenceModel ) ) {
+        } elseif (class_exists($referenceModel)) {
             $referenceModel = new $referenceModel();
             $this->referenceTable = $referenceModel->table;
             $this->referencePrimaryKey = $this->referenceTable . '.' . $referenceModel->primaryKey;

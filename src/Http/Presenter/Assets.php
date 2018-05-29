@@ -14,8 +14,6 @@
 namespace O2System\Framework\Http\Presenter;
 
 // ------------------------------------------------------------------------
-use MatthiasMullie\Minify\CSS;
-use MatthiasMullie\Minify\JS;
 
 /**
  * Class Assets
@@ -161,6 +159,18 @@ class Assets
         }
     }
 
+    public function loadCss($files)
+    {
+        $files = is_string($files) ? [$files] : $files;
+        $this->head->loadCollections(['css' => $files]);
+    }
+
+    public function loadJs($files, $position = 'body')
+    {
+        $files = is_string($files) ? [$files] : $files;
+        $this->{$position}->loadCollections(['js' => $files]);
+    }
+
     public function loadFiles($assets)
     {
         foreach ($assets as $type => $item) {
@@ -188,18 +198,6 @@ class Assets
                 }
             }
         }
-    }
-
-    public function loadJs($files, $position = 'body')
-    {
-        $files = is_string($files) ? [$files] : $files;
-        $this->{$position}->loadCollections(['js' => $files]);
-    }
-
-    public function loadCss($files)
-    {
-        $files = is_string($files) ? [$files] : $files;
-        $this->head->loadCollections(['css' => $files]);
     }
 
     public function theme($path)
@@ -286,23 +284,23 @@ class Assets
         }
 
         // Valet path fixes
-        if(isset($_SERVER['SCRIPT_FILENAME'])) {
-            $valetPath = dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR;
+        if (isset($_SERVER[ 'SCRIPT_FILENAME' ])) {
+            $valetPath = dirname($_SERVER[ 'SCRIPT_FILENAME' ]) . DIRECTORY_SEPARATOR;
         } else {
-            $PATH_ROOT = $_SERVER['DOCUMENT_ROOT'];
+            $PATH_ROOT = $_SERVER[ 'DOCUMENT_ROOT' ];
 
-            if(isset($_SERVER['PHP_SELF'])) {
-                $valetPath = $PATH_ROOT . dirname($_SERVER['PHP_SELF']) . DIRECTORY_SEPARATOR;
-            } elseif(isset($_SERVER['DOCUMENT_URI'])) {
+            if (isset($_SERVER[ 'PHP_SELF' ])) {
+                $valetPath = $PATH_ROOT . dirname($_SERVER[ 'PHP_SELF' ]) . DIRECTORY_SEPARATOR;
+            } elseif (isset($_SERVER[ 'DOCUMENT_URI' ])) {
                 $valetPath = $PATH_ROOT . dirname($_SERVER[ 'DOCUMENT_URI' ]) . DIRECTORY_SEPARATOR;
-            } elseif(isset($_SERVER['REQUEST_URI'])) {
+            } elseif (isset($_SERVER[ 'REQUEST_URI' ])) {
                 $valetPath = $PATH_ROOT . dirname($_SERVER[ 'REQUEST_URI' ]) . DIRECTORY_SEPARATOR;
-            } elseif(isset($_SERVER['SCRIPT_NAME'])) {
+            } elseif (isset($_SERVER[ 'SCRIPT_NAME' ])) {
                 $valetPath = $PATH_ROOT . dirname($_SERVER[ 'SCRIPT_NAME' ]) . DIRECTORY_SEPARATOR;
             }
         }
 
-        if(isset($valetPath)) {
+        if (isset($valetPath)) {
             $sourceCode = str_replace($valetPath, '/', $sourceCode);
         }
 

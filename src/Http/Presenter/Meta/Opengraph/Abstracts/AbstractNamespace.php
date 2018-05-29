@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph\Abstracts;
@@ -26,16 +27,16 @@ abstract class AbstractNamespace extends AbstractRepository
 {
     public $namespace = 'og';
 
-    public function setObject( $property, $content )
+    public function setObject($property, $content)
     {
         $property = $this->namespace . ':' . $property;
 
-        $element = new Element( 'meta' );
+        $element = new Element('meta');
 
         $element->attributes[ 'name' ] = $property;
-        $element->attributes[ 'content' ] = ( is_array( $content ) ? implode( ', ', $content ) : trim( $content ) );
+        $element->attributes[ 'content' ] = (is_array($content) ? implode(', ', $content) : trim($content));
 
-        $this->store( $property, $element );
+        $this->store($property, $element);
 
         return $this;
     }

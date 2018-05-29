@@ -21,107 +21,107 @@ namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
  */
 trait SpacingUtilitiesTrait
 {
-    public function margin( $pixel )
+    public function margin($pixel)
     {
-        $this->attributes->addAttributeClass( 'm-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('m-' . (int)$pixel);
 
         return $this;
     }
 
-    public function marginTop( $pixel )
+    public function marginTop($pixel)
     {
-        $this->attributes->addAttributeClass( 'mt-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('mt-' . (int)$pixel);
 
         return $this;
     }
 
-    public function marginBottom( $pixel )
+    public function marginBottom($pixel)
     {
-        $this->attributes->addAttributeClass( 'mb-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('mb-' . (int)$pixel);
 
         return $this;
     }
 
-    public function marginTopBottom( $pixel )
+    public function marginTopBottom($pixel)
     {
-        $this->attributes->addAttributeClass( 'my-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('my-' . (int)$pixel);
 
         return $this;
     }
 
-    public function marginLeft( $pixel )
+    public function marginLeft($pixel)
     {
-        $this->attributes->addAttributeClass( 'ml-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('ml-' . (int)$pixel);
 
         return $this;
     }
 
-    public function marginRight( $pixel )
+    public function marginRight($pixel)
     {
-        $this->attributes->addAttributeClass( 'mr-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('mr-' . (int)$pixel);
 
         return $this;
     }
 
-    public function marginLeftRight( $pixel )
+    public function marginLeftRight($pixel)
     {
-        $this->attributes->addAttributeClass( 'mx-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('mx-' . (int)$pixel);
 
         return $this;
     }
 
     public function marginAuto()
     {
-        $this->attributes->addAttributeClass( 'mx-auto' );
+        $this->attributes->addAttributeClass('mx-auto');
 
         return $this;
     }
 
-    public function padding( $pixel )
+    public function padding($pixel)
     {
-        $this->attributes->addAttributeClass( 'p-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('p-' . (int)$pixel);
 
         return $this;
     }
 
-    public function paddingTop( $pixel )
+    public function paddingTop($pixel)
     {
-        $this->attributes->addAttributeClass( 'pt-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('pt-' . (int)$pixel);
 
         return $this;
     }
 
-    public function paddingBottom( $pixel )
+    public function paddingBottom($pixel)
     {
-        $this->attributes->addAttributeClass( 'pb-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('pb-' . (int)$pixel);
 
         return $this;
     }
 
-    public function paddingTopBottom( $pixel )
+    public function paddingTopBottom($pixel)
     {
-        $this->attributes->addAttributeClass( 'py-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('py-' . (int)$pixel);
 
         return $this;
     }
 
-    public function paddingLeft( $pixel )
+    public function paddingLeft($pixel)
     {
-        $this->attributes->addAttributeClass( 'pl-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('pl-' . (int)$pixel);
 
         return $this;
     }
 
-    public function paddingRight( $pixel )
+    public function paddingRight($pixel)
     {
-        $this->attributes->addAttributeClass( 'pr-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('pr-' . (int)$pixel);
 
         return $this;
     }
 
-    public function paddingLeftRight( $pixel )
+    public function paddingLeftRight($pixel)
     {
-        $this->attributes->addAttributeClass( 'px-' . (int)  $pixel );
+        $this->attributes->addAttributeClass('px-' . (int)$pixel);
 
         return $this;
     }

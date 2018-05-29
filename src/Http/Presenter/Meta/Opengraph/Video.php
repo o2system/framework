@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph;
@@ -32,29 +33,29 @@ class Video extends AbstractNamespace
 
     // ------------------------------------------------------------------------
 
-    public function setMime( $mime )
+    public function setMime($mime)
     {
-        $this->setObject( 'type', $mime );
+        $this->setObject('type', $mime);
 
         return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function setSize( $width, $height )
+    public function setSize($width, $height)
     {
-        if ( is_numeric( $width ) AND is_numeric( $height ) ) {
-            $this->setObject( 'width', $width );
-            $this->setObject( 'height', $height );
+        if (is_numeric($width) AND is_numeric($height)) {
+            $this->setObject('width', $width);
+            $this->setObject('height', $height);
         }
     }
 
     // ------------------------------------------------------------------------
 
-    public function setDuration( $duration )
+    public function setDuration($duration)
     {
-        if ( is_int( $duration ) ) {
-            $this->setObject( 'duration', $duration );
+        if (is_int($duration)) {
+            $this->setObject('duration', $duration);
         }
 
         return $this;
@@ -62,9 +63,9 @@ class Video extends AbstractNamespace
 
     // ------------------------------------------------------------------------
 
-    public function setReleaseDate( $date )
+    public function setReleaseDate($date)
     {
-        $this->setObject( 'release_date', $date );
+        $this->setObject('release_date', $date);
 
         return $this;
     }

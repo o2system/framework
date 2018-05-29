@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Accordion;
@@ -27,7 +28,7 @@ class Card extends \O2System\Framework\Libraries\Ui\Components\Card
 
     public function createBlock()
     {
-        $this->childNodes->push( new Body() );
+        $this->childNodes->push(new Body());
 
         return $this->block = $this->childNodes->last();
     }
@@ -52,20 +53,20 @@ class Card extends \O2System\Framework\Libraries\Ui\Components\Card
     {
         $output[] = $this->open();
 
-        if ( $this->header->hasTextContent() || $this->header->hasChildNodes() ) {
+        if ($this->header->hasTextContent() || $this->header->hasChildNodes()) {
             $output[] = $this->header;
         }
 
-        if ( $this->hasChildNodes() ) {
-            $output[] = implode( PHP_EOL, $this->childNodes->getArrayCopy() );
+        if ($this->hasChildNodes()) {
+            $output[] = implode(PHP_EOL, $this->childNodes->getArrayCopy());
         }
 
-        if ( $this->footer->hasTextContent() || $this->footer->hasChildNodes() ) {
+        if ($this->footer->hasTextContent() || $this->footer->hasChildNodes()) {
             $output[] = $this->footer;
         }
 
         $output[] = $this->close();
 
-        return implode( PHP_EOL, $output );
+        return implode(PHP_EOL, $output);
     }
 }

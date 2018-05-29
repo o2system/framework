@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Router\Datastructures;
@@ -45,26 +46,26 @@ class Page extends SplFileInfo
      *
      * @param string $filename
      */
-    public function __construct( $filename )
+    public function __construct($filename)
     {
-        parent::__construct( $filename );
+        parent::__construct($filename);
 
-        if ( file_exists(
+        if (file_exists(
             $propsFilePath = $this->getPath() . DIRECTORY_SEPARATOR . str_replace(
                     '.phtml',
                     '.jspage',
-                    strtolower( $this->getBasename() )
+                    strtolower($this->getBasename())
                 )
-        ) ) {
-            $props = file_get_contents( $propsFilePath );
-            $props = json_decode( $props, true );
+        )) {
+            $props = file_get_contents($propsFilePath);
+            $props = json_decode($props, true);
 
-            if ( isset( $props[ 'vars' ] ) ) {
+            if (isset($props[ 'vars' ])) {
                 $this->vars = $props[ 'vars' ];
             }
 
-            if ( isset( $props[ 'settings' ] ) ) {
-                $this->settings = new SplArrayObject( $props[ 'settings' ] );
+            if (isset($props[ 'settings' ])) {
+                $this->settings = new SplArrayObject($props[ 'settings' ]);
             }
         }
     }
@@ -94,7 +95,7 @@ class Page extends SplFileInfo
      */
     public function getSettings()
     {
-        if ( $this->settings instanceof SplArrayObject ) {
+        if ($this->settings instanceof SplArrayObject) {
             return $this->settings;
         }
 

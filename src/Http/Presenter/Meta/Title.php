@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta;
@@ -32,23 +33,23 @@ class Title extends SplArrayQueue
 
     // ------------------------------------------------------------------------
 
-    public function prepend( $header )
-    {
-        $this->add( 0, $header );
-    }
-
-    public function append( $header )
+    public function append($header)
     {
         $this[] = $header;
     }
 
-    public function replace( $header )
+    public function replace($header)
     {
-        foreach ( $this as $index => $string ) {
+        foreach ($this as $index => $string) {
             $this->dequeue();
         }
 
-        $this->prepend( $header );
+        $this->prepend($header);
+    }
+
+    public function prepend($header)
+    {
+        $this->add(0, $header);
     }
 
     /**
@@ -58,7 +59,7 @@ class Title extends SplArrayQueue
      *
      * @return static
      */
-    public function setSeparator( $separator )
+    public function setSeparator($separator)
     {
         $this->separator = $separator;
 
@@ -76,6 +77,6 @@ class Title extends SplArrayQueue
      */
     public function __toString()
     {
-        return implode( ' ' . $this->separator . ' ', array_unique( $this->getArrayCopy() ) );
+        return implode(' ' . $this->separator . ' ', array_unique($this->getArrayCopy()));
     }
 }

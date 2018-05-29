@@ -39,35 +39,35 @@ class Element extends Html\Element
 
     public function clearfix()
     {
-        $this->attributes->addAttributeClass( 'clearfix' );
+        $this->attributes->addAttributeClass('clearfix');
 
         return $this;
     }
 
     // ------------------------------------------------------------------------
 
-    public function embedResponsive( $ratio = null )
+    public function embedResponsive($ratio = null)
     {
-        $this->attributes->addAttributeClass( 'embed-responsive' );
+        $this->attributes->addAttributeClass('embed-responsive');
 
-        $ratio = empty( $ratio ) ? '1:1' : $ratio;
+        $ratio = empty($ratio) ? '1:1' : $ratio;
 
-        switch ( $ratio ) {
+        switch ($ratio) {
             default:
             case '1:1':
-                $this->attributes->addAttributeClass( 'embed-responsive-1by1' );
+                $this->attributes->addAttributeClass('embed-responsive-1by1');
                 break;
 
             case '21:9':
-                $this->attributes->addAttributeClass( 'embed-responsive-21by9' );
+                $this->attributes->addAttributeClass('embed-responsive-21by9');
                 break;
 
             case '16:9':
-                $this->attributes->addAttributeClass( 'embed-responsive-16by9' );
+                $this->attributes->addAttributeClass('embed-responsive-16by9');
                 break;
 
             case '4:3':
-                $this->attributes->addAttributeClass( 'embed-responsive-4by3' );
+                $this->attributes->addAttributeClass('embed-responsive-4by3');
                 break;
         }
 
@@ -76,12 +76,12 @@ class Element extends Html\Element
 
     // ------------------------------------------------------------------------
 
-    public function screenReaderOnly( $focusable = false )
+    public function screenReaderOnly($focusable = false)
     {
-        $this->attributes->addAttributeClass( 'sr-only' );
+        $this->attributes->addAttributeClass('sr-only');
 
-        if ( $focusable ) {
-            $this->attributes->addAttributeClass( 'sr-only-focusable' );
+        if ($focusable) {
+            $this->attributes->addAttributeClass('sr-only-focusable');
         }
 
         return $this;
@@ -89,9 +89,9 @@ class Element extends Html\Element
 
     // ------------------------------------------------------------------------
 
-    public function visible( $visible = true )
+    public function visible($visible = true)
     {
-        $this->attributes->addAttributeClass( ( $visible === true ? 'visible' : 'invisible' ) );
+        $this->attributes->addAttributeClass(($visible === true ? 'visible' : 'invisible'));
 
         return $this;
     }

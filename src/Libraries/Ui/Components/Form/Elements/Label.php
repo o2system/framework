@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Form\Elements;
@@ -23,46 +24,46 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Label extends Element
 {
-    public function __construct( array $attributes = [] )
+    public function __construct(array $attributes = [])
     {
-        parent::__construct( 'label' );
+        parent::__construct('label');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( 'label-' . $attributes[ 'id' ] );
-        } elseif ( isset( $attributes[ 'for' ] )  ) {
-            $this->entity->setEntityName( 'label-' . $attributes[ 'name' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName('label-' . $attributes[ 'id' ]);
+        } elseif (isset($attributes[ 'for' ])) {
+            $this->entity->setEntityName('label-' . $attributes[ 'name' ]);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
 
-        $this->attributes->addAttributeClass( 'form-label-control' );
+        $this->attributes->addAttributeClass('form-label-control');
     }
 
-    public function screenReaderOnly( $focusable = false )
+    public function screenReaderOnly($focusable = false)
     {
-        $this->attributes->removeAttributeClass( 'form-label-control' );
+        $this->attributes->removeAttributeClass('form-label-control');
 
-        return parent::screenReaderOnly( $focusable );
+        return parent::screenReaderOnly($focusable);
     }
 
     public function render()
     {
         $output[] = $this->open();
 
-        if ( $this->hasChildNodes() ) {
-            $output[] = implode( PHP_EOL, $this->childNodes->getArrayCopy() );
+        if ($this->hasChildNodes()) {
+            $output[] = implode(PHP_EOL, $this->childNodes->getArrayCopy());
         }
 
-        if ( $this->hasTextContent() ) {
-            $output[] = implode( '', $this->textContent->getArrayCopy() );
+        if ($this->hasTextContent()) {
+            $output[] = implode('', $this->textContent->getArrayCopy());
         }
 
         $output[] = $this->close();
 
-        return implode( PHP_EOL, $output );
+        return implode(PHP_EOL, $output);
     }
 }

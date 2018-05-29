@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Datastructures;
@@ -31,15 +32,15 @@ class Language extends SplDirectoryInfo
      */
     private $properties = [];
 
-    public function __construct( $dir )
+    public function __construct($dir)
     {
-        parent::__construct( $dir );
+        parent::__construct($dir);
 
         // Set Properties
-        if ( is_file( $propertiesFilePath = $dir . DIRECTORY_SEPARATOR . 'language.jsprop' ) ) {
-            $properties = json_decode( file_get_contents( $propertiesFilePath ), true );
+        if (is_file($propertiesFilePath = $dir . DIRECTORY_SEPARATOR . 'language.jsprop')) {
+            $properties = json_decode(file_get_contents($propertiesFilePath), true);
 
-            if ( json_last_error() === JSON_ERROR_NONE ) {
+            if (json_last_error() === JSON_ERROR_NONE) {
                 $this->properties = $properties;
             }
         }
@@ -47,7 +48,7 @@ class Language extends SplDirectoryInfo
 
     public function isValid()
     {
-        if ( count( $this->properties ) ) {
+        if (count($this->properties)) {
             return true;
         }
 
@@ -61,16 +62,16 @@ class Language extends SplDirectoryInfo
 
     public function getCode()
     {
-        return strtoupper( substr( md5( $this->getDirName() ), 2, 7 ) );
+        return strtoupper(substr(md5($this->getDirName()), 2, 7));
     }
 
     public function getChecksum()
     {
-        return md5( $this->getMTime() );
+        return md5($this->getMTime());
     }
 
     public function getProperties()
     {
-        return new SplArrayObject( $this->properties );
+        return new SplArrayObject($this->properties);
     }
 }

@@ -29,23 +29,23 @@ class Breadcrumb extends Ordered
     {
         parent::__construct();
 
-        $this->attributes->addAttributeClass( 'breadcrumb' );
+        $this->attributes->addAttributeClass('breadcrumb');
     }
 
-    protected function pushChildNode( Element $node )
+    public function style($style)
     {
-        $node->attributes->addAttributeClass( 'breadcrumb-item' );
-
-        parent::pushChildNode( $node );
-    }
-
-    public function style( $style )
-    {
-        if ( in_array( $style, [ 'arrow', 'dot', 'bar' ] ) ) {
-            $this->attributes->removeAttributeClass( 'breadcrumb-*' );
-            $this->attributes->addAttributeClass( 'breadcrumb-' . $style );
+        if (in_array($style, ['arrow', 'dot', 'bar'])) {
+            $this->attributes->removeAttributeClass('breadcrumb-*');
+            $this->attributes->addAttributeClass('breadcrumb-' . $style);
         }
 
         return $this;
+    }
+
+    protected function pushChildNode(Element $node)
+    {
+        $node->attributes->addAttributeClass('breadcrumb-item');
+
+        parent::pushChildNode($node);
     }
 }

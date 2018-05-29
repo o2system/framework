@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Card;
@@ -29,8 +30,8 @@ class Header extends Element
 
     public function __construct()
     {
-        parent::__construct( 'div', 'header' );
-        $this->attributes->addAttributeClass( 'card-header' );
+        parent::__construct('div', 'header');
+        $this->attributes->addAttributeClass('card-header');
     }
 
     /**
@@ -38,10 +39,10 @@ class Header extends Element
      *
      * @return Nav
      */
-    public function createNav( $type = Nav::HEADER_PILLS )
+    public function createNav($type = Nav::HEADER_PILLS)
     {
-        $nav = new Nav( $type );
-        $this->childNodes->push( $nav );
+        $nav = new Nav($type);
+        $this->childNodes->push($nav);
 
         return $this->nav = $this->childNodes->last();
     }
@@ -53,9 +54,9 @@ class Header extends Element
      */
     public function createOptions()
     {
-        $nav = new Nav( Nav::HEADER_PILLS );
-        $nav->attributes->addAttributeClass( 'float-right' );
-        $this->childNodes->push( $nav );
+        $nav = new Nav(Nav::HEADER_PILLS);
+        $nav->attributes->addAttributeClass('float-right');
+        $this->childNodes->push($nav);
 
         return $this->options = $this->childNodes->last();
     }

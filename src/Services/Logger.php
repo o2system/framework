@@ -8,17 +8,26 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
-// ------------------------------------------------------------------------
-
-namespace O2System\Framework\Models\Files\Traits;
 
 // ------------------------------------------------------------------------
+
+namespace O2System\Framework\Services;
+
+// ------------------------------------------------------------------------
+
+use O2System\Kernel\Datastructures\Config;
 
 /**
- * Trait ModifierTrait
- * @package O2System\Framework\Models\Files\Traits
+ * Class Logger
+ * @package O2System\Framework\Services
  */
-trait ModifierTrait
+class Logger extends \O2System\Kernel\Services\Logger
 {
+    public function __construct()
+    {
+        $config = config()->get('logger');
+        $config[ 'path' ] = PATH_CACHE . 'log' . DIRECTORY_SEPARATOR;
 
+        parent::__construct(new Config($config));
+    }
 }

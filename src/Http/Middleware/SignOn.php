@@ -15,35 +15,26 @@ namespace O2System\Framework\Http\Middleware;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Http\Message\RequestInterface;
-use O2System\Psr\Http\Middleware\MiddlewareServiceInterface;
+use O2System\Psr\Http\Message\ServerRequestInterface;
+use O2System\Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Class SignOn
  *
  * @package O2System\Framework\Http\Middleware
  */
-class SignOn implements MiddlewareServiceInterface
+class SignOn implements RequestHandlerInterface
 {
     /**
-     * validate
+     * Environment::handle
      *
-     * @param \O2System\Psr\Http\Message\RequestInterface $request
+     * Handles a request and produces a response
      *
-     * @return mixed
+     * May call other collaborating code to generate the response.
      */
-    public function validate(RequestInterface $request)
+    public function handle(ServerRequestInterface $request)
     {
-        if (input()->get('ssid') && o2system()->hasService('user')) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public function handle(RequestInterface $request)
-    {
-        if (null !== ($ssid = input()->get('ssid'))) {
+        if (null !== ($ssid = input()->get('ssid')) && o2system()->hasService('user')) {
             if (o2system()->getService('user')->validate($ssid)) {
                 set_cookie('ssid', $ssid);
 
@@ -51,10 +42,5 @@ class SignOn implements MiddlewareServiceInterface
                 exit(EXIT_SUCCESS);
             }
         }
-    }
-
-    public function terminate(RequestInterface $request)
-    {
-        // Nothing to-be terminated
     }
 }

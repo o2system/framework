@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Panel;
@@ -25,7 +26,7 @@ class Footer extends Element
 {
     public function __construct()
     {
-        parent::__construct( 'div', 'heading' );
-        $this->attributes->addAttributeClass( 'panel-footer' );
+        parent::__construct('div', 'heading');
+        $this->attributes->addAttributeClass('panel-footer');
     }
 }

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Form\Elements;
@@ -28,19 +29,19 @@ class Output extends Element
      *
      * @param array $attributes
      */
-    public function __construct(array $attributes = [] )
+    public function __construct(array $attributes = [])
     {
-        parent::__construct( 'output' );
+        parent::__construct('output');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( 'output-' . $attributes[ 'id' ] );
-        } elseif ( isset( $attributes[ 'name' ] )  ) {
-            $this->entity->setEntityName( 'output-' . $attributes[ 'name' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName('output-' . $attributes[ 'id' ]);
+        } elseif (isset($attributes[ 'name' ])) {
+            $this->entity->setEntityName('output-' . $attributes[ 'name' ]);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
     }

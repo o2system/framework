@@ -32,38 +32,38 @@ class Select extends Element
      *
      * @param array $attributes
      */
-    public function __construct( array $attributes = [] )
+    public function __construct(array $attributes = [])
     {
-        parent::__construct( 'select' );
+        parent::__construct('select');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( 'select-' . $attributes[ 'id' ] );
-        } elseif ( isset( $attributes[ 'name' ] )  ) {
-            $this->entity->setEntityName( 'select-' . $attributes[ 'name' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName('select-' . $attributes[ 'id' ]);
+        } elseif (isset($attributes[ 'name' ])) {
+            $this->entity->setEntityName('select-' . $attributes[ 'name' ]);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
 
-        $this->attributes->addAttributeClass( [ 'form-control', 'custom-select' ] );
+        $this->attributes->addAttributeClass(['form-control', 'custom-select']);
     }
 
-    public function createGroup( $label )
+    public function createGroup($label)
     {
         $group = new Select\Group();
-        $group->textContent->push( $label );
+        $group->textContent->push($label);
 
-        $this->childNodes->push( $group );
+        $this->childNodes->push($group);
 
         return $this->childNodes->last();
     }
 
     public function multiple()
     {
-        $this->attributes->addAttribute( 'multiple', 'multiple' );
+        $this->attributes->addAttribute('multiple', 'multiple');
 
         return $this;
     }

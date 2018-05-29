@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Icons\Abstracts;
@@ -25,19 +26,19 @@ abstract class AbstractIcon extends Element
 {
     protected $iconPrefixClass;
 
-    public function __construct( $iconName = null )
+    public function __construct($iconName = null)
     {
-        parent::__construct( 'span' );
+        parent::__construct('span');
 
-        if ( isset( $iconName ) ) {
-            $this->setClass( $iconName );
+        if (isset($iconName)) {
+            $this->setClass($iconName);
         }
     }
 
-    public function setClass( $className )
+    public function setClass($className)
     {
-        $this->attributes->removeAttributeClass( $this->iconPrefixClass . '-*' );
-        $this->attributes->addAttributeClass( $this->iconPrefixClass . '-' . $className );
+        $this->attributes->removeAttributeClass($this->iconPrefixClass . '-*');
+        $this->attributes->addAttributeClass($this->iconPrefixClass . '-' . $className);
 
         return $this;
     }

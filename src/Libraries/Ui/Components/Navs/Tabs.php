@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Navs;
@@ -25,7 +26,7 @@ class Tabs extends Base
     {
         parent::__construct();
 
-        $this->attributes->addAttributeClass( 'nav-tabs' );
+        $this->attributes->addAttributeClass('nav-tabs');
     }
 
     public function justified()

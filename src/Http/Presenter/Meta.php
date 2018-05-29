@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter;
@@ -31,56 +32,56 @@ class Meta extends AbstractRepository
     {
         $this->title = new Meta\Title();
 
-        if ( false !== ( $config = config()->loadFile( 'presenter', true ) ) ) {
-            if ( false !== ( $config->offsetGet( 'socialGraph' ) ) ) {
+        if (false !== ($config = config()->loadFile('presenter', true))) {
+            if (false !== ($config->offsetGet('socialGraph'))) {
                 $this->opengraph = new Meta\Opengraph();
                 $this->opengraph->setTitle($this->title);
-                $this->opengraph->setLocale( language()->getDefaultLocale(), language()->getDefaultIdeom() );
-                $this->opengraph->setUrl( current_url() );
+                $this->opengraph->setLocale(language()->getDefaultLocale(), language()->getDefaultIdeom());
+                $this->opengraph->setUrl(current_url());
             }
         }
 
-        $this->offsetSet( 'viewport', [
+        $this->offsetSet('viewport', [
             'width'         => 'device-width',
             'initial-scale' => 1,
             'shrink-to-fit' => 'no',
-        ] );
+        ]);
 
-        $this->offsetSet( 'language', language()->getDefault() );
-        $this->offsetSet( 'generator', FRAMEWORK_NAME . ' v' . FRAMEWORK_VERSION );
-        $this->offsetSet( 'url', current_url() );
+        $this->offsetSet('language', language()->getDefault());
+        $this->offsetSet('generator', FRAMEWORK_NAME . ' v' . FRAMEWORK_VERSION);
+        $this->offsetSet('url', current_url());
     }
 
-    public function store( $offset, $value )
+    public function store($offset, $value)
     {
-        $element = new Element( 'meta' );
+        $element = new Element('meta');
 
-        if ( $offset === 'http-equiv' ) {
+        if ($offset === 'http-equiv') {
             $element->attributes[ 'http-equiv' ] = $value[ 'property' ];
             $element->attributes[ 'content' ] = $value[ 'content' ];
-            parent::store( camelcase( 'http_equiv_' . $value[ 'property' ] ), $element );
+            parent::store(camelcase('http_equiv_' . $value[ 'property' ]), $element);
         } else {
             $element->attributes[ 'name' ] = $offset;
 
-            if ( is_array( $value ) ) {
-                if ( is_numeric( key( $value ) ) ) {
-                    $element->attributes[ 'content' ] = implode( ', ', $value );
+            if (is_array($value)) {
+                if (is_numeric(key($value))) {
+                    $element->attributes[ 'content' ] = implode(', ', $value);
                 } else {
                     $newValue = [];
-                    foreach ( $value as $key => $val ) {
+                    foreach ($value as $key => $val) {
                         $newValue[] = $key . '=' . $val;
                     }
-                    $element->attributes[ 'content' ] = implode( ', ', $newValue );
+                    $element->attributes[ 'content' ] = implode(', ', $newValue);
                 }
             } else {
                 $element->attributes[ 'content' ] = $value;
             }
 
-            if ( in_array( $offset, [ 'description' ] ) and $this->opengraph instanceof Meta\Opengraph ) {
-                $this->opengraph->setObject( $element->attributes[ 'name' ], $element->attributes[ 'content' ] );
+            if (in_array($offset, ['description']) and $this->opengraph instanceof Meta\Opengraph) {
+                $this->opengraph->setObject($element->attributes[ 'name' ], $element->attributes[ 'content' ]);
             }
 
-            parent::store( camelcase( $offset ), $element );
+            parent::store(camelcase($offset), $element);
         }
     }
 
@@ -88,9 +89,9 @@ class Meta extends AbstractRepository
     {
         $output = '';
 
-        if ( $this->count() ) {
-            foreach ( $this->storage as $offset => $tag ) {
-                if ( $tag instanceof Element ) {
+        if ($this->count()) {
+            foreach ($this->storage as $offset => $tag) {
+                if ($tag instanceof Element) {
                     $output .= $tag->render();
                 }
             }

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Navbar;
@@ -33,20 +34,20 @@ class Links
         $this->right->attributes->addAttributeClass('navbar-right');
     }
 
-    public function createLink( $label, $href = null, $position = self::NAVBAR_LEFT )
+    public function createLink($label, $href = null, $position = self::NAVBAR_LEFT)
     {
-        if ( ! is_object( $label ) && isset( $href ) ) {
-            $label = new Link( $label, $href );
+        if ( ! is_object($label) && isset($href)) {
+            $label = new Link($label, $href);
         }
 
-        switch ( $position ) {
+        switch ($position) {
             default:
             case self::NAVBAR_LEFT:
-                $node = $this->left->createList( $label );
+                $node = $this->left->createList($label);
                 break;
 
             case self::NAVBAR_RIGHT:
-                $node = $this->right->createList( $label );
+                $node = $this->right->createList($label);
                 break;
         }
 

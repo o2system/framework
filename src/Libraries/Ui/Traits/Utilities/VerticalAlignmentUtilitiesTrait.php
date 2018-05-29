@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
@@ -22,7 +23,7 @@ trait VerticalAlignmentUtilitiesTrait
 {
     public function alignBaseline()
     {
-        $this->attributes->addAttributeClass( 'align-baseline' );
+        $this->attributes->addAttributeClass('align-baseline');
 
         return $this;
     }
@@ -31,7 +32,7 @@ trait VerticalAlignmentUtilitiesTrait
 
     public function alignTop()
     {
-        $this->attributes->addAttributeClass( 'align-top' );
+        $this->attributes->addAttributeClass('align-top');
 
         return $this;
     }
@@ -40,7 +41,7 @@ trait VerticalAlignmentUtilitiesTrait
 
     public function alignMiddle()
     {
-        $this->attributes->addAttributeClass( 'align-middle' );
+        $this->attributes->addAttributeClass('align-middle');
 
         return $this;
     }
@@ -49,7 +50,7 @@ trait VerticalAlignmentUtilitiesTrait
 
     public function alignBottom()
     {
-        $this->attributes->addAttributeClass( 'align-bottom' );
+        $this->attributes->addAttributeClass('align-bottom');
 
         return $this;
     }
@@ -58,7 +59,7 @@ trait VerticalAlignmentUtilitiesTrait
 
     public function alignTextTop()
     {
-        $this->attributes->addAttributeClass( 'align-text-top' );
+        $this->attributes->addAttributeClass('align-text-top');
 
         return $this;
     }
@@ -67,7 +68,7 @@ trait VerticalAlignmentUtilitiesTrait
 
     public function alignTextBottom()
     {
-        $this->attributes->addAttributeClass( 'align-text-bottom' );
+        $this->attributes->addAttributeClass('align-text-bottom');
 
         return $this;
     }

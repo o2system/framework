@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components;
@@ -26,34 +27,34 @@ class PageHeader extends Element
     public $header;
     public $subText;
 
-    public function __construct( $header = null, $subText = null )
+    public function __construct($header = null, $subText = null)
     {
-        parent::__construct( 'div' );
-        $this->attributes->addAttributeClass( 'page-header' );
+        parent::__construct('div');
+        $this->attributes->addAttributeClass('page-header');
 
-        if ( isset( $header ) ) {
-            $this->setHeader( $header );
+        if (isset($header)) {
+            $this->setHeader($header);
         }
 
-        if ( isset( $subText ) ) {
-            $this->setSubText( $subText );
+        if (isset($subText)) {
+            $this->setSubText($subText);
         }
     }
 
-    public function setHeader( $text, $tagName = 'h1' )
+    public function setHeader($text, $tagName = 'h1')
     {
-        $this->header = new Element( $tagName );
-        $this->header->entity->setEntityName( 'header' );
-        $this->header->textContent->push( $text );
+        $this->header = new Element($tagName);
+        $this->header->entity->setEntityName('header');
+        $this->header->textContent->push($text);
 
         return $this;
     }
 
-    public function setSubText( $text )
+    public function setSubText($text)
     {
-        $this->subText = new Element( 'small' );
-        $this->subText->entity->setEntityName( 'sub-text' );
-        $this->subText->textContent->push( $text );
+        $this->subText = new Element('small');
+        $this->subText->entity->setEntityName('sub-text');
+        $this->subText->textContent->push($text);
 
         return $this;
     }
@@ -62,13 +63,13 @@ class PageHeader extends Element
     {
         $output[] = $this->open();
 
-        if ( $this->subText instanceof Element ) {
-            $this->header->childNodes->push( $this->subText );
+        if ($this->subText instanceof Element) {
+            $this->header->childNodes->push($this->subText);
         }
 
         $output[] = $this->header;
         $output[] = $this->close();
 
-        return implode( PHP_EOL, $output );
+        return implode(PHP_EOL, $output);
     }
 }

@@ -117,31 +117,31 @@ class Maintenance extends Commander
 
     // ------------------------------------------------------------------------
 
-    public function optionSwitch( $switch )
+    public function optionSwitch($switch)
     {
-        $switch = strtoupper( $switch );
+        $switch = strtoupper($switch);
 
-        if ( in_array( $switch, [ 'ON', 'OFF' ] ) ) {
+        if (in_array($switch, ['ON', 'OFF'])) {
             $this->optionSwitch = $switch;
         }
     }
 
-    public function optionMode( $mode )
+    public function optionMode($mode)
     {
         $this->optionMode = $mode;
     }
 
-    public function optionLifetime( $lifetime )
+    public function optionLifetime($lifetime)
     {
-        $this->optionLifetime = (int) $lifetime;
+        $this->optionLifetime = (int)$lifetime;
     }
 
-    public function optionTitle( $title )
+    public function optionTitle($title)
     {
-        $this->optionTitle = trim( $title );
+        $this->optionTitle = trim($title);
     }
 
-    public function optionMessage( $message )
+    public function optionMessage($message)
     {
         $this->optionMessage = $message;
     }
@@ -150,79 +150,79 @@ class Maintenance extends Commander
     {
         $options = input()->get();
 
-        if ( empty( $options ) ) {
+        if (empty($options)) {
             $_GET[ 'switch' ] = 'ON';
             $_GET[ 'mode' ] = 'default';
             $_GET[ 'lifetime' ] = 300;
-            $_GET[ 'title' ] = language()->getLine( strtoupper( 'CLI_MAINTENANCE_TITLE' ) );
-            $_GET[ 'message' ] = language()->getLine( strtoupper( 'CLI_MAINTENANCE_MESSAGE' ) );
+            $_GET[ 'title' ] = language()->getLine(strtoupper('CLI_MAINTENANCE_TITLE'));
+            $_GET[ 'message' ] = language()->getLine(strtoupper('CLI_MAINTENANCE_MESSAGE'));
         } else {
             $_GET[ 'mode' ] = 'default';
             $_GET[ 'lifetime' ] = 300;
-            $_GET[ 'title' ] = language()->getLine( strtoupper( 'CLI_MAINTENANCE_TITLE' ) );
-            $_GET[ 'message' ] = language()->getLine( strtoupper( 'CLI_MAINTENANCE_MESSAGE' ) );
+            $_GET[ 'title' ] = language()->getLine(strtoupper('CLI_MAINTENANCE_TITLE'));
+            $_GET[ 'message' ] = language()->getLine(strtoupper('CLI_MAINTENANCE_MESSAGE'));
         }
 
         parent::execute();
 
-        if ( $this->optionSwitch === 'ON' ) {
-            if ( cache()->hasItem( 'maintenance' ) ) {
+        if ($this->optionSwitch === 'ON') {
+            if (cache()->hasItem('maintenance')) {
 
-                $maintenanceInfo = cache()->getItem( 'maintenance' )->get();
+                $maintenanceInfo = cache()->getItem('maintenance')->get();
                 output()->write(
-                    ( new Format() )
-                        ->setContextualClass( Format::DANGER )
-                        ->setString( language()->getLine( 'CLI_MAINTENANCE_ALREADY_STARTED', [
+                    (new Format())
+                        ->setContextualClass(Format::DANGER)
+                        ->setString(language()->getLine('CLI_MAINTENANCE_ALREADY_STARTED', [
                             $maintenanceInfo[ 'mode' ],
                             $maintenanceInfo[ 'datetime' ],
-                            date( 'r', strtotime( $maintenanceInfo[ 'datetime' ] ) + $maintenanceInfo[ 'lifetime' ] ),
+                            date('r', strtotime($maintenanceInfo[ 'datetime' ]) + $maintenanceInfo[ 'lifetime' ]),
                             $maintenanceInfo[ 'title' ],
                             $maintenanceInfo[ 'message' ],
-                        ] ) )
-                        ->setNewLinesAfter( 1 )
+                        ]))
+                        ->setNewLinesAfter(1)
                 );
             } else {
                 output()->write(
-                    ( new Format() )
-                        ->setContextualClass( Format::WARNING )
-                        ->setString( language()->getLine( 'CLI_MAINTENANCE_STARTED', [
-                            $datetime = date( 'r' ),
+                    (new Format())
+                        ->setContextualClass(Format::WARNING)
+                        ->setString(language()->getLine('CLI_MAINTENANCE_STARTED', [
+                            $datetime = date('r'),
                             $this->optionLifetime,
                             $this->optionMode,
                             $this->optionTitle,
                             $this->optionMessage,
-                        ] ) )
-                        ->setNewLinesAfter( 1 )
+                        ]))
+                        ->setNewLinesAfter(1)
                 );
 
-                cache()->save( new Item( 'maintenance', [
+                cache()->save(new Item('maintenance', [
                     'datetime' => $datetime,
                     'lifetime' => $this->optionLifetime,
                     'mode'     => $this->optionMode,
                     'title'    => $this->optionTitle,
                     'message'  => $this->optionMessage,
-                ], $this->optionLifetime ) );
+                ], $this->optionLifetime));
             }
 
-        } elseif ( $this->optionSwitch === 'OFF' ) {
-            if ( cache()->hasItem( 'maintenance' ) ) {
+        } elseif ($this->optionSwitch === 'OFF') {
+            if (cache()->hasItem('maintenance')) {
                 output()->write(
-                    ( new Format() )
-                        ->setContextualClass( Format::DANGER )
-                        ->setString( language()->getLine( 'CLI_MAINTENANCE_STOPPED', [
+                    (new Format())
+                        ->setContextualClass(Format::DANGER)
+                        ->setString(language()->getLine('CLI_MAINTENANCE_STOPPED', [
                             $this->optionMode,
-                            date( 'r' ),
-                        ] ) )
-                        ->setNewLinesAfter( 1 )
+                            date('r'),
+                        ]))
+                        ->setNewLinesAfter(1)
                 );
 
-                cache()->deleteItem( 'maintenance' );
+                cache()->deleteItem('maintenance');
             } else {
                 output()->write(
-                    ( new Format() )
-                        ->setContextualClass( Format::DANGER )
-                        ->setString( language()->getLine( 'CLI_MAINTENANCE_INACTIVE' ) )
-                        ->setNewLinesAfter( 1 )
+                    (new Format())
+                        ->setContextualClass(Format::DANGER)
+                        ->setString(language()->getLine('CLI_MAINTENANCE_INACTIVE'))
+                        ->setNewLinesAfter(1)
                 );
             }
         }

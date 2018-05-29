@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter;
@@ -23,25 +24,25 @@ use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
  */
 class Partials extends AbstractRepository
 {
-    public function hasPartial( $partialOffset )
+    public function hasPartial($partialOffset)
     {
-        return $this->__isset( $partialOffset );
+        return $this->__isset($partialOffset);
     }
 
-    public function addPartial( $partialOffset, $partialFilePath )
+    public function addPartial($partialOffset, $partialFilePath)
     {
-        $this->store( $partialOffset, $partialFilePath );
+        $this->store($partialOffset, $partialFilePath);
     }
 
-    public function get( $partial )
+    public function get($partial)
     {
-        $partialContent = parent::get( $partial );
+        $partialContent = parent::get($partial);
 
-        if ( is_file( $partialContent ) ) {
-            parser()->loadFile( $partialContent );
+        if (is_file($partialContent)) {
+            parser()->loadFile($partialContent);
 
             return parser()->parse();
-        } elseif ( is_string( $partialContent ) ) {
+        } elseif (is_string($partialContent)) {
             return $partialContent;
         }
 

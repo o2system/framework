@@ -15,11 +15,11 @@ namespace O2System\Framework\Containers;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Models\Files\Model as FileModel;
+use O2System\Framework\Models\NoSql\Model as NoSqlModel;
+use O2System\Framework\Models\Sql\Model as SqlModel;
 use O2System\Spl\Containers\Datastructures\SplServiceRegistry;
 use O2System\Spl\Containers\SplServiceContainer;
-use O2System\Framework\Models\Sql\Model as SqlModel;
-use O2System\Framework\Models\NoSql\Model as NoSqlModel;
-use O2System\Framework\Models\Files\Model as FileModel;
 
 /**
  * Class Models

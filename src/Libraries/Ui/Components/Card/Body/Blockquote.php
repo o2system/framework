@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Card\Body;
@@ -28,6 +29,6 @@ class Blockquote extends Contents\Blockquote
         parent::__construct();
 
         $this->tagName = 'div';
-        $this->attributes->addAttributeClass( 'card-blockquote' );
+        $this->attributes->addAttributeClass('card-blockquote');
     }
 }

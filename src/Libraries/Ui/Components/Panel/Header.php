@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Panel;
@@ -25,25 +26,25 @@ class Header extends Element
 {
     public function __construct()
     {
-        parent::__construct( 'div', 'heading' );
-        $this->attributes->addAttributeClass( 'panel-heading' );
+        parent::__construct('div', 'heading');
+        $this->attributes->addAttributeClass('panel-heading');
     }
 
-    public function createTitle( $text, $tagName = 'h3' )
+    public function createTitle($text, $tagName = 'h3')
     {
-        $node = new Element( $tagName );
-        $node->attributes->addAttributeClass( 'panel-title' );
+        $node = new Element($tagName);
+        $node->attributes->addAttributeClass('panel-title');
 
-        if( $text instanceof Element ) {
-            $node->entity->setEntityName( $text->entity->getEntityName() );
-            $node->childNodes->push( $text );
+        if ($text instanceof Element) {
+            $node->entity->setEntityName($text->entity->getEntityName());
+            $node->childNodes->push($text);
         } else {
-            $text = trim( $text );
-            $node->entity->setEntityName( 'title-' . md5( $text ) );
-            $node->textContent->push( $text );
+            $text = trim($text);
+            $node->entity->setEntityName('title-' . md5($text));
+            $node->textContent->push($text);
         }
 
-        $this->childNodes->push( $node );
+        $this->childNodes->push($node);
 
         return $this->childNodes->last();
     }

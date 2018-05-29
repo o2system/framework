@@ -8,14 +8,15 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Buttons;
 
 use O2System\Framework\Libraries\Ui\Components\Button;
 use O2System\Framework\Libraries\Ui\Components\Dropdown;
-use O2System\Framework\Libraries\Ui\Traits\Setters\SizingSetterTrait;
 use O2System\Framework\Libraries\Ui\Element;
+use O2System\Framework\Libraries\Ui\Traits\Setters\SizingSetterTrait;
 
 /**
  * Class Group
@@ -28,13 +29,13 @@ class Group extends Element
 
     public function __construct()
     {
-        parent::__construct( 'div' );
+        parent::__construct('div');
 
-        $this->attributes->addAttributeClass( 'btn-group' );
-        $this->attributes->addAttribute( 'role', 'group' );
+        $this->attributes->addAttributeClass('btn-group');
+        $this->attributes->addAttribute('role', 'group');
 
         // Set button sizing class
-        $this->setSizingClassPrefix( 'btn-group' );
+        $this->setSizingClassPrefix('btn-group');
     }
 
     /**
@@ -42,30 +43,30 @@ class Group extends Element
      *
      * @return Button
      */
-    public function createButton( $label )
+    public function createButton($label)
     {
         $node = new Button();
 
-        if ( $label instanceof Button ) {
+        if ($label instanceof Button) {
             $node = $label;
-        } elseif ( $label instanceof Dropdown ) {
+        } elseif ($label instanceof Dropdown) {
             $node = clone $label;
-            $node->attributes->removeAttributeClass( 'dropdown' );
-            $node->attributes->addAttributeClass( 'btn-group' );
-            $node->attributes->addAttribute( 'role', 'group' );
+            $node->attributes->removeAttributeClass('dropdown');
+            $node->attributes->addAttributeClass('btn-group');
+            $node->attributes->addAttribute('role', 'group');
 
-            $node->childNodes->push( $label->toggle );
-            $node->childNodes->push( $label->menu );
+            $node->childNodes->push($label->toggle);
+            $node->childNodes->push($label->menu);
         } else {
-            $node->setLabel( $label );
-            if ( is_numeric( $label ) ) {
-                $node->entity->setEntityName( 'button-' . $label );
+            $node->setLabel($label);
+            if (is_numeric($label)) {
+                $node->entity->setEntityName('button-' . $label);
             } else {
-                $node->entity->setEntityName( $label );
+                $node->entity->setEntityName($label);
             }
         }
 
-        $this->childNodes->push( $node );
+        $this->childNodes->push($node);
 
         return $this->childNodes->last();
     }
@@ -73,14 +74,14 @@ class Group extends Element
     public function verticalStacked()
     {
         $this->attributes->removeAttributeClass('btn-group');
-        $this->attributes->addAttributeClass( 'btn-group-vertical' );
+        $this->attributes->addAttributeClass('btn-group-vertical');
 
         return $this;
     }
 
     public function justified()
     {
-        $this->attributes->addAttributeClass( 'btn-group-justified' );
+        $this->attributes->addAttributeClass('btn-group-justified');
 
         return $this;
     }

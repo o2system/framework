@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
@@ -20,23 +21,23 @@ namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
  */
 trait SizingUtilitiesTrait
 {
-    public function width( $width )
+    public function width($width)
     {
-        $this->attributes->addAttributeClass( 'w-' . (int) $width );
+        $this->attributes->addAttributeClass('w-' . (int)$width);
 
         return $this;
     }
 
-    public function maxWidth( $maxWidth )
+    public function maxWidth($maxWidth)
     {
-        $this->attributes->addAttributeClass( 'mw-' . (int) $maxWidth );
+        $this->attributes->addAttributeClass('mw-' . (int)$maxWidth);
 
         return $this;
     }
 
-    public function maxHeight( $maxHeight )
+    public function maxHeight($maxHeight)
     {
-        $this->attributes->addAttributeClass( 'mh-' . (int) $maxHeight );
+        $this->attributes->addAttributeClass('mh-' . (int)$maxHeight);
 
         return $this;
     }

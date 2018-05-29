@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Card;
@@ -24,7 +25,7 @@ class Columns extends Group
     public function __construct()
     {
         parent::__construct();
-        $this->attributes->removeAttributeClass( 'card-group' );
-        $this->attributes->addAttributeClass( 'card-columns' );
+        $this->attributes->removeAttributeClass('card-group');
+        $this->attributes->addAttributeClass('card-columns');
     }
 }

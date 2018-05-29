@@ -48,7 +48,7 @@ class Images extends Controller
 
     public function route()
     {
-        if(func_get_arg(0) === 'index') {
+        if (func_get_arg(0) === 'index') {
             $segments = func_get_arg(1);
         } else {
             $segments = array_merge([func_get_arg(0)], func_get_arg(1));
@@ -99,31 +99,31 @@ class Images extends Controller
         }
 
         $imageFilePath = $this->imageFilePath;
-        $extensions[0] = pathinfo( $imageFilePath, PATHINFO_EXTENSION );
+        $extensions[ 0 ] = pathinfo($imageFilePath, PATHINFO_EXTENSION);
 
-        for($i = 0; $i < 2; $i++) {
-            $extension = pathinfo( $imageFilePath, PATHINFO_EXTENSION );
+        for ($i = 0; $i < 2; $i++) {
+            $extension = pathinfo($imageFilePath, PATHINFO_EXTENSION);
 
-            if( $extension !== '' ) {
+            if ($extension !== '') {
                 $extensions[ $i ] = $extension;
-                $imageFilePath = str_replace('.' . $extensions[ $i], '', $imageFilePath );
+                $imageFilePath = str_replace('.' . $extensions[ $i ], '', $imageFilePath);
             }
         }
 
         $mimes = [
-            'gif' => 'image/gif',
-            'jpg' => 'image/jpeg',
-            'png' => 'image/png',
-            'webp' => 'image/webp'
+            'gif'  => 'image/gif',
+            'jpg'  => 'image/jpeg',
+            'png'  => 'image/png',
+            'webp' => 'image/webp',
         ];
 
-        if( count( $extensions ) == 2 ) {
+        if (count($extensions) == 2) {
             $this->imageFilePath = $imageFilePath . '.' . $extensions[ 1 ];
         }
 
-        if( array_key_exists( $extension = reset( $extensions ), $mimes ) ) {
+        if (array_key_exists($extension = reset($extensions), $mimes)) {
             $this->imageFileMime = $mimes[ $extension ];
-        } elseif( array_key_exists( $extension = pathinfo( $this->imageFilePath, PATHINFO_EXTENSION), $mimes ) ) {
+        } elseif (array_key_exists($extension = pathinfo($this->imageFilePath, PATHINFO_EXTENSION), $mimes)) {
             $this->imageFileMime = $mimes[ $extension ];
         }
 
@@ -140,7 +140,7 @@ class Images extends Controller
         }
     }
 
-    protected function original()
+    protected function scale()
     {
         $config = config('image', true);
 
@@ -148,8 +148,37 @@ class Images extends Controller
             $config->offsetSet('quality', intval($this->imageQuality));
         }
 
+        if ($config->cached === true) {
+            if ($this->imageFilePath !== $this->imageNotFound) {
+                $cacheImageKey = 'image-' . $this->imageScale . '-' . str_replace($this->imagePath, '',
+                        $this->imageFilePath);
+
+                if (cache()->hasItemPool('images')) {
+                    $cacheItemPool = cache()->getItemPool('images');
+
+                    if ($cacheItemPool->hasItem($cacheImageKey)) {
+                        $cacheImageString = $cacheItemPool->getItem($cacheImageKey)->get();
+
+                        $manipulation = new Manipulation($config);
+                        $manipulation->setImageFile($this->imageFilePath);
+                        $manipulation->setImageString($cacheImageString);
+                        $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
+                    } else {
+                        $manipulation = new Manipulation($config);
+                        $manipulation->setImageFile($this->imageFilePath);
+                        $manipulation->scaleImage($this->imageScale);
+                        $cacheItemPool->save(new Item($cacheImageKey, $manipulation->getBlobImage(), false));
+
+                        $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
+                        exit(EXIT_SUCCESS);
+                    }
+                }
+            }
+        }
+
         $manipulation = new Manipulation($config);
         $manipulation->setImageFile($this->imageFilePath);
+        $manipulation->scaleImage($this->imageScale);
         $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
         exit(EXIT_SUCCESS);
     }
@@ -198,7 +227,7 @@ class Images extends Controller
         exit(EXIT_SUCCESS);
     }
 
-    protected function scale()
+    protected function original()
     {
         $config = config('image', true);
 
@@ -206,37 +235,8 @@ class Images extends Controller
             $config->offsetSet('quality', intval($this->imageQuality));
         }
 
-        if ($config->cached === true) {
-            if ($this->imageFilePath !== $this->imageNotFound) {
-                $cacheImageKey = 'image-' . $this->imageScale . '-' . str_replace($this->imagePath, '',
-                        $this->imageFilePath);
-
-                if (cache()->hasItemPool('images')) {
-                    $cacheItemPool = cache()->getItemPool('images');
-
-                    if ($cacheItemPool->hasItem($cacheImageKey)) {
-                        $cacheImageString = $cacheItemPool->getItem($cacheImageKey)->get();
-
-                        $manipulation = new Manipulation($config);
-                        $manipulation->setImageFile($this->imageFilePath);
-                        $manipulation->setImageString($cacheImageString);
-                        $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
-                    } else {
-                        $manipulation = new Manipulation($config);
-                        $manipulation->setImageFile($this->imageFilePath);
-                        $manipulation->scaleImage($this->imageScale);
-                        $cacheItemPool->save(new Item($cacheImageKey, $manipulation->getBlobImage(), false));
-
-                        $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
-                        exit(EXIT_SUCCESS);
-                    }
-                }
-            }
-        }
-
         $manipulation = new Manipulation($config);
         $manipulation->setImageFile($this->imageFilePath);
-        $manipulation->scaleImage($this->imageScale);
         $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
         exit(EXIT_SUCCESS);
     }

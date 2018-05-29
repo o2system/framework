@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Contents;
@@ -23,19 +24,19 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Icon extends Element
 {
-    public function __construct( $iconClass = null )
+    public function __construct($iconClass = null)
     {
-        parent::__construct( 'i' );
+        parent::__construct('i');
 
-        if( isset( $iconClass ) ) {
-            $this->setClass( $iconClass );
+        if (isset($iconClass)) {
+            $this->setClass($iconClass);
         }
     }
 
-    public function setClass( $iconClass )
+    public function setClass($iconClass)
     {
-        $this->attributes->removeAttributeClass( [ 'fa', 'fa-*' ] );
-        $this->attributes->addAttributeClass( $iconClass );
+        $this->attributes->removeAttributeClass(['fa', 'fa-*']);
+        $this->attributes->addAttributeClass($iconClass);
 
         return $this;
     }

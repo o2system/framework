@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph;
@@ -39,10 +40,10 @@ class Audio extends AbstractNamespace
      *
      * @return static
      */
-    public function setMime( $mime )
+    public function setMime($mime)
     {
-        if ( strpos( $mime, 'audio/' ) !== false ) {
-            $this->setObject( 'type', $mime );
+        if (strpos($mime, 'audio/') !== false) {
+            $this->setObject('type', $mime);
         }
 
         return $this;

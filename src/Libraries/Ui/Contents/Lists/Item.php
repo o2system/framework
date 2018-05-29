@@ -15,11 +15,11 @@ namespace O2System\Framework\Libraries\Ui\Contents\Lists;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Libraries\Ui\Element;
 use O2System\Framework\Libraries\Ui\Interfaces\ContextualInterface;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ContextualClassSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\HeadingSetterTrait;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
-use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Item
@@ -37,31 +37,31 @@ class Item extends Element implements ContextualInterface
      *
      * @param array $attributes
      */
-    public function __construct( array $attributes = [] )
+    public function __construct(array $attributes = [])
     {
-        parent::__construct( 'li' );
+        parent::__construct('li');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( $attributes[ 'id' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName($attributes[ 'id' ]);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
     }
 
     public function active()
     {
-        $this->attributes->addAttributeClass( 'active' );
+        $this->attributes->addAttributeClass('active');
     }
 
     public function disabled()
     {
-        $this->attributes->addAttributeClass( 'disabled' );
+        $this->attributes->addAttributeClass('disabled');
 
-        if ( $this->childNodes->first() instanceof Item ) {
+        if ($this->childNodes->first() instanceof Item) {
             $this->childNodes->first()->disabled();
         }
     }
@@ -70,32 +70,32 @@ class Item extends Element implements ContextualInterface
     {
         $output[] = $this->open();
 
-        if ( ! empty( $this->heading ) ) {
+        if ( ! empty($this->heading)) {
             $output[] = $this->heading . PHP_EOL;
         }
 
-        if ( ! empty( $this->paragraph ) ) {
+        if ( ! empty($this->paragraph)) {
 
-            if ( $this->textContent->count() ) {
-                foreach ( $this->textContent as $textContent ) {
-                    $this->paragraph->textContent->push( $textContent );
+            if ($this->textContent->count()) {
+                foreach ($this->textContent as $textContent) {
+                    $this->paragraph->textContent->push($textContent);
                 }
             }
 
             $output[] = $this->paragraph . PHP_EOL;
-        } elseif ( $this->textContent->count() ) {
-            $output[] = implode( '', $this->textContent->getArrayCopy() );
+        } elseif ($this->textContent->count()) {
+            $output[] = implode('', $this->textContent->getArrayCopy());
         }
 
-        if ( $this->hasChildNodes() ) {
+        if ($this->hasChildNodes()) {
 
-            foreach ( $this->childNodes as $childNode ) {
+            foreach ($this->childNodes as $childNode) {
                 $output[] = $childNode . PHP_EOL;
             }
         }
 
         $output[] = $this->close();
 
-        return implode( '', $output );
+        return implode('', $output);
     }
 }

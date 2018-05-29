@@ -15,8 +15,6 @@ namespace O2System\Framework\Libraries\Ui\Components\Card\Body;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Contents\Image;
-use O2System\Framework\Libraries\Ui\Contents\Link;
 use O2System\Framework\Libraries\Ui\Element;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
 
@@ -38,8 +36,8 @@ class Testimonial extends Element
 
     public function __construct()
     {
-        parent::__construct( 'div', 'testimonial' );
-        $this->attributes->addAttributeClass( 'card-testimonial' );
+        parent::__construct('div', 'testimonial');
+        $this->attributes->addAttributeClass('card-testimonial');
     }
 
     public function createAuthor()
@@ -51,16 +49,16 @@ class Testimonial extends Element
 
     public function render()
     {
-        if ( $this->paragraph instanceof Element ) {
-            $this->childNodes->push( $this->paragraph );
+        if ($this->paragraph instanceof Element) {
+            $this->childNodes->push($this->paragraph);
         }
 
         $output[] = parent::render();
 
-        if( $this->author instanceof Author ) {
+        if ($this->author instanceof Author) {
             $output[] = $this->author->render();
         }
 
-        return implode( PHP_EOL, $output );
+        return implode(PHP_EOL, $output);
     }
 }

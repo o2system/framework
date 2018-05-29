@@ -30,29 +30,29 @@ class Heading extends Element
      * @param string|null $textContentContent
      * @param int         $level
      */
-    public function __construct( $textContentContent = null, $level = 1, array $attributes = [] )
+    public function __construct($textContentContent = null, $level = 1, array $attributes = [])
     {
-        parent::__construct( 'h' . $level );
+        parent::__construct('h' . $level);
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( $attributes[ 'id' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName($attributes[ 'id' ]);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
 
-        if ( isset( $textContentContent ) ) {
-            $this->textContent->push( $textContentContent );
+        if (isset($textContentContent)) {
+            $this->textContent->push($textContentContent);
         }
     }
 
-    public function display( $level = 1 )
+    public function display($level = 1)
     {
-        $this->attributes->removeAttributeClass( 'display-*' );
-        $this->attributes->addAttributeClass( 'display-' . (int) $level );
+        $this->attributes->removeAttributeClass('display-*');
+        $this->attributes->addAttributeClass('display-' . (int)$level);
 
         return $this;
     }

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Form\Elements\Select;
@@ -23,27 +24,27 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Option extends Element
 {
-    public function __construct( $attributes = [] )
+    public function __construct($attributes = [])
     {
-        parent::__construct( 'option' );
+        parent::__construct('option');
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
     }
 
     public function disabled()
     {
-        $this->attributes->addAttribute( 'disabled', 'disabled' );
+        $this->attributes->addAttribute('disabled', 'disabled');
 
         return $this;
     }
 
     public function selected()
     {
-        $this->attributes->addAttribute( 'selected', 'selected' );
+        $this->attributes->addAttribute('selected', 'selected');
 
         return $this;
     }

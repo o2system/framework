@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Setters;
@@ -25,21 +26,21 @@ trait ImageSetterTrait
 {
     public $image;
 
-    public function setImage( $src, $alt = null )
+    public function setImage($src, $alt = null)
     {
-        $this->image = new Element( 'img' );
+        $this->image = new Element('img');
 
-        if ( strpos( $src, 'holder.js' ) !== false ) {
-            $parts = explode( '/', $src );
-            $size = end( $parts );
-            $this->image->attributes->addAttribute( 'data-src', $src );
+        if (strpos($src, 'holder.js') !== false) {
+            $parts = explode('/', $src);
+            $size = end($parts);
+            $this->image->attributes->addAttribute('data-src', $src);
 
-            $alt = empty( $alt ) ? $size : $alt;
+            $alt = empty($alt) ? $size : $alt;
         } else {
-            $this->image->attributes->addAttribute( 'src', $src );
+            $this->image->attributes->addAttribute('src', $src);
         }
 
-        $this->image->attributes->addAttribute( 'alt', $alt );
+        $this->image->attributes->addAttribute('alt', $alt);
 
         return $this;
     }

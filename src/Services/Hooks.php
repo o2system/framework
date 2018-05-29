@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Services;
@@ -38,45 +39,45 @@ class Hooks
 
     public function __construct()
     {
-        if ( is_file(
+        if (is_file(
             $filePath = PATH_APP . 'Config' . DIRECTORY_SEPARATOR . strtolower(
                     ENVIRONMENT
                 ) . DIRECTORY_SEPARATOR . 'Hooks.php'
-        ) ) {
-            include( $filePath );
-        } elseif ( is_file( $filePath = PATH_APP . 'Config' . DIRECTORY_SEPARATOR . 'Hooks.php' ) ) {
-            include( $filePath );
+        )) {
+            include($filePath);
+        } elseif (is_file($filePath = PATH_APP . 'Config' . DIRECTORY_SEPARATOR . 'Hooks.php')) {
+            include($filePath);
         }
 
-        if ( isset( $hooks ) AND is_array( $hooks ) ) {
-            foreach ( $hooks as $event => $closures ) {
-                if ( is_array( $closures ) ) {
-                    foreach ( $closures as $closure ) {
-                        $this->addClosure( $closure, $event );
+        if (isset($hooks) AND is_array($hooks)) {
+            foreach ($hooks as $event => $closures) {
+                if (is_array($closures)) {
+                    foreach ($closures as $closure) {
+                        $this->addClosure($closure, $event);
                     }
-                } elseif ( $closures instanceof \Closure ) {
-                    $this->addClosure( $closures, $event );
+                } elseif ($closures instanceof \Closure) {
+                    $this->addClosure($closures, $event);
                 }
             }
 
-            unset( $hooks );
+            unset($hooks);
         }
     }
 
-    public function addClosure( \Closure $closure, $event )
+    public function addClosure(\Closure $closure, $event)
     {
-        $event = strtoupper( $event );
+        $event = strtoupper($event);
 
-        if ( in_array( $event, [ 'PRE_SYSTEM', 'POST_SYSTEM', 'PRE_CONTROLLER', 'POST_CONTROLLER' ] ) ) {
+        if (in_array($event, ['PRE_SYSTEM', 'POST_SYSTEM', 'PRE_CONTROLLER', 'POST_CONTROLLER'])) {
             $this->closures[ $event ][] = $closure;
         }
     }
 
-    public function callEvent( $event )
+    public function callEvent($event)
     {
-        if ( array_key_exists( $event, $this->closures ) ) {
-            foreach ( $this->closures[ $event ] as $closure ) {
-                call_user_func( $closure );
+        if (array_key_exists($event, $this->closures)) {
+            foreach ($this->closures[ $event ] as $closure) {
+                call_user_func($closure);
             }
         }
     }

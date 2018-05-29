@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Collectors;
@@ -28,8 +29,8 @@ trait ButtonsCollectorTrait
 
     public function hasButtons()
     {
-        if ( $this->buttons instanceof ArrayIterator ) {
-            if ( $this->buttons->count() ) {
+        if ($this->buttons instanceof ArrayIterator) {
+            if ($this->buttons->count()) {
                 return true;
             }
         }
@@ -37,26 +38,26 @@ trait ButtonsCollectorTrait
         return false;
     }
 
-    public function createButton( $label, array $attributes = [], $contextualClass = Button::DEFAULT_CONTEXT )
+    public function createButton($label, array $attributes = [], $contextualClass = Button::DEFAULT_CONTEXT)
     {
-        $button = new Button( $label, $attributes, $contextualClass );
+        $button = new Button($label, $attributes, $contextualClass);
 
-        if ( ! $this->buttons instanceof ArrayIterator ) {
+        if ( ! $this->buttons instanceof ArrayIterator) {
             $this->buttons = new ArrayIterator();
         }
 
-        $this->buttons->push( $button );
+        $this->buttons->push($button);
 
         return $this->buttons->last();
     }
 
-    public function addButton( Button $button )
+    public function addButton(Button $button)
     {
-        if ( ! $this->buttons instanceof ArrayIterator ) {
+        if ( ! $this->buttons instanceof ArrayIterator) {
             $this->buttons = new ArrayIterator();
         }
 
-        $this->buttons->push( $button );
+        $this->buttons->push($button);
 
         return $this;
     }

@@ -8,13 +8,12 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph\Music;
 
 // ------------------------------------------------------------------------
-
-use O2System\Framework\Http\Presenter\Meta\Opengraph\Abstracts\AbstractNamespace;
 
 /**
  * Class Song

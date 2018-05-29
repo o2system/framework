@@ -312,7 +312,7 @@ class View implements RenderableInterface
             }
         }
 
-        if(false !== ($controller = controller() )) {
+        if (false !== ($controller = controller())) {
             presenter()->meta->offsetSet('module-controller', $controller->getClassInfo()->getParameter());
         }
 
@@ -343,6 +343,8 @@ class View implements RenderableInterface
             }
         }
 
+        profiler()->watch('VIEW_RENDER_END');
+
         if (input()->env('DEBUG_STAGE') === 'DEVELOPER' and config()->getItem('presenter')->debugToolBar === true) {
             $this->document->find('body')->append((new Toolbar())->__toString());
         }
@@ -350,7 +352,7 @@ class View implements RenderableInterface
         $htmlOutput = $this->document->saveHTML();
 
         if (presenter()->offsetExists('cacheOutput')) {
-            $cacheKey = 'o2output_' . underscore(request()->getUri()->getSegments()->getString());
+            $cacheKey = 'o2output_' . underscore(server_request()->getUri()->getSegments()->getString());
 
             $cacheItemPool = cache()->getItemPool('default');
 

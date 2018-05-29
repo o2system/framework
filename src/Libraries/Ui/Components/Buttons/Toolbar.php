@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Buttons;
@@ -23,29 +24,29 @@ class Toolbar extends Element
 {
     public function __construct()
     {
-        parent::__construct( 'div' );
+        parent::__construct('div');
 
-        $this->attributes->addAttributeClass( 'btn-toolbar' );
-        $this->attributes->addAttribute( 'role', 'toolbar' );
+        $this->attributes->addAttributeClass('btn-toolbar');
+        $this->attributes->addAttribute('role', 'toolbar');
     }
 
     public function createButtonGroup()
     {
         $node = new Group();
-        $this->childNodes->push( $node );
+        $this->childNodes->push($node);
 
         return $this->childNodes->last();
     }
 
-    public function createDropdownButtonGroup( $label )
+    public function createDropdownButtonGroup($label)
     {
-        if ( $label instanceof Dropdown ) {
+        if ($label instanceof Dropdown) {
             $node = clone $label;
         } else {
-            $node = new Dropdown( $label );
+            $node = new Dropdown($label);
         }
 
-        $this->childNodes->push( $node );
+        $this->childNodes->push($node);
 
         return $this->childNodes->last();
     }
@@ -58,7 +59,7 @@ class Toolbar extends Element
     public function createInputGroup()
     {
         $node = new \O2System\Framework\Libraries\Ui\Components\Form\Input\Group();
-        $this->childNodes->push( $node );
+        $this->childNodes->push($node);
 
         return $this->childNodes->last();
 

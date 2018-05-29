@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components;
@@ -30,51 +31,51 @@ class Dropdown extends Element
 
     protected $splitMenu = false;
 
-    public function __construct( $label = null )
+    public function __construct($label = null)
     {
-        parent::__construct( 'div' );
-        $this->attributes->addAttributeClass( 'dropdown' );
+        parent::__construct('div');
+        $this->attributes->addAttributeClass('dropdown');
 
-        $this->setToggle( $label );
+        $this->setToggle($label);
         $this->menu = new Menu();
     }
 
-    public function setToggle( $label )
+    public function setToggle($label)
     {
-        if ( $label instanceof Button ) {
+        if ($label instanceof Button) {
             $this->toggle = $label;
         } else {
-            $this->toggle = new Button( $label );
-            $this->entity->setEntityName( $label );
+            $this->toggle = new Button($label);
+            $this->entity->setEntityName($label);
         }
 
-        $this->toggle->attributes->addAttribute( 'data-toggle', 'dropdown' );
-        $this->toggle->attributes->addAttribute( 'aria-haspopup', true );
-        $this->toggle->attributes->addAttribute( 'aria-expanded', false );
-        $this->toggle->attributes->addAttributeClass( 'dropdown-toggle' );
+        $this->toggle->attributes->addAttribute('data-toggle', 'dropdown');
+        $this->toggle->attributes->addAttribute('aria-haspopup', true);
+        $this->toggle->attributes->addAttribute('aria-expanded', false);
+        $this->toggle->attributes->addAttributeClass('dropdown-toggle');
 
         return $this;
     }
 
-    public function setAlignment( $alignment )
+    public function setAlignment($alignment)
     {
-        $this->attributes->addAttributeClass( 'dropdown-menu-' . $alignment );
+        $this->attributes->addAttributeClass('dropdown-menu-' . $alignment);
 
         return $this;
     }
 
     public function dropup()
     {
-        $this->attributes->removeAttributeClass( 'dropdown' );
-        $this->attributes->addAttributeClass( 'dropup' );
+        $this->attributes->removeAttributeClass('dropdown');
+        $this->attributes->addAttributeClass('dropup');
 
         return $this;
     }
 
     public function splitMenu()
     {
-        $this->attributes->removeAttributeClass( 'dropdown' );
-        $this->attributes->addAttributeClass( 'btn-group' );
+        $this->attributes->removeAttributeClass('dropdown');
+        $this->attributes->addAttributeClass('btn-group');
 
         $textContent = clone $this->toggle->textContent;
         $childNodes = clone $this->toggle->childNodes;
@@ -82,8 +83,8 @@ class Dropdown extends Element
 
         $this->toggle = new Button();
         $buttonAttributes = clone $attributes;
-        $buttonAttributes->removeAttributeClass( 'dropdown-toggle' );
-        $buttonAttributes->removeAttribute( [ 'data-*', 'aria-*' ] );
+        $buttonAttributes->removeAttributeClass('dropdown-toggle');
+        $buttonAttributes->removeAttribute(['data-*', 'aria-*']);
         $this->toggle->attributes = $buttonAttributes;
 
         $this->toggle->textContent = $textContent;
@@ -92,10 +93,10 @@ class Dropdown extends Element
         $this->toggleButton->attributes = $attributes;
         $this->toggleButton->childNodes = $childNodes;
 
-        $srOnly = new Element( 'span' );
-        $srOnly->attributes->addAttributeClass( 'sr-only' );
-        $srOnly->textContent->push( 'Toggle Dropdown' );
-        $this->toggleButton->childNodes->append( $srOnly );
+        $srOnly = new Element('span');
+        $srOnly->attributes->addAttributeClass('sr-only');
+        $srOnly->textContent->push('Toggle Dropdown');
+        $this->toggleButton->childNodes->append($srOnly);
 
         return $this;
     }
@@ -106,13 +107,13 @@ class Dropdown extends Element
         $output[] = $this->open();
         $output[] = $this->toggle;
 
-        if ( $this->toggleButton instanceof Button ) {
+        if ($this->toggleButton instanceof Button) {
             $output[] = $this->toggleButton;
         }
 
         $output[] = $this->menu;
         $output[] = $this->close();
 
-        return implode( PHP_EOL, $output );
+        return implode(PHP_EOL, $output);
     }
 }

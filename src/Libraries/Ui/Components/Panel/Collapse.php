@@ -8,14 +8,15 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Panel;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Traits\Collectors\ParagraphsCollectorTrait;
 use O2System\Framework\Libraries\Ui\Element;
+use O2System\Framework\Libraries\Ui\Traits\Collectors\ParagraphsCollectorTrait;
 
 /**
  * Class Collapse
@@ -26,14 +27,14 @@ class Collapse extends Element
 {
     use ParagraphsCollectorTrait;
 
-    public function __construct( $id = null )
+    public function __construct($id = null)
     {
-        parent::__construct( 'div', 'body' );
+        parent::__construct('div', 'body');
 
-        $id = empty( $id ) ? 'panel-collapse-' . mt_rand( 0, 1000 ) : $id;
+        $id = empty($id) ? 'panel-collapse-' . mt_rand(0, 1000) : $id;
 
-        $this->attributes->setAttributeId( $id );
-        $this->attributes->addAttributeClass( [ 'panel-collapse', 'collapse' ] );
+        $this->attributes->setAttributeId($id);
+        $this->attributes->addAttributeClass(['panel-collapse', 'collapse']);
     }
 
     public function in()

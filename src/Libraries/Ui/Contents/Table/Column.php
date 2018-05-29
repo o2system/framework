@@ -15,9 +15,9 @@ namespace O2System\Framework\Libraries\Ui\Contents\Table;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Libraries\Ui\Element;
 use O2System\Framework\Libraries\Ui\Interfaces\ContextualInterface;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ContextualClassSetterTrait;
-use O2System\Framework\Libraries\Ui\Element;
 
 /**
  * Class Column
@@ -28,24 +28,24 @@ class Column extends Element implements ContextualInterface
 {
     use ContextualClassSetterTrait;
 
-    public function __construct( array $attributes = [], $contextualClass = null )
+    public function __construct(array $attributes = [], $contextualClass = null)
     {
-        parent::__construct( 'td' );
+        parent::__construct('td');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( $attributes[ 'id' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName($attributes[ 'id' ]);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
 
-        $this->setContextualClassPrefix( 'table' );
+        $this->setContextualClassPrefix('table');
 
-        if ( isset( $contextualClass ) ) {
-            $this->setContextualClass( $contextualClass );
+        if (isset($contextualClass)) {
+            $this->setContextualClass($contextualClass);
         }
     }
 }

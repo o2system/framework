@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components;
@@ -30,17 +31,17 @@ class Embed extends Element
 
     public $media;
 
-    public function __construct( $aspectRatio = self::RATIO_16BY9 )
+    public function __construct($aspectRatio = self::RATIO_16BY9)
     {
-        parent::__construct( 'div' );
-        $this->attributes->addAttributeClass( [ 'embed-responsive', 'embed-responsive-' . $aspectRatio ] );
+        parent::__construct('div');
+        $this->attributes->addAttributeClass(['embed-responsive', 'embed-responsive-' . $aspectRatio]);
 
-        $this->media = new Element( 'iframe' );
-        $this->media->attributes->addAttributeClass( 'embed-responsive-item' );
-        $this->media->attributes->addAttribute( 'allowfullscreen', 'allowfullscreen' );
+        $this->media = new Element('iframe');
+        $this->media->attributes->addAttributeClass('embed-responsive-item');
+        $this->media->attributes->addAttribute('allowfullscreen', 'allowfullscreen');
     }
 
-    public function setMedia( $src )
+    public function setMedia($src)
     {
         $src = str_replace(
             [
@@ -56,11 +57,11 @@ class Embed extends Element
             $src
         );
 
-        if ( strpos( $src, 'youtube' ) !== false ) {
+        if (strpos($src, 'youtube') !== false) {
             $src .= '?rel=0';
         }
 
-        $this->media->attributes->addAttribute( 'src', $src );
+        $this->media->attributes->addAttribute('src', $src);
 
         return $this;
     }
@@ -71,6 +72,6 @@ class Embed extends Element
         $output[] = $this->media;
         $output[] = $this->close();
 
-        return implode( PHP_EOL, $output );
+        return implode(PHP_EOL, $output);
     }
 }

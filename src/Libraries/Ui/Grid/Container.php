@@ -39,18 +39,18 @@ class Container extends Element
      *
      * @param array $attributes
      */
-    public function __construct( array $attributes = [] )
+    public function __construct(array $attributes = [])
     {
-        parent::__construct( 'div' );
-        $this->attributes->addAttributeClass( 'container' );
+        parent::__construct('div');
+        $this->attributes->addAttributeClass('container');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( $attributes[ 'id' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName($attributes[ 'id' ]);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
     }
@@ -64,9 +64,9 @@ class Container extends Element
      *
      * @return static
      */
-    public function fluid( $fluid )
+    public function fluid($fluid)
     {
-        $this->fluid = (bool) $fluid;
+        $this->fluid = (bool)$fluid;
 
         return $this;
     }
@@ -80,9 +80,9 @@ class Container extends Element
      */
     public function render()
     {
-        if ( $this->fluid ) {
-            $this->attributes->removeAttributeClass( 'container' );
-            $this->attributes->addAttributeClass( 'container-fluid' );
+        if ($this->fluid) {
+            $this->attributes->removeAttributeClass('container');
+            $this->attributes->addAttributeClass('container-fluid');
         }
 
         return parent::render();

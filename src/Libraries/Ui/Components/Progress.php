@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components;
@@ -27,28 +28,49 @@ class Progress extends Element
 {
     protected $bars;
 
-    public function __construct( $now = 0, $min = 0, $max = 100 )
+    public function __construct($now = 0, $min = 0, $max = 100)
     {
-        parent::__construct( 'div' );
-        $this->attributes->addAttributeClass( 'progress' );
+        parent::__construct('div');
+        $this->attributes->addAttributeClass('progress');
 
         $this->bars = new ArrayIterator();
 
-        $this->addBar( $now, $min, $max );
+        $this->addBar($now, $min, $max);
 
-        $this->setNow( $now );
-        $this->setMin( $min );
-        $this->setMax( $max );
+        $this->setNow($now);
+        $this->setMin($min);
+        $this->setMax($max);
     }
 
-    public function addBar( $now = 0, $min = 0, $max = 100, $contextualClass = 'primary' )
+    public function addBar($now = 0, $min = 0, $max = 100, $contextualClass = 'primary')
     {
-        if ( $now instanceof Bar ) {
-            $this->bars->push( $now );
-        } elseif ( is_numeric( $now ) ) {
-            $bar = new Bar( $now, $min, $max, $contextualClass );
-            $this->bars->push( $bar );
+        if ($now instanceof Bar) {
+            $this->bars->push($now);
+        } elseif (is_numeric($now)) {
+            $bar = new Bar($now, $min, $max, $contextualClass);
+            $this->bars->push($bar);
         }
+
+        return $this;
+    }
+
+    public function setNow($number)
+    {
+        $this->bars->first()->setNow($number);
+
+        return $this;
+    }
+
+    public function setMin($number)
+    {
+        $this->bars->first()->setMin($number);
+
+        return $this;
+    }
+
+    public function setMax($number)
+    {
+        $this->bars->first()->setMax($number);
 
         return $this;
     }
@@ -62,7 +84,7 @@ class Progress extends Element
 
     public function striped()
     {
-        $this->bars->first()->attributes->addAttributeClass( 'progress-bar-striped' );
+        $this->bars->first()->attributes->addAttributeClass('progress-bar-striped');
 
         return $this;
     }
@@ -70,28 +92,7 @@ class Progress extends Element
     public function animate()
     {
         $firstBar = $this->bars->first();
-        $firstBar->attributes->addAttributeClass( 'active' );
-
-        return $this;
-    }
-
-    public function setNow( $number )
-    {
-        $this->bars->first()->setNow( $number );
-
-        return $this;
-    }
-
-    public function setMin( $number )
-    {
-        $this->bars->first()->setMin( $number );
-
-        return $this;
-    }
-
-    public function setMax( $number )
-    {
-        $this->bars->first()->setMax( $number );
+        $firstBar->attributes->addAttributeClass('active');
 
         return $this;
     }
@@ -100,12 +101,12 @@ class Progress extends Element
     {
         $output[] = $this->open();
 
-        foreach ( $this->bars as $bar ) {
+        foreach ($this->bars as $bar) {
             $output[] = $bar->render();
         }
 
         $output[] = $this->close();
 
-        return implode( PHP_EOL, $output );
+        return implode(PHP_EOL, $output);
     }
 }

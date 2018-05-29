@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Datastructures;
@@ -62,66 +63,66 @@ class Module extends SplDirectoryInfo
      */
     private $config = [];
 
-    public function __construct( $dir )
+    public function __construct($dir)
     {
-        parent::__construct( $dir );
+        parent::__construct($dir);
 
-        $this->namespace = prepare_namespace( str_replace( PATH_ROOT, '', $dir ), false );
+        $this->namespace = prepare_namespace(str_replace(PATH_ROOT, '', $dir), false);
     }
 
-    public function getSegments( $returnArray = true )
+    public function getSegments($returnArray = true)
     {
-        if ( $returnArray ) {
-            return explode( '/', $this->segments );
+        if ($returnArray) {
+            return explode('/', $this->segments);
         }
 
         return $this->segments;
     }
 
-    public function setSegments( $segments )
+    public function setSegments($segments)
     {
-        $this->segments = is_array( $segments ) ? implode( '/', $segments ) : $segments;
+        $this->segments = is_array($segments) ? implode('/', $segments) : $segments;
 
         return $this;
     }
 
-    public function getParentSegments( $returnArray = true )
+    public function getParentSegments($returnArray = true)
     {
-        if ( $returnArray ) {
-            return explode( '/', $this->parentSegments );
+        if ($returnArray) {
+            return explode('/', $this->parentSegments);
         }
 
         return $this->parentSegments;
     }
 
-    public function setParentSegments( $parentSegments )
+    public function setParentSegments($parentSegments)
     {
-        $this->parentSegments = is_array( $parentSegments ) ? implode( '/', $parentSegments ) : $parentSegments;
+        $this->parentSegments = is_array($parentSegments) ? implode('/', $parentSegments) : $parentSegments;
 
         return $this;
     }
 
     public function getParameter()
     {
-        return snakecase( $this->getDirName(),'-' );
+        return snakecase($this->getDirName(), '-');
     }
 
     public function getCode()
     {
-        return strtoupper( substr( md5( $this->getDirName() ), 2, 7 ) );
+        return strtoupper(substr(md5($this->getDirName()), 2, 7));
     }
 
     public function getChecksum()
     {
-        return md5( $this->getMTime() );
+        return md5($this->getMTime());
     }
 
     public function getProperties()
     {
-        return new SplArrayObject( $this->properties );
+        return new SplArrayObject($this->properties);
     }
 
-    public function setProperties( array $properties )
+    public function setProperties(array $properties)
     {
         $this->properties = $properties;
 
@@ -130,10 +131,10 @@ class Module extends SplDirectoryInfo
 
     public function getConfig()
     {
-        return new SplArrayObject( $this->config );
+        return new SplArrayObject($this->config);
     }
 
-    public function setConfig( array $config )
+    public function setConfig(array $config)
     {
         $this->config = $config;
 
@@ -145,20 +146,20 @@ class Module extends SplDirectoryInfo
         return $this->namespace;
     }
 
-    public function setNamespace( $namespace )
+    public function setNamespace($namespace)
     {
-        $this->namespace = trim( $namespace, '\\' ) . '\\';
+        $this->namespace = trim($namespace, '\\') . '\\';
 
         return $this;
     }
 
     public function getThemes()
     {
-        $directory = new SplDirectoryInfo( $this->getPublicDir() . 'themes' . DIRECTORY_SEPARATOR );
+        $directory = new SplDirectoryInfo($this->getPublicDir() . 'themes' . DIRECTORY_SEPARATOR);
 
         $themes = [];
-        foreach( $directory->getTree() as $themeName => $themeTree ) {
-            if( ($theme = $this->getTheme( $themeName ) ) instanceof Theme ) {
+        foreach ($directory->getTree() as $themeName => $themeTree) {
+            if (($theme = $this->getTheme($themeName)) instanceof Theme) {
                 $themes[ $themeName ] = $theme;
             }
         }
@@ -166,34 +167,34 @@ class Module extends SplDirectoryInfo
         return $themes;
     }
 
-    public function getTheme( $theme, $failover = true )
+    public function getPublicDir()
     {
-        $theme = dash( $theme );
+        return PATH_PUBLIC . strtolower(str_replace(PATH_APP, '', $this->getRealPath()));
+    }
 
-        if ( $failover === false ) {
-            if ( is_dir( $themePath = $this->getPublicDir() . 'themes' . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR ) ) {
-                $themeObject = new Theme( $themePath );
+    public function getTheme($theme, $failover = true)
+    {
+        $theme = dash($theme);
 
-                if ( $themeObject->isValid() ) {
+        if ($failover === false) {
+            if (is_dir($themePath = $this->getPublicDir() . 'themes' . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR)) {
+                $themeObject = new Theme($themePath);
+
+                if ($themeObject->isValid()) {
                     return $themeObject;
                 }
             }
         } else {
-            foreach ( modules() as $module ) {
-                if ( in_array( $module->getType(), [ 'KERNEL', 'FRAMEWORK' ] ) ) {
+            foreach (modules() as $module) {
+                if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
                     continue;
-                } elseif ( $themeObject = $module->getTheme( $theme, false ) ) {
+                } elseif ($themeObject = $module->getTheme($theme, false)) {
                     return $themeObject;
                 }
             }
         }
 
         return false;
-    }
-
-    public function getThemesPath()
-    {
-        return str_replace( PATH_APP, PATH_PUBLIC, $this->getRealPath() ) . 'themes' . DIRECTORY_SEPARATOR;
     }
 
     public function getType()
@@ -201,45 +202,45 @@ class Module extends SplDirectoryInfo
         return $this->type;
     }
 
-    public function setType( $type )
+    public function setType($type)
     {
-        $this->type = strtoupper( $type );
+        $this->type = strtoupper($type);
 
         return $this;
     }
 
-    public function getDir( $dirName, $psrDir = false )
+    public function getDir($dirName, $psrDir = false)
     {
-        $dirName = $psrDir === true ? prepare_class_name( $dirName ) : $dirName;
-        $dirName = str_replace( [ '/', '\\' ], DIRECTORY_SEPARATOR, $dirName );
+        $dirName = $psrDir === true ? prepare_class_name($dirName) : $dirName;
+        $dirName = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $dirName);
 
-        if ( is_dir( $dirPath = $this->getRealPath() . $dirName ) ) {
+        if (is_dir($dirPath = $this->getRealPath() . $dirName)) {
             return $dirPath . DIRECTORY_SEPARATOR;
         }
 
         return false;
     }
 
-    public function getPublicDir()
+    public function hasTheme($theme)
     {
-        return PATH_PUBLIC . strtolower( str_replace( PATH_APP, '', $this->getRealPath() ) );
-    }
-
-    public function hasTheme( $theme )
-    {
-        if ( is_dir( $this->getThemesPath() . $theme ) ) {
+        if (is_dir($this->getThemesPath() . $theme)) {
             return true;
         }
 
         return false;
     }
 
+    public function getThemesPath()
+    {
+        return str_replace(PATH_APP, PATH_PUBLIC, $this->getRealPath()) . 'themes' . DIRECTORY_SEPARATOR;
+    }
+
     public function loadModel()
     {
         $modelClassName = $this->namespace . 'Base\\Model';
 
-        if ( class_exists( $modelClassName ) ) {
-            models()->register( strtolower( $this->type ), new $modelClassName() );
+        if (class_exists($modelClassName)) {
+            models()->register(strtolower($this->type), new $modelClassName());
         }
     }
 }

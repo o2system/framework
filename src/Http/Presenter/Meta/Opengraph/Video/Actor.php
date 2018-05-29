@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Presenter\Meta\Opengraph\Video;
@@ -32,8 +33,8 @@ class Actor extends Profile
      *
      * @param $role
      */
-    public function setRole( $role )
+    public function setRole($role)
     {
-        $this->setObject( 'role', $role );
+        $this->setObject('role', $role);
     }
 }

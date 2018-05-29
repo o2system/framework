@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Components\Modal;
@@ -31,11 +32,11 @@ class Dialog extends Element
 
     public function __construct()
     {
-        parent::__construct( 'div', 'dialog' );
-        $this->attributes->addAttributeClass( 'modal-dialog' );
-        $this->attributes->addAttribute( 'role', 'document' );
+        parent::__construct('div', 'dialog');
+        $this->attributes->addAttributeClass('modal-dialog');
+        $this->attributes->addAttribute('role', 'document');
 
-        $this->childNodes->push( new Content() );
+        $this->childNodes->push(new Content());
         $this->content = $this->childNodes->last();
     }
 }

@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
@@ -22,56 +23,56 @@ trait ShapeUtilitiesTrait
 {
     public function rounded()
     {
-        $this->attributes->removeAttributeClass( [ 'rounded', 'rounded-*' ] );
-        $this->attributes->addAttributeClass( 'rounded' );
+        $this->attributes->removeAttributeClass(['rounded', 'rounded-*']);
+        $this->attributes->addAttributeClass('rounded');
 
         return $this;
     }
 
     public function roundedTop()
     {
-        $this->attributes->removeAttributeClass( [ 'rounded', 'rounded-*' ] );
-        $this->attributes->addAttributeClass( 'rounded-top' );
+        $this->attributes->removeAttributeClass(['rounded', 'rounded-*']);
+        $this->attributes->addAttributeClass('rounded-top');
 
         return $this;
     }
 
     public function roundedBottom()
     {
-        $this->attributes->removeAttributeClass( [ 'rounded', 'rounded-*' ] );
-        $this->attributes->addAttributeClass( 'rounded-bottom' );
+        $this->attributes->removeAttributeClass(['rounded', 'rounded-*']);
+        $this->attributes->addAttributeClass('rounded-bottom');
 
         return $this;
     }
 
     public function roundedLeft()
     {
-        $this->attributes->removeAttributeClass( [ 'rounded', 'rounded-*' ] );
-        $this->attributes->addAttributeClass( 'rounded-left' );
+        $this->attributes->removeAttributeClass(['rounded', 'rounded-*']);
+        $this->attributes->addAttributeClass('rounded-left');
 
         return $this;
     }
 
     public function roundedRight()
     {
-        $this->attributes->removeAttributeClass( [ 'rounded', 'rounded-*' ] );
-        $this->attributes->addAttributeClass( 'rounded-right' );
+        $this->attributes->removeAttributeClass(['rounded', 'rounded-*']);
+        $this->attributes->addAttributeClass('rounded-right');
 
         return $this;
     }
 
     public function circle()
     {
-        $this->attributes->removeAttributeClass( [ 'rounded', 'rounded-*' ] );
-        $this->attributes->addAttributeClass( 'rounded-circle' );
+        $this->attributes->removeAttributeClass(['rounded', 'rounded-*']);
+        $this->attributes->addAttributeClass('rounded-circle');
 
         return $this;
     }
 
     public function square()
     {
-        $this->attributes->removeAttributeClass( [ 'rounded', 'rounded-*' ] );
-        $this->attributes->addAttributeClass( 'rounded-0' );
+        $this->attributes->removeAttributeClass(['rounded', 'rounded-*']);
+        $this->attributes->addAttributeClass('rounded-0');
 
         return $this;
     }

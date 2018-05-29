@@ -15,7 +15,7 @@
  * A collection of helper function to work with array.
  */
 // ------------------------------------------------------------------------
-if ( ! function_exists( 'array_get_value' ) ) {
+if ( ! function_exists('array_get_value')) {
     /**
      * array_get_value
      *
@@ -28,15 +28,15 @@ if ( ! function_exists( 'array_get_value' ) ) {
      *
      * @return mixed
      */
-    function array_get_value( $key, array $array, $default = null )
+    function array_get_value($key, array $array, $default = null)
     {
-        return array_key_exists( $key, $array ) ? $array[ $key ] : $default;
+        return array_key_exists($key, $array) ? $array[ $key ] : $default;
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'array_get_values' ) ) {
+if ( ! function_exists('array_get_values')) {
     /**
      * array_get_values
      *
@@ -49,18 +49,18 @@ if ( ! function_exists( 'array_get_values' ) ) {
      *
      * @return array
      */
-    function array_get_values( array $keys, array $array, $default = [] )
+    function array_get_values(array $keys, array $array, $default = [])
     {
         $return = [];
 
-        is_array( $keys ) OR $keys = [ $keys ];
+        is_array($keys) OR $keys = [$keys];
 
-        foreach ( $keys as $item ) {
-            if( array_key_exists( $item, $array ) ) {
+        foreach ($keys as $item) {
+            if (array_key_exists($item, $array)) {
                 $return[ $item ] = $array[ $item ];
-            } elseif( is_array( $default) && array_key_exists( $item, $default ) ) {
+            } elseif (is_array($default) && array_key_exists($item, $default)) {
                 $return[ $item ] = $default[ $item ];
-            } elseif( ! empty( $default ) ) {
+            } elseif ( ! empty($default)) {
                 $return[ $item ] = $default;
             }
         }
@@ -72,7 +72,7 @@ if ( ! function_exists( 'array_get_values' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'array_combines' ) ) {
+if ( ! function_exists('array_combines')) {
     /**
      * array_combines
      *
@@ -83,18 +83,18 @@ if ( ! function_exists( 'array_combines' ) ) {
      *
      * @return array
      */
-    function array_combines( array $keys, array $values )
+    function array_combines(array $keys, array $values)
     {
         $combine_array = [];
 
-        foreach ( $keys as $index => $key ) {
+        foreach ($keys as $index => $key) {
             $combine_array[ $key ][] = $values[ $index ];
         }
 
         array_walk(
             $combine_array,
-            function ( &$value ) {
-                $value = ( count( $value ) == 1 ) ? array_pop( $value ) : $value;
+            function (&$value) {
+                $value = (count($value) == 1) ? array_pop($value) : $value;
             }
         );
 
@@ -104,7 +104,7 @@ if ( ! function_exists( 'array_combines' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'array_group' ) ) {
+if ( ! function_exists('array_group')) {
     /**
      * array_group
      *
@@ -115,15 +115,15 @@ if ( ! function_exists( 'array_group' ) ) {
      *
      * @return array
      */
-    function array_group( array $array, $flip = true )
+    function array_group(array $array, $flip = true)
     {
         $group_array = [];
 
-        if ( $flip ) {
+        if ($flip) {
             array_walk_recursive(
                 $array,
-                function ( $value, $key ) use ( &$group_array ) {
-                    if ( ! isset( $group_array[ $value ] ) || ! is_array( $group_array[ $value ] ) ) {
+                function ($value, $key) use (&$group_array) {
+                    if ( ! isset($group_array[ $value ]) || ! is_array($group_array[ $value ])) {
                         $group_array[ $value ] = [];
                     }
                     $group_array[ $value ][] = $key;
@@ -132,7 +132,7 @@ if ( ! function_exists( 'array_group' ) ) {
         } else {
             array_walk_recursive(
                 $array,
-                function ( $value, $key ) use ( &$group_array ) {
+                function ($value, $key) use (&$group_array) {
                     $group_array[ $key ][] = $value;
                 }
             );
@@ -142,7 +142,7 @@ if ( ! function_exists( 'array_group' ) ) {
     }
 }
 
-if ( ! function_exists( 'array_filter_recursive' ) ) {
+if ( ! function_exists('array_filter_recursive')) {
     /**
      * array_filter_recursive
      *
@@ -154,11 +154,11 @@ if ( ! function_exists( 'array_filter_recursive' ) ) {
      *
      * @return  array
      */
-    function array_filter_recursive( &$array, $value, $limit = 0 )
+    function array_filter_recursive(&$array, $value, $limit = 0)
     {
-        if ( is_array( $value ) ) {
-            foreach ( $value as $remove ) {
-                $array = array_filter_recursive( $array, $remove, $limit );
+        if (is_array($value)) {
+            foreach ($value as $remove) {
+                $array = array_filter_recursive($array, $remove, $limit);
             }
 
             return $array;
@@ -167,21 +167,21 @@ if ( ! function_exists( 'array_filter_recursive' ) ) {
         $result = [];
         $count = 0;
 
-        foreach ( $array as $key => $value ) {
-            if ( $count > 0 and $count == $limit ) {
+        foreach ($array as $key => $value) {
+            if ($count > 0 and $count == $limit) {
                 return $result;
             }
-            if ( ! is_array( $value ) ) {
-                if ( $key != $value ) {
+            if ( ! is_array($value)) {
+                if ($key != $value) {
                     $result[ $key ] = $value;
                     $count++;
                 }
             } else {
-                $sub = array_filter_recursive( $value, $value, $limit );
-                if ( count( $sub ) > 0 ) {
-                    if ( $key != $value ) {
+                $sub = array_filter_recursive($value, $value, $limit);
+                if (count($sub) > 0) {
+                    if ($key != $value) {
                         $result[ $key ] = $sub;
-                        $count += count( $sub );
+                        $count += count($sub);
                     }
                 }
             }
@@ -193,7 +193,7 @@ if ( ! function_exists( 'array_filter_recursive' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'array_search_recursive' ) ) {
+if ( ! function_exists('array_search_recursive')) {
     /**
      * array_search_recursive
      *
@@ -205,38 +205,38 @@ if ( ! function_exists( 'array_search_recursive' ) ) {
      *
      * @return bool|int|string
      */
-    function array_search_recursive( $needle, array $haystack, $strict = false )
+    function array_search_recursive($needle, array $haystack, $strict = false)
     {
         $result = '';
-        foreach ( $haystack as $key => $value ) {
-            if ( $strict === false ) {
-                $needle = strtolower( $needle );
+        foreach ($haystack as $key => $value) {
+            if ($strict === false) {
+                $needle = strtolower($needle);
 
-                if ( ! is_array( $value ) ) {
-                    $value = strtolower( $value );
+                if ( ! is_array($value)) {
+                    $value = strtolower($value);
                 } else {
-                    $value = array_map( 'strtolower', $value );
+                    $value = array_map('strtolower', $value);
                 }
             }
 
-            if ( $needle === $value ) {
+            if ($needle === $value) {
                 $result = $key;
                 break;
-            } elseif ( is_array( $value ) ) {
-                if ( array_search_recursive( $needle, $value ) ) {
+            } elseif (is_array($value)) {
+                if (array_search_recursive($needle, $value)) {
                     $result = $key;
                     break;
                 }
             }
         }
 
-        return ( $result == '' ) ? false : $result;
+        return ($result == '') ? false : $result;
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'array_unique_recursive' ) ) {
+if ( ! function_exists('array_unique_recursive')) {
     /**
      * array_unique_recursive
      *
@@ -246,18 +246,18 @@ if ( ! function_exists( 'array_unique_recursive' ) ) {
      *
      * @return  array
      */
-    function array_unique_recursive( array $array )
+    function array_unique_recursive(array $array)
     {
-        $serialized = array_map( 'serialize', $array );
-        $unique = array_unique( $serialized );
+        $serialized = array_map('serialize', $array);
+        $unique = array_unique($serialized);
 
-        return array_intersect_key( $array, $unique );
+        return array_intersect_key($array, $unique);
     }
 }
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'array_flatten' ) ) {
+if ( ! function_exists('array_flatten')) {
     /**
      * array_flatten
      *
@@ -267,13 +267,13 @@ if ( ! function_exists( 'array_flatten' ) ) {
      *
      * @return array
      */
-    function array_flatten( array $array = [] )
+    function array_flatten(array $array = [])
     {
         $flat_array = [];
 
-        foreach ( $array as $key => $value ) {
-            if ( is_array( $value ) ) {
-                $flat_array = array_merge( $flat_array, array_flatten( $value ) );
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $flat_array = array_merge($flat_array, array_flatten($value));
             } else {
                 $flat_array[ $key ] = $value;
             }
@@ -285,7 +285,7 @@ if ( ! function_exists( 'array_flatten' ) ) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'range_price' ) ) {
+if ( ! function_exists('range_price')) {
     /**
      * range_price
      *
@@ -297,15 +297,15 @@ if ( ! function_exists( 'range_price' ) ) {
      *
      * @return  array
      */
-    function range_price( $min, $max, $multiplier = 0 )
+    function range_price($min, $max, $multiplier = 0)
     {
         $multiplier = $multiplier * 20;
         $num_range = $max / $min;
         $num_step = $multiplier / $min / 100;
 
         $ranges = [];
-        foreach ( range( 0, $num_range, $num_step ) as $num_price ) {
-            if ( $num_price == 0 ) {
+        foreach (range(0, $num_range, $num_step) as $num_price) {
+            if ($num_price == 0) {
                 $ranges[] = $min;
             } else {
                 $ranges[] = $num_price * $min / 2 * 10;
@@ -313,11 +313,11 @@ if ( ! function_exists( 'range_price' ) ) {
         }
 
         $prices = [];
-        for ( $i = 0; $i < count( $ranges ); $i++ ) {
-            if ( $ranges[ $i ] == $max ) {
+        for ($i = 0; $i < count($ranges); $i++) {
+            if ($ranges[ $i ] == $max) {
                 break;
             } else {
-                $prices[ $ranges[ $i ] ] = ( $ranges[ $i + 1 ] == 0 ) ? $ranges[ $i ] * 2 : $ranges[ $i + 1 ];
+                $prices[ $ranges[ $i ] ] = ($ranges[ $i + 1 ] == 0) ? $ranges[ $i ] * 2 : $ranges[ $i + 1 ];
             }
         }
 
@@ -328,7 +328,7 @@ if ( ! function_exists( 'range_price' ) ) {
 // ------------------------------------------------------------------------
 
 
-if ( ! function_exists( 'range_date' ) ) {
+if ( ! function_exists('range_date')) {
     /**
      * range_date
      *
@@ -339,13 +339,13 @@ if ( ! function_exists( 'range_date' ) ) {
      *
      * @return  array
      */
-    function range_date( $start_date, $days = 1 )
+    function range_date($start_date, $days = 1)
     {
-        $start_date = ( is_string( $start_date ) ? strtotime( $start_date ) : $start_date );
+        $start_date = (is_string($start_date) ? strtotime($start_date) : $start_date);
 
         $date_range = [];
-        for ( $i = 0; $i < $days; $i++ ) {
-            $date_range[ $i ] = $start_date + ( $i * 24 * 60 * 60 );
+        for ($i = 0; $i < $days; $i++) {
+            $date_range[ $i ] = $start_date + ($i * 24 * 60 * 60);
         }
 
         return $date_range;
@@ -353,25 +353,25 @@ if ( ! function_exists( 'range_date' ) ) {
 }
 // ------------------------------------------------------------------------
 
-if ( ! function_exists( 'range_year' ) ) {
+if ( ! function_exists('range_year')) {
     /**
      * range_year
      *
      * Create an array containing a range of years.
      *
-     * @param int  $min   The minimum numeric year value.
-     * @param null $max   The maximum numeric year value.
-     * @param int  $step  The increment used in the range, default is 1.
+     * @param int  $min  The minimum numeric year value.
+     * @param null $max  The maximum numeric year value.
+     * @param int  $step The increment used in the range, default is 1.
      *
      * @return array
      */
-    function range_year( $min = 1995, $max = null, $step = 1 )
+    function range_year($min = 1995, $max = null, $step = 1)
     {
-        $max = empty( $max ) ? date( 'Y' ) : $max;
+        $max = empty($max) ? date('Y') : $max;
 
         $years = [];
 
-        foreach ( range( $min, $max, $step ) as $year ) {
+        foreach (range($min, $max, $step) as $year) {
             $years[ $year ] = $year;
         }
 

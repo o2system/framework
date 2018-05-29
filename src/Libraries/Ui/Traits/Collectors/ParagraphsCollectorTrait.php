@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Collectors;
@@ -24,43 +25,43 @@ use O2System\Spl\Iterators\ArrayIterator;
  */
 trait ParagraphsCollectorTrait
 {
-   public $paragraphs;
+    public $paragraphs;
 
-   public function hasParagraphs()
-   {
-       if( $this->paragraphs instanceof ArrayIterator ) {
-           if( $this->paragraphs->count() ) {
-               return true;
-           }
-       }
+    public function hasParagraphs()
+    {
+        if ($this->paragraphs instanceof ArrayIterator) {
+            if ($this->paragraphs->count()) {
+                return true;
+            }
+        }
 
-       return false;
-   }
+        return false;
+    }
 
-   public function createParagraph( $text )
-   {
-       $paragraph = new Paragraph();
-       $paragraph->textContent->push( $text );
+    public function createParagraph($text)
+    {
+        $paragraph = new Paragraph();
+        $paragraph->textContent->push($text);
 
-       if( ! $this->paragraphs instanceof ArrayIterator ) {
-           $this->paragraphs = new ArrayIterator();
-       }
+        if ( ! $this->paragraphs instanceof ArrayIterator) {
+            $this->paragraphs = new ArrayIterator();
+        }
 
-       $this->paragraphs->push( $paragraph );
+        $this->paragraphs->push($paragraph);
 
-       return $this->paragraphs->last();
-   }
+        return $this->paragraphs->last();
+    }
 
-   public function addParagraph( Paragraph $paragraph )
-   {
-       $paragraph->tagName = 'p';
+    public function addParagraph(Paragraph $paragraph)
+    {
+        $paragraph->tagName = 'p';
 
-       if( ! $this->paragraphs instanceof ArrayIterator ) {
-           $this->paragraphs = new ArrayIterator();
-       }
+        if ( ! $this->paragraphs instanceof ArrayIterator) {
+            $this->paragraphs = new ArrayIterator();
+        }
 
-       $this->paragraphs->push( $paragraph );
+        $this->paragraphs->push($paragraph);
 
-       return $this->paragraphs->last();
-   }
+        return $this->paragraphs->last();
+    }
 }

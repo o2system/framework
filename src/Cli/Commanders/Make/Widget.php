@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Cli\Commanders\Make;
@@ -37,78 +38,78 @@ class Widget extends Make
     {
         parent::execute();
 
-        if ( empty( $this->optionFilename ) ) {
+        if (empty($this->optionFilename)) {
             output()->write(
-                ( new Format() )
-                    ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'CLI_MAKE_WIDGET_E_NAME' ) )
-                    ->setNewLinesAfter( 1 )
+                (new Format())
+                    ->setContextualClass(Format::DANGER)
+                    ->setString(language()->getLine('CLI_MAKE_WIDGET_E_NAME'))
+                    ->setNewLinesAfter(1)
             );
 
-            exit( EXIT_ERROR );
+            exit(EXIT_ERROR);
         }
 
-        if ( strpos( $this->optionPath, 'Widgets' ) === false ) {
+        if (strpos($this->optionPath, 'Widgets') === false) {
             $widgetPath = $this->optionPath . 'Widgets' . DIRECTORY_SEPARATOR . $this->optionFilename . DIRECTORY_SEPARATOR;
         } else {
             $widgetPath = $this->optionPath . $this->optionFilename . DIRECTORY_SEPARATOR;
         }
 
-        if ( ! is_dir( $widgetPath ) ) {
-            mkdir( $widgetPath, 777, true );
+        if ( ! is_dir($widgetPath)) {
+            mkdir($widgetPath, 0777, true);
         } else {
             output()->write(
-                ( new Format() )
-                    ->setContextualClass( Format::DANGER )
-                    ->setString( language()->getLine( 'CLI_MAKE_WIDGET_E_EXISTS', [ $widgetPath ] ) )
-                    ->setNewLinesAfter( 1 )
+                (new Format())
+                    ->setContextualClass(Format::DANGER)
+                    ->setString(language()->getLine('CLI_MAKE_WIDGET_E_EXISTS', [$widgetPath]))
+                    ->setNewLinesAfter(1)
             );
 
-            exit( EXIT_ERROR );
+            exit(EXIT_ERROR);
         }
 
         $jsProps[ 'name' ] = readable(
-            pathinfo( $widgetPath, PATHINFO_FILENAME ),
+            pathinfo($widgetPath, PATHINFO_FILENAME),
             true
         );
 
-        if ( empty( $this->namespace ) ) {
-            @list( $moduleDirectory, $moduleName ) = explode( 'Widgets', dirname( $widgetPath ) );
-            $namespace = loader()->getDirNamespace( $moduleDirectory ) .
+        if (empty($this->namespace)) {
+            @list($moduleDirectory, $moduleName) = explode('Widgets', dirname($widgetPath));
+            $namespace = loader()->getDirNamespace($moduleDirectory) .
                 'Widgets' . '\\' . prepare_class_name(
                     $this->optionFilename
                 ) . '\\';
         } else {
-            $namespace = prepare_class_name( $this->namespace );
-            $jsProps[ 'namespace' ] = rtrim( $namespace, '\\' ) . '\\';
+            $namespace = prepare_class_name($this->namespace);
+            $jsProps[ 'namespace' ] = rtrim($namespace, '\\') . '\\';
         }
 
-        $jsProps[ 'created' ] = date( 'd M Y' );
+        $jsProps[ 'created' ] = date('d M Y');
 
-        loader()->addNamespace( $namespace, $widgetPath );
+        loader()->addNamespace($namespace, $widgetPath);
 
-        $fileContent = json_encode( $jsProps, JSON_PRETTY_PRINT );
+        $fileContent = json_encode($jsProps, JSON_PRETTY_PRINT);
 
         $filePath = $widgetPath . 'widget.jsprop';
 
-        file_put_contents( $filePath, $fileContent );
+        file_put_contents($filePath, $fileContent);
 
         $this->optionPath = $widgetPath;
-        $this->optionFilename = prepare_filename( $this->optionFilename ) . '.php';
+        $this->optionFilename = prepare_filename($this->optionFilename) . '.php';
 
-        ( new Presenter() )
-            ->optionPath( $this->optionPath )
-            ->optionFilename( $this->optionFilename );
+        (new Presenter())
+            ->optionPath($this->optionPath)
+            ->optionFilename($this->optionFilename);
 
-        if ( is_dir( $widgetPath ) ) {
+        if (is_dir($widgetPath)) {
             output()->write(
-                ( new Format() )
-                    ->setContextualClass( Format::SUCCESS )
-                    ->setString( language()->getLine( 'CLI_MAKE_WIDGET_S_MAKE', [ $widgetPath ] ) )
-                    ->setNewLinesAfter( 1 )
+                (new Format())
+                    ->setContextualClass(Format::SUCCESS)
+                    ->setString(language()->getLine('CLI_MAKE_WIDGET_S_MAKE', [$widgetPath]))
+                    ->setNewLinesAfter(1)
             );
 
-            exit( EXIT_SUCCESS );
+            exit(EXIT_SUCCESS);
         }
     }
 }

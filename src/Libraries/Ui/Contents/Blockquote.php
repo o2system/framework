@@ -8,15 +8,15 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Contents;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Contents\Link;
-use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
 use O2System\Framework\Libraries\Ui\Element;
+use O2System\Framework\Libraries\Ui\Traits\Setters\ParagraphSetterTrait;
 
 /**
  * Class Blockquote
@@ -35,42 +35,42 @@ class Blockquote extends Element
      *
      * @param array $attributes
      */
-    public function __construct(array $attributes = [] )
+    public function __construct(array $attributes = [])
     {
-        parent::__construct( 'blockquote' );
+        parent::__construct('blockquote');
 
-        if ( isset( $attributes[ 'id' ] ) ) {
-            $this->entity->setEntityName( $attributes[ 'id' ] );
+        if (isset($attributes[ 'id' ])) {
+            $this->entity->setEntityName($attributes[ 'id' ]);
         }
 
-        if ( count( $attributes ) ) {
-            foreach ( $attributes as $name => $value ) {
-                $this->attributes->addAttribute( $name, $value );
+        if (count($attributes)) {
+            foreach ($attributes as $name => $value) {
+                $this->attributes->addAttribute($name, $value);
             }
         }
     }
 
-    public function setAuthor( $name, $href = null )
+    public function setAuthor($name, $href = null)
     {
-        $this->author = new Element( 'small', 'author' );
+        $this->author = new Element('small', 'author');
 
-        if ( isset( $href ) ) {
-            $this->author->childNodes->push( new Link( $name, $href ) );
+        if (isset($href)) {
+            $this->author->childNodes->push(new Link($name, $href));
         } else {
-            $this->author->textContent->push( $name );
+            $this->author->textContent->push($name);
         }
 
         return $this;
     }
 
-    public function setSource( $name, $href = null )
+    public function setSource($name, $href = null)
     {
-        $this->source = new Element( 'cite', 'source' );
+        $this->source = new Element('cite', 'source');
 
-        if ( isset( $href ) ) {
-            $this->source->childNodes->push( new Link( $name, $href ) );
+        if (isset($href)) {
+            $this->source->childNodes->push(new Link($name, $href));
         } else {
-            $this->source->textContent->push( $name );
+            $this->source->textContent->push($name);
         }
 
         return $this;
@@ -78,28 +78,28 @@ class Blockquote extends Element
 
     public function render()
     {
-        if ( $this->paragraph instanceof Element ) {
-            $this->childNodes->push( $this->paragraph );
+        if ($this->paragraph instanceof Element) {
+            $this->childNodes->push($this->paragraph);
         }
 
-        $footer = new Element( 'div', 'footer' );
-        $footer->attributes->addAttributeClass( 'blockquote-footer' );
+        $footer = new Element('div', 'footer');
+        $footer->attributes->addAttributeClass('blockquote-footer');
 
-        if ( $this->author instanceof Element ) {
-            $footer->childNodes->push( $this->author );
+        if ($this->author instanceof Element) {
+            $footer->childNodes->push($this->author);
 
-            if ( $this->author->tagName === 'small' && $this->source instanceof Element ) {
-                $this->author->childNodes->push( $this->source );
-            } elseif ( $this->source instanceof Element ) {
-                $footer->childNodes->push( $this->source );
+            if ($this->author->tagName === 'small' && $this->source instanceof Element) {
+                $this->author->childNodes->push($this->source);
+            } elseif ($this->source instanceof Element) {
+                $footer->childNodes->push($this->source);
             }
-        } elseif ( $this->source instanceof Element ) {
-            $footer->childNodes->push( $this->source );
+        } elseif ($this->source instanceof Element) {
+            $footer->childNodes->push($this->source);
         }
 
-        $this->childNodes->push( $footer );
+        $this->childNodes->push($footer);
 
-        if ( $this->hasChildNodes() ) {
+        if ($this->hasChildNodes()) {
             return parent::render();
         }
 

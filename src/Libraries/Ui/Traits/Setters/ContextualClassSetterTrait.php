@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Libraries\Ui\Traits\Setters;
@@ -25,16 +26,40 @@ trait ContextualClassSetterTrait
 
     // ------------------------------------------------------------------------
 
-    public function setContextualClassPrefix( $prefix )
+    public function setContextualClass($class)
+    {
+        if (method_exists($this, $method = 'context' . ucfirst($class))) {
+            $this->{$method}();
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function contextOutline()
+    {
+        $this->attributes->replaceAttributeClass($this->contextualClassPrefix . '-',
+            $this->contextualClassPrefix . '-outline-');
+
+        $this->setContextualClassPrefix($this->contextualClassPrefix . '-outline');
+
+        return $this;
+    }
+
+    public function setContextualClassPrefix($prefix)
     {
         $this->contextualClassPrefix = $prefix;
 
         return $this;
     }
 
-    // ------------------------------------------------------------------------
+    public function contextDefault()
+    {
+        $this->setContextualClassSuffix('default');
 
-    public function setContextualClassSuffix( $suffix )
+        return $this;
+    }
+
+    public function setContextualClassSuffix($suffix)
     {
         $this->attributes->removeAttributeClass([
             $this->contextualClassPrefix . '-' . 'default',
@@ -46,31 +71,7 @@ trait ContextualClassSetterTrait
             $this->contextualClassPrefix . '-' . 'danger',
             $this->contextualClassPrefix . '-' . 'neutral',
         ]);
-        $this->attributes->addAttributeClass( $this->contextualClassPrefix . '-' . $suffix );
-
-        return $this;
-    }
-
-    public function setContextualClass( $class )
-    {
-        if( method_exists( $this, $method = 'context' . ucfirst( $class ) ) ) {
-            $this->{$method}();
-        }
-    }
-
-    public function contextOutline()
-    {
-        $this->attributes->replaceAttributeClass( $this->contextualClassPrefix . '-',
-            $this->contextualClassPrefix . '-outline-' );
-
-        $this->setContextualClassPrefix( $this->contextualClassPrefix . '-outline' );
-
-        return $this;
-    }
-
-    public function contextDefault()
-    {
-        $this->setContextualClassSuffix( 'default' );
+        $this->attributes->addAttributeClass($this->contextualClassPrefix . '-' . $suffix);
 
         return $this;
     }
@@ -79,7 +80,7 @@ trait ContextualClassSetterTrait
 
     public function contextPrimary()
     {
-        $this->setContextualClassSuffix( 'primary' );
+        $this->setContextualClassSuffix('primary');
 
         return $this;
     }
@@ -88,7 +89,7 @@ trait ContextualClassSetterTrait
 
     public function contextSecondary()
     {
-        $this->setContextualClassSuffix( 'secondary' );
+        $this->setContextualClassSuffix('secondary');
 
         return $this;
     }
@@ -97,7 +98,7 @@ trait ContextualClassSetterTrait
 
     public function contextSuccess()
     {
-        $this->setContextualClassSuffix( 'success' );
+        $this->setContextualClassSuffix('success');
 
         return $this;
     }
@@ -106,7 +107,7 @@ trait ContextualClassSetterTrait
 
     public function contextInfo()
     {
-        $this->setContextualClassSuffix( 'info' );
+        $this->setContextualClassSuffix('info');
 
         return $this;
     }
@@ -115,7 +116,7 @@ trait ContextualClassSetterTrait
 
     public function contextWarning()
     {
-        $this->setContextualClassSuffix( 'warning' );
+        $this->setContextualClassSuffix('warning');
 
         return $this;
     }
@@ -124,28 +125,28 @@ trait ContextualClassSetterTrait
 
     public function contextDanger()
     {
-        $this->setContextualClassSuffix( 'danger' );
+        $this->setContextualClassSuffix('danger');
 
         return $this;
     }
 
     public function contextLight()
     {
-        $this->setContextualClassSuffix( 'light' );
+        $this->setContextualClassSuffix('light');
 
         return $this;
     }
 
     public function contextDark()
     {
-        $this->setContextualClassSuffix( 'dark' );
+        $this->setContextualClassSuffix('dark');
 
         return $this;
     }
 
     public function contextLink()
     {
-        $this->attributes->addAttributeClass( $this->contextualClassPrefix . '-link' );
+        $this->attributes->addAttributeClass($this->contextualClassPrefix . '-link');
 
         return $this;
     }
