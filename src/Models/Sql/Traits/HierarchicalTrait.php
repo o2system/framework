@@ -23,6 +23,22 @@ namespace O2System\Framework\Models\Sql\Traits;
 trait HierarchicalTrait
 {
     /**
+     * Parent Key Field
+     *
+     * @access  public
+     * @type    string
+     */
+    public $parentKey = 'id_parent';
+
+    /**
+     * Hierarchical Enabled Flag
+     *
+     * @access  protected
+     * @type    bool
+     */
+    protected $hierarchical = true;
+
+    /**
      * Rebuild Tree
      *
      * Rebuild self hierarchical table
@@ -33,7 +49,7 @@ trait HierarchicalTrait
      *
      * @return int  Right column value
      */
-    public function rebuild($idParent = 0, $left = 1, $depth = 0)
+    public function rebuildTree($idParent = 0, $left = 1, $depth = 0)
     {
         ini_set('xdebug.max_nesting_level', 10000);
         ini_set('memory_limit', '-1');
@@ -52,7 +68,7 @@ trait HierarchicalTrait
             foreach ($result as $row) {
                 if ($i == 0) {
                     $this->qb
-                        ->table($this->table)
+                        ->from($this->table)
                         ->where('id', $row->id)
                         ->update($update = [
                             'record_left'  => $left,
@@ -61,7 +77,7 @@ trait HierarchicalTrait
                         ]);
                 } else {
                     $this->qb
-                        ->table($this->table)
+                        ->from($this->table)
                         ->where('id', $row->id)
                         ->update($update = [
                             'record_left'  => $left = $right + 1,
@@ -72,10 +88,10 @@ trait HierarchicalTrait
 
                 $update[ 'id' ] = $row->id;
 
-                if ($this->hasChild($row->id)) {
-                    $right = $this->rebuild($row->id, $right, $depth + 1);
+                if ($this->hasChilds($row->id)) {
+                    $right = $this->rebuildTree($row->id, $right, $depth + 1);
                     $this->qb
-                        ->table($this->table)
+                        ->from($this->table)
                         ->where('id', $row->id)
                         ->update($update = [
                             'record_right' => $right,
@@ -90,6 +106,8 @@ trait HierarchicalTrait
         return $right + 1;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
      * Has Childs
      *
@@ -100,7 +118,7 @@ trait HierarchicalTrait
      * @access public
      * @return bool
      */
-    public function hasChild($idParent)
+    public function hasChilds($idParent)
     {
         $result = $this->qb
             ->table($this->table)
@@ -130,10 +148,10 @@ trait HierarchicalTrait
     public function getParents($id, &$parents = [])
     {
         $result = $this->qb
-            ->table($this->table)
+            ->from($this->table)
             ->whereIn('id', $this->qb
                 ->subQuery()
-                ->table($this->table)
+                ->from($this->table)
                 ->select('id_parent')
                 ->where('id', $id)
             )

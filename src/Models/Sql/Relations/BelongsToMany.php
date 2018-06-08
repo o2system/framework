@@ -43,7 +43,8 @@ class BelongsToMany extends Sql\Relations\Abstracts\AbstractRelation
 
             if ($result instanceof Result) {
                 if ($result->count() > 0) {
-                    return new Sql\DataObjects\Result($result, $this->map->relationModel);
+                    return (new Sql\DataObjects\Result($result, $this->map->relationModel))
+                        ->setInfo($result->getInfo());
                 }
             }
         }

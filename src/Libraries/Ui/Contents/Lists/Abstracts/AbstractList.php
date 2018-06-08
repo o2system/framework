@@ -83,7 +83,9 @@ abstract class AbstractList extends Element
     {
         if ($node->hasChildNodes()) {
             if ($node->childNodes->first() instanceof Link) {
-                if ($node->childNodes->first()->getAttributeHref() === current_url()) {
+                if (($node->childNodes->first()->getAttributeHref() === current_url()) or
+                    (strpos(current_url(), $node->childNodes->first()->getAttributeHref()) !== false)
+                ) {
                     $node->attributes->addAttributeClass('active');
                     $node->childNodes->first()->attributes->addAttributeClass('active');
                 }

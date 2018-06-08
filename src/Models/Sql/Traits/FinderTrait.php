@@ -43,6 +43,13 @@ trait FinderTrait
             $this->qb->limit($limit);
         }
 
+        if(property_exists($this, 'hierarchical')) {
+            $this->qb->orderBy($this->table.'.record_left', 'ASC');
+            $this->qb->orderBy($this->table.'.record_ordering', 'ASC');
+        } elseif(property_exists($this, 'adjacency')) {
+            $this->qb->orderBy($this->table.'.record_ordering', 'ASC');
+        }
+
         $result = $this->qb->from($this->table)->get();
 
         if ($result instanceof Result) {

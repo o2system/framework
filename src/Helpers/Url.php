@@ -38,10 +38,10 @@ if ( ! function_exists('base_url')) {
 }
 
 if ( ! function_exists('domain_url')) {
-    function domain_url($segments = null, $query = null)
+    function domain_url($segments = null, $query = null, $subdomain = null)
     {
         $uri = (new \O2System\Kernel\Http\Message\Uri())
-            ->withSubDomain(null)
+            ->withSubDomain($subdomain)
             ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
             ->withQuery('');
 

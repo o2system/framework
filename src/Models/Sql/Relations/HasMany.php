@@ -44,8 +44,8 @@ class HasMany extends Sql\Relations\Abstracts\AbstractRelation
 
                 if ($result instanceof Result) {
                     if ($result->count() > 0) {
-                        return $this->map->relationModel->result = new Sql\DataObjects\Result($result,
-                            $this->map->relationModel);
+                        return $this->map->relationModel->result = (new Sql\DataObjects\Result($result,
+                            $this->map->relationModel))->setInfo($result->getInfo());
                     }
                 }
             } elseif ( ! empty($this->map->relationTable)) {
@@ -55,7 +55,11 @@ class HasMany extends Sql\Relations\Abstracts\AbstractRelation
 
                 if ($result instanceof Result) {
                     if ($result->count() > 0) {
-                        return new Sql\DataObjects\Result($result, $this->map->referenceModel);
+                        $relationModel = new class extends Sql\Model {};
+                        $relationModel->table = $this->map->relationTable;
+
+                        return (new Sql\DataObjects\Result($result, $relationModel))
+                            ->setInfo($result->getInfo());
                     }
                 }
             }

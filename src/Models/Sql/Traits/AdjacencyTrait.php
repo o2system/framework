@@ -36,22 +36,24 @@ trait AdjacencyTrait
      * @access  protected
      * @type    bool
      */
-    protected $isUseAdjacency = true;
+    protected $adjacency = true;
 
     /**
      * Get Children
      *
-     * @param int         $id_parent
+     * @param int         $idParent
      * @param string|null $table
      *
      * @access  public
      * @return  mixed
      */
-    public function getChildren($id_parent, $table = null)
+    public function getChildren($idParent, $table = null)
     {
         $table = isset($table) ? $table : $this->table;
 
-        $result = $this->qb->table($table)->getWhere([$this->parentKey => $id_parent]);
+        $result = $this->qb
+            ->from($table)
+            ->getWhere([$this->parentKey => $idParent]);
 
         if ($result->count() > 0) {
             return $result;
@@ -60,22 +62,25 @@ trait AdjacencyTrait
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
      * Has Children
      *
-     * @param int         $id_parent
+     * @param int         $idParent
      * @param string|null $table
      *
      * @access  public
      * @return  bool
      */
-    public function hasChildren($id_parent, $table = null)
+    public function hasChildren($idParent, $table = null)
     {
         $table = isset($table) ? $table : $this->table;
 
-        $result = $this->qb->select('id')->table($table)->getWhere([$this->parentKey => $id_parent]);
-
-        print_out($this->db->getLastQuery());
+        $result = $this->qb
+            ->select('id')
+            ->from($table)
+            ->getWhere([$this->parentKey => $idParent]);
 
         if ($result->count() > 0) {
             return true;

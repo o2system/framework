@@ -31,7 +31,7 @@ class Result extends ArrayIterator
      *
      * @var Info
      */
-    protected $info;
+    public $info;
 
     /**
      * Result::__construct

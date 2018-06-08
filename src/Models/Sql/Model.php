@@ -227,4 +227,9 @@ class Model
 
         return $this->{$model};
     }
+
+    final protected function getSubModel($model)
+    {
+        return $this->loadSubModel($model);
+    }
 }

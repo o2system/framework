@@ -13,10 +13,12 @@ use O2System\Email\Datastructures\Config;
 use O2System\Email\Message;
 use O2System\Email\Spool;
 use O2System\Spl\Traits\Collectors\ConfigCollectorTrait;
+use O2System\Spl\Traits\Collectors\ErrorCollectorTrait;
 
 class Email extends Message
 {
     use ConfigCollectorTrait;
+    use ErrorCollectorTrait;
 
     public function __construct()
     {
@@ -52,6 +54,12 @@ class Email extends Message
     {
         $spool = new Spool(new Config($this->config));
 
-        return (bool)$spool->send($this);
+        if ($spool->send($this)) {
+            return true;
+        }
+
+        $this->setErrors($spool->getErrors());
+
+        return false;
     }
 }

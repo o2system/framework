@@ -15,7 +15,7 @@ namespace O2System\Framework\Libraries\Acl;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Message\Request;
+use O2System\Framework\Http\Message\ServerRequest;
 use O2System\Framework\Libraries\Acl\Datastructures\Account;
 use O2System\Framework\Libraries\Acl\Datastructures\Signature;
 use O2System\Spl\Exceptions\RuntimeException;
@@ -81,15 +81,9 @@ class User
     public function login($username, $password = null, $remember = false)
     {
         if ($username instanceof Account) {
-            // set user session
-            unset($username[ 'password' ], $username[ 'pin' ]);
-            session()->offsetSet('account', $username);
+            $this->setSession($username);
         } elseif (false !== ($account = $this->findAccount($username))) {
             if (password_verify($password, $account->password)) {
-
-                if ( ! empty($this->options)) {
-                    $this->algorithm = PASSWORD_BCRYPT;
-                }
 
                 if (password_needs_rehash(
                     $account->password,
@@ -99,29 +93,18 @@ class User
                     models('users')->updateAccount(
                         new Account(
                             [
+                                'id'       => $account->id,
+                                'email'    => $account->email,
+                                'msisdn'   => $account->msisdn,
                                 'username' => $account->username,
-                                'password' => $password,
+                                'password' => $account->password,
+                                'pin'      => $account->pin,
                             ]
                         )
                     );
                 }
 
-                // set user single-sign-on (sso)
-                if ($this->sso->enable === true) {
-                    if (method_exists(models('users'), 'insertSignature')) {
-                        models('users')->insertSignature(new Signature([
-                            'id_sys_user' => $account->id,
-                            'code'        => $account[ 'ssid' ] = md5(json_encode($account) . mt_srand() . time()),
-                        ]));
-
-                        set_cookie('ssid', $account[ 'ssid' ]);
-                    }
-                }
-
-                // set user session
-                unset($account[ 'password' ], $account[ 'pin' ]);
-                session()->offsetSet('account', $account);
-                session()->offsetUnset('aclAttempts');
+                $this->setSession($account);
 
                 return true;
             }
@@ -133,6 +116,33 @@ class User
     }
 
     // ------------------------------------------------------------------------
+
+    protected function setSession(Account $account)
+    {
+        // set user single-sign-on (sso)
+        if ($this->sso[ 'enable' ] === true) {
+            if (method_exists(models('users'), 'insertSignature')) {
+                models('users')->insertSignature(new Signature([
+                    'id_sys_user' => $account->id,
+                    'code'        => $account[ 'ssid' ] = md5(json_encode($account) . mt_srand() . time()),
+                ]));
+
+                set_cookie('ssid', $account[ 'ssid' ]);
+            }
+        }
+
+        if ( ! empty($account->password)) {
+            unset($account->password);
+        }
+
+        if ( ! empty($account->pin)) {
+            unset($account->pin);
+        }
+
+        // set user session
+        session()->offsetSet('account', $account);
+        session()->offsetUnset('aclAttempts');
+    }
 
     /**
      * User::findAccount
@@ -182,7 +192,7 @@ class User
 
     public function getAccount()
     {
-        if (session()->offsetExists('account')) {
+        if ($this->loggedIn()) {
             return session()->offsetGet('account');
         }
 
@@ -191,26 +201,22 @@ class User
 
     // ------------------------------------------------------------------------
 
-    public function authorize(Request $request)
+    public function authorize(ServerRequest $request)
     {
-        $roles = $this->getRoles();
-
-        foreach ($roles as $role) {
-            if (in_array($role->code, ['DEVELOPER', 'ADMINISTRATOR'], true)) {
-                return true;
-                break;
-            }
-        }
-
-        if (empty($rolesAccess)) {
-            $rolesAccess = $this->getRolesAccess();
-        }
-
-        if ($rolesAccess instanceof ArrayIterator) {
-            $uriString = $request->getController()->getRequestSegments()->getString();
-            if (false !== ($access = $rolesAccess->offsetGet($uriString))) {
-                if ($access->permissions === 'GRANTED') {
+        if (false !== ($roles = $this->getRoles())) {
+            foreach ($roles as $role) {
+                if (in_array($role->code, ['DEVELOPER', 'ADMINISTRATOR'], true)) {
                     return true;
+                    break;
+                }
+            }
+        } elseif (false !== ($rolesAccess = $this->getRolesAccess())) {
+            if ($rolesAccess instanceof ArrayIterator) {
+                $uriString = $request->getController()->getRequestSegments()->getString();
+                if (false !== ($access = $rolesAccess->offsetGet($uriString))) {
+                    if ($access->permissions === 'GRANTED') {
+                        return true;
+                    }
                 }
             }
         }
@@ -250,7 +256,7 @@ class User
     {
         if ($this->sso[ 'enable' ] && $this->loggedIn() === false) {
             return '<iframe id="sign-on-iframe" width="1" height="1" src="' . rtrim($this->sso[ 'server' ],
-                    '/') . '/sign-on.html" style="display: none; visibility: hidden;"></iframe>';
+                    '/') . '" style="display: none; visibility: hidden;"></iframe>';
         }
 
         return '';
@@ -260,9 +266,9 @@ class User
 
     public function loggedIn()
     {
-        if ($this->sso[ 'enable' ] === true && ! session()->offsetExists('account')) {
+        if ($this->sso[ 'enable' ] === true && session()->offsetExists('account') === false) {
             if ($token = get_cookie('ssid')) {
-                $this->validate($token);
+                return $this->validate($token);
             }
         }
 

@@ -15,8 +15,8 @@ namespace O2System\Framework\Http\Message;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Router\Datastructures\Controller;
 use O2System\Kernel\Http\Message;
+use O2System\Kernel\Http\Router\Datastructures\Controller;
 
 /**
  * Class ServerRequest

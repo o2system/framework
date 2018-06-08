@@ -45,10 +45,14 @@ class HasManyThrough extends Sql\Relations\Abstracts\AbstractRelation
             if ($result instanceof Result) {
                 if ($result->count() > 0) {
                     if ($this->map->relationModel instanceof Sql\Model) {
-                        return new Sql\DataObjects\Result($result, $this->map->relationModel);
+                        return (new Sql\DataObjects\Result($result, $this->map->relationModel))
+                            ->setInfo($result->getInfo());
                     }
 
-                    return new Sql\DataObjects\Result($result, $this->map->pivotModel);
+                    $pivotModel = new class extends Sql\Model {};
+                    $pivotModel->table = $this->map->pivotTable;
+
+                    return (new Sql\DataObjects\Result($result, $pivotModel))->setInfo($result->getInfo());
                 }
             }
         }

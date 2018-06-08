@@ -44,8 +44,8 @@ class HasOne extends Sql\Relations\Abstracts\AbstractRelation
 
                 if ($result instanceof Result) {
                     if ($result->count() > 0) {
-                        $this->map->relationModel->result = new Sql\DataObjects\Result($result,
-                            $this->map->relationModel);
+                        $this->map->relationModel->result = (new Sql\DataObjects\Result($result,
+                            $this->map->relationModel))->setInfo($result->getInfo());
 
                         return $this->map->relationModel->row = $this->map->relationModel->result->first();
                     }
@@ -57,7 +57,11 @@ class HasOne extends Sql\Relations\Abstracts\AbstractRelation
 
                 if ($result instanceof Result) {
                     if ($result->count() > 0) {
-                        $result = new Sql\DataObjects\Result($result, $this->map->referenceModel);
+                        $relationModel = new class extends Sql\Model {};
+                        $relationModel->table = $this->map->relationTable;
+
+                        $result = (new Sql\DataObjects\Result($result, $relationModel))
+                            ->setInfo($result->getInfo());
 
                         return $result->first();
                     }

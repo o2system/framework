@@ -77,10 +77,13 @@ class Router extends Kernel\Http\Router
 
                 if (false !== ($module = modules()->getModule($uriRoutedSegments))) {
                     $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
-                    $uriSegments = empty($uriSegments)
-                        ? [$module->getParameter()]
-                        : $uriSegments;
-
+                    if(empty($uriSegments)) {
+                        $uriSegments = [];
+                        $uriString = '/';
+                    } else {
+                        $uriString = implode('/', $uriSegments);
+                    }
+                    
                     $this->registerModule($module);
 
                     break;
@@ -112,6 +115,7 @@ class Router extends Kernel\Http\Router
                 $uriRoutedSegments = array_slice($uriSegments, 0, ($uriTotalSegments - $i));
 
                 $modules = modules()->getArrayCopy();
+
                 foreach ($modules as $module) {
 
                     $controllerNamespace = $module->getNamespace() . 'Controllers\\';
@@ -122,14 +126,15 @@ class Router extends Kernel\Http\Router
                     $controllerClassName = $controllerNamespace . implode('\\',
                             array_map('studlycase', $uriRoutedSegments));
 
-                    $classes[] = $controllerClassName;
-
                     if (class_exists($controllerClassName)) {
                         $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
                         $this->setController(new Kernel\Http\Router\Datastructures\Controller($controllerClassName),
                             $uriSegments);
 
                         break;
+                    } elseif(class_exists($module->getDefaultControllerClassName())) {
+                        $this->setController(new Kernel\Http\Router\Datastructures\Controller($module->getDefaultControllerClassName()),
+                            $uriSegments);
                     } elseif (false !== ($pagesDir = $module->getDir('pages', true))) {
                         $pageFilePath = $pagesDir . implode(DIRECTORY_SEPARATOR,
                                 array_map('studlycase', $uriRoutedSegments)) . '.phtml';
@@ -185,18 +190,20 @@ class Router extends Kernel\Http\Router
 
         // Load modular addresses config
         if (false !== ($configDir = $module->getDir('config', true))) {
+            unset($addresses);
+
             $reconfig = false;
             if (is_file(
                 $filePath = $configDir . ucfirst(
                         strtolower(ENVIRONMENT)
                     ) . DIRECTORY_SEPARATOR . 'Addresses.php'
             )) {
-                include($filePath);
+                require($filePath);
                 $reconfig = true;
             } elseif (is_file(
                 $filePath = $configDir . 'Addresses.php'
             )) {
-                include($filePath);
+                require($filePath);
                 $reconfig = true;
             }
 

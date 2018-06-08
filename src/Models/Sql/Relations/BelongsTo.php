@@ -44,8 +44,8 @@ class BelongsTo extends Abstracts\AbstractRelation
 
                 if ($result instanceof Result) {
                     if ($result->count() > 0) {
-                        $this->map->referenceModel->result = new Sql\DataObjects\Result($result,
-                            $this->map->referenceModel);
+                        $this->map->referenceModel->result = (new Sql\DataObjects\Result($result,
+                            $this->map->referenceModel))->setInfo($result->getInfo());
 
                         return $this->map->referenceModel->row = $this->map->referenceModel->result->first();
                     }
@@ -57,9 +57,11 @@ class BelongsTo extends Abstracts\AbstractRelation
 
                 if ($result instanceof Result) {
                     if ($result->count() > 0) {
-                        $result = new Sql\DataObjects\Result($result, $this->map->relationModel);
+                        $referenceModel = new class extends Sql\Model {};
+                        $referenceModel->table = $this->map->referenceTable;
 
-                        return $result->first();
+                        return (new Sql\DataObjects\Result($result, $referenceModel))
+                            ->setInfo($result->getInfo())->first();
                     }
                 }
             }

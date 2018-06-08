@@ -88,10 +88,6 @@ class Modules extends SplArrayStack
      */
     public function push($module)
     {
-        if (loader()->getNamespaceDirs($module->getNamespace())) {
-
-        }
-
         // Register Framework\Services\Loader Namespace
         loader()->addNamespace($module->getNamespace(), $module->getRealPath());
 
@@ -106,7 +102,7 @@ class Modules extends SplArrayStack
             // Autoload Module Language
             language()
                 ->addFilePath($module->getRealPath())
-                ->loadFile($module->getParameter());
+                ->loadFile(dash($module->getParameter()));
 
             // Autoload Module Config
             $this->autoloadConfig($module);
@@ -448,7 +444,7 @@ class Modules extends SplArrayStack
                 array_shift($moduleSegments);
 
                 $moduleSegments = array_map(function ($string) {
-                    return snakecase($string, '-');
+                    return dash(snakecase($string));
                 }, $moduleSegments);
 
                 $moduleNamespace = prepare_namespace(
@@ -479,9 +475,8 @@ class Modules extends SplArrayStack
 
                 if ($registryKey === '') {
                     if ($propertiesFileInfo[ 'dirname' ] . DIRECTORY_SEPARATOR !== PATH_APP and $modulePluralTypes === 'apps') {
-                        $registryKey = 'apps/' . snakecase(
-                                pathinfo($propertiesFileInfo[ 'dirname' ], PATHINFO_FILENAME),
-                                '-');
+                        $registryKey = 'apps/' . dash(snakecase(
+                                pathinfo($propertiesFileInfo[ 'dirname' ], PATHINFO_FILENAME)));
                     }
                 } else {
                     $registryKey = 'modules/' . $registryKey;

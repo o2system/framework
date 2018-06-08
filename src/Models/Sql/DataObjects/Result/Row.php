@@ -61,11 +61,13 @@ class Row extends SplArrayObject
 
     public function offsetGet($offset)
     {
-        if (null !== ($result = $this->__call($offset))) {
+        if($this->offsetExists($offset)) {
+            return parent::offsetGet($offset);
+        } elseif (null !== ($result = $this->__call($offset))) {
             return $result;
         }
 
-        return parent::offsetGet($offset);
+        return null;
     }
 
     // ------------------------------------------------------------------------
@@ -77,7 +79,11 @@ class Row extends SplArrayObject
         if (method_exists($model, $method)) {
             $model->row = $this;
 
-            return call_user_func_array([&$model, $method], $args);
+            if(false !== ($result = call_user_func_array([&$model, $method], $args))) {
+                $this->offsetSet($method, $result);
+
+                return $result;
+            }
         }
 
         return null;

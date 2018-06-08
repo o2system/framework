@@ -39,6 +39,7 @@ class Account extends AbstractRepository
             'username' => null,
             'password' => null,
             'pin'      => null,
+            'token'    => null
         ];
 
         foreach ($defaultAccount as $item => $value) {

@@ -153,6 +153,11 @@ class Module extends SplDirectoryInfo
         return $this;
     }
 
+    public function getDefaultControllerClassName()
+    {
+        return $this->getNamespace() . 'Controllers\\' . $this->getDirName();
+    }
+
     public function getThemes()
     {
         $directory = new SplDirectoryInfo($this->getPublicDir() . 'themes' . DIRECTORY_SEPARATOR);
