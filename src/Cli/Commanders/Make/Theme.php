@@ -97,19 +97,20 @@ class Theme extends Make
 <!DOCTYPE html>
 <html>
 <head>
-    <?php echo $assets->head; ?>
+    {{@assets->head}}
 </head>
 <body class="multipurpose">
 
 <div id="page-content" class="page-content">
-    <?php echo $partials->content; ?>
+    {{@partials->content}}
 </div>
 
-<?php echo $assets->body; ?>
+{{@assets->body}}
 </body>
 </html>
 THEME;
-        file_put_contents($themePath . 'theme.phtml', $themeTemplate);
+
+        file_put_contents($themePath . 'theme.phtml', str_replace('@','$',$themeTemplate));
 
         if (is_dir($themePath)) {
             output()->write(
