@@ -330,14 +330,28 @@ class Framework extends Kernel
                 language()->loadFile($commander->getParameter() . '/' . $commander->getRequestMethod());
 
                 // Autoload Model
+                foreach (modules() as $module) {
+                    if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
+                        continue;
+                    }
+                    $module->loadModel();
+                }
+
+                // Autoload Model
                 $modelClassName = str_replace('Commanders', 'Models', $commander->getName());
 
                 if (class_exists($modelClassName)) {
                     models()->register('commander', new $modelClassName());
                 }
 
+                // Initialize Controller
+                profiler()->watch('CALL_HOOKS_PRE_COMMANDER');
+                hooks()->callEvent(Framework\Services\Hooks::PRE_CONTROLLER);
+
                 profiler()->watch('INSTANTIATE_REQUESTED_COMMANDER');
                 $requestCommander = $commander->getInstance();
+
+                profiler()->watch('CALL_HOOKS_POST_COMMANDER');
 
                 profiler()->watch('EXECUTE_REQUESTED_COMMANDER');
                 $requestCommander->execute();
@@ -423,14 +437,6 @@ class Framework extends Kernel
                     $module->loadModel();
                 }
 
-                // Load App Module Models
-                $app = modules()->first();
-                $app->loadModel();
-
-                // Load Current Module Models
-                $module = modules()->current();
-                $module->loadModel();
-
                 // Autoload Model
                 $modelClassName = str_replace(['Controllers', 'Presenters'], 'Models', $controller->getName());
 
@@ -443,15 +449,18 @@ class Framework extends Kernel
                     $controllerAssets = [];
                     $controllerAssetsDirs = [];
 
-                    // Load App Module Assets
-                    $controllerAssets[] = $app->getParameter();
-                    $controllerAssetsDirs[] = $app->getParameter();
+                    // Autoload Assets
+                    foreach (modules() as $module) {
+                        if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
+                            continue;
+                        }
 
-                    // Load Current Module Assets
-                    $controllerAssets[] = $module->getParameter();
-                    $controllerAssetsDirs[] = $module->getParameter();
+                        $controllerAssets[] = $module->getParameter();
+                        $controllerAssetsDirs[] = $module->getParameter();
+                    }
 
                     $controllerAssets = array_reverse($controllerAssets);
+                    $controllerAssetsDirs = array_reverse($controllerAssetsDirs);
 
                     $controllerAssets[] = $controllerParameter;
                     $controllerAssetsDirs[] = $controllerParameter;

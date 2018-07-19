@@ -16,129 +16,29 @@ namespace O2System\Framework\Models\Sql\Relations\Maps;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Models\Sql\Model;
+use O2System\Framework\Models\Sql\Relations\Maps\Abstracts\AbstractMap;
 
 /**
  * Class Inverse
  *
  * @package O2System\Framework\Models\Sql\Relations\Maps
  */
-class Inverse
+class Inverse extends AbstractMap
 {
-    /**
-     * Relation Model
-     *
-     * @var Model
-     */
-    public $relationModel;
-
-    /**
-     * Relation Table
-     *
-     * @var string
-     */
-    public $relationTable;
-
-    /**
-     * Relation Foreign Key
-     *
-     * Foreign Key of Reference Table
-     *
-     * @var string
-     */
-    public $relationForeignKey;
-
-    /**
-     * Reference Model
-     *
-     * @var Model
-     */
-    public $referenceModel;
-
-    /**
-     * Reference Table
-     *
-     * @var string
-     */
-    public $referenceTable;
-
-    /**
-     * Reference Primary Key
-     *
-     * @var string
-     */
-    public $referencePrimaryKey;
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * InverseMapper constructor.
-     *
-     * @param Model        $relationModel
-     * @param string|Model $referenceModel
-     * @param string|null  $relationForeignKey
-     * @param string|null  $referencePrimaryKey
-     */
     public function __construct(
-        Model $relationModel,
+        Model $currentModel,
         $referenceModel,
-        $relationForeignKey = null,
-        $referencePrimaryKey = null
+        $foreignKey = null
     ) {
-        // Map Relation Model
-        $this->relationModel =& $relationModel;
+        $this->currentModel =& $currentModel;
+        $this->currentTable = $currentModel->table;
+        $this->currentPrimaryKey = $currentModel->primaryKey;
 
-        // Map Relation Table
-        $this->relationTable = $relationModel->table;
+        // Mapping Reference Model
+        $this->mappingReferenceModel($referenceModel);
 
-        // Map Reference Model
-        $this->mapReferenceModel($referenceModel);
-
-        // Map Relation Primary Key
-        $this->relationForeignKey = (isset($relationForeignKey) ? $relationForeignKey
-            : $this->mapRelationForeignKey());
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Map Relation Model
-     *
-     * @param string|Model $referenceModel
-     *
-     * @return void
-     */
-    private function mapReferenceModel($referenceModel)
-    {
-        if ($referenceModel instanceof Model) {
-            $this->referenceModel = $referenceModel;
-            $this->referenceTable = $this->referenceModel->table;
-            $this->referencePrimaryKey = $this->referenceModel->primaryKey;
-        } elseif (class_exists($referenceModel)) {
-            $this->referenceModel = new $referenceModel();
-            $this->referenceTable = $this->referenceModel->table;
-            $this->referencePrimaryKey = $this->referenceModel->primaryKey;
-        } else {
-            $this->referenceTable = $referenceModel;
-            $this->referencePrimaryKey = 'id';
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Map Relation Foreign Key
-     *
-     * @return string
-     */
-    private function mapRelationForeignKey()
-    {
-        $tablePrefixes = [
-            't_',
-            'tm_',
-            'tr_',
-            'tb_',
-        ];
-
-        return $this->referencePrimaryKey . '_' . str_replace($tablePrefixes, '', $this->referenceTable);
+        // Defined Current Foreign Key
+        $this->currentForeignKey = (isset($foreignKey) ? $foreignKey
+            : $this->currentForeignKey);
     }
 }

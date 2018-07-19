@@ -25,6 +25,8 @@ use O2System\Kernel\Cli\Writers\Format;
  */
 class Module extends Make
 {
+    public $optionName;
+
     /**
      * Module::$commandDescription
      *
@@ -34,11 +36,22 @@ class Module extends Make
      */
     protected $commandDescription = 'CLI_MAKE_MODULE_DESC';
 
+    public function optionName($name)
+    {
+        if(empty($this->optionPath)) {
+            $this->optionPath = PATH_APP . 'Modules' . DIRECTORY_SEPARATOR;
+        }
+
+        $this->optionName = $name;
+
+        return $this;
+    }
+
     public function execute()
     {
         parent::execute();
 
-        if (empty($this->optionFilename)) {
+        if (empty($this->optionName)) {
             output()->write(
                 (new Format())
                     ->setContextualClass(Format::DANGER)
@@ -54,9 +67,9 @@ class Module extends Make
             : ucfirst(plural($this->moduleType));
 
         if (strpos($this->optionPath, $moduleType) === false) {
-            $modulePath = $this->optionPath . $moduleType . DIRECTORY_SEPARATOR . $this->optionFilename . DIRECTORY_SEPARATOR;
+            $modulePath = $this->optionPath . $moduleType . DIRECTORY_SEPARATOR . $this->optionName . DIRECTORY_SEPARATOR;
         } else {
-            $modulePath = $this->optionPath . $this->optionFilename . DIRECTORY_SEPARATOR;
+            $modulePath = $this->optionPath . $this->optionName . DIRECTORY_SEPARATOR;
         }
 
         if ( ! is_dir($modulePath)) {
@@ -81,10 +94,10 @@ class Module extends Make
             @list($moduleDirectory, $moduleName) = explode($moduleType, dirname($modulePath));
             $namespace = loader()->getDirNamespace($moduleDirectory) .
                 $moduleType . '\\' . prepare_class_name(
-                    $this->optionFilename
+                    $this->optionName
                 ) . '\\';
         } else {
-            $namespace = prepare_class_name($this->namespace);
+            $namespace = $this->namespace;
             $jsProps[ 'namespace' ] = rtrim($namespace, '\\') . '\\';
         }
 
@@ -99,7 +112,7 @@ class Module extends Make
         file_put_contents($filePath, $fileContent);
 
         $this->optionPath = $modulePath;
-        $this->optionFilename = prepare_filename($this->optionFilename) . '.php';
+        $this->optionFilename = prepare_filename($this->optionName) . '.php';
 
         (new Controller())
             ->optionPath($this->optionPath)

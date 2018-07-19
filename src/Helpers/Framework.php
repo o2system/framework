@@ -200,10 +200,20 @@ if ( ! function_exists('session')) {
      *
      * Convenient shortcut for O2System Framework Session service.
      *
-     * @return O2System\Session
+     * @return mixed|O2System\Session
      */
     function session()
     {
+        $args = func_get_args();
+
+        if (count($args)) {
+            if(isset($_SESSION[ $args[0] ])) {
+                return $_SESSION[ $args[0] ];
+            }
+
+            return null;
+        }
+
         return o2system()->getService('session');
     }
 }

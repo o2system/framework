@@ -30,16 +30,16 @@ class Pagination extends Unordered
     use SizingSetterTrait;
 
     protected $total = 0;
-    protected $entries = 5;
+    protected $limit = 5;
     protected $pages = 0;
 
-    public function __construct($total = 0, $entries = 5)
+    public function __construct($total = 0, $limit = 5)
     {
         parent::__construct();
 
         $this->attributes->addAttributeClass('pagination');
         $this->setTotal($total);
-        $this->setEntries($entries);
+        $this->setLimit($limit);
 
         $this->setSizingClassPrefix('pagination');
     }
@@ -47,7 +47,7 @@ class Pagination extends Unordered
     public function setTotal($total)
     {
         $this->total = (int)$total;
-        $this->setPages(ceil($total / $this->entries));
+        $this->setPages(ceil($total / $this->limit));
 
         return $this;
     }
@@ -59,12 +59,12 @@ class Pagination extends Unordered
         return $this;
     }
 
-    public function setEntries($entries)
+    public function setLimit($limit)
     {
-        $this->entries = (int)$entries;
+        $this->limit = (int)$limit;
 
         if ($this->total > 0) {
-            $this->setPages(ceil($this->total / $entries));
+            $this->setPages(ceil($this->total / $limit));
         }
 
         return $this;

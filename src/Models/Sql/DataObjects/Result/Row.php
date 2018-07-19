@@ -44,8 +44,8 @@ class Row extends SplArrayObject
     {
         $this->model = new SplClassInfo($model);
 
-        if ( ! models()->has($this->model->getParameter())) {
-            models()->register($this->model->getParameter(), $model);
+        if ( ! models()->has($this->model->getClass())) {
+            models()->register($this->model->getClass(), $model);
         }
 
         if ($row instanceof Database\DataObjects\Result\Row) {
@@ -54,7 +54,7 @@ class Row extends SplArrayObject
             parent::__construct($row);
         }
 
-        models($this->model->getParameter())->row = $this;
+        models($this->model->getClass())->row = $this;
     }
 
     // ------------------------------------------------------------------------
@@ -74,7 +74,7 @@ class Row extends SplArrayObject
 
     public function __call($method, $args = [])
     {
-        $model = models($this->model->getParameter());
+        $model = models($this->model->getClass());
 
         if (method_exists($model, $method)) {
             $model->row = $this;

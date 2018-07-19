@@ -25,35 +25,26 @@ use O2System\Framework\Models\Sql;
  */
 class HasManyThrough extends Sql\Relations\Abstracts\AbstractRelation
 {
-    /**
-     * Get Result
-     *
-     * @return Sql\DataObjects\Result|bool
-     */
     public function getResult()
     {
-        // print_out($this->map);
-        if ($this->map->pivotModel->row instanceof Sql\DataObjects\Result\Row) {
-            $result = $this->map->pivotModel->qb
-                ->from($this->map->relationTable)
+        if ($this->map->currentModel->row instanceof Sql\DataObjects\Result\Row) {
+            $criteria = $this->map->currentModel->row->offsetGet($this->map->currentPrimaryKey);
+            $condition = [
+                $this->map->intermediaryTable . '.' . $this->map->intermediaryCurrentForeignKey => $criteria
+            ];
+
+            $this->map->intermediaryModel->qb
+                ->select([
+                    $this->map->referenceTable . '.*'
+                ])
+                ->from($this->map->intermediaryTable)
                 ->join($this->map->referenceTable, implode(' = ', [
-                    $this->map->referencePrimaryKey,
-                    $this->map->relationForeignKey,
-                ]))
-                ->getWhere([$this->map->referencePrimaryKey => $this->map->pivotModel->row->offsetGet($this->map->pivotForeignKey)]);
+                    $this->map->referenceTable . '.' . $this->map->referencePrimaryKey,
+                    $this->map->intermediaryTable . '.' . $this->map->intermediaryReferenceForeignKey
+                ]));
 
-            if ($result instanceof Result) {
-                if ($result->count() > 0) {
-                    if ($this->map->relationModel instanceof Sql\Model) {
-                        return (new Sql\DataObjects\Result($result, $this->map->relationModel))
-                            ->setInfo($result->getInfo());
-                    }
-
-                    $pivotModel = new class extends Sql\Model {};
-                    $pivotModel->table = $this->map->pivotTable;
-
-                    return (new Sql\DataObjects\Result($result, $pivotModel))->setInfo($result->getInfo());
-                }
+            if ($result = $this->map->intermediaryModel->findWhere($condition)) {
+                return $result;
             }
         }
 

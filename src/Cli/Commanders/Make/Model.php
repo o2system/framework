@@ -34,11 +34,6 @@ class Model extends Make
      */
     protected $commandDescription = 'CLI_MAKE_MODEL_DESC';
 
-    public function optionOrm($useOrm = true)
-    {
-        $this->isUseORM = $useOrm;
-    }
-
     public function execute()
     {
         parent::execute();
@@ -60,8 +55,10 @@ class Model extends Make
             $filePath = $this->optionPath . $this->optionFilename;
         }
 
-        if ( ! is_dir(dirname($filePath))) {
-            mkdir(dirname($filePath), 0777, true);
+        $fileDirectory = dirname($filePath) . DIRECTORY_SEPARATOR;
+
+        if ( ! is_dir($fileDirectory)) {
+            mkdir($fileDirectory, 0777, true);
         }
 
         if (is_file($filePath)) {
@@ -88,16 +85,11 @@ class Model extends Make
                     $subNamespace
                 )) . '\\';
 
-        $isUseORM = empty($this->isUseORM) ? false : true;
-
         $vars[ 'CREATE_DATETIME' ] = date('d/m/Y H:m');
         $vars[ 'NAMESPACE' ] = trim($classNamespace, '\\');
         $vars[ 'PACKAGE' ] = '\\' . trim($classNamespace, '\\');
         $vars[ 'CLASS' ] = $className;
         $vars[ 'FILEPATH' ] = $filePath;
-        $vars[ 'EXTEND' ] = $isUseORM
-            ? 'Orm'
-            : 'Framework';
 
         $phpTemplate = <<<PHPTEMPLATE
 <?php

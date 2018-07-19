@@ -145,6 +145,8 @@ class View implements RenderableInterface
                 return parser()->parse(presenter()->getArrayCopy());
             }
         } else {
+            $vars = presenter()->getArrayCopy();
+            extract($vars);
 
             $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
@@ -159,12 +161,11 @@ class View implements RenderableInterface
             unset($backtrace);
 
             ob_start();
-            include PATH_KERNEL . 'Views' . DIRECTORY_SEPARATOR . 'error.phtml';
+            include output()->getFilePath('error');
             $content = ob_get_contents();
             ob_end_clean();
 
             if ($return === false) {
-
                 $partials = presenter()->get('partials');
 
                 if ($partials->hasPartial('content') === false) {
@@ -205,6 +206,23 @@ class View implements RenderableInterface
             }
         } elseif (parser()->loadFile($filename)) {
             return parser()->parse(presenter()->getArrayCopy());
+        }
+    }
+
+    public function modal($filename, array $vars = [])
+    {
+        if(presenter()->theme->hasLayout('modal')) {
+            if(presenter()->theme->hasLayout('modal')) {
+                presenter()->theme->setLayout('modal');
+                echo $this->load($filename, $vars, true);
+                exit(EXIT_SUCCESS);
+            }
+        }
+
+        presenter()->merge($vars);
+
+        if(parser()->loadFile($filename)) {
+            output()->send(parser()->parse(presenter()->getArrayCopy()));
         }
     }
 

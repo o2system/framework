@@ -75,41 +75,37 @@ trait RecordTrait
 
     protected function insertRecordSets(array &$sets)
     {
-        if (is_null($this->recordUser) and function_exists('globals')) {
-            if ($account = globals()->offsetGet('account')) {
-                $this->recordUser = isset($account->id_user_account)
-                    ? $account->id_user_account
-                    : $account->id;
-            }
-        }
-
         $timestamp = $this->unixTimestamp === true ? strtotime(date('Y-m-d H:i:s')) : date('Y-m-d H:i:s');
 
         if ( ! isset($sets[ 'record_status' ])) {
             $sets[ 'record_status' ] = $this->recordStatus;
         }
 
-        if (empty($this->primary_keys)) {
-            $primary_key = isset($this->primary_key) ? $this->primary_key : 'id';
+        if (empty($this->primaryKeys)) {
+            $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
-            if (empty($sets[ $primary_key ])) {
+            if (empty($sets[ $primaryKey ])) {
                 if ( ! isset($sets[ 'record_create_user' ])) {
                     $sets[ 'record_create_user' ] = $this->recordUser;
                 }
 
                 if ( ! isset($sets[ 'record_create_timestamp' ])) {
                     $sets[ 'record_create_timestamp' ] = $timestamp;
+                } elseif ($this->unixTimestamp) {
+                    $sets[ 'record_create_timestamp' ] = strtotime($sets[ 'record_create_timestamp' ]);
                 }
             }
         } else {
-            foreach ($this->primary_keys as $primary_key) {
-                if (empty($sets[ $primary_key ])) {
+            foreach ($this->primaryKeys as $primaryKey) {
+                if (empty($sets[ $primaryKey ])) {
                     if ( ! isset($sets[ 'record_create_user' ])) {
                         $sets[ 'record_create_user' ] = $this->recordUser;
                     }
 
                     if ( ! isset($sets[ 'record_create_timestamp' ])) {
                         $sets[ 'record_create_timestamp' ] = $timestamp;
+                    } elseif ($this->unixTimestamp) {
+                        $sets[ 'record_create_timestamp' ] = strtotime($sets[ 'record_create_timestamp' ]);
                     }
                 }
             }
@@ -119,6 +115,8 @@ trait RecordTrait
 
         if ( ! isset($sets[ 'record_update_timestamp' ])) {
             $sets[ 'record_update_timestamp' ] = $timestamp;
+        } elseif ($this->unixTimestamp) {
+            $sets[ 'record_update_timestamp' ] = strtotime($sets[ 'record_update_timestamp' ]);
         }
     }
 
@@ -132,11 +130,6 @@ trait RecordTrait
         if ( ! isset($sets[ 'record_update_timestamp' ])) {
             $sets[ 'record_update_timestamp' ] = $timestamp;
         }
-
-        if ($this->recordStatus === 'PUBLISH') {
-            $sets[ 'record_delete_timestamp' ] = null;
-            $sets[ 'record_delete_user' ] = null;
-        }
     }
 
     /**
@@ -149,5 +142,26 @@ trait RecordTrait
         $table = isset($table) ? $table : $this->table;
 
         return $this->qb->countAllResults($table) + 1;
+    }
+
+    public function withRecordStatus($recordStatus)
+    {
+        $this->qb->where('record_status', strtoupper($recordStatus));
+
+        return $this;
+    }
+
+    public function createdBy($recordCreateUser)
+    {
+        $this->qb->where('record_create_user', $recordCreateUser);
+
+        return $this;
+    }
+
+    public function updatedBy($recordUpdateUser)
+    {
+        $this->qb->where('record_update_user', $recordUpdateUser);
+
+        return $this;
     }
 }

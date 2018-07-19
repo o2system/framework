@@ -27,7 +27,7 @@ class Name extends AbstractRepository
     /**
      * Name::__construct
      *
-     * @param string $name
+     * @param string|array $name
      */
     public function __construct($name)
     {

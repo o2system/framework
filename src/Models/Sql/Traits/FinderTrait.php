@@ -25,14 +25,6 @@ use O2System\Framework\Models\Sql\DataObjects;
  */
 trait FinderTrait
 {
-    /**
-     * FinderTrait::all
-     *
-     * @param null $fields
-     * @param null $limit
-     *
-     * @return bool|DataObjects\Result
-     */
     public function all($fields = null, $limit = null)
     {
         if (isset($fields)) {
@@ -43,11 +35,11 @@ trait FinderTrait
             $this->qb->limit($limit);
         }
 
-        if(property_exists($this, 'hierarchical')) {
-            $this->qb->orderBy($this->table.'.record_left', 'ASC');
-            $this->qb->orderBy($this->table.'.record_ordering', 'ASC');
-        } elseif(property_exists($this, 'adjacency')) {
-            $this->qb->orderBy($this->table.'.record_ordering', 'ASC');
+        if (property_exists($this, 'hierarchical')) {
+            $this->qb->orderBy($this->table . '.record_left', 'ASC');
+            $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
+        } elseif (property_exists($this, 'adjacency')) {
+            $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
         }
 
         $result = $this->qb->from($this->table)->get();
@@ -63,53 +55,31 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
-    /**
-     * FinderTrait::page
-     *
-     * Find record by page.
-     *
-     * @param int $page
-     */
-    public function page($fields = null, $page = 1, $entries = 5)
+    public function withPaging($page = null, $limit = null)
     {
-        $page = empty($page) ? 1 : $page;
-        $entries = empty($entries) ? 5 : $entries;
+        $getPage = $this->input->get('page');
+        $getLimit = $this->input->get('limit');
 
-        if (isset($fields)) {
-            if (is_numeric($fields)) {
-                $page = $fields;
-            } else {
-                $this->qb->select($fields);
-            }
-        }
+        $page = empty($page) ? (empty($getPage) ? 1 : $getPage) : $page;
+        $limit = empty($limit) ? (empty($getLimit) ? 10 : $getLimit) : $limit;
 
-        $this->qb->page($page, $entries);
+        $this->qb->page($page, $limit);
 
-        $result = $this->qb->from($this->table)->get();
-
-        if ($result->count() > 0) {
-            $this->result = new DataObjects\Result($result, $this);
-            $this->result->setInfo($result->getInfo());
-
-            return $this->result;
-        }
-
-        return false;
+        return $this;
     }
+
     // ------------------------------------------------------------------------
 
-    /**
-     * Find
-     *
-     * Find single or many record base on criteria by specific field
-     *
-     * @param   string      $criteria Criteria value
-     * @param   string|null $field    Table column field name | set to primary key by default
-     *
-     * @return  DataObjects\Result|DataObjects\Result\Row|bool Returns FALSE if failed.
-     */
+    public function allWithPaging($fields = null, $limit = null)
+    {
+        return $this->withPaging(null, $limit)->all($fields, $limit);
+    }
+
+    // ------------------------------------------------------------------------
+
     public function find($criteria, $field = null, $limit = null)
     {
         if (is_array($criteria)) {
@@ -117,10 +87,14 @@ trait FinderTrait
         }
 
         $field = isset($field) ? $field : $this->primaryKey;
+        if (strpos($field, '.') === false) {
+            $field = $this->table . '.' . $field;
+        }
 
         $result = $this->qb
             ->from($this->table)
-            ->getWhere([$field => $criteria], $limit);
+            ->where($field, $criteria)
+            ->get($limit);
 
         if ($result instanceof Result) {
             if ($result->count() > 0) {
@@ -137,6 +111,7 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
@@ -152,6 +127,7 @@ trait FinderTrait
     public function findIn(array $inCriteria, $field = null)
     {
         $field = isset($field) ? $field : $this->primaryKey;
+        $field = $this->table . '.' . $field;
 
         $result = $this->qb
             ->from($this->table)
@@ -167,6 +143,7 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
@@ -181,9 +158,16 @@ trait FinderTrait
      */
     public function findWhere(array $conditions, $limit = null)
     {
+        foreach ($conditions as $field => $criteria) {
+            if (strpos($field, '.') === false) {
+                $field = $this->table . '.' . $field;
+            }
+            $this->qb->where($field, $criteria);
+        }
+
         $result = $this->qb
             ->from($this->table)
-            ->getWhere($conditions, $limit);
+            ->get($limit);
 
         if ($result->count() > 0) {
             $this->result = new DataObjects\Result($result, $this);
@@ -198,6 +182,7 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
@@ -213,6 +198,9 @@ trait FinderTrait
     public function findNotIn(array $notInCriteria, $field = null)
     {
         $field = isset($field) ? $field : $this->primaryKey;
+        if (strpos($field, '.') === false) {
+            $field = $this->table . '.' . $field;
+        }
 
         $result = $this->qb
             ->from($this->table)

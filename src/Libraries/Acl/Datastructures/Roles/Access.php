@@ -15,55 +15,33 @@ namespace O2System\Framework\Libraries\Acl\Datastructures\Roles;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\Iterators\ArrayIterator;
 
 /**
  * Class Access
  *
  * @package O2System\Framework\Libraries\Acl\Datastructures\Role
  */
-class Access extends AbstractRepository
+class Access extends ArrayIterator
 {
     /**
-     * Access::__construct
-     *
-     * @param array $access
-     */
-    public function __construct($access = [])
-    {
-        $defaultAccess = [
-            'id'         => isset($access[ 'id' ]) ? $access[ 'id' ] : null,
-            'label'      => isset($access[ 'label' ]) ? $access[ 'label' ] : null,
-            'segments'   => isset($access[ 'segments' ]) ? $access[ 'segments' ] : null,
-            'permission' => isset($access[ 'permission' ]) ? $access[ 'permission' ] : 'DENIED',
-            'privileges' => isset($access[ 'privileges' ]) ? $access[ 'privileges' ] : '00000000',
-        ];
-
-        foreach ($defaultAccess as $item => $value) {
-            $this->store($item, $value);
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Access::store
+     * Access::offsetSet
      *
      * @param string $offset
      * @param mixed  $value
      */
-    public function store($offset, $value)
+    public function offsetSet($offset, $value)
     {
-        if ($offset === 'permission') {
+        if (isset($value['permissions'])) {
             if (in_array($value, ['GRANTED', 'DENIED'])) {
-                $value = strtoupper($value);
+                $value = strtoupper($value['permissions']);
             } else {
                 return;
             }
-        } elseif ($offset === 'privileges') {
-            list($create, $read, $update, $delete, $import, $export, $print, $special) = array_pad(str_split($value), 8,
+        } elseif (isset($value['privileges'])) {
+            list($create, $read, $update, $delete, $import, $export, $print, $special) = array_pad(str_split($value['privileges']), 8,
                 0);
-            $value = [
+            $value['privileges'] = [
                 'create'  => ($create == '1' ? true : false),
                 'read'    => ($read == '1' ? true : false),
                 'update'  => ($update == '1' ? true : false),
@@ -75,6 +53,6 @@ class Access extends AbstractRepository
             ];
         }
 
-        parent::store($offset, $value);
+        parent::offsetSet($offset, $value);
     }
 }

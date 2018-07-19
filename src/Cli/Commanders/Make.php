@@ -15,7 +15,7 @@ namespace O2System\Framework\Cli\Commanders;
 
 // ------------------------------------------------------------------------
 
-use O2System\Kernel\Cli\Commander;
+use O2System\Framework\Cli\Commander;
 
 /**
  * Class Make
@@ -98,6 +98,8 @@ class Make extends Commander
         }
 
         $this->optionPath = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+        return $this;
     }
 
     public function optionFilename($name)
@@ -111,11 +113,15 @@ class Make extends Commander
     public function optionName($name)
     {
         $this->optionFilename($name);
+
+        return $this;
     }
 
     public function optionNamespace($namespace)
     {
         $this->namespace = $namespace;
+
+        return $this;
     }
 
     public function getPhpTemplateFile($filename)
@@ -124,5 +130,6 @@ class Make extends Commander
             PATH_FRAMEWORK . 'Config' . DIRECTORY_SEPARATOR . 'PhpTemplateFiles',
         ];
 
+        return $this;
     }
 }

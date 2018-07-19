@@ -27,8 +27,10 @@ class Hooks
     const POST_SYSTEM = 'POST_SYSTEM';
 
     const PRE_CONTROLLER = 'PRE_CONTROLLER';
+    const PRE_COMMANDER = 'PRE_COMMANDER';
 
     const POST_CONTROLLER = 'POST_CONTROLLER';
+    const POST_COMMANDER = 'POST_COMMANDER';
 
     /**
      * Hooks Closures
@@ -68,7 +70,14 @@ class Hooks
     {
         $event = strtoupper($event);
 
-        if (in_array($event, ['PRE_SYSTEM', 'POST_SYSTEM', 'PRE_CONTROLLER', 'POST_CONTROLLER'])) {
+        if (in_array($event, [
+            'PRE_SYSTEM',
+            'POST_SYSTEM',
+            'PRE_CONTROLLER',
+            'PRE_COMMANDER',
+            'POST_CONTROLLER',
+            'POST_COMMANDER',
+        ])) {
             $this->closures[ $event ][] = $closure;
         }
     }

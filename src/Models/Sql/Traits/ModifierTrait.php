@@ -31,15 +31,12 @@ trait ModifierTrait
      * @access  public
      *
      * @param   array  $sets  Array of Input Data
-     * @param   string $table Table Name
      *
      * @return mixed
      * @throws \O2System\Spl\Exceptions\RuntimeException
      */
-    public function insert(array $sets, $table = null)
+    public function insert(array $sets)
     {
-        $table = isset($table) ? $table : $this->table;
-
         if (method_exists($this, 'insertRecordSets')) {
             $this->insertRecordSets($sets);
         }
@@ -50,11 +47,11 @@ trait ModifierTrait
 
         if (method_exists($this, 'getRecordOrdering')) {
             if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
-                $sets[ 'record_ordering' ] = $this->getRecordOrdering($table);
+                $sets[ 'record_ordering' ] = $this->getRecordOrdering($this->table);
             }
         }
 
-        if ($this->qb->table($table)->insert($sets)) {
+        if ($this->qb->table($this->table)->insert($sets)) {
             if (method_exists($this, 'afterInsert')) {
                 return $this->afterInsert();
             }
@@ -67,6 +64,45 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
+    public function insertOrUpdate(array $sets)
+    {
+        // Try to find
+        if($result = $this->qb->from($this->table)->getWhere($sets)) {
+            return $this->update($sets);
+        } else {
+            return $this->insert($sets);
+        }
+
+        return false;
+    }
+
+    public function insertMany(array $sets)
+    {
+        if (method_exists($this, 'insertRecordSets')) {
+            foreach ($sets as $set) {
+                $this->insertRecordSets($set);
+
+                if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
+                    $set[ 'record_ordering' ] = $this->getRecordOrdering($this->table);
+                }
+            }
+        }
+
+        if (method_exists($this, 'beforeInsertMany')) {
+            $this->beforeInsertMany($sets);
+        }
+
+        if ($this->qb->table($this->table)->insertBatch($sets)) {
+            if (method_exists($this, 'afterInsertMany')) {
+                return $this->afterInsertMany();
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Update Data
      *
@@ -75,14 +111,12 @@ trait ModifierTrait
      *
      * @access  public
      *
-     * @param   string $table Table Name
      * @param   array  $sets  Array of Update Data
      *
      * @return mixed
      */
-    public function update(array $sets, $where = [], $table = null)
+    public function update(array $sets, $where = [])
     {
-        $table = isset($table) ? $table : $this->table;
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
         if (empty($where)) {
@@ -109,11 +143,11 @@ trait ModifierTrait
 
         if (method_exists($this, 'getRecordOrdering')) {
             if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
-                $sets[ 'record_ordering' ] = $this->getRecordOrdering($table);
+                $sets[ 'record_ordering' ] = $this->getRecordOrdering($this->table);
             }
         }
 
-        if ($this->qb->table($table)->update($sets, $where)) {
+        if ($this->qb->table($this->table)->update($sets, $where)) {
 
             if (method_exists($this, 'afterUpdate')) {
                 return $this->afterUpdate();
@@ -125,30 +159,53 @@ trait ModifierTrait
         return false;
     }
 
-    public function insertMany(array $sets)
+    /**
+     * Find Or Insert
+     *
+     * To insert if there is no record before. 
+     * This is very important in insert to pivot table and avoid redundan
+     * 
+     * @access public
+     * @param array  $sets Array of Input Data
+     * @return int
+     * @throws \O2System\Spl\Exceptions\RuntimeException
+     */
+    public function findOrInsert(array $sets)
     {
-        $table = isset($table) ? $table : $this->table;
+        $result = $this->qb->from($this->table)->getWhere($sets);
+        
+        if ($result->count() == 0) {
+            $this->insert($sets);
+            
+            return $this->db->getLastInsertId();
+        }
 
-        if (method_exists($this, 'insertRecordSets')) {
-            foreach ($sets as $set) {
-                $this->insertRecordSets($set);
+        return $result[0]->id;
+    }
 
-                if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
-                    $set[ 'record_ordering' ] = $this->getRecordOrdering($table);
+    public function updateOrInsert(array $sets, array $where = [])
+    {
+        $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
+
+        if (empty($where)) {
+            if (empty($this->primaryKeys)) {
+                $where[ $primaryKey ] = $sets[ $primaryKey ];
+            } else {
+                foreach ($this->primaryKeys as $primaryKey) {
+                    $where[ $primaryKey ] = $sets[ $primaryKey ];
                 }
             }
         }
 
-        if (method_exists($this, 'beforeInsertMany')) {
-            $this->beforeInsertMany($sets);
-        }
+        // Reset Primary Keys
+        $this->primaryKey = 'id';
+        $this->primaryKeys = [];
 
-        if ($this->qb->table($table)->insertBatch($sets)) {
-            if (method_exists($this, 'afterInsertMany')) {
-                return $this->afterInsertMany();
-            }
-
-            return true;
+        // Try to find
+        if($result = $this->qb->from($this->table)->getWhere($where)) {
+            return $this->update($sets, $where);
+        } else {
+            return $this->insert($sets);
         }
 
         return false;
@@ -158,7 +215,6 @@ trait ModifierTrait
 
     public function updateMany(array $sets)
     {
-        $table = isset($table) ? $table : $this->table;
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
         $where = [];
@@ -180,7 +236,7 @@ trait ModifierTrait
                 $this->updateRecordSets($set);
 
                 if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
-                    $set[ 'record_ordering' ] = $this->getRecordOrdering($table);
+                    $set[ 'record_ordering' ] = $this->getRecordOrdering($this->table);
                 }
             }
         }
@@ -189,7 +245,7 @@ trait ModifierTrait
             $this->beforeUpdateMany($sets);
         }
 
-        if ($this->qb->table($table)->updateBatch($sets, $where)) {
+        if ($this->qb->table($this->table)->updateBatch($sets, $where)) {
             if (method_exists($this, 'afterUpdateMany')) {
                 return $this->afterUpdateMany();
             }
@@ -206,13 +262,11 @@ trait ModifierTrait
      * trash
      *
      * @param      $id
-     * @param null $table
      *
      * @return array|bool
      */
-    public function trash($id, $table = null)
+    public function trash($id)
     {
-        $table = isset($table) ? $table : $this->table;
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
         $sets = [];
@@ -247,7 +301,7 @@ trait ModifierTrait
             $this->beforeTrash($sets);
         }
 
-        if ($this->qb->table($table)->update($sets, $where)) {
+        if ($this->qb->table($this->table)->update($sets, $where)) {
             if (method_exists($this, 'afterTrash')) {
                 return $this->afterTrash();
             }
@@ -260,11 +314,11 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function trashBy($id, array $where = [], $table = null)
+    public function trashBy($id, array $where = [])
     {
         $this->qb->where($where);
 
-        return $this->trash($id, $table);
+        return $this->trash($id);
     }
 
     // ------------------------------------------------------------------------
@@ -289,12 +343,12 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function trashManyBy(array $ids, $where = [], $table = null)
+    public function trashManyBy(array $ids, $where = [])
     {
         $affectedRows = [];
 
         foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->trashBy($id, $where, $table);
+            $affectedRows[ $id ] = $this->trashBy($id, $where);
         }
 
         return $affectedRows;
@@ -302,12 +356,8 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function delete($id, $force = false, $table = null)
+    public function delete($id)
     {
-        if ((isset($table) AND is_bool($table)) OR ! isset($table)) {
-            $table = $this->table;
-        }
-
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
         $where = [];
@@ -329,7 +379,7 @@ trait ModifierTrait
             $this->beforeDelete();
         }
 
-        if ($this->qb->table($table)->delete($where)) {
+        if ($this->qb->table($this->table)->delete($where)) {
             if (method_exists($this, 'afterDelete')) {
                 return $this->afterDelete();
             }
@@ -342,32 +392,32 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function deleteBy($id, $where = [], $force = false, $table = null)
+    public function deleteBy($id, $where = [], $force = false)
     {
         $this->qb->where($where);
 
-        return $this->delete($id, $force, $table);
+        return $this->delete($id, $force);
     }
 
     // ------------------------------------------------------------------------
 
-    public function deleteMany(array $ids, $force = false, $table = null)
+    public function deleteMany(array $ids, $force = false)
     {
         $affectedRows = [];
 
         foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->delete($id, $force, $table);
+            $affectedRows[ $id ] = $this->delete($id, $force);
         }
 
         return $affectedRows;
     }
 
-    public function deleteManyBy(array $ids, $where = [], $force = false, $table = null)
+    public function deleteManyBy(array $ids, $where = [], $force = false)
     {
         $affectedRows = [];
 
         foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->deleteBy($id, $where, $force, $table);
+            $affectedRows[ $id ] = $this->deleteBy($id, $where, $force);
         }
 
         return $affectedRows;
@@ -375,9 +425,8 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function publish($id, $table = null)
+    public function publish($id)
     {
-        $table = isset($table) ? $table : $this->table;
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
         $sets = [];
@@ -412,7 +461,7 @@ trait ModifierTrait
             $this->beforePublish($sets);
         }
 
-        if ($this->qb->table($table)->update($sets, $where)) {
+        if ($this->qb->table($this->table)->update($sets, $where)) {
             if (method_exists($this, 'afterPublish')) {
                 return $this->afterPublish();
             }
@@ -425,21 +474,21 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function publishBy($id, array $where = [], $table = null)
+    public function publishBy($id, array $where = [])
     {
         $this->qb->where($where);
 
-        return $this->publish($id, $table);
+        return $this->publish($id);
     }
 
     // ------------------------------------------------------------------------
 
-    public function publishMany(array $ids, $table = null)
+    public function publishMany(array $ids)
     {
         $affectedRows = [];
 
         foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->publish($id, $table);
+            $affectedRows[ $id ] = $this->publish($id);
         }
 
         return $affectedRows;
@@ -447,12 +496,12 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function publishManyBy(array $ids, $where = [], $table = null)
+    public function publishManyBy(array $ids, $where = [])
     {
         $affectedRows = [];
 
         foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->publishBy($id, $where, $table);
+            $affectedRows[ $id ] = $this->publishBy($id, $where);
         }
 
         return $affectedRows;
@@ -460,29 +509,29 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function restore($id, $table = null)
+    public function restore($id)
     {
-        return $this->publish($id, $table);
+        return $this->publish($id);
     }
 
     // ------------------------------------------------------------------------
 
-    public function restoreBy($id, array $where = [], $table = null)
+    public function restoreBy($id, array $where = [])
     {
-        return $this->publishBy($id, $where, $table);
+        return $this->publishBy($id, $where);
     }
 
     // ------------------------------------------------------------------------
 
-    public function restoreMany(array $ids, $table = null)
+    public function restoreMany(array $ids)
     {
-        return $this->publishMany($ids, $table);
+        return $this->publishMany($ids);
     }
 
     // ------------------------------------------------------------------------
 
-    public function restoreManyBy(array $ids, $where = [], $table = null)
+    public function restoreManyBy(array $ids, $where = [])
     {
-        return $this->publishManyBy($ids, $where, $table);
+        return $this->publishManyBy($ids, $where);
     }
 }

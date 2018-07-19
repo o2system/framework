@@ -18,6 +18,7 @@ namespace O2System\Framework\Libraries\Ui\Contents\Lists\Abstracts;
 use O2System\Framework\Libraries\Ui\Contents\Link;
 use O2System\Framework\Libraries\Ui\Contents\Lists\Item;
 use O2System\Framework\Libraries\Ui\Element;
+use O2System\Kernel\Http\Message\Uri;
 
 /**
  * Class AbstractList
@@ -83,9 +84,22 @@ abstract class AbstractList extends Element
     {
         if ($node->hasChildNodes()) {
             if ($node->childNodes->first() instanceof Link) {
-                if (($node->childNodes->first()->getAttributeHref() === current_url()) or
-                    (strpos(current_url(), $node->childNodes->first()->getAttributeHref()) !== false)
-                ) {
+
+                $parseUrl = parse_url($node->childNodes->first()->getAttributeHref());
+                $hrefUriSegments = [];
+
+                if(isset($parseUrl['path'])) {
+                    $hrefUriSegments = (new Uri\Segments($parseUrl['path']))->getParts();
+                }
+
+                $currentUriSegments = server_request()->getUri()->getSegments()->getParts();
+
+                $matchSegments = array_slice($currentUriSegments, 0, count($hrefUriSegments));
+
+                $stringHrefSegments = implode('/', $hrefUriSegments);
+                $stringMatchSegments = implode('/', $matchSegments);
+
+                if($stringHrefSegments === $stringMatchSegments) {
                     $node->attributes->addAttributeClass('active');
                     $node->childNodes->first()->attributes->addAttributeClass('active');
                 }

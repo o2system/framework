@@ -64,6 +64,15 @@ class Theme
         return false;
     }
 
+    public function has($theme)
+    {
+        if (modules()->current()->hasTheme($theme)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function setLayout($layout)
     {
         $this->active->setLayout($layout);
@@ -89,6 +98,17 @@ class Theme
             }
 
             return true;
+        }
+
+        return false;
+    }
+
+    public function hasLayout($layout)
+    {
+        if ($this->active instanceof \O2System\Framework\Datastructures\Module\Theme) {
+            if ($this->active->getLayout($layout)) {
+                return true;
+            }
         }
 
         return false;

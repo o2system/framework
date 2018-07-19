@@ -62,19 +62,29 @@ class Modules extends SplArrayStack
      */
     public function __construct()
     {
-        parent::__construct(
-            [
-                (new Datastructures\Module(PATH_KERNEL))
-                    ->setType('KERNEL')
-                    ->setNamespace('O2System\Kernel\\'),
-                (new Datastructures\Module(PATH_FRAMEWORK))
-                    ->setType('FRAMEWORK')
-                    ->setNamespace('O2System\Framework\\'),
-                (new Datastructures\Module(PATH_APP))
-                    ->setType('APP')
-                    ->setNamespace('App'),
-            ]
-        );
+        parent::__construct();
+
+        // Autoload Main Modularity: Kernel, Framework and App
+        $kernel = (new Datastructures\Module(PATH_KERNEL))
+            ->setType('KERNEL')
+            ->setNamespace('O2System\Kernel\\');
+
+        $this->autoload($kernel);
+        parent::push($kernel);
+
+        $framework = (new Datastructures\Module(PATH_FRAMEWORK))
+            ->setType('FRAMEWORK')
+            ->setNamespace('O2System\Framework\\');
+
+        $this->autoload($framework);
+        parent::push($framework);
+
+        $app = (new Datastructures\Module(PATH_APP))
+            ->setType('APP')
+            ->setNamespace('App\\');
+
+        $this->autoload($app);
+        parent::push($app);
     }
 
     // ------------------------------------------------------------------------
@@ -88,14 +98,23 @@ class Modules extends SplArrayStack
      */
     public function push($module)
     {
+        if ( ! in_array($module->getNamespace(), ['O2System\Kernel\\', 'O2System\Framework\\', 'App\\'])) {
+            $this->autoload($module);
+
+            parent::push($module);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    private function autoload(Datastructures\Module $module)
+    {
         // Register Framework\Services\Loader Namespace
         loader()->addNamespace($module->getNamespace(), $module->getRealPath());
 
-        // Autoload Module Helpers
         $this->autoloadHelpers($module);
 
         if ( ! in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
-
             // Add Public Dir
             loader()->addPublicDir($module->getPublicDir());
 
@@ -119,11 +138,7 @@ class Modules extends SplArrayStack
             // Autoload Services Models
             $this->autoloadServices($module);
         }
-
-        parent::push($module);
     }
-
-    // ------------------------------------------------------------------------
 
     /**
      * Modules::autoloadHelpers
@@ -392,7 +407,6 @@ class Modules extends SplArrayStack
 
         foreach ($propertiesIterator as $propertiesFiles) {
             foreach ($propertiesFiles as $propertiesFile) {
-
                 $propertiesFile = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $propertiesFile);
                 $propertiesFileInfo = pathinfo($propertiesFile);
 
@@ -424,6 +438,13 @@ class Modules extends SplArrayStack
                     );
                 }
 
+                if(strpos($propertiesFile, $modularType = ucfirst(plural($propertiesFileInfo[ 'filename' ])) . DIRECTORY_SEPARATOR) === false) {
+                    $modularType = ucfirst($propertiesFileInfo[ 'filename' ]) . DIRECTORY_SEPARATOR;
+                }
+
+                $modularType = strtolower(rtrim($modularType, DIRECTORY_SEPARATOR));
+                $this->addType($modularType);
+
                 $moduleSegments = explode(
                     DIRECTORY_SEPARATOR,
                     trim(
@@ -433,6 +454,7 @@ class Modules extends SplArrayStack
                                 PATH_PUBLIC,
                                 PATH_APP,
                                 $propertiesFileInfo[ 'basename' ],
+                                ucfirst($modularType) . DIRECTORY_SEPARATOR,
                             ],
                             '',
                             $propertiesFile
@@ -440,8 +462,6 @@ class Modules extends SplArrayStack
                         DIRECTORY_SEPARATOR
                     )
                 );
-
-                array_shift($moduleSegments);
 
                 $moduleSegments = array_map(function ($string) {
                     return dash(snakecase($string));
@@ -461,10 +481,8 @@ class Modules extends SplArrayStack
                     unset($propertiesMetadata[ 'namespace' ]);
                 }
 
-                $modulePluralTypes = $this->addType($propertiesFileInfo[ 'filename' ]);
-
                 $moduleParentSegments = [];
-                if (false !== ($moduleTypeSegmentKey = array_search($modulePluralTypes, $moduleSegments))) {
+                if (false !== ($moduleTypeSegmentKey = array_search($modularType, $moduleSegments))) {
                     $moduleParentSegments = array_slice($moduleSegments, 0, $moduleTypeSegmentKey);
 
                     $moduleParentSegments = array_diff($moduleParentSegments, $this->types);
@@ -474,12 +492,12 @@ class Modules extends SplArrayStack
                 $registryKey = implode('/', $moduleSegments);
 
                 if ($registryKey === '') {
-                    if ($propertiesFileInfo[ 'dirname' ] . DIRECTORY_SEPARATOR !== PATH_APP and $modulePluralTypes === 'apps') {
-                        $registryKey = 'apps/' . dash(snakecase(
+                    if ($propertiesFileInfo[ 'dirname' ] . DIRECTORY_SEPARATOR !== PATH_APP and $modularType === 'app') {
+                        $registryKey = dash(snakecase(
                                 pathinfo($propertiesFileInfo[ 'dirname' ], PATHINFO_FILENAME)));
                     }
                 } else {
-                    $registryKey = 'modules/' . $registryKey;
+                    $registryKey = $registryKey;
                 }
 
                 $datastructures[ $registryKey ] = (new Datastructures\Module(
@@ -643,7 +661,7 @@ class Modules extends SplArrayStack
      */
     public function getApp($segment)
     {
-        $segment = 'apps/' . dash($segment);
+        $segment = dash($segment);
 
         if ($this->exists($segment)) {
             if ($this->registry[ $segment ] instanceof Datastructures\Module) {
@@ -692,7 +710,7 @@ class Modules extends SplArrayStack
      */
     public function getModule($segments)
     {
-        $segments = 'modules/' . (is_array($segments) ? implode('/', array_map('dash', $segments)) : $segments);
+        $segments = (is_array($segments) ? implode('/', array_map('dash', $segments)) : $segments);
 
         if ($this->exists($segments)) {
             return $this->registry[ $segments ];

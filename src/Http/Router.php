@@ -31,6 +31,10 @@ class Router extends Kernel\Http\Router
         $uriSegments = $uri->getSegments()->getParts();
         $uriString = $uri->getSegments()->getString();
 
+        if($uriSegmentKey = array_search('manifest.json', $uriSegments)) {
+            $uriSegments[$uriSegmentKey] = 'manifest';
+        }
+
         if (empty($uriSegments)) {
             $uriPath = urldecode(
                 parse_url($_SERVER[ 'REQUEST_URI' ], PHP_URL_PATH)
@@ -63,8 +67,8 @@ class Router extends Kernel\Http\Router
                     $this->registerModule($module);
                 }
             } elseif (false !== ($subdomain = $uri->getSubdomain())) {
-                if (false !== ($module = modules()->getApp($subdomain))) {
-                    $this->registerModule($module);
+                if (false !== ($app = modules()->getApp($subdomain))) {
+                    $this->registerModule($app);
                 }
             }
         }
@@ -74,6 +78,12 @@ class Router extends Kernel\Http\Router
             for ($i = 0; $i <= $uriTotalSegments; $i++) {
                 $uriRoutedSegments = array_diff($uriSegments,
                     array_slice($uriSegments, ($uriTotalSegments - $i)));
+
+                if(!empty($app)) {
+                    if(reset($uriSegments) !== $app->getParameter()) {
+                        array_unshift($uriRoutedSegments, $app->getParameter());
+                    }
+                }
 
                 if (false !== ($module = modules()->getModule($uriRoutedSegments))) {
                     $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
@@ -104,7 +114,7 @@ class Router extends Kernel\Http\Router
 
                 $this->parseAction($action, $uriSegments);
                 if ( ! empty(o2system()->hasService('controller'))) {
-                    return;
+                    return true;
                 }
             }
         }
@@ -113,11 +123,9 @@ class Router extends Kernel\Http\Router
         if ($uriTotalSegments = count($uriSegments)) {
             for ($i = 0; $i <= $uriTotalSegments; $i++) {
                 $uriRoutedSegments = array_slice($uriSegments, 0, ($uriTotalSegments - $i));
-
                 $modules = modules()->getArrayCopy();
 
                 foreach ($modules as $module) {
-
                     $controllerNamespace = $module->getNamespace() . 'Controllers\\';
                     if ($module->getNamespace() === 'O2System\Framework\\') {
                         $controllerNamespace = 'O2System\Framework\Http\Controllers\\';
@@ -130,19 +138,14 @@ class Router extends Kernel\Http\Router
                         $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
                         $this->setController(new Kernel\Http\Router\Datastructures\Controller($controllerClassName),
                             $uriSegments);
-
                         break;
-                    } elseif(class_exists($module->getDefaultControllerClassName())) {
-                        $this->setController(new Kernel\Http\Router\Datastructures\Controller($module->getDefaultControllerClassName()),
-                            $uriSegments);
                     } elseif (false !== ($pagesDir = $module->getDir('pages', true))) {
                         $pageFilePath = $pagesDir . implode(DIRECTORY_SEPARATOR,
                                 array_map('studlycase', $uriRoutedSegments)) . '.phtml';
 
                         if (is_file($pageFilePath)) {
                             if ($this->setPage(new Framework\Http\Router\Datastructures\Page($pageFilePath)) !== false) {
-                                return;
-
+                                return true;
                                 break;
                             }
                         }
@@ -171,10 +174,18 @@ class Router extends Kernel\Http\Router
                 }
 
                 // break the loop if the controller has been set
-                if ( ! empty(o2system()->hasService('controller'))) {
+                if (o2system()->hasService('controller')) {
+                    return true;
                     break;
                 }
             }
+        }
+
+        if(class_exists($controllerClassName = modules()->current()->getDefaultControllerClassName())) {
+            $this->setController(new Kernel\Http\Router\Datastructures\Controller($controllerClassName),
+                $uriSegments);
+
+            return true;
         }
 
         // Let's the framework do the rest when there is no controller found

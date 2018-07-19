@@ -33,6 +33,12 @@ class Error extends Controller
     {
         $codeString = $code . '_' . error_code_string($code);
 
+        $viewFilePath = 'error-code';
+
+        if(is_dir(modules()->current()->getDir('Views/errors'))) {
+            $viewFilePath = 'errors/'.$viewFilePath;
+        }
+
         if (presenter()->theme->use === true) {
             presenter()->theme->setLayout('error');
 
@@ -43,7 +49,7 @@ class Error extends Controller
             }
         }
 
-        view('error-code', [
+        view($viewFilePath, [
             'code'    => $code,
             'title'   => language()->getLine($codeString . '_TITLE'),
             'message' => language()->getLine($codeString . '_MESSAGE'),

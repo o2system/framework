@@ -32,40 +32,12 @@ class HasOne extends Sql\Relations\Abstracts\AbstractRelation
      */
     public function getResult()
     {
-        if ($this->map->referenceModel->row instanceof Sql\DataObjects\Result\Row) {
+        if ($this->map->currentModel->row instanceof Sql\DataObjects\Result\Row) {
+            $criteria = $this->map->currentModel->row->offsetGet($this->map->currentModel->primaryKey);
+            $field = $this->map->referenceTable . '.' . $this->map->currentForeignKey;
 
-            $criteria = $this->map->referenceModel->row->offsetGet($this->map->referenceModel->primaryKey);
-            $conditions = [$this->map->relationForeignKey => $criteria];
-
-            if ($this->map->relationModel instanceof Sql\Model) {
-                $result = $this->map->relationModel->qb
-                    ->from($this->map->relationTable)
-                    ->getWhere($conditions, 1);
-
-                if ($result instanceof Result) {
-                    if ($result->count() > 0) {
-                        $this->map->relationModel->result = (new Sql\DataObjects\Result($result,
-                            $this->map->relationModel))->setInfo($result->getInfo());
-
-                        return $this->map->relationModel->row = $this->map->relationModel->result->first();
-                    }
-                }
-            } elseif ( ! empty($this->map->relationTable)) {
-                $result = $this->map->referenceModel->qb
-                    ->from($this->map->relationTable)
-                    ->getWhere($conditions, 1);
-
-                if ($result instanceof Result) {
-                    if ($result->count() > 0) {
-                        $relationModel = new class extends Sql\Model {};
-                        $relationModel->table = $this->map->relationTable;
-
-                        $result = (new Sql\DataObjects\Result($result, $relationModel))
-                            ->setInfo($result->getInfo());
-
-                        return $result->first();
-                    }
-                }
+            if ($result = $this->map->referenceModel->find($criteria, $field, 1)) {
+                return $result;
             }
         }
 

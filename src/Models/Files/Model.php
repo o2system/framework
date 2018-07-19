@@ -45,4 +45,38 @@ class Model extends AbstractRepository
             }
         }
     }
+
+    public function get($property)
+    {
+        if (empty($get[ $property ])) {
+            if (o2system()->hasService($property)) {
+                return o2system()->getService($property);
+            } elseif (array_key_exists($property, $this->validSubModels)) {
+                return $this->loadSubModel($property);
+            } elseif (o2system()->__isset($property)) {
+                return o2system()->__get($property);
+            } elseif (models()->__isset($property)) {
+                return models()->get($property);
+            }
+        }
+    }
+
+    final protected function loadSubModel($model)
+    {
+        if (is_file($this->validSubModels[ $model ])) {
+            $className = '\\' . get_called_class() . '\\' . ucfirst($model);
+            $className = str_replace('\Base\\Model', '\Models', $className);
+
+            if (class_exists($className)) {
+                $this->{$model} = new $className();
+            }
+        }
+
+        return $this->{$model};
+    }
+
+    final protected function getSubModel($model)
+    {
+        return $this->loadSubModel($model);
+    }
 }

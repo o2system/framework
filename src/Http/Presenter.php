@@ -33,6 +33,7 @@ class Presenter extends AbstractRepository
     public function __construct()
     {
         $this->store('meta', new Presenter\Meta());
+        $this->store('manifest', new Presenter\Manifest());
         $this->store('assets', new Presenter\Assets());
         $this->store('partials', new Presenter\Partials());
         $this->store('widgets', new Presenter\Widgets());
@@ -61,6 +62,24 @@ class Presenter extends AbstractRepository
             // autoload presenter theme
             if ($config->offsetExists('theme')) {
                 $this->theme->set($config->offsetGet('theme'));
+                //$this->theme->load();
+            }
+
+            // autoload presenter manifest
+            if($config->offsetExists('manifest')) {
+                $manifest = $config->offsetGet('manifest');
+
+                foreach($manifest as $offset => $value) {
+                    if(empty($value)) {
+                        continue;
+                    }
+
+                    if($offset === 'icons') {
+                        $value = array_values($value);
+                    }
+
+                    $this->manifest->store($offset, $value);
+                }
             }
         }
 

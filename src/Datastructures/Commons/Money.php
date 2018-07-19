@@ -21,7 +21,7 @@ class Money extends AbstractRepository
         }
 
         (int)$storage[ 'amount' ] = 0;
-        $storage[ 'currency' ] = config()->getItem('currency');
+        $storage[ 'currency' ] = config()->getItem('units')->currency;
 
         $storage = array_merge($storage, $money);
         (int)$storage[ 'amount' ] = empty($storage[ 'amount' ]) ? 0 : abs($storage[ 'amount' ]);

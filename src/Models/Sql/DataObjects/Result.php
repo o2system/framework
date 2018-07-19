@@ -16,6 +16,7 @@ namespace O2System\Framework\Models\Sql\DataObjects;
 // ------------------------------------------------------------------------
 
 use O2System\Database\DataObjects\Result\Info;
+use O2System\Framework\Libraries\Ui\Components\Pagination;
 use O2System\Framework\Models\Sql\Model;
 use O2System\Spl\Iterators\ArrayIterator;
 
@@ -65,5 +66,16 @@ class Result extends ArrayIterator
         $this->info = $info;
 
         return $this;
+    }
+
+    public function pagination()
+    {
+        $rows = $this->info->getTotal()->rows;
+        $rows = empty($rows) ? 0 : $rows;
+
+        $limit = input()->get('limit');
+        $limit = empty( $limit ) ? 10 : $limit;
+
+        return new Pagination($rows, $limit);
     }
 }

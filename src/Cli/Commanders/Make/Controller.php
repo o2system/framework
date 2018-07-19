@@ -55,8 +55,10 @@ class Controller extends Make
             $filePath = $this->optionPath . $this->optionFilename;
         }
 
-        if ( ! is_dir(dirname($filePath))) {
-            mkdir(dirname($filePath), 777, true);
+        $fileDirectory = dirname($filePath) . DIRECTORY_SEPARATOR;
+
+        if ( ! is_dir($fileDirectory)) {
+            mkdir($fileDirectory, 0777, true);
         }
 
         if (is_file($filePath)) {

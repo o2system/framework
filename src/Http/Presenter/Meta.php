@@ -41,12 +41,6 @@ class Meta extends AbstractRepository
             }
         }
 
-        $this->offsetSet('viewport', [
-            'width'         => 'device-width',
-            'initial-scale' => 1,
-            'shrink-to-fit' => 'no',
-        ]);
-
         $this->offsetSet('language', language()->getDefault());
         $this->offsetSet('generator', FRAMEWORK_NAME . ' v' . FRAMEWORK_VERSION);
         $this->offsetSet('url', current_url());

@@ -339,27 +339,16 @@ class Loader implements AutoloadInterface
 
     public function loadModuleClass($class)
     {
-        static $namespaceModules = [];
-
-        // class namespace
-        $namespaceParts = explode('\\', get_namespace($class));
-        $namespaceParts = array_filter($namespaceParts);
-
-        $namespace = reset($namespaceParts) . '\\';
-
-        if (empty($namespaceModules) && modules() !== false) {
+        if (modules() !== false) {
             if (false !== ($modules = modules()->getRegistry())) {
                 foreach ($modules as $module) {
                     if ($module instanceof Module) {
-                        $namespaceModules[ $module->getNamespace() ] = $module;
+                        if (empty($this->namespaceDirs[ $module->getNamespace() ])) {
+                            $this->addNamespace($module->getNamespace(), $module->getRealPath());
+                        }
                     }
                 }
             }
-        }
-
-        if (isset($namespaceModules[ $namespace ])) {
-            $module = $namespaceModules[ $namespace ];
-            $this->addNamespace($module->getNamespace(), $module->getRealPath());
         }
 
         return $this->loadClass($class);
@@ -453,5 +442,10 @@ class Loader implements AutoloadInterface
     public function page($file, array $vars = [], $return = false)
     {
         return view()->page($file, $vars, $return);
+    }
+
+    public function modal($file, array $vars = [])
+    {
+        return view()->modal($file, $vars);
     }
 }
