@@ -32,11 +32,13 @@ class Controller extends \O2System\Kernel\Http\Controller
         }
 
         if (o2system()->hasService($property)) {
-            return o2system()->getService($property);
+            $get[ $property ] = o2system()->getService($property);
         } elseif (o2system()->__isset($property)) {
-            return o2system()->__get($property);
+            $get[ $property ] = o2system()->__get($property);
         } elseif ($property === 'model') {
-            return models('controller');
+            $get[ $property ] = models('controller');
+        } elseif ($property === 'services' || $property === 'libraries') {
+            $get[ $property ] = services();
         }
 
         return $get[ $property ];

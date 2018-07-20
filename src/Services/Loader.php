@@ -432,6 +432,75 @@ class Loader implements AutoloadInterface
 
     // ------------------------------------------------------------------------
 
+    public function config($config)
+    {
+        return config()->loadFile($config, true);
+    }
+
+    public function helper($helper)
+    {
+        $this->loadHelper($helper);
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function helpers(array $helpers)
+    {
+        $this->loadHelpers($helpers);
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function library($class, $name = null)
+    {
+        $this->service($class, $name);
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function libraries(array $classes)
+    {
+        $this->services($classes);
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function service($class, $name = null)
+    {
+        o2system()->addService($class, $name);
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function services(array $classes)
+    {
+        foreach ($classes as $name => $class) {
+            if(is_numeric($name)) {
+                o2system()->addService($class);
+            } elseif(is_string($name)) {
+                o2system()->addService($class, $name);
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function model($model)
+    {
+        models()->load($model);
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function models(array $models)
+    {
+        foreach($models as $model) {
+            models()->load($model);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
     public function view($file, array $vars = [], $return = false)
     {
         return view($file, $vars, $return);
@@ -443,6 +512,8 @@ class Loader implements AutoloadInterface
     {
         return view()->page($file, $vars, $return);
     }
+
+    // ------------------------------------------------------------------------
 
     public function modal($file, array $vars = [])
     {
