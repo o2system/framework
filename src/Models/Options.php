@@ -122,7 +122,7 @@ class Options extends Model
         return $months;
     }
 
-    public function years($start = 1970, $end = null)
+    public function years($start = 1900, $end = null)
     {
         $end = empty($end) ? date('Y') : $end;
         $years = [];
@@ -159,7 +159,7 @@ class Options extends Model
     {
         $boolean = [];
         foreach (['YES', 'NO'] as $bool) {
-            $boolean[ $bool ] = $this->language->getLine($bool);
+            $boolean[ $bool ] = $this->language->getLine( 'BOOL_' . $bool);
         }
 
         return $boolean;
@@ -185,5 +185,50 @@ class Options extends Model
         }
 
         return $familyRelationships;
+    }
+
+    public function status()
+    {
+        $statuses = [];
+
+        foreach ([
+                     'PUBLISH',
+                     'UNPUBLISH',
+                     'DRAFT',
+                     'ARCHIVED',
+                     'TRASH'
+                 ] as $status
+        ) {
+            $statuses[ $status ]  = $this->language->getLine($status);
+        }
+
+        return $statuses;
+    }
+
+    public function visibilities()
+    {
+        $visibilities = [];
+
+        foreach ([
+                     'PUBLIC',
+                     'PRIVATE',
+                     'MEMBER',
+                 ] as $visibility
+        ) {
+            $visibilities[ $visibility ]  = $this->language->getLine($visibility);
+        }
+
+        return $visibilities;
+    }
+
+    public function languages()
+    {
+        $languages = [];
+
+        foreach($this->language->getRegistry() as $language) {
+            $languages[ $language->getParameter() ] = $language->getProperties()->name;
+        }
+
+        return $languages;
     }
 }

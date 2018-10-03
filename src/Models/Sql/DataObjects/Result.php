@@ -74,7 +74,7 @@ class Result extends ArrayIterator
         $rows = empty($rows) ? 0 : $rows;
 
         $limit = input()->get('limit');
-        $limit = empty( $limit ) ? 10 : $limit;
+        $limit = empty( $limit ) ? $this->info->limit : $limit;
 
         return new Pagination($rows, $limit);
     }

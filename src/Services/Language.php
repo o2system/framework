@@ -148,13 +148,13 @@ class Language extends \O2System\Kernel\Services\Language
     // ------------------------------------------------------------------------
 
     /**
-     * Language::isPackageExists
+     * Language::registered
      *
      * @param $package
      *
      * @return bool
      */
-    public function packageExists($package)
+    public function registered($package)
     {
         return isset($this->registry[ $package ]);
     }
@@ -168,9 +168,22 @@ class Language extends \O2System\Kernel\Services\Language
      *
      * @return array
      */
-    public function getRegistry()
+    public function getRegistry($package = null)
     {
+        if (isset($package)) {
+            if ($this->registered($package)) {
+                return $this->registry[ $package ];
+            }
+
+            return false;
+        }
+
         return $this->registry;
+    }
+
+    public function getDefaultMetadata()
+    {
+        return $this->getRegistry( $this->getDefault() );
     }
 
     // ------------------------------------------------------------------------

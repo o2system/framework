@@ -167,12 +167,18 @@ trait ModifierTrait
      * 
      * @access public
      * @param array  $sets Array of Input Data
+     * @param array  $sets Array of Reference
      * @return int
      * @throws \O2System\Spl\Exceptions\RuntimeException
      */
-    public function findOrInsert(array $sets)
+    public function findOrInsert(array $sets, array $reference = null)
     {
-        $result = $this->qb->from($this->table)->getWhere($sets);
+        if ($reference != null) {
+            // Disini where nya berdasarkan hasil define.
+            $result = $this->qb->from($this->table)->getWhere($reference);
+        } else {
+            $result = $this->qb->from($this->table)->getWhere($sets);
+        }
         
         if ($result->count() == 0) {
             $this->insert($sets);

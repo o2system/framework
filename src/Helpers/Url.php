@@ -41,7 +41,6 @@ if ( ! function_exists('domain_url')) {
     function domain_url($segments = null, $query = null, $subdomain = null)
     {
         $uri = (new \O2System\Kernel\Http\Message\Uri())
-            ->addSubDomain($subdomain)
             ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
             ->withQuery('');
 
@@ -51,6 +50,10 @@ if ( ! function_exists('domain_url')) {
                         $uriConfig[ 'base' ]);
                 $uri = new \O2System\Kernel\Http\Message\Uri($base);
             }
+        }
+
+        if(isset($subdomain)) {
+            $uri = $uri->withSubDomain($subdomain);
         }
 
         if (isset($segments)) {

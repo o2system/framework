@@ -383,6 +383,12 @@ class Framework extends Kernel
             }
 
             $this->addService($session);
+
+            if($session->has('language')) {
+                language()->setDefault($session->get('language'));
+            } else {
+                $session->set('language', language()->getDefault());
+            }
         }
 
         if (config('view', true)->enabled === true) {
@@ -407,6 +413,10 @@ class Framework extends Kernel
         // Instantiate Http Middleware Service
         profiler()->watch('INSTANTIATE_HTTP_MIDDLEWARE_SERVICE');
         $this->addService('O2System\Framework\Http\Middleware');
+
+        // Instantiate Http UserAgent Service
+        profiler()->watch('INSTANTIATE_HTTP_USERAGENT_SERVICE');
+        $this->addService('O2System\Framework\Http\UserAgent');
 
         // Instantiate Http Router Service
         profiler()->watch('INSTANTIATE_HTTP_ROUTER_SERVICE');

@@ -34,9 +34,11 @@ class HasOne extends Sql\Relations\Abstracts\AbstractRelation
     {
         if ($this->map->currentModel->row instanceof Sql\DataObjects\Result\Row) {
             $criteria = $this->map->currentModel->row->offsetGet($this->map->currentModel->primaryKey);
-            $field = $this->map->referenceTable . '.' . $this->map->currentForeignKey;
+            $condition = [
+                $this->map->referenceTable . '.' . $this->map->currentForeignKey => $criteria
+            ];
 
-            if ($result = $this->map->referenceModel->find($criteria, $field, 1)) {
+            if ($result = $this->map->referenceModel->findWhere($condition, 1)) {
                 return $result;
             }
         }

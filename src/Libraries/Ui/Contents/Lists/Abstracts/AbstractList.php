@@ -86,22 +86,35 @@ abstract class AbstractList extends Element
             if ($node->childNodes->first() instanceof Link) {
 
                 $parseUrl = parse_url($node->childNodes->first()->getAttributeHref());
-                $hrefUriSegments = [];
+                $parseUrlQuery = [];
 
-                if(isset($parseUrl['path'])) {
-                    $hrefUriSegments = (new Uri\Segments($parseUrl['path']))->getParts();
+                if (isset($parseUrl[ 'query' ])) {
+                    parse_str($parseUrl[ 'query' ], $parseUrlQuery);
                 }
 
-                $currentUriSegments = server_request()->getUri()->getSegments()->getParts();
+                if (isset($parseUrlQuery[ 'page' ])) {
+                    if (input()->get('page') === $parseUrlQuery[ 'page' ]) {
+                        $node->attributes->addAttributeClass('active');
+                        $node->childNodes->first()->attributes->addAttributeClass('active');
+                    }
+                } else {
+                    $hrefUriSegments = [];
 
-                $matchSegments = array_slice($currentUriSegments, 0, count($hrefUriSegments));
+                    if (isset($parseUrl[ 'path' ])) {
+                        $hrefUriSegments = (new Uri\Segments($parseUrl[ 'path' ]))->getParts();
+                    }
 
-                $stringHrefSegments = implode('/', $hrefUriSegments);
-                $stringMatchSegments = implode('/', $matchSegments);
+                    $currentUriSegments = server_request()->getUri()->getSegments()->getParts();
 
-                if($stringHrefSegments === $stringMatchSegments) {
-                    $node->attributes->addAttributeClass('active');
-                    $node->childNodes->first()->attributes->addAttributeClass('active');
+                    $matchSegments = array_slice($currentUriSegments, 0, count($hrefUriSegments));
+
+                    $stringHrefSegments = implode('/', $hrefUriSegments);
+                    $stringMatchSegments = implode('/', $matchSegments);
+
+                    if ($stringHrefSegments === $stringMatchSegments) {
+                        $node->attributes->addAttributeClass('active');
+                        $node->childNodes->first()->attributes->addAttributeClass('active');
+                    }
                 }
             }
         }
@@ -122,7 +135,6 @@ abstract class AbstractList extends Element
                 if ($this->inline) {
                     $childNode->attributes->addAttributeClass('list-inline-item');
                 }
-
                 $output[] = $childNode;
             }
         }

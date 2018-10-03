@@ -519,4 +519,9 @@ class Loader implements AutoloadInterface
     {
         return view()->modal($file, $vars);
     }
+
+    public function language($file)
+    {
+        return language()->loadFile($file);
+    }
 }

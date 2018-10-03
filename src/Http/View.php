@@ -211,8 +211,8 @@ class View implements RenderableInterface
 
     public function modal($filename, array $vars = [])
     {
-        if(presenter()->theme->hasLayout('modal')) {
-            if(presenter()->theme->hasLayout('modal')) {
+        if (presenter()->theme->hasLayout('modal')) {
+            if (presenter()->theme->hasLayout('modal')) {
                 presenter()->theme->setLayout('modal');
                 echo $this->load($filename, $vars, true);
                 exit(EXIT_SUCCESS);
@@ -221,7 +221,7 @@ class View implements RenderableInterface
 
         presenter()->merge($vars);
 
-        if(parser()->loadFile($filename)) {
+        if (parser()->loadFile($filename)) {
             output()->send(parser()->parse(presenter()->getArrayCopy()));
         }
     }
@@ -237,6 +237,11 @@ class View implements RenderableInterface
             $viewsDirectories = modules()->getDirs('Views');
             $viewsDirectories = array_merge($viewsDirectories, $this->filePaths);
             $viewsDirectories = array_unique($viewsDirectories);
+
+            $deviceDirectory = null;
+            if (services('userAgent')->isMobile()) {
+                $deviceDirectory = 'mobile';
+            }
 
             if (presenter()->theme->use === true) {
 
@@ -279,6 +284,10 @@ class View implements RenderableInterface
             }
 
             foreach ($viewsDirectories as $viewsDirectory) {
+                if (is_dir($viewsDirectory . $deviceDirectory . DIRECTORY_SEPARATOR)) {
+                    $viewsDirectory = $viewsDirectory . $deviceDirectory . DIRECTORY_SEPARATOR;
+                }
+
                 foreach ($viewsFileExtensions as $fileExtension) {
                     $filename = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $filename);
 
@@ -366,6 +375,12 @@ class View implements RenderableInterface
         if (input()->env('DEBUG_STAGE') === 'DEVELOPER' and config()->getItem('presenter')->debugToolBar === true) {
             $this->document->find('body')->append((new Toolbar())->__toString());
         }
+
+        // Add PWA Manifest
+        $this->document->linkNodes->createElement([
+            'rel'  => 'manifest',
+            'href' => '/manifest.json',
+        ]);
 
         $htmlOutput = $this->document->saveHTML();
 

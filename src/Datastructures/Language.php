@@ -74,4 +74,18 @@ class Language extends SplDirectoryInfo
     {
         return new SplArrayObject($this->properties);
     }
+
+    public function getLocale()
+    {
+        $parts = explode('-', $this->getParameter());
+
+        return reset($parts);
+    }
+
+    public function getIdeom()
+    {
+        $parts = explode('-', $this->getParameter());
+
+        return end($parts);
+    }
 }

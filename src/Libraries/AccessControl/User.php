@@ -39,7 +39,7 @@ class User extends \O2System\Security\Authentication\User
         }
     }
 
-    public function authenticate($username, $password = null, $remember = false)
+    public function authenticate($username, $password)
     {
         $column = 'username';
         if (is_numeric($username)) {
@@ -73,6 +73,45 @@ class User extends \O2System\Security\Authentication\User
 
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    public function forceLogin($username, $column = 'username') {
+        if (is_numeric($username)) {
+            $column = 'id';
+        } elseif (filter_var($username, FILTER_VALIDATE_EMAIL)) {
+            $column = 'email';
+        } elseif (preg_match($this->config[ 'msisdnRegex' ], $username)) {
+            $column = 'msisdn';
+        } elseif( strpos($username, 'token-') !== false ) {
+            $column = 'token';
+        } elseif( strpos($username, 'sso-') !== false ) {
+            $column = 'sso';
+        }
+
+        if ($account = models('users')->findWhere([$column => $username], 1)) {
+            $account = $account->getArrayCopy();
+
+            foreach ($account as $key => $value) {
+                if (strpos($key, 'record') !== false) {
+                    unset($account[ $key ]);
+                } elseif (in_array($key, ['password', 'pin', 'token', 'sso'])) {
+                    unset($account[ $key ]);
+                }
+            }
+
+            if($column === 'token') {
+                models('users')->update([
+                    'id'    => $account->id,
+                    'token' => null,
+                ]);
+            }
+
+            $this->login($account);
+
+            return true;
         }
 
         return false;
