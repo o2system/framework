@@ -105,12 +105,21 @@ class Presenter extends AbstractRepository
 
     public function get($property)
     {
+        // CodeIgniter property aliasing
+        if ($property === 'load') {
+            $property = 'loader';
+        }
+
         if (o2system()->hasService($property)) {
             return o2system()->getService($property);
         } elseif (o2system()->__isset($property)) {
             return o2system()->__get($property);
-        } elseif (property_exists($this, $property)) {
-            return $this->{$property};
+        } elseif ($property === 'model') {
+            return models('controller');
+        } elseif ($property === 'services' || $property === 'libraries') {
+            return services();
+        } elseif( method_exists($this, $property) ) {
+            return call_user_func([&$this, $property]);
         }
 
         return parent::get($property);
