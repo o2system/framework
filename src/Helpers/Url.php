@@ -197,6 +197,10 @@ if ( ! function_exists('redirect_url')) {
      */
     function redirect_url($uri = '', $method = 'auto', $code = null)
     {
+        if(is_array($uri)) {
+            $uri = implode('/', $uri);
+        }
+
         if (strpos($uri, 'http') === false) {
             $uri = base_url($uri);
         }

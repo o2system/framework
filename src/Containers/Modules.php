@@ -436,6 +436,8 @@ class Modules extends SplArrayStack
                             ->setIndent(2)
                             ->setNewLinesAfter(1)
                     );
+                } elseif( ! is_array($propertiesMetadata) ) {
+                    continue;
                 }
 
                 if(strpos($propertiesFile, $modularType = ucfirst(plural($propertiesFileInfo[ 'filename' ])) . DIRECTORY_SEPARATOR) === false) {

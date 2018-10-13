@@ -130,6 +130,7 @@ if ( ! function_exists('parse_date')) {
             [
                 't'  => $timestamp,
                 'd'  => date('d', $timestamp),
+                'D'  => date('D', $timestamp),
                 'Y'  => date('Y', $timestamp),
                 'y'  => date('y', $timestamp),
                 'am' => time_meridiem($timestamp),

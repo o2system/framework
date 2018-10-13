@@ -86,8 +86,10 @@ class User extends \O2System\Security\Authentication\User
         } elseif (preg_match($this->config[ 'msisdnRegex' ], $username)) {
             $column = 'msisdn';
         } elseif( strpos($username, 'token-') !== false ) {
+            $username = str_replace('token-', '', $username);
             $column = 'token';
         } elseif( strpos($username, 'sso-') !== false ) {
+            $username = str_replace('sso-', '', $username);
             $column = 'sso';
         }
 
@@ -104,7 +106,7 @@ class User extends \O2System\Security\Authentication\User
 
             if($column === 'token') {
                 models('users')->update([
-                    'id'    => $account->id,
+                    'id'    => $account['id'],
                     'token' => null,
                 ]);
             }
