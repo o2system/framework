@@ -55,25 +55,25 @@ class Pages extends Controller
      */
     public function index()
     {
-        if (false !== ($settings = $this->page->getSettings())) {
-            if ($settings->offsetExists('theme')) {
-                presenter()->theme->set($settings->theme);
+        if (false !== ($presets = $this->page->getPresets())) {
+            if ($presets->offsetExists('theme')) {
+                presenter()->theme->set($presets->theme);
             }
 
-            if ($settings->offsetExists('layout')) {
-                presenter()->theme->setLayout($settings->layout);
+            if ($presets->offsetExists('layout')) {
+                presenter()->theme->setLayout($presets->layout);
             }
 
-            if ($settings->offsetExists('title')) {
-                presenter()->meta->title->append($settings->title);
+            if ($presets->offsetExists('title')) {
+                presenter()->meta->title->append($presets->title);
             }
 
-            if ($settings->offsetExists('pageTitle')) {
-                presenter()->meta->title->append($settings->pageTitle);
+            if ($presets->offsetExists('pageTitle')) {
+                presenter()->meta->title->append($presets->pageTitle);
             }
 
-            if ($settings->offsetExists('browserTitle')) {
-                presenter()->meta->title->replace($settings->browserTitle);
+            if ($presets->offsetExists('browserTitle')) {
+                presenter()->meta->title->replace($presets->browserTitle);
             }
         }
 

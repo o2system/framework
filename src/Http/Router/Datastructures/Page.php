@@ -33,11 +33,11 @@ class Page extends SplFileInfo
     private $vars = [];
 
     /**
-     * Page Settings
+     * Page Presets
      *
      * @var SplArrayObject
      */
-    private $settings;
+    private $presets;
 
     // ------------------------------------------------------------------------
 
@@ -51,21 +51,21 @@ class Page extends SplFileInfo
         parent::__construct($filename);
 
         if (file_exists(
-            $propsFilePath = $this->getPath() . DIRECTORY_SEPARATOR . str_replace(
+            $propertiesFilePath = $this->getPath() . DIRECTORY_SEPARATOR . str_replace(
                     '.phtml',
-                    '.jspage',
+                    '.json',
                     strtolower($this->getBasename())
                 )
         )) {
-            $props = file_get_contents($propsFilePath);
-            $props = json_decode($props, true);
+            $properties = file_get_contents($propertiesFilePath);
+            $properties = json_decode($properties, true);
 
-            if (isset($props[ 'vars' ])) {
-                $this->vars = $props[ 'vars' ];
+            if (isset($properties[ 'vars' ])) {
+                $this->vars = $properties[ 'vars' ];
             }
 
-            if (isset($props[ 'settings' ])) {
-                $this->settings = new SplArrayObject($props[ 'settings' ]);
+            if (isset($properties[ 'presets' ])) {
+                $this->presets = new SplArrayObject($properties[ 'presets' ]);
             }
         }
     }
@@ -87,16 +87,16 @@ class Page extends SplFileInfo
     // ------------------------------------------------------------------------
 
     /**
-     * Page::getSettings
+     * Page::getPresets
      *
-     * Gets page settings.
+     * Gets page presets.
      *
      * @return bool|\O2System\Spl\Datastructures\SplArrayObject
      */
-    public function getSettings()
+    public function getPresets()
     {
-        if ($this->settings instanceof SplArrayObject) {
-            return $this->settings;
+        if ($this->presets instanceof SplArrayObject) {
+            return $this->presets;
         }
 
         return false;
