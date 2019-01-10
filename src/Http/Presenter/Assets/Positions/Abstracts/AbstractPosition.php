@@ -107,7 +107,11 @@ abstract class AbstractPosition
 
     public function loadFile($filePath)
     {
-        $directories = loader()->getPublicDirs(true);
+        $directories = array_merge(
+            loader()->getPublicDirs(true),
+            loader()->getResourcesDirs(true)
+        );
+
         $filePath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $filePath);
 
         // set filepaths

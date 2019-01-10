@@ -64,12 +64,12 @@ class Widgets extends AbstractRepository
                 ];
 
                 // Add Theme File Extensions
-                if (presenter()->theme->active->getConfig()->offsetExists('extension')) {
+                if (presenter()->theme->active->getPresets()->offsetExists('extension')) {
                     array_unshift($viewsFileExtensions,
-                        presenter()->theme->active->getConfig()->offsetGet('extension'));
-                } elseif (presenter()->theme->active->getConfig()->offsetExists('extensions')) {
+                        presenter()->theme->active->getPresets()->offsetGet('extension'));
+                } elseif (presenter()->theme->active->getPresets()->offsetExists('extensions')) {
                     $viewsFileExtensions = array_merge(
-                        presenter()->theme->active->getConfig()->offsetGet('extensions'),
+                        presenter()->theme->active->getPresets()->offsetGet('extensions'),
                         $viewsFileExtensions
                     );
                 }

@@ -160,7 +160,7 @@ class Module extends SplDirectoryInfo
 
     public function getThemes()
     {
-        $directory = new SplDirectoryInfo($this->getPublicDir() . 'themes' . DIRECTORY_SEPARATOR);
+        $directory = new SplDirectoryInfo($this->getResourcesDir() . 'themes' . DIRECTORY_SEPARATOR);
 
         $themes = [];
         foreach ($directory->getTree() as $themeName => $themeTree) {
@@ -177,12 +177,17 @@ class Module extends SplDirectoryInfo
         return PATH_PUBLIC . strtolower(str_replace(PATH_APP, '', $this->getRealPath()));
     }
 
+    public function getResourcesDir()
+    {
+        return PATH_RESOURCES . strtolower(str_replace(PATH_APP, '', $this->getRealPath()));
+    }
+
     public function getTheme($theme, $failover = true)
     {
         $theme = dash($theme);
 
         if ($failover === false) {
-            if (is_dir($themePath = $this->getPublicDir() . 'themes' . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR)) {
+            if (is_dir($themePath = $this->getResourcesDir() . 'themes' . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR)) {
                 $themeObject = new Theme($themePath);
 
                 if ($themeObject->isValid()) {
@@ -237,7 +242,7 @@ class Module extends SplDirectoryInfo
 
     public function getThemesPath()
     {
-        return str_replace(PATH_APP, PATH_PUBLIC, $this->getRealPath()) . 'themes' . DIRECTORY_SEPARATOR;
+        return PATH_RESOURCES . DIRECTORY_SEPARATOR . $this->getParameter() . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR;
     }
 
     public function loadModel()
@@ -245,7 +250,7 @@ class Module extends SplDirectoryInfo
         $modelClassName = $this->namespace . 'Base\\Model';
 
         if (class_exists($modelClassName)) {
-            models()->register(strtolower($this->type), new $modelClassName());
+            models()->load($modelClassName, strtolower($this->type));
         }
     }
 }

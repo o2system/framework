@@ -35,7 +35,7 @@ trait ModifierTrait
      * @return mixed
      * @throws \O2System\Spl\Exceptions\RuntimeException
      */
-    public function insert(array $sets)
+    protected function insert(array $sets)
     {
         if (method_exists($this, 'insertRecordSets')) {
             $this->insertRecordSets($sets);
@@ -64,7 +64,7 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function insertOrUpdate(array $sets)
+    protected function insertOrUpdate(array $sets)
     {
         // Try to find
         if($result = $this->qb->from($this->table)->getWhere($sets)) {
@@ -76,7 +76,7 @@ trait ModifierTrait
         return false;
     }
 
-    public function insertMany(array $sets)
+    protected function insertMany(array $sets)
     {
         if (method_exists($this, 'insertRecordSets')) {
             foreach ($sets as $set) {
@@ -115,7 +115,7 @@ trait ModifierTrait
      *
      * @return mixed
      */
-    public function update(array $sets, $where = [])
+    protected function update(array $sets, $where = [])
     {
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
@@ -171,7 +171,7 @@ trait ModifierTrait
      * @return int
      * @throws \O2System\Spl\Exceptions\RuntimeException
      */
-    public function findOrInsert(array $sets, array $reference = null)
+    protected function findOrInsert(array $sets, array $reference = null)
     {
         if ($reference != null) {
             // Disini where nya berdasarkan hasil define.
@@ -189,7 +189,7 @@ trait ModifierTrait
         return $result[0]->id;
     }
 
-    public function updateOrInsert(array $sets, array $where = [])
+    protected function updateOrInsert(array $sets, array $where = [])
     {
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
@@ -219,7 +219,7 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function updateMany(array $sets)
+    protected function updateMany(array $sets)
     {
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
@@ -265,13 +265,13 @@ trait ModifierTrait
     // ------------------------------------------------------------------------
 
     /**
-     * trash
+     * softDelete
      *
      * @param      $id
      *
      * @return array|bool
      */
-    public function trash($id)
+    protected function softDelete($id)
     {
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
@@ -299,17 +299,17 @@ trait ModifierTrait
         $this->primaryKeys = [];
 
         if (method_exists($this, 'updateRecordSets')) {
-            $this->setRecordStatus('TRASH');
+            $this->setRecordStatus('DELETE');
             $this->updateRecordSets($sets);
         }
 
-        if (method_exists($this, 'beforeTrash')) {
-            $this->beforeTrash($sets);
+        if (method_exists($this, 'beforesoftDelete')) {
+            $this->beforesoftDelete($sets);
         }
 
         if ($this->qb->table($this->table)->update($sets, $where)) {
-            if (method_exists($this, 'afterTrash')) {
-                return $this->afterTrash();
+            if (method_exists($this, 'aftersoftDelete')) {
+                return $this->aftersoftDelete();
             }
 
             return true;
@@ -320,28 +320,28 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function trashBy($id, array $where = [])
+    protected function softDeleteBy($id, array $where = [])
     {
         $this->qb->where($where);
 
-        return $this->trash($id);
+        return $this->softDelete($id);
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Trash many rows from the database table based on sets of ids.
+     * softDelete many rows from the database table based on sets of ids.
      *
      * @param array $ids
      *
      * @return mixed
      */
-    public function trashMany(array $ids)
+    protected function softDeleteMany(array $ids)
     {
         $affectedRows = [];
 
         foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->trash($id);
+            $affectedRows[ $id ] = $this->softDelete($id);
         }
 
         return $affectedRows;
@@ -349,12 +349,12 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function trashManyBy(array $ids, $where = [])
+    protected function softDeleteManyBy(array $ids, $where = [])
     {
         $affectedRows = [];
 
         foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->trashBy($id, $where);
+            $affectedRows[ $id ] = $this->softDeleteBy($id, $where);
         }
 
         return $affectedRows;
@@ -362,7 +362,7 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function delete($id)
+    protected function delete($id)
     {
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
@@ -398,7 +398,7 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function deleteBy($id, $where = [], $force = false)
+    protected function deleteBy($id, $where = [], $force = false)
     {
         $this->qb->where($where);
 
@@ -407,7 +407,7 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function deleteMany(array $ids, $force = false)
+    protected function deleteMany(array $ids, $force = false)
     {
         $affectedRows = [];
 
@@ -418,7 +418,7 @@ trait ModifierTrait
         return $affectedRows;
     }
 
-    public function deleteManyBy(array $ids, $where = [], $force = false)
+    protected function deleteManyBy(array $ids, $where = [], $force = false)
     {
         $affectedRows = [];
 
@@ -431,7 +431,7 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function publish($id)
+    protected function publish($id)
     {
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
@@ -480,7 +480,7 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function publishBy($id, array $where = [])
+    protected function publishBy($id, array $where = [])
     {
         $this->qb->where($where);
 
@@ -489,7 +489,7 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function publishMany(array $ids)
+    protected function publishMany(array $ids)
     {
         $affectedRows = [];
 
@@ -502,7 +502,7 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function publishManyBy(array $ids, $where = [])
+    protected function publishManyBy(array $ids, $where = [])
     {
         $affectedRows = [];
 
@@ -515,28 +515,28 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function restore($id)
+    protected function restore($id)
     {
         return $this->publish($id);
     }
 
     // ------------------------------------------------------------------------
 
-    public function restoreBy($id, array $where = [])
+    protected function restoreBy($id, array $where = [])
     {
         return $this->publishBy($id, $where);
     }
 
     // ------------------------------------------------------------------------
 
-    public function restoreMany(array $ids)
+    protected function restoreMany(array $ids)
     {
         return $this->publishMany($ids);
     }
 
     // ------------------------------------------------------------------------
 
-    public function restoreManyBy(array $ids, $where = [])
+    protected function restoreManyBy(array $ids, $where = [])
     {
         return $this->publishManyBy($ids, $where);
     }

@@ -34,11 +34,11 @@ class SignOn implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request)
     {
-        if (null !== ($ssid = input()->get('ssid')) && o2system()->hasService('user')) {
-            if (o2system()->getService('user')->validate($ssid)) {
+        if (null !== ($ssid = input()->get('ssid')) && services()->has('user')) {
+            if (services()->get('user')->validate($ssid)) {
                 set_cookie('ssid', $ssid);
 
-                echo o2system()->getService('user')->getIframeScript();
+                echo services()->get('user')->getIframeScript();
                 exit(EXIT_SUCCESS);
             }
         }

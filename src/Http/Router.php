@@ -27,17 +27,29 @@ class Router extends Kernel\Http\Router
 {
     public function parseRequest(Kernel\Http\Message\Uri $uri = null)
     {
-        $uri = is_null($uri) ? server_request()->getUri() : $uri;
-        $uriSegments = $uri->getSegments()->getParts();
-        $uriString = $uri->getSegments()->getString();
+        $this->uri = is_null($uri) ? new Kernel\Http\Message\Uri() : $uri;
+        $uriSegments = $this->uri->getSegments()->getParts();
+        $uriString = $this->uri->getSegments()->getString();
 
-        if($uriSegmentKey = array_search('manifest.json', $uriSegments)) {
-            $uriSegments[$uriSegmentKey] = 'manifest';
-        }
-
-        if (empty($uriSegments)) {
+        if ($this->uri->getSegments()->getTotalParts()) {
+            if (strpos(end($uriSegments), '.json') !== false) {
+                output()->setContentType('application/json');
+                $endSegment = str_replace('.json', '', end($uriSegments));
+                array_pop($uriSegments);
+                array_push($uriSegments, $endSegment);
+                $this->uri = $this->uri->withSegments(new Kernel\Http\Message\Uri\Segments($uriSegments));
+                $uriString = $this->uri->getSegments()->getString();
+            } elseif (strpos(end($uriSegments), '.xml') !== false) {
+                output()->setContentType('application/xml');
+                $endSegment = str_replace('.xml', '', end($uriSegments));
+                array_pop($uriSegments);
+                array_push($uriSegments, $endSegment);
+                $this->uri = $this->uri->withSegments(new Kernel\Http\Message\Uri\Segments($uriSegments));
+                $uriString = $this->uri->getSegments()->getString();
+            }
+        } else {
             $uriPath = urldecode(
-                parse_url($_SERVER[ 'REQUEST_URI' ], PHP_URL_PATH)
+                parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
             );
 
             $uriPathParts = explode('public/', $uriPath);
@@ -46,6 +58,9 @@ class Router extends Kernel\Http\Router
             if ($uriPath !== '/') {
                 $uriString = $uriPath;
                 $uriSegments = array_filter(explode('/', $uriString));
+
+                $this->uri = $this->uri->withSegments(new Kernel\Http\Message\Uri\Segments($uriSegments));
+                $uriString = $this->uri->getSegments()->getString();
             }
         }
 
@@ -57,7 +72,8 @@ class Router extends Kernel\Http\Router
             if (null !== ($domain = $this->addresses->getDomain())) {
                 if (is_array($domain)) {
                     $uriSegments = array_merge($domain, $uriSegments);
-                    $uriString = implode('/', array_map('dash', $uriSegments));
+                    $this->uri = $this->uri->withSegments(new Kernel\Http\Message\Uri\Segments($uriSegments));
+                    $uriString = $this->uri->getSegments()->getString();
                     $domain = reset($uriSegments);
                 }
 
@@ -66,7 +82,7 @@ class Router extends Kernel\Http\Router
                 } elseif (false !== ($module = modules()->getModule($domain))) {
                     $this->registerModule($module);
                 }
-            } elseif (false !== ($subdomain = $uri->getSubdomain())) {
+            } elseif (false !== ($subdomain = $this->uri->getSubdomain())) {
                 if (false !== ($app = modules()->getApp($subdomain))) {
                     $this->registerModule($app);
                 }
@@ -79,21 +95,17 @@ class Router extends Kernel\Http\Router
                 $uriRoutedSegments = array_diff($uriSegments,
                     array_slice($uriSegments, ($uriTotalSegments - $i)));
 
-                if(!empty($app)) {
-                    if(reset($uriSegments) !== $app->getParameter()) {
+                if (!empty($app)) {
+                    if (reset($uriSegments) !== $app->getParameter()) {
                         array_unshift($uriRoutedSegments, $app->getParameter());
                     }
                 }
 
                 if (false !== ($module = modules()->getModule($uriRoutedSegments))) {
                     $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
-                    if(empty($uriSegments)) {
-                        $uriSegments = [];
-                        $uriString = '/';
-                    } else {
-                        $uriString = implode('/', $uriSegments);
-                    }
-                    
+                    $this->uri = $this->uri->withSegments(new Kernel\Http\Message\Uri\Segments($uriSegments));
+                    $uriString = $this->uri->getSegments()->getString();
+
                     $this->registerModule($module);
 
                     break;
@@ -103,17 +115,20 @@ class Router extends Kernel\Http\Router
 
         // Try to translate from uri string
         if (false !== ($action = $this->addresses->getTranslation($uriString))) {
-            if ( ! $action->isValidHttpMethod(server_request()->getMethod()) && ! $action->isAnyHttpMethod()) {
+            if (!$action->isValidHttpMethod(input()->server('REQUEST_METHOD')) && !$action->isAnyHttpMethod()) {
                 output()->sendError(405);
             } else {
-                if (false !== ($parseSegments = $action->getParseUriString($uriString))) {
+                if (false !== ($parseSegments = $action->getParseUriString($this->uri->getSegments()->getString()))) {
                     $uriSegments = $parseSegments;
                 } else {
                     $uriSegments = [];
                 }
 
+                $this->uri = $this->uri->withSegments(new Kernel\Http\Message\Uri\Segments($uriSegments));
+                $uriString = $this->uri->getSegments()->getString();
+
                 $this->parseAction($action, $uriSegments);
-                if ( ! empty(o2system()->hasService('controller'))) {
+                if (!empty(services()->has('controller'))) {
                     return true;
                 }
             }
@@ -153,9 +168,9 @@ class Router extends Kernel\Http\Router
                         $modelClassName = str_replace('Controllers', 'Models', $controllerClassName);
 
                         if (class_exists($modelClassName)) {
-                            models()->register('controller', new $modelClassName);
+                            models()->load($modelClassName, 'controller');
 
-                            if (false !== ($page = models()->controller->find($uriString, 'segments'))) {
+                            if (false !== ($page = models('controller')->find($uriString, 'segments'))) {
                                 $controller = new $controllerClassName();
 
                                 if (method_exists($controller, 'setPage')) {
@@ -174,14 +189,14 @@ class Router extends Kernel\Http\Router
                 }
 
                 // break the loop if the controller has been set
-                if (o2system()->hasService('controller')) {
+                if (services()->has('controller')) {
                     return true;
                     break;
                 }
             }
         }
 
-        if(class_exists($controllerClassName = modules()->current()->getDefaultControllerClassName())) {
+        if (class_exists($controllerClassName = modules()->current()->getDefaultControllerClassName())) {
             $this->setController(new Kernel\Http\Router\Datastructures\Controller($controllerClassName),
                 $uriSegments);
 
@@ -218,7 +233,7 @@ class Router extends Kernel\Http\Router
                 $reconfig = true;
             }
 
-            if ( ! $reconfig) {
+            if (!$reconfig) {
                 $controllerNamespace = $module->getNamespace() . 'Controllers\\';
                 $controllerClassName = $controllerNamespace . studlycase($module->getParameter());
 
@@ -272,7 +287,7 @@ class Router extends Kernel\Http\Router
             $uri = (new Kernel\Http\Message\Uri())
                 ->withSegments(new Kernel\Http\Message\Uri\Segments(''))
                 ->withQuery('');
-            $this->parseRequest($uri->addSegments($closure));
+            $this->parseRequest($this->uri->addSegments($closure));
         } else {
             if (class_exists($closure)) {
                 $this->setController(
@@ -282,12 +297,12 @@ class Router extends Kernel\Http\Router
                 );
             } elseif (preg_match("/([a-zA-Z0-9\\\]+)(@)([a-zA-Z0-9\\\]+)/", $closure, $matches)) {
                 $this->setController(
-                    (new Kernel\Http\Router\Datastructures\Controller($matches[ 1 ]))
-                        ->setRequestMethod($matches[ 3 ]),
+                    (new Kernel\Http\Router\Datastructures\Controller($matches[1]))
+                        ->setRequestMethod($matches[3]),
                     $uriSegments
                 );
             } elseif (presenter()->theme->use === true) {
-                if ( ! presenter()->partials->offsetExists('content') && $closure !== '') {
+                if (!presenter()->partials->offsetExists('content') && $closure !== '') {
                     presenter()->partials->offsetSet('content', $closure);
                 }
 

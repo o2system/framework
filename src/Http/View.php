@@ -257,26 +257,26 @@ class View implements RenderableInterface
                     array_unshift($viewsDirectories, $moduleReplacementPath);
 
                     // Add Theme File Extensions
-                    if (presenter()->theme->active->getConfig()->offsetExists('extension')) {
+                    if (presenter()->theme->active->getPresets()->offsetExists('extension')) {
                         array_unshift($viewsFileExtensions,
-                            presenter()->theme->active->getConfig()->offsetGet('extension'));
-                    } elseif (presenter()->theme->active->getConfig()->offsetExists('extensions')) {
+                            presenter()->theme->active->getPresets()->offsetGet('extension'));
+                    } elseif (presenter()->theme->active->getPresets()->offsetExists('extensions')) {
                         $viewsFileExtensions = array_merge(
-                            presenter()->theme->active->getConfig()->offsetGet('extensions'),
+                            presenter()->theme->active->getPresets()->offsetGet('extensions'),
                             $viewsFileExtensions
                         );
                     }
 
                     // Add Theme Parser Engine
-                    if (presenter()->theme->active->getConfig()->offsetExists('driver')) {
+                    if (presenter()->theme->active->getPresets()->offsetExists('driver')) {
                         $parserDriverClassName = '\O2System\Parser\Drivers\\' . camelcase(
-                                presenter()->theme->active->getConfig()->offsetGet('driver')
+                                presenter()->theme->active->getPresets()->offsetGet('driver')
                             );
 
                         if (class_exists($parserDriverClassName)) {
                             parser()->addDriver(
                                 new $parserDriverClassName(),
-                                presenter()->theme->active->getConfig()->offsetGet('driver')
+                                presenter()->theme->active->getPresets()->offsetGet('driver')
                             );
                         }
                     }
@@ -284,10 +284,6 @@ class View implements RenderableInterface
             }
 
             foreach ($viewsDirectories as $viewsDirectory) {
-                if (is_dir($viewsDirectory . $deviceDirectory . DIRECTORY_SEPARATOR)) {
-                    $viewsDirectory = $viewsDirectory . $deviceDirectory . DIRECTORY_SEPARATOR;
-                }
-
                 foreach ($viewsFileExtensions as $fileExtension) {
                     $filename = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $filename);
 
@@ -304,6 +300,10 @@ class View implements RenderableInterface
 
     public function render(array $options = [])
     {
+        if(profiler() !== false) {
+            profiler()->watch('Starting View Rendering');
+        }
+        
         $htmlOutput = '';
         parser()->loadVars(presenter()->getArrayCopy());
 
@@ -362,17 +362,18 @@ class View implements RenderableInterface
         $this->document->loadHTML(presenter()->assets->parseSourceCode($htmlOutput));
 
         // Single-Sign-On iFrame
-        if (o2system()->hasService('user')) {
-            $iframe = o2system()->getService('user')->getIframeCode();
+        if (services()->has('user')) {
+            $iframe = services()->get('user')->getIframeCode();
 
             if ( ! empty($iframe)) {
                 $this->document->find('body')->append($iframe);
             }
         }
 
-        profiler()->watch('VIEW_RENDER_END');
-
-        if (input()->env('DEBUG_STAGE') === 'DEVELOPER' and config()->getItem('presenter')->debugToolBar === true) {
+        if (input()->env('DEBUG_STAGE') === 'DEVELOPER' and
+            config()->getItem('presenter')->debugToolBar === true and
+            services()->has('profiler')
+        ) {
             $this->document->find('body')->append((new Toolbar())->__toString());
         }
 
@@ -400,8 +401,8 @@ class View implements RenderableInterface
             }
         }
 
-        // Minify Output
-        if ($this->config->output->minify === true) {
+        // Uglify Output
+        if ($this->config->output['uglify'] === true) {
             $htmlOutput = preg_replace(
                 [
                     '/\>[^\S ]+/s',     // strip whitespaces after tags, except space
@@ -423,9 +424,13 @@ class View implements RenderableInterface
         }
 
         // Beautify Output
-        if ($this->config->output->minify === false && $this->config->output->beautify === true) {
+        if ($this->config->output['beautify'] === true) {
             $beautifier = new Html\Dom\Beautifier();
             $htmlOutput = $beautifier->format($htmlOutput);
+        }
+
+        if(profiler() !== false) {
+            profiler()->watch('Ending View Rendering');
         }
 
         output()->send($htmlOutput);

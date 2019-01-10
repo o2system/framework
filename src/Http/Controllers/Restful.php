@@ -131,7 +131,7 @@ class Restful extends Controller
      */
     public function __construct()
     {
-        if (o2system()->hasService('presenter')) {
+        if (services()->has('presenter')) {
             presenter()->theme->set(false);
         }
 

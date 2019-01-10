@@ -37,7 +37,7 @@ class Language extends SplDirectoryInfo
         parent::__construct($dir);
 
         // Set Properties
-        if (is_file($propertiesFilePath = $dir . DIRECTORY_SEPARATOR . 'language.jsprop')) {
+        if (is_file($propertiesFilePath = $dir . DIRECTORY_SEPARATOR . 'language.json')) {
             $properties = json_decode(file_get_contents($propertiesFilePath), true);
 
             if (json_last_error() === JSON_ERROR_NONE) {

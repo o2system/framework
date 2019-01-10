@@ -49,8 +49,8 @@ class Model extends AbstractRepository
     public function get($property)
     {
         if (empty($get[ $property ])) {
-            if (o2system()->hasService($property)) {
-                return o2system()->getService($property);
+            if (services()->has($property)) {
+                return services()->get($property);
             } elseif (array_key_exists($property, $this->validSubModels)) {
                 return $this->loadSubModel($property);
             } elseif (o2system()->__isset($property)) {

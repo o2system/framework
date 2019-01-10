@@ -47,16 +47,16 @@ trait AdjacencyTrait
      * @access  public
      * @return  mixed
      */
-    public function getChildren($idParent, $table = null)
+    protected function getChildren($idParent, $table = null)
     {
         $table = isset($table) ? $table : $this->table;
 
-        $result = $this->qb
+        if ($result = $this->qb
             ->from($table)
-            ->getWhere([$this->parentKey => $idParent]);
-
-        if ($result->count() > 0) {
-            return $result;
+            ->getWhere([$this->parentKey => $idParent])) {
+            if ($result->count() > 0) {
+                return $result;
+            }
         }
 
         return false;
@@ -73,17 +73,17 @@ trait AdjacencyTrait
      * @access  public
      * @return  bool
      */
-    public function hasChildren($idParent, $table = null)
+    protected function hasChildren($idParent, $table = null)
     {
         $table = isset($table) ? $table : $this->table;
 
-        $result = $this->qb
+        if ($result = $this->qb
             ->select('id')
             ->from($table)
-            ->getWhere([$this->parentKey => $idParent]);
-
-        if ($result->count() > 0) {
-            return true;
+            ->getWhere([$this->parentKey => $idParent])) {
+            if ($result->count() > 0) {
+                return true;
+            }
         }
 
         return false;

@@ -144,21 +144,21 @@ trait RecordTrait
         return $this->qb->countAllResults($table) + 1;
     }
 
-    public function withRecordStatus($recordStatus)
+    protected function withRecordStatus($recordStatus)
     {
         $this->qb->where('record_status', strtoupper($recordStatus));
 
         return $this;
     }
 
-    public function createdBy($recordCreateUser)
+    protected function createdBy($recordCreateUser)
     {
         $this->qb->where('record_create_user', $recordCreateUser);
 
         return $this;
     }
 
-    public function updatedBy($recordUpdateUser)
+    protected function updatedBy($recordUpdateUser)
     {
         $this->qb->where('record_update_user', $recordUpdateUser);
 

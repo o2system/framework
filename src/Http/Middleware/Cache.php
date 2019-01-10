@@ -26,7 +26,7 @@ use O2System\Psr\Http\Server\RequestHandlerInterface;
 class Cache implements RequestHandlerInterface
 {
     /**
-     * Environment::handle
+     * Cache::handle
      *
      * Handles a request and produces a response
      *

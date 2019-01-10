@@ -17,6 +17,7 @@ namespace O2System\Framework\Models\Sql;
 
 use O2System\Framework\Models\Sql\DataObjects\Result\Row;
 use O2System\Framework\Models\Sql\Traits\FinderTrait;
+use O2System\Framework\Models\Sql\Traits\ModifierTrait;
 
 /**
  * Class Model
@@ -26,6 +27,7 @@ use O2System\Framework\Models\Sql\Traits\FinderTrait;
 class Model
 {
     use FinderTrait;
+    use ModifierTrait;
 
     /**
      * AbstractModel::$db
@@ -170,15 +172,16 @@ class Model
 
     final public static function __callStatic($method, array $arguments = [])
     {
-        static $modelInstance;
+        $modelClassName = get_called_class();
 
-        if (empty($modelInstance)) {
-            $modelClassName = get_called_class();
-            $modelInstance = new $modelClassName();
+        if ( ! models()->has($modelClassName)) {
+            models()->load($modelClassName, $modelClassName);
         }
 
+        $modelInstance = models()->get($modelClassName);
+
         if (method_exists($modelInstance, $method)) {
-            return call_user_func_array([&$modelInstance, $method], $arguments);
+            return $modelInstance->__call($method, $arguments);
         }
 
         return false;
@@ -208,8 +211,8 @@ class Model
         }
 
         if (empty($get[ $property ])) {
-            if (o2system()->hasService($property)) {
-                return o2system()->getService($property);
+            if (services()->has($property)) {
+                return services()->get($property);
             } elseif ($this->hasSubModel($property)) {
                 return $this->loadSubModel($property);
             } elseif (o2system()->__isset($property)) {
@@ -245,7 +248,7 @@ class Model
         return false;
     }
 
-    final public function hasSubModel($model)
+    final protected function hasSubModel($model)
     {
         if (array_key_exists($model, $this->validSubModels)) {
             return (bool)is_file($this->validSubModels[ $model ]);
@@ -254,7 +257,7 @@ class Model
         return false;
     }
 
-    final public function getSubModel($model)
+    final protected function getSubModel($model)
     {
         return $this->loadSubModel($model);
     }

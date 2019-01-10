@@ -39,8 +39,10 @@ class Theme
                 define('PATH_THEME', $this->active->getRealPath());
             }
 
-            // add theme view directory
-            view()->addFilePath($this->active->getRealPath());
+            if(services()->has('view')) {
+                // add theme view directory
+                view()->addFilePath($this->active->getRealPath());
+            }
 
             // add theme output directory
             output()->setFileDirName('views'); // replace views folder base on theme structure
@@ -118,8 +120,8 @@ class Theme
     {
         if ($this->active instanceof \O2System\Framework\Datastructures\Module\Theme) {
 
-            if ($this->active->getConfig()->offsetExists('assets')) {
-                presenter()->assets->autoload($this->active->getConfig()->offsetGet('assets'));
+            if ($this->active->getPresets()->offsetExists('assets')) {
+                presenter()->assets->autoload($this->active->getPresets()->offsetGet('assets'));
             }
 
             presenter()->assets->loadFiles(

@@ -36,7 +36,7 @@ if ( ! function_exists('loader')) {
      */
     function loader()
     {
-        return o2system()->getService('loader');
+        return services('loader');
     }
 }
 
@@ -55,16 +55,18 @@ if ( ! function_exists('config')) {
         $args = func_get_args();
 
         if ($countArgs = count($args)) {
-            $config =& o2system()->getService('config');
+            if(services()->has('config')) {
+                $config = services('config');
 
-            if ($countArgs == 1) {
-                return call_user_func_array([&$config, 'getItem'], $args);
-            } else {
-                return call_user_func_array([&$config, 'loadFile'], $args);
+                if ($countArgs == 1) {
+                    return call_user_func_array([&$config, 'getItem'], $args);
+                } else {
+                    return call_user_func_array([&$config, 'loadFile'], $args);
+                }
             }
         }
 
-        return o2system()->getService('config');
+        return services('config');
     }
 }
 
@@ -76,11 +78,15 @@ if ( ! function_exists('cache')) {
      *
      * Convenient shortcut for O2System Framework Cache service.
      *
-     * @return O2System\Framework\Services\Cache
+     * @return O2System\Framework\Services\Cache|boolean Returns FALSE if service not exists.
      */
     function cache()
     {
-        return o2system()->getService('cache');
+        if(services()->has('cache')) {
+            return services()->get('cache');
+        }
+
+        return false;
     }
 }
 
@@ -92,11 +98,15 @@ if ( ! function_exists('hooks')) {
      *
      * Convenient shortcut for O2System Framework Hooks service.
      *
-     * @return O2System\Framework\Services\Hooks
+     * @return O2System\Framework\Services\Hooks Returns FALSE if service not exists.
      */
     function hooks()
     {
-        return o2system()->getService('hooks');
+        if(services()->has('hooks')) {
+            return services()->get('hooks');
+        }
+
+        return false;
     }
 }
 
@@ -112,29 +122,7 @@ if ( ! function_exists('database')) {
      */
     function database()
     {
-        return o2system()->__get('database');
-    }
-}
-
-// ------------------------------------------------------------------------
-
-if ( ! function_exists('services')) {
-    /**
-     * services
-     *
-     * Convenient shortcut for O2System Framework Services container.
-     *
-     * @return mixed
-     */
-    function services()
-    {
-        $args = func_get_args();
-
-        if (count($args)) {
-            return o2system()->getService($args[ 0 ], true);
-        }
-
-        return o2system();
+        return models()->database;
     }
 }
 
@@ -148,15 +136,15 @@ if ( ! function_exists('models')) {
      *
      * @return O2System\Framework\Containers\Models|O2System\Framework\Models\Sql\Model|O2System\Framework\Models\NoSql\Model
      */
-    function &models()
+    function models()
     {
         $args = func_get_args();
 
         if (count($args)) {
-            return o2system()->__get('models')->get($args[ 0 ]);
+            return o2system()->models->get($args[ 0 ]);
         }
 
-        return o2system()->__get('models');
+        return o2system()->models;
     }
 }
 
@@ -172,7 +160,13 @@ if ( ! function_exists('modules')) {
      */
     function modules()
     {
-        return o2system()->__get('modules');
+        $args = func_get_args();
+
+        if (count($args)) {
+            return o2system()->modules->getModule($args[ 0 ]);
+        }
+
+        return o2system()->modules;
     }
 }
 
@@ -188,7 +182,7 @@ if ( ! function_exists('router')) {
      */
     function router()
     {
-        return o2system()->getService('router');
+        return services('router');
     }
 }
 
@@ -214,7 +208,7 @@ if ( ! function_exists('session')) {
             return null;
         }
 
-        return o2system()->getService('session');
+        return services('session');
     }
 }
 
@@ -230,7 +224,7 @@ if ( ! function_exists('middleware')) {
      */
     function middleware()
     {
-        return o2system()->getService('middleware');
+        return services('middleware');
     }
 }
 
@@ -249,12 +243,16 @@ if ( ! function_exists('view')) {
         $args = func_get_args();
 
         if (count($args)) {
-            $view =& o2system()->getService('view');
+            if(services()->has('view')) {
+                $view = services('view');
 
-            return call_user_func_array([&$view, 'load'], $args);
+                return call_user_func_array([&$view, 'load'], $args);
+            }
+
+            return false;
         }
 
-        return o2system()->getService('view');
+        return services('view');
     }
 }
 
@@ -270,7 +268,7 @@ if ( ! function_exists('parser')) {
      */
     function parser()
     {
-        return o2system()->getService('parser');
+        return services('parser');
     }
 }
 
@@ -286,7 +284,7 @@ if ( ! function_exists('presenter')) {
      */
     function presenter()
     {
-        return o2system()->getService('presenter');
+        return services('presenter');
     }
 }
 
@@ -305,13 +303,11 @@ if ( ! function_exists('controller')) {
         $args = func_get_args();
 
         if (count($args)) {
-            $controller =& o2system()->getService('controller');
+            $controller = services()->get('controller');
 
             return call_user_func_array([&$controller, '__call'], $args);
         }
 
-        return o2system()->getService('controller');
+        return services('controller');
     }
 }
-
-// ------------------------------------------------------------------------

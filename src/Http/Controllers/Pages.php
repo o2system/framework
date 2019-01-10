@@ -44,7 +44,17 @@ class Pages extends Controller
     public function setPage(Page $page)
     {
         $this->page = $page;
+    }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Pages::index
+     *
+     * @return void
+     */
+    public function index()
+    {
         if (false !== ($settings = $this->page->getSettings())) {
             if ($settings->offsetExists('theme')) {
                 presenter()->theme->set($settings->theme);
@@ -66,17 +76,7 @@ class Pages extends Controller
                 presenter()->meta->title->replace($settings->browserTitle);
             }
         }
-    }
 
-    // ------------------------------------------------------------------------
-
-    /**
-     * Pages::index
-     *
-     * @return void
-     */
-    public function index()
-    {
         view()->page($this->page);
     }
 }

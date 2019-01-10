@@ -49,21 +49,20 @@ trait HierarchicalTrait
      *
      * @return int  Right column value
      */
-    public function rebuildTree($idParent = 0, $left = 1, $depth = 0)
+    protected function rebuildTree($idParent = 0, $left = 1, $depth = 0)
     {
         ini_set('xdebug.max_nesting_level', 10000);
         ini_set('memory_limit', '-1');
 
-        $result = $this->qb
+        if ($result = $this->qb
             ->table($this->table)
             ->select('id')
             ->where('id_parent', $idParent)
             ->orderBy('id')
-            ->get();
+            ->get()) {
 
-        $right = $left + 1;
+            $right = $left + 1;
 
-        if ($result) {
             $i = 0;
             foreach ($result as $row) {
                 if ($i == 0) {
@@ -118,15 +117,13 @@ trait HierarchicalTrait
      * @access public
      * @return bool
      */
-    public function hasChilds($idParent)
+    protected function hasChilds($idParent)
     {
-        $result = $this->qb
+        if ($result = $this->qb
             ->table($this->table)
             ->select('id')
             ->where('id_parent', $idParent)
-            ->get();
-
-        if ($result) {
+            ->get()) {
             return (bool)($result->count() == 0 ? false : true);
         }
 
@@ -145,9 +142,9 @@ trait HierarchicalTrait
      * @access public
      * @return array
      */
-    public function getParents($id, &$parents = [])
+    protected function getParents($id, &$parents = [])
     {
-        $result = $this->qb
+        if ($result = $this->qb
             ->from($this->table)
             ->whereIn('id', $this->qb
                 ->subQuery()
@@ -155,9 +152,7 @@ trait HierarchicalTrait
                 ->select('id_parent')
                 ->where('id', $id)
             )
-            ->get();
-
-        if ($result) {
+            ->get()) {
             if ($result->count()) {
                 $parents[] = $row = $result->first();
 
@@ -170,15 +165,13 @@ trait HierarchicalTrait
         return array_reverse($parents);
     }
 
-    public function hasParent($idParent)
+    protected function hasParent($idParent)
     {
-        $result = $this->qb
+        if ($result = $this->qb
             ->table($this->table)
             ->select('id')
             ->where('id', $idParent)
-            ->get();
-
-        if ($result) {
+            ->get()) {
             return (bool)($result->count() == 0 ? false : true);
         }
 
@@ -196,16 +189,14 @@ trait HierarchicalTrait
      * @access public
      * @return array
      */
-    public function getChilds($idParent)
+    protected function getChilds($idParent)
     {
-        $result = $this->qb
-            ->table($this->table)
-            ->where('id_parent', $idParent)
-            ->get();
-
         $childs = [];
 
-        if ($result) {
+        if($result = $this->qb
+            ->table($this->table)
+            ->where('id_parent', $idParent)
+            ->get()) {
             foreach ($result as $row) {
                 $childs[] = $row;
                 if ($this->hasChild($row->id)) {
@@ -228,15 +219,13 @@ trait HierarchicalTrait
      * @access public
      * @return bool
      */
-    public function getNumChilds($idParent)
+    protected function getNumChilds($idParent)
     {
-        $result = $this->qb
+        if($result = $this->qb
             ->table($this->table)
             ->select('id')
             ->where('id_parent', $idParent)
-            ->get();
-
-        if ($result) {
+            ->get()) {
             return $result->count();
         }
 

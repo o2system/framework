@@ -15,6 +15,7 @@ namespace O2System\Framework\Services;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Containers\Modules;
 use O2System\Framework\Datastructures\Module;
 use O2System\Psr\Loader\AutoloadInterface;
 
@@ -38,6 +39,17 @@ class Loader implements AutoloadInterface
      */
     protected $publicDirs = [
         PATH_PUBLIC,
+    ];
+
+    /**
+     * Loader::$resourcesDirs
+     *
+     * Loader Resources Directories.
+     *
+     * @var array
+     */
+    protected $resourcesDirs = [
+        PATH_RESOURCES,
     ];
 
     /**
@@ -151,7 +163,7 @@ class Loader implements AutoloadInterface
             output()->addFilePath($baseDirectory);
 
             // Register Namespace Views FilePath
-            if (o2system()->hasService('view')) {
+            if (services()->has('view')) {
                 view()->addFilePath($baseDirectory);
             }
 
@@ -190,6 +202,31 @@ class Loader implements AutoloadInterface
     // ------------------------------------------------------------------------
 
     /**
+     * Loader::addResourceDir
+     *
+     * Adds a resource directory for assets.
+     *
+     * @param string $publicDir
+     */
+    public function addResourceDir($resourcesDir, $offset = null)
+    {
+        // normalize the public directory with a trailing separator
+        $resourcesDir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $resourcesDir);
+        $resourcesDir = PATH_PUBLIC . str_replace(PATH_PUBLIC, '', $resourcesDir);
+        $resourcesDir = rtrim($resourcesDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+        if (is_dir($resourcesDir) and ! in_array($resourcesDir, $this->resourcesDirs)) {
+            if (isset($offset)) {
+                $this->resourcesDirs[ $offset ] = $resourcesDir;
+            } else {
+                $this->resourcesDirs[] = $resourcesDir;
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
      * Loader::getPublicDirs
      *
      * Gets all public directories
@@ -201,6 +238,22 @@ class Loader implements AutoloadInterface
     public function getPublicDirs($reverse = false)
     {
         return $reverse === true ? array_reverse($this->publicDirs) : $this->publicDirs;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Loader::getResourcesDirs
+     *
+     * Gets all resources directories
+     *
+     * @param bool $reverse
+     *
+     * @return array
+     */
+    public function getResourcesDirs($reverse = false)
+    {
+        return $reverse === true ? array_reverse($this->resourcesDirs) : $this->resourcesDirs;
     }
 
     // ------------------------------------------------------------------------
@@ -339,7 +392,7 @@ class Loader implements AutoloadInterface
 
     public function loadModuleClass($class)
     {
-        if (modules() !== false) {
+        if (modules() instanceof Modules) {
             if (false !== ($modules = modules()->getRegistry())) {
                 foreach ($modules as $module) {
                     if ($module instanceof Module) {
@@ -467,7 +520,7 @@ class Loader implements AutoloadInterface
 
     public function service($class, $name = null)
     {
-        o2system()->addService($class, $name);
+        services()->load($class, $name);
     }
 
     // ------------------------------------------------------------------------
@@ -476,9 +529,9 @@ class Loader implements AutoloadInterface
     {
         foreach ($classes as $name => $class) {
             if(is_numeric($name)) {
-                o2system()->addService($class);
+                services()->load($class);
             } elseif(is_string($name)) {
-                o2system()->addService($class, $name);
+                services()->load($class, $name);
             }
         }
     }

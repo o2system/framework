@@ -18,13 +18,13 @@ namespace O2System\Framework\Http\Controllers;
 use O2System\Framework\Http\Controller;
 
 /**
- * Class Manifest
+ * Class Modules
  * @package O2System\Framework\Http\Controllers
  */
-class Manifest extends Controller
+class Modules extends Controller
 {
     public function index()
     {
-        output()->sendPayload(presenter()->manifest->getArrayCopy());
+        print_out('test');
     }
 }

@@ -15,6 +15,7 @@ namespace O2System\Framework\Containers;
 
 // ------------------------------------------------------------------------
 
+use O2System\Database;
 use O2System\Framework\Models\Files\Model as FileModel;
 use O2System\Framework\Models\NoSql\Model as NoSqlModel;
 use O2System\Framework\Models\Sql\Model as SqlModel;
@@ -28,7 +29,38 @@ use O2System\Spl\Containers\SplServiceContainer;
  */
 class Models extends SplServiceContainer
 {
-    public function load($model)
+    public $database;
+
+    /**
+     * Models::__construct
+     */
+    public function __construct()
+    {
+        if ($config = config()->loadFile('database', true)) {
+            if ( ! empty($config[ 'default' ][ 'hostname' ]) AND ! empty($config[ 'default' ][ 'username' ])) {
+
+                if(profiler() !== false) {
+                    profiler()->watch('Starting Database Service');
+                }
+
+                $this->database = new Database\Connections(
+                    new Database\Datastructures\Config(
+                        $config->getArrayCopy()
+                    )
+                );
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Models::load
+     *
+     * @param object|string $model
+     * @param string|null   $offset
+     */
+    public function load($model, $offset = null)
     {
         if (is_string($model)) {
             $service = new SplServiceRegistry($model);
@@ -37,28 +69,62 @@ class Models extends SplServiceContainer
         }
 
         if (isset($service) && $service instanceof SplServiceRegistry) {
-            $offset = strtolower($service->getClassName());
+            if (profiler() !== false) {
+                profiler()->watch('Load New Model: ' . $service->getClassName());
+            }
+
+            $this->register($service, $offset);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Models::add
+     *
+     * @param \O2System\Framework\Models\Sql\Model|\O2System\Framework\Models\NoSql\Model|\O2System\Framework\Models\Files\Model $model
+     * @param null $offset
+     */
+    public function add($model, $offset = null)
+    {
+        if (is_object($service)) {
+            if ( ! $service instanceof SplServiceRegistry) {
+                $service = new SplServiceRegistry($service);
+            }
+        }
+
+        if (profiler() !== false) {
+            profiler()->watch('Add New Model: ' . $service->getClassName());
+        }
+
+        $this->register($service, $offset);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Models::register
+     *
+     * @param SplServiceRegistry $service
+     * @param string|null        $offset
+     */
+    public function register(SplServiceRegistry $service, $offset = null)
+    {
+        if ($service instanceof SplServiceRegistry) {
+            $offset = isset($offset)
+                ? $offset
+                : camelcase($service->getParameter());
 
             if ($service->isSubclassOf('O2System\Framework\Models\Sql\Model') ||
                 $service->isSubclassOf('O2System\Framework\Models\NoSql\Model') ||
                 $service->isSubclassOf('O2System\Framework\Models\Files\Model')
             ) {
-                models()->attach($offset, $service);
+                $this->attach($offset, $service);
+
+                if (profiler() !== false) {
+                    profiler()->watch('Register New Model: ' . $service->getClassName());
+                }
             }
-        }
-    }
-
-    /**
-     * Models::register
-     *
-     * @param string                                                                                                             $offset
-     * @param \O2System\Framework\Models\Sql\Model|\O2System\Framework\Models\NoSql\Model|\O2System\Framework\Models\Files\Model $model
-     */
-    public function register($offset, $model)
-    {
-        if ($model instanceof SqlModel OR $model instanceof NoSqlModel OR $model instanceof FileModel) {
-
-            parent::attach($offset, new SplServiceRegistry($model));
         }
     }
 }

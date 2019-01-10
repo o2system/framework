@@ -185,8 +185,8 @@ class Model
     {
         $get[ $property ] = false;
 
-        if (o2system()->hasService($property)) {
-            $get[ $property ] = o2system()->getService($property);
+        if (services()->has($property)) {
+            $get[ $property ] = services()->get($property);
         } elseif (array_key_exists($property, $this->validSubModels)) {
             $get[ $property ] = $this->loadSubModel($property);
         } elseif (o2system()->__isset($property)) {
