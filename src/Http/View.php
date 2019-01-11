@@ -312,6 +312,9 @@ class View implements RenderableInterface
             $this->document->title->text(presenter()->meta->title->__toString());
         }
 
+        /**
+         * Injecting Meta Opengraph
+         */
         if (presenter()->meta->opengraph instanceof Meta\Opengraph) {
             // set opengraph title
             if (presenter()->meta->title instanceof Meta\Title) {
@@ -360,8 +363,10 @@ class View implements RenderableInterface
         }
 
         $this->document->loadHTML(presenter()->assets->parseSourceCode($htmlOutput));
-
-        // Single-Sign-On iFrame
+        
+        /**
+         * Injecting Single Sign-On (SSO) iFrame
+         */
         if (services()->has('user')) {
             $iframe = services()->get('user')->getIframeCode();
 
@@ -377,7 +382,9 @@ class View implements RenderableInterface
             $this->document->find('body')->append((new Toolbar())->__toString());
         }
 
-        // Add PWA Manifest
+        /**
+         * Injecting Progressive Web Application (PWA) Manifest
+         */
         $this->document->linkNodes->createElement([
             'rel'  => 'manifest',
             'href' => '/manifest.json',

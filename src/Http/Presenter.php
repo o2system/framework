@@ -63,8 +63,10 @@ class Presenter extends AbstractRepository
 
             // autoload presenter theme
             if ($config->offsetExists('theme')) {
-                $this->theme->set($config->offsetGet('theme'));
-                //$this->theme->load();
+                if(false !== ($theme = $config->offsetGet('theme'))) {
+                    $this->theme->set($config->offsetGet('theme'));
+                    $this->theme->load();
+                }
             }
 
             // autoload presenter manifest

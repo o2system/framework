@@ -35,8 +35,9 @@ class Theme
     {
         if (($this->active = modules()->current()->getTheme($theme)) instanceof \O2System\Framework\Datastructures\Module\Theme) {
 
+            $pathTheme = str_replace(PATH_RESOURCES, PATH_PUBLIC, $this->active->getRealPath());
             if ( ! defined('PATH_THEME')) {
-                define('PATH_THEME', $this->active->getRealPath());
+                define('PATH_THEME', $pathTheme);
             }
 
             if(services()->has('view')) {
@@ -49,8 +50,11 @@ class Theme
             output()->addFilePath($this->active->getRealPath(), 'theme');
             output()->setFileDirName('Views'); // restore Views folder base on PSR-4 folder structure
 
-            // add theme public directory
-            loader()->addPublicDir($this->active->getRealPath() . 'assets' . DIRECTORY_SEPARATOR, 'theme');
+            // add public theme directory
+            loader()->addPublicDir($pathTheme, 'theme');
+
+            // add public theme assets directory
+            loader()->addPublicDir($pathTheme . 'assets' . DIRECTORY_SEPARATOR, 'themeAssets');
 
             // set theme layout
             $this->setLayout('theme');
@@ -123,23 +127,10 @@ class Theme
             if ($this->active->getPresets()->offsetExists('assets')) {
                 presenter()->assets->autoload($this->active->getPresets()->offsetGet('assets'));
             }
-
-            presenter()->assets->loadFiles(
-                [
-                    'css' => ['theme', 'custom'],
-                    'js'  => ['theme', 'custom'],
-                ]
-            );
-
-            if (false !== ($layout = $this->active->getLayout())) {
-                presenter()->assets->loadFiles(
-                    [
-                        'css' => ['layout', 'custom'],
-                        'js'  => ['layout', 'custom'],
-                    ]
-                );
-            }
-
+            
+            presenter()->assets->loadCss('theme.css');
+            presenter()->assets->loadJs('theme.js');
+            
             return true;
         }
 

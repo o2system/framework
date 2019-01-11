@@ -22,25 +22,56 @@ namespace O2System\Framework\Http\Presenter;
  */
 class Assets
 {
+    /**
+     * Assets::$head
+     * 
+     * @var \O2System\Framework\Http\Presenter\Assets\Positions\Head 
+     */
     protected $head;
+
+    /**
+     * Assets::$body
+     * 
+     * @var \O2System\Framework\Http\Presenter\Assets\Positions\Body 
+     */
     protected $body;
+
+    // ------------------------------------------------------------------------
 
     /**
      * Assets::__construct
      */
     public function __construct()
     {
-        loader()->addPublicDir('assets');
-
+        loader()->addPublicDir('assets', 'assets');
+        
         $this->head = new Assets\Positions\Head();
         $this->body = new Assets\Positions\Body();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Assets::__get
+     *
+     * @param string $property
+     *
+     * @return \O2System\Framework\Http\Presenter\Assets\Positions\Body|\O2System\Framework\Http\Presenter\Assets\Positions\Head|null
+     */
     public function __get($property)
     {
         return isset($this->{$property}) ? $this->{$property} : null;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Assets::autoload
+     *
+     * @param array $assets
+     *
+     * @return void
+     */
     public function autoload($assets)
     {
         foreach ($assets as $position => $collections) {
@@ -61,10 +92,18 @@ class Assets
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Assets::loadPackages
+     *
+     * @param array $packages
+     *
+     * @return void
+     */
     public function loadPackages($packages)
     {
         foreach ($packages as $package => $files) {
-
             if (is_string($files)) {
                 $this->loadPackage($files);
             } elseif (is_array($files)) {
@@ -75,6 +114,16 @@ class Assets
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Assets::loadPackage
+     *
+     * @param string $package
+     * @param array  $subPackages
+     *
+     * @return void
+     */
     public function loadPackage($package, $subPackages = [])
     {
         $packageDir = implode(DIRECTORY_SEPARATOR, [
@@ -159,18 +208,46 @@ class Assets
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Assets::loadCss
+     *
+     * @param array $files
+     *
+     * @return void
+     */
     public function loadCss($files)
     {
         $files = is_string($files) ? [$files] : $files;
         $this->head->loadCollections(['css' => $files]);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Assets::loadJs
+     *
+     * @param string|array  $files
+     * @param string        $position
+     *
+     * @return void
+     */
     public function loadJs($files, $position = 'body')
     {
         $files = is_string($files) ? [$files] : $files;
         $this->{$position}->loadCollections(['js' => $files]);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Assets::loadFiles
+     *
+     * @param array $assets
+     *
+     * @return void
+     */
     public function loadFiles($assets)
     {
         foreach ($assets as $type => $item) {
@@ -182,36 +259,38 @@ class Assets
         }
     }
 
-    public function unloadFiles($assets)
-    {
-        foreach ($assets as $type => $item) {
+    // ------------------------------------------------------------------------
 
-            if (is_array($item)) {
-                foreach ($item as $filename) {
-                    if (array_key_exists($filename, $this->{$type . 'Assets'})) {
-                        unset($this->{$type . 'Assets'}[ $filename ]);
-                    }
-                }
-            } elseif (is_string($item)) {
-                if (array_key_exists($item, $this->{$type . 'Assets'})) {
-                    unset($this->{$type . 'Assets'}[ $item ]);
-                }
-            }
-        }
-    }
-
+    /**
+     * Assets::theme
+     *
+     * @param string $path
+     *
+     * @return string
+     */
     public function theme($path)
     {
         $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
 
-        if (is_file($filePath = presenter()->theme->active->getRealPath() . $path)) {
+        if (is_file($filePath = PATH_THEME . $path)) {
             return path_to_url($filePath);
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Assets::file
+     *
+     * @param string $file
+     *
+     * @return string
+     */
     public function file($file)
     {
-        foreach (loader()->getPublicDirs(true) as $filePath) {
+        $filePaths = loader()->getPublicDirs(true);
+        
+        foreach ($filePaths as $filePath) {
             if (is_file($filePath . $file)) {
                 return path_to_url($filePath . $file);
                 break;
@@ -219,41 +298,74 @@ class Assets
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Assets::image
+     *
+     * @param string $image
+     *
+     * @return string
+     */
     public function image($image)
     {
+        $filePaths = loader()->getPublicDirs(true);
         $image = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $image);
 
-        foreach (loader()->getPublicDirs(true) as $filePath) {
+        foreach ($filePaths as $filePath) {
             $filePath .= 'img' . DIRECTORY_SEPARATOR;
 
             if (is_file($filePath . $image)) {
                 return path_to_url($filePath . $image);
                 break;
             }
+
+            unset($filePath);
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Assets::media
+     *
+     * @param string $media
+     *
+     * @return string
+     */
     public function media($media)
     {
+        $filePaths = loader()->getPublicDirs(true);
         $media = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $media);
 
-        foreach (loader()->getPublicDirs(true) as $filePath) {
+        foreach ($filePaths as $filePath) {
             $filePath .= 'media' . DIRECTORY_SEPARATOR;
 
             if (is_file($filePath . $media)) {
                 return path_to_url($filePath . $media);
                 break;
             }
+
+            unset($filePath);
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Assets::parseSourceCode
+     *
+     * @param string $sourceCode
+     *
+     * @return string
+     */
     public function parseSourceCode($sourceCode)
     {
         $sourceCode = str_replace(
             [
-                '"./assets/',
-                "'./assets/",
-                "(./assets/",
+                '"../assets/',
+                "'../assets/",
+                "(../assets/",
             ],
             [
                 '"' . base_url() . '/assets/',
@@ -268,17 +380,21 @@ class Assets
                     '"assets/',
                     "'assets/",
                     "(assets/",
-                    '"layouts/',
-                    "'layouts/",
-                    "(layouts/",
+
+                    // with dot
+                    '"./assets/',
+                    "'./assets/",
+                    "(./assets/",
                 ],
                 [
                     '"' . presenter()->theme->active->getUrl('assets/'),
                     "'" . presenter()->theme->active->getUrl('assets/'),
                     "(" . presenter()->theme->active->getUrl('assets/'),
-                    '"' . presenter()->theme->active->getUrl('layouts/'),
-                    "'" . presenter()->theme->active->getUrl('layouts/'),
-                    "(" . presenter()->theme->active->getUrl('layouts/'),
+
+                    // with dot
+                    '"' . presenter()->theme->active->getUrl('assets/'),
+                    "'" . presenter()->theme->active->getUrl('assets/'),
+                    "(" . presenter()->theme->active->getUrl('assets/'),
                 ],
                 $sourceCode);
         }

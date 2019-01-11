@@ -190,12 +190,15 @@ class Framework extends Kernel
             profiler()->watch('Starting Framework Services');
         }
 
-        foreach (['Globals', 'Environment', 'Loader', 'Config'] as $serviceClassName) {
-            if (class_exists('App\Kernel\Services\\' . $serviceClassName)) {
-                $this->services->load('App\Kernel\Services\\' . $serviceClassName);
-            } elseif (class_exists('O2System\Framework\Services\\' . $serviceClassName)) {
-                $this->services->load('O2System\Framework\Services\\' . $serviceClassName);
-            }
+        $services = [
+            'Containers\Globals' => 'globals',
+            'Containers\Environment' => 'environment',
+            'Services\Loader' => 'loader',
+            'Services\Config' => 'config'
+        ];
+
+        foreach ($services as $className => $classOffset) {
+            $this->services->load($className, $classOffset);
         }
 
         // Instantiate Models Container

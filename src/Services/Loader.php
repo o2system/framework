@@ -38,7 +38,7 @@ class Loader implements AutoloadInterface
      * @var array
      */
     protected $publicDirs = [
-        PATH_PUBLIC,
+        'default' => PATH_PUBLIC
     ];
 
     /**
@@ -49,7 +49,7 @@ class Loader implements AutoloadInterface
      * @var array
      */
     protected $resourcesDirs = [
-        PATH_RESOURCES,
+        'default' => PATH_RESOURCES
     ];
 
     /**
