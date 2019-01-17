@@ -18,16 +18,15 @@ namespace O2System\Framework\Http\Middleware;
 use O2System\Psr\Http\Message\ServerRequestInterface;
 use O2System\Psr\Http\Server\RequestHandlerInterface;
 
-
 /**
- * Class Maintenance
+ * Class Csrf
  *
  * @package O2System\Framework\Http\Middleware
  */
-class Maintenance implements RequestHandlerInterface
+class Csrf implements RequestHandlerInterface
 {
     /**
-     * Maintenance::handle
+     * Csrf::handle
      *
      * Handles a request and produces a response
      *
@@ -35,10 +34,14 @@ class Maintenance implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request)
     {
-        if (cache()->hasItem('maintenance')) {
-            $maintenanceInfo = cache()->getItem('maintenance')->get();
-            echo view()->load('maintenance', $maintenanceInfo, true);
-            exit(EXIT_SUCCESS);
+        if (services()->has('csrfProtection')) {
+            if (hash_equals(input()->server('REQUEST_METHOD'), 'POST')) {
+                if (!services()->get('csrfProtection')->verify()) {
+                    output()->sendError(403, [
+                        'message' => language()->getLine('403_INVALID_CSRF')
+                    ]);
+                }
+            }
         }
     }
 }

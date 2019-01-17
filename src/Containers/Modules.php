@@ -98,7 +98,7 @@ class Modules extends SplArrayStack
      */
     public function push($module)
     {
-        if ( ! in_array($module->getNamespace(), ['O2System\Kernel\\', 'O2System\Framework\\', 'App\\'])) {
+        if (!in_array($module->getNamespace(), ['O2System\Kernel\\', 'O2System\Framework\\', 'App\\'])) {
             $this->autoload($module);
 
             parent::push($module);
@@ -114,9 +114,12 @@ class Modules extends SplArrayStack
 
         $this->autoloadHelpers($module);
 
-        if ( ! in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
+        if (!in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
             // Add Public Dir
             loader()->addPublicDir($module->getPublicDir());
+
+            // Add Resources Dir
+            loader()->addResourceDir($module->getResourcesDir());
 
             // Autoload Module Language
             language()
@@ -187,13 +190,13 @@ class Modules extends SplArrayStack
 
         if (isset($config) AND is_array($config)) {
             // Set default timezone
-            if (isset($config[ 'datetime' ][ 'timezone' ])) {
-                date_default_timezone_set($config[ 'datetime' ][ 'timezone' ]);
+            if (isset($config['datetime']['timezone'])) {
+                date_default_timezone_set($config['datetime']['timezone']);
             }
 
             // Setup Language Ideom and Locale
-            if (isset($config[ 'language' ])) {
-                language()->setDefault($config[ 'language' ]);
+            if (isset($config['language'])) {
+                language()->setDefault($config['language']);
             }
 
             config()->merge($config);
@@ -299,15 +302,10 @@ class Modules extends SplArrayStack
 
         if (isset($models) AND is_array($models)) {
             foreach ($models as $offset => $model) {
-                if (class_exists($model)) {
-                    $service = new SplServiceRegistry($model);
-
-                    if ($service->isSubclassOf('O2System\Framework\Models\Sql\Model') ||
-                        $service->isSubclassOf('O2System\Framework\Models\NoSql\Model') ||
-                        $service->isSubclassOf('O2System\Framework\Models\Files\Model')
-                    ) {
-                        models()->attach($offset, $service);
-                    }
+                if (is_string($model)) {
+                    models()->load($model, $offset);
+                } elseif (is_object($model)) {
+                    models()->add($model);
                 }
             }
 
@@ -339,12 +337,10 @@ class Modules extends SplArrayStack
         if (isset($services) AND is_array($services)) {
             foreach ($services as $offset => $service) {
                 if (is_string($service)) {
-                    if ( ! class_exists($service)) {
-                        continue;
-                    }
+                    services()->load($service, $offset);
+                } elseif (is_object($service)) {
+                    services()->add($service);
                 }
-
-                o2system()->addService($service, $offset);
             }
 
             unset($services);
@@ -363,26 +359,28 @@ class Modules extends SplArrayStack
      */
     public function loadRegistry()
     {
-        $cacheItemPool = cache()->getItemPool('default');
+        if(empty($this->registry)) {
+            $cacheItemPool = cache()->getItemPool('default');
 
-        if (cache()->hasItemPool('registry')) {
-            $cacheItemPool = cache()->getItemPool('registry');
-        }
+            if (cache()->hasItemPool('registry')) {
+                $cacheItemPool = cache()->getItemPool('registry');
+            }
 
-        if ($cacheItemPool instanceof CacheItemPoolInterface) {
-            if ($cacheItemPool->hasItem('o2modules')) {
-                if ($registry = $cacheItemPool->getItem('o2modules')->get()) {
-                    $this->registry = $registry;
+            if ($cacheItemPool instanceof CacheItemPoolInterface) {
+                if ($cacheItemPool->hasItem('o2modules')) {
+                    if ($registry = $cacheItemPool->getItem('o2modules')->get()) {
+                        $this->registry = $registry;
+                    } else {
+                        $this->registry = $this->fetchRegistry();
+                        $cacheItemPool->save(new Item('o2modules', $this->registry, false));
+                    }
                 } else {
                     $this->registry = $this->fetchRegistry();
                     $cacheItemPool->save(new Item('o2modules', $this->registry, false));
                 }
             } else {
                 $this->registry = $this->fetchRegistry();
-                $cacheItemPool->save(new Item('o2modules', $this->registry, false));
             }
-        } else {
-            $this->registry = $this->fetchRegistry();
         }
     }
 
@@ -397,22 +395,22 @@ class Modules extends SplArrayStack
      */
     public function fetchRegistry()
     {
-        $datastructures = [];
+        $registry = [];
         $directory = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator(PATH_APP),
             \RecursiveIteratorIterator::SELF_FIRST
         );
 
-        $propertiesIterator = new \RegexIterator($directory, '/^.+\.jsprop/i', \RecursiveRegexIterator::GET_MATCH);
+        $packagesIterator = new \RegexIterator($directory, '/^.+\.json/i', \RecursiveRegexIterator::GET_MATCH);
 
-        foreach ($propertiesIterator as $propertiesFiles) {
-            foreach ($propertiesFiles as $propertiesFile) {
-                $propertiesFile = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $propertiesFile);
-                $propertiesFileInfo = pathinfo($propertiesFile);
+        foreach ($packagesIterator as $packageJsonFiles) {
+            foreach ($packageJsonFiles as $packageJsonFile) {
+                $packageJsonFile = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $packageJsonFile);
+                $packageJsonFileInfo = pathinfo($packageJsonFile);
 
-                if ($propertiesFileInfo[ 'filename' ] === 'widget' or
-                    $propertiesFileInfo[ 'filename' ] === 'language' or
-                    strpos($propertiesFile, '.svn') !== false // subversion properties file conflict.
+                if ($packageJsonFileInfo['filename'] === 'widget' or
+                    $packageJsonFileInfo['filename'] === 'language' or
+                    strpos($packageJsonFile, '.svn') !== false // subversion properties file conflict.
                 ) {
                     continue;
                 }
@@ -421,12 +419,12 @@ class Modules extends SplArrayStack
                     output()->verbose(
                         (new Format())
                             ->setString(language()->getLine('CLI_REGISTRY_MODULE_VERB_FETCH_MANIFEST_START',
-                                [str_replace(PATH_ROOT, '/', $propertiesFile)]))
+                                [str_replace(PATH_ROOT, '/', $packageJsonFile)]))
                             ->setNewLinesAfter(1)
                     );
                 }
 
-                $propertiesMetadata = json_decode(file_get_contents($propertiesFile), true);
+                $packageJsonMetadata = json_decode(file_get_contents($packageJsonFile), true);
 
                 if (json_last_error() !== JSON_ERROR_NONE and is_cli()) {
                     output()->verbose(
@@ -436,12 +434,12 @@ class Modules extends SplArrayStack
                             ->setIndent(2)
                             ->setNewLinesAfter(1)
                     );
-                } elseif( ! is_array($propertiesMetadata) ) {
+                } elseif (!is_array($packageJsonMetadata)) {
                     continue;
                 }
 
-                if(strpos($propertiesFile, $modularType = ucfirst(plural($propertiesFileInfo[ 'filename' ])) . DIRECTORY_SEPARATOR) === false) {
-                    $modularType = ucfirst($propertiesFileInfo[ 'filename' ]) . DIRECTORY_SEPARATOR;
+                if (strpos($packageJsonFile, $modularType = ucfirst(plural($packageJsonFileInfo['filename'])) . DIRECTORY_SEPARATOR) === false) {
+                    $modularType = ucfirst($packageJsonFileInfo['filename']) . DIRECTORY_SEPARATOR;
                 }
 
                 $modularType = strtolower(rtrim($modularType, DIRECTORY_SEPARATOR));
@@ -454,12 +452,13 @@ class Modules extends SplArrayStack
                             [
                                 PATH_FRAMEWORK,
                                 PATH_PUBLIC,
+                                PATH_RESOURCES,
                                 PATH_APP,
-                                $propertiesFileInfo[ 'basename' ],
+                                $packageJsonFileInfo['basename'],
                                 ucfirst($modularType) . DIRECTORY_SEPARATOR,
                             ],
                             '',
-                            $propertiesFile
+                            $packageJsonFile
                         ),
                         DIRECTORY_SEPARATOR
                     )
@@ -473,14 +472,14 @@ class Modules extends SplArrayStack
                     str_replace(
                         PATH_ROOT,
                         '',
-                        $propertiesFileInfo[ 'dirname' ]
+                        $packageJsonFileInfo['dirname']
                     ),
                     false
                 );
 
-                if (isset($propertiesMetadata[ 'namespace' ])) {
-                    $moduleNamespace = $propertiesMetadata[ 'namespace' ];
-                    unset($propertiesMetadata[ 'namespace' ]);
+                if (isset($packageJsonMetadata['namespace'])) {
+                    $moduleNamespace = $packageJsonMetadata['namespace'];
+                    unset($packageJsonMetadata['namespace']);
                 }
 
                 $moduleParentSegments = [];
@@ -494,22 +493,22 @@ class Modules extends SplArrayStack
                 $registryKey = implode('/', $moduleSegments);
 
                 if ($registryKey === '') {
-                    if ($propertiesFileInfo[ 'dirname' ] . DIRECTORY_SEPARATOR !== PATH_APP and $modularType === 'app') {
+                    if ($packageJsonFileInfo['dirname'] . DIRECTORY_SEPARATOR !== PATH_APP and $modularType === 'app') {
                         $registryKey = dash(snakecase(
-                                pathinfo($propertiesFileInfo[ 'dirname' ], PATHINFO_FILENAME)));
+                            pathinfo($packageJsonFileInfo['dirname'], PATHINFO_FILENAME)));
                     }
                 } else {
                     $registryKey = $registryKey;
                 }
 
-                $datastructures[ $registryKey ] = (new Datastructures\Module(
-                    $propertiesFileInfo[ 'dirname' ]
+                $registry[$registryKey] = (new Datastructures\Module(
+                    $packageJsonFileInfo['dirname']
                 ))
-                    ->setType($propertiesFileInfo[ 'filename' ])
+                    ->setType($packageJsonFileInfo['filename'])
                     ->setNamespace($moduleNamespace)
                     ->setSegments($moduleSegments)
                     ->setParentSegments($moduleParentSegments)
-                    ->setProperties($propertiesMetadata);
+                    ->setProperties($packageJsonMetadata);
 
                 if (is_cli()) {
                     output()->verbose(
@@ -523,9 +522,9 @@ class Modules extends SplArrayStack
             }
         }
 
-        ksort($datastructures);
+        ksort($registry);
 
-        return $datastructures;
+        return $registry;
     }
 
     // ------------------------------------------------------------------------
@@ -543,7 +542,7 @@ class Modules extends SplArrayStack
     {
         $pluralTypes = plural(strtolower($type));
 
-        if ( ! in_array($pluralTypes, $this->types)) {
+        if (!in_array($pluralTypes, $this->types)) {
             array_push($this->types, $pluralTypes);
         }
 
@@ -666,8 +665,8 @@ class Modules extends SplArrayStack
         $segment = dash($segment);
 
         if ($this->exists($segment)) {
-            if ($this->registry[ $segment ] instanceof Datastructures\Module) {
-                return $this->registry[ $segment ];
+            if ($this->registry[$segment] instanceof Datastructures\Module) {
+                return $this->registry[$segment];
             }
         }
 
@@ -687,13 +686,17 @@ class Modules extends SplArrayStack
     {
         $segments = is_array($segments) ? implode('/', $segments) : $segments;
 
-        return (bool)array_key_exists($segments, $this->registry);
+        if(is_string($segments)) {
+            return (bool)array_key_exists($segments, $this->registry);
+        }
+
+        return false;
     }
 
     public function first()
     {
-        if (isset($this->registry[ '' ])) {
-            return $this->registry[ '' ];
+        if (isset($this->registry[''])) {
+            return $this->registry[''];
         } elseif (reset($this->registry)->type === 'APP') {
             return reset($this->registry);
         }
@@ -715,7 +718,7 @@ class Modules extends SplArrayStack
         $segments = (is_array($segments) ? implode('/', array_map('dash', $segments)) : $segments);
 
         if ($this->exists($segments)) {
-            return $this->registry[ $segments ];
+            return $this->registry[$segments];
         }
 
         return false;
@@ -736,7 +739,7 @@ class Modules extends SplArrayStack
 
         foreach ($this as $key => $module) {
             if ($module instanceof Datastructures\Module) {
-                $namespaces[ $key ] = new SplNamespaceInfo($module->getNamespace(), $module->getRealPath());
+                $namespaces[$key] = new SplNamespaceInfo($module->getNamespace(), $module->getRealPath());
             }
         }
 
@@ -751,7 +754,7 @@ class Modules extends SplArrayStack
      * Gets module directories
      *
      * @param string $dirName
-     * @param bool   $reverse
+     * @param bool $reverse
      *
      * @return array
      */

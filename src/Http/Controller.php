@@ -31,8 +31,8 @@ class Controller extends \O2System\Kernel\Http\Controller
             $property = 'loader';
         }
 
-        if (o2system()->hasService($property)) {
-            $get[ $property ] = o2system()->getService($property);
+        if (services()->has($property)) {
+            $get[ $property ] = services()->get($property);
         } elseif (o2system()->__isset($property)) {
             $get[ $property ] = o2system()->__get($property);
         } elseif ($property === 'model') {

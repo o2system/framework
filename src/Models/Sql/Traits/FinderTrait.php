@@ -25,7 +25,7 @@ use O2System\Framework\Models\Sql\DataObjects;
  */
 trait FinderTrait
 {
-    public function all($fields = null, $limit = null)
+    protected function all($fields = null, $limit = null)
     {
         if (isset($fields)) {
             $this->qb->select($fields);
@@ -42,9 +42,7 @@ trait FinderTrait
             $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
         }
 
-        $result = $this->qb->from($this->table)->get();
-
-        if ($result instanceof Result) {
+        if ($result = $this->qb->from($this->table)->get()) {
             if ($result->count() > 0) {
                 $this->result = new DataObjects\Result($result, $this);
                 $this->result->setInfo($result->getInfo());
@@ -58,7 +56,7 @@ trait FinderTrait
 
     // ------------------------------------------------------------------------
 
-    public function withPaging($page = null, $limit = null)
+    protected function withPaging($page = null, $limit = null)
     {
         $getPage = $this->input->get('page');
         $getLimit = $this->input->get('limit');
@@ -73,14 +71,14 @@ trait FinderTrait
 
     // ------------------------------------------------------------------------
 
-    public function allWithPaging($fields = null, $limit = null)
+    protected function allWithPaging($fields = null, $limit = null)
     {
         return $this->withPaging(null, $limit)->all($fields, $limit);
     }
 
     // ------------------------------------------------------------------------
 
-    public function find($criteria, $field = null, $limit = null)
+    protected function find($criteria, $field = null, $limit = null)
     {
         if (is_array($criteria)) {
             return $this->findIn($criteria, $field);
@@ -91,12 +89,10 @@ trait FinderTrait
             $field = $this->table . '.' . $field;
         }
 
-        $result = $this->qb
+        if ($result = $this->qb
             ->from($this->table)
             ->where($field, $criteria)
-            ->get($limit);
-
-        if ($result instanceof Result) {
+            ->get($limit)) {
             if ($result->count() > 0) {
                 $this->result = new DataObjects\Result($result, $this);
                 $this->result->setInfo($result->getInfo());
@@ -124,17 +120,15 @@ trait FinderTrait
      *
      * @return  DataObjects\Result|bool Returns FALSE if failed.
      */
-    public function findIn(array $inCriteria, $field = null)
+    protected function findIn(array $inCriteria, $field = null)
     {
         $field = isset($field) ? $field : $this->primaryKey;
         $field = $this->table . '.' . $field;
 
-        $result = $this->qb
+        if ($result = $this->qb
             ->from($this->table)
             ->whereIn($field, $inCriteria)
-            ->get();
-
-        if ($result->count() > 0) {
+            ->get()) {
             $this->result = new DataObjects\Result($result, $this);
             $this->result->setInfo($result->getInfo());
 
@@ -156,7 +150,7 @@ trait FinderTrait
      * @access  protected
      * @return  DataObjects\Result|bool Returns FALSE if failed.
      */
-    public function findWhere(array $conditions, $limit = null)
+    protected function findWhere(array $conditions, $limit = null)
     {
         foreach ($conditions as $field => $criteria) {
             if (strpos($field, '.') === false) {
@@ -165,11 +159,9 @@ trait FinderTrait
             $this->qb->where($field, $criteria);
         }
 
-        $result = $this->qb
+        if ($result = $this->qb
             ->from($this->table)
-            ->get($limit);
-
-        if ($result->count() > 0) {
+            ->get($limit)) {
             $this->result = new DataObjects\Result($result, $this);
             $this->result->setInfo($result->getInfo());
 
@@ -195,19 +187,17 @@ trait FinderTrait
      *
      * @return  DataObjects\Result|bool Returns FALSE if failed.
      */
-    public function findNotIn(array $notInCriteria, $field = null)
+    protected function findNotIn(array $notInCriteria, $field = null)
     {
         $field = isset($field) ? $field : $this->primaryKey;
         if (strpos($field, '.') === false) {
             $field = $this->table . '.' . $field;
         }
 
-        $result = $this->qb
+        if ($result = $this->qb
             ->from($this->table)
             ->whereNotIn($field, $notInCriteria)
-            ->get();
-
-        if ($result->count() > 0) {
+            ->get()) {
             $this->result = new DataObjects\Result($result, $this);
             $this->result->setInfo($result->getInfo());
 

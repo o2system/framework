@@ -25,50 +25,98 @@ use O2System\Framework\Http\Presenter\Assets\Collections;
  */
 class Body extends Abstracts\AbstractPosition
 {
+    /**
+     * Body::$javascript
+     * 
+     * @var \O2System\Framework\Http\Presenter\Assets\Collections\Javascript 
+     */
     protected $javascript;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Body::__construct
+     */
     public function __construct()
     {
         $this->javascript = new Collections\Javascript();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Body::__toString
+     * 
+     * @return string
+     */
     public function __toString()
     {
-        $config = presenter()->getConfig('assets');
-
-        $webpack = false;
-        if (isset($config[ 'webpack' ])) {
-            $webpack = (bool)$config[ 'webpack' ];
-        }
-
         $output = [];
+        $unbundledFilename = ['app', 'app.min', 'theme', 'theme.min'];
 
         // Render js
         if ($this->javascript->count()) {
-            $minifyJsCollection = $this->javascript->getArrayCopy();
-            $minifyJsKey = 'bundle-body-' . md5(serialize($minifyJsCollection));
-            $minifyJsFile = PATH_PUBLIC . 'webpack' . DIRECTORY_SEPARATOR . $minifyJsKey . '.js';
-            $minifyJsHandler = new JS();
-
-            foreach ($this->javascript as $javascript) {
-                if ($webpack) {
-                    $minifyJsHandler->add($javascript);
-                } else {
-                    $url = $this->getUrl($javascript);
-                    $url = str_replace('/.js', '/index.js', $url);
-
-                    $output[] = '<script type="text/javascript" src="' . $url . '"></script>';
+            foreach($this->javascript as $js) {
+                if(in_array(pathinfo($js, PATHINFO_FILENAME), $unbundledFilename)) {
+                    $jsVersion = $this->getVersion($js);
+                    $output[] = '<script type="text/javascript" src="' . $this->getUrl($js) . '?v=' . $jsVersion . '"></script>';
                 }
             }
 
-            if ($webpack) {
-                if ( ! is_dir($minifyJsDirectory = dirname($minifyJsFile))) {
-                    mkdir($minifyJsDirectory, 0777, true);
+            $bundleJsCollection = $this->javascript->getArrayCopy();
+            $bundleJsVersion = $this->getVersion(serialize($bundleJsCollection));
+            $bundleJsFilename = 'body-' . controller()->getClassInfo()->getParameter();
+            $bundleJsFilePath = PATH_PUBLIC . 'assets' . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . $bundleJsFilename . '.js';
+            $bundleJsMinifyFilePath = PATH_PUBLIC . 'assets' . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . $bundleJsFilename . '.min.js';
+
+            if (is_file($bundleJsFilePath . '.map')) {
+                $bundleJsMap = json_decode(file_get_contents($bundleJsFilePath . '.map'), true);
+                // if the file version is changed delete it first
+                if ( ! hash_equals($bundleJsVersion, $bundleJsMap[ 'version' ])) {
+                    unlink($bundleJsFilePath);
+                    unlink($bundleJsFilePath . '.map');
+                }
+            }
+
+            if ( ! is_file($bundleJsFilePath)) {
+                $bundleJsMap = [
+                    'version' => $bundleJsVersion,
+                ];
+
+                // Create js file
+                if ($bundleFileStream = @fopen($bundleJsFilePath, 'ab')) {
+                    flock($bundleFileStream, LOCK_EX);
+
+                    foreach ($this->css as $css) {
+                        if( ! in_array(pathinfo($css, PATHINFO_FILENAME), $unbundledFilename)) {
+                            $bundleJsMap[ 'sources' ][] = $css;
+                            fwrite($bundleFileStream, file_get_contents($css));
+                        }
+                    }
+
+                    flock($bundleFileStream, LOCK_UN);
+                    fclose($bundleFileStream);
                 }
 
-                $minifyJsHandler->minify($minifyJsFile);
+                // Create js map
+                if ($bundleFileStream = @fopen($bundleJsFilePath . '.map', 'ab')) {
+                    flock($bundleFileStream, LOCK_EX);
 
-                $output[] = '<script type="text/javascript" src="' . $this->getUrl('webpack/' . $minifyJsKey . '.js') . '"></script>';
+                    fwrite($bundleFileStream, json_encode($bundleJsMap));
+
+                    flock($bundleFileStream, LOCK_UN);
+                    fclose($bundleFileStream);
+                }
+
+                // Create js file minify version
+                $minifyJsHandler = new JS($bundleJsFilePath);
+                $minifyJsHandler->minify($bundleJsMinifyFilePath);
+            }
+
+            if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
+                $output[] = '<script type="text/javascript" src="' . $this->getUrl($bundleJsMinifyFilePath) . '?v=' . $bundleJsVersion . '"></script>';
+            } else {
+                $output[] = '<script type="text/javascript" src="' . $this->getUrl($bundleJsFilePath) . '?v=' . $bundleJsVersion . '"></script>';
             }
         }
 

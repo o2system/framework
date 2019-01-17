@@ -11,15 +11,22 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Cli;
+namespace O2System\Framework\Http\Controllers;
 
 // ------------------------------------------------------------------------
 
-/**
- * Class Router
- * @package O2System\Framework\Cli
- */
-class Router extends \O2System\Kernel\Cli\Router
-{
+use O2System\Framework\Http\Controller;
 
+/**
+ * Class Blender
+ * @package O2System\Framework\Http\Controllers
+ */
+class Blender extends Controller
+{
+    public function index()
+    {
+        output()->sendPayload([
+            'js' => 'cache/assets/app.js'
+        ]);
+    }
 }

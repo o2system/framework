@@ -59,21 +59,23 @@ class Language extends \O2System\Kernel\Services\Language
      */
     public function loadRegistry()
     {
-        $cacheItemPool = cache()->getItemPool('default');
+        if(empty($this->registry)) {
+            $cacheItemPool = cache()->getItemPool('default');
 
-        if (cache()->hasItemPool('registry')) {
-            $cacheItemPool = cache()->getItemPool('registry');
-        }
+            if (cache()->hasItemPool('registry')) {
+                $cacheItemPool = cache()->getItemPool('registry');
+            }
 
-        if ($cacheItemPool instanceof CacheItemPoolInterface) {
-            if ($cacheItemPool->hasItem('o2languages')) {
-                $this->registry = $cacheItemPool->getItem('o2languages')->get();
+            if ($cacheItemPool instanceof CacheItemPoolInterface) {
+                if ($cacheItemPool->hasItem('o2languages')) {
+                    $this->registry = $cacheItemPool->getItem('o2languages')->get();
+                } else {
+                    $this->registry = $this->fetchRegistry();
+                    $cacheItemPool->save(new Item('o2languages', $this->registry, false));
+                }
             } else {
                 $this->registry = $this->fetchRegistry();
-                $cacheItemPool->save(new Item('o2languages', $this->registry, false));
             }
-        } else {
-            $this->registry = $this->fetchRegistry();
         }
     }
 
@@ -90,52 +92,49 @@ class Language extends \O2System\Kernel\Services\Language
     {
         $registry = [];
         $directory = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator(PATH_ROOT),
-            \RecursiveIteratorIterator::SELF_FIRST
+            new \RecursiveDirectoryIterator(PATH_ROOT)
         );
 
-        $packagesIterator = new \RegexIterator($directory, '/^.+\.jsprop/i', \RecursiveRegexIterator::GET_MATCH);
+        $packagesIterator = new \RegexIterator($directory, '/^.+\.json$/i', \RecursiveRegexIterator::GET_MATCH);
 
-        foreach ($packagesIterator as $packageFilesProperties) {
-            foreach ($packageFilesProperties as $packageFileProperties) {
+        foreach ($packagesIterator as $packageJsonFiles) {
+            foreach ($packageJsonFiles as $packageJsonFile) {
+                $packageJsonFile = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $packageJsonFile);
+                $packageJsonFileInfo = pathinfo($packageJsonFile);
 
-                // filter fetch only language.jsprop filename
-                if (strpos($packageFileProperties, 'language.jsprop') === false) {
-                    continue;
-                }
-
-                if (is_cli()) {
-                    output()->verbose(
-                        (new Format())
-                            ->setString(language()->getLine('CLI_REGISTRY_LANGUAGE_VERB_FETCH_MANIFEST_START',
-                                [str_replace(PATH_ROOT, '/', $packageFileProperties)]))
-                            ->setNewLinesAfter(1)
-                    );
-                }
-
-                $package = new Datastructures\Language(dirname($packageFileProperties));
-
-                if ($package->isValid()) {
-
+                if ($packageJsonFileInfo['filename'] === 'language') {
                     if (is_cli()) {
                         output()->verbose(
                             (new Format())
-                                ->setContextualClass(Format::SUCCESS)
-                                ->setString(language()->getLine('CLI_REGISTRY_LANGUAGE_VERB_FETCH_MANIFEST_SUCCESS'))
-                                ->setIndent(2)
+                                ->setString(language()->getLine('CLI_REGISTRY_LANGUAGE_VERB_FETCH_MANIFEST_START',
+                                    [str_replace(PATH_ROOT, '/', $packageJsonFile)]))
                                 ->setNewLinesAfter(1)
                         );
                     }
 
-                    $registry[ $package->getDirName() ] = $package;
-                } elseif (is_cli()) {
-                    output()->verbose(
-                        (new Format())
-                            ->setContextualClass(Format::DANGER)
-                            ->setString(language()->getLine('CLI_REGISTRY_LANGUAGE_VERB_FETCH_MANIFEST_FAILED'))
-                            ->setIndent(2)
-                            ->setNewLinesAfter(1)
-                    );
+                    $package = new Datastructures\Language(dirname($packageJsonFile));
+
+                    if ($package->isValid()) {
+                        if (is_cli()) {
+                            output()->verbose(
+                                (new Format())
+                                    ->setContextualClass(Format::SUCCESS)
+                                    ->setString(language()->getLine('CLI_REGISTRY_LANGUAGE_VERB_FETCH_MANIFEST_SUCCESS'))
+                                    ->setIndent(2)
+                                    ->setNewLinesAfter(1)
+                            );
+                        }
+
+                        $registry[ $package->getDirName() ] = $package;
+                    } elseif (is_cli()) {
+                        output()->verbose(
+                            (new Format())
+                                ->setContextualClass(Format::DANGER)
+                                ->setString(language()->getLine('CLI_REGISTRY_LANGUAGE_VERB_FETCH_MANIFEST_FAILED'))
+                                ->setIndent(2)
+                                ->setNewLinesAfter(1)
+                        );
+                    }
                 }
             }
         }

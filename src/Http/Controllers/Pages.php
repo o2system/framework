@@ -44,28 +44,6 @@ class Pages extends Controller
     public function setPage(Page $page)
     {
         $this->page = $page;
-
-        if (false !== ($settings = $this->page->getSettings())) {
-            if ($settings->offsetExists('theme')) {
-                presenter()->theme->set($settings->theme);
-            }
-
-            if ($settings->offsetExists('layout')) {
-                presenter()->theme->setLayout($settings->layout);
-            }
-
-            if ($settings->offsetExists('title')) {
-                presenter()->meta->title->append($settings->title);
-            }
-
-            if ($settings->offsetExists('pageTitle')) {
-                presenter()->meta->title->append($settings->pageTitle);
-            }
-
-            if ($settings->offsetExists('browserTitle')) {
-                presenter()->meta->title->replace($settings->browserTitle);
-            }
-        }
     }
 
     // ------------------------------------------------------------------------
@@ -77,6 +55,28 @@ class Pages extends Controller
      */
     public function index()
     {
+        if (false !== ($presets = $this->page->getPresets())) {
+            if ($presets->offsetExists('theme')) {
+                presenter()->theme->set($presets->theme);
+            }
+
+            if ($presets->offsetExists('layout')) {
+                presenter()->theme->setLayout($presets->layout);
+            }
+
+            if ($presets->offsetExists('title')) {
+                presenter()->meta->title->append($presets->title);
+            }
+
+            if ($presets->offsetExists('pageTitle')) {
+                presenter()->meta->title->append($presets->pageTitle);
+            }
+
+            if ($presets->offsetExists('browserTitle')) {
+                presenter()->meta->title->replace($presets->browserTitle);
+            }
+        }
+
         view()->page($this->page);
     }
 }

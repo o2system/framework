@@ -45,7 +45,7 @@ class Row extends SplArrayObject
         $this->model = new SplClassInfo($model);
 
         if ( ! models()->has($this->model->getClass())) {
-            models()->register($this->model->getClass(), $model);
+            models()->add($model, $this->model->getClass());
         }
 
         if ($row instanceof Database\DataObjects\Result\Row) {

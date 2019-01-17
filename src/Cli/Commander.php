@@ -30,8 +30,8 @@ abstract class Commander extends \O2System\Kernel\Cli\Commander
             $property = 'loader';
         }
 
-        if (o2system()->hasService($property)) {
-            return o2system()->getService($property);
+        if (services()->has($property)) {
+            return services()->get($property);
         } elseif (o2system()->__isset($property)) {
             return o2system()->__get($property);
         } elseif ($property === 'model') {

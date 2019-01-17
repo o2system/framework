@@ -205,6 +205,9 @@ class Options extends Model
         return $statuses;
     }
 
+    // ------------------------------------------------------------------------
+
+
     public function visibilities()
     {
         $visibilities = [];
@@ -221,6 +224,13 @@ class Options extends Model
         return $visibilities;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Options::languages
+     *
+     * @return array
+     */
     public function languages()
     {
         $languages = [];

@@ -32,8 +32,10 @@ class Presenter extends AbstractRepository
      */
     public function __construct()
     {
+        loader()->helper('Url');
         $this->store('meta', new Presenter\Meta());
         $this->store('manifest', new Presenter\Manifest());
+        $this->store('page', new Presenter\Page());
         $this->store('assets', new Presenter\Assets());
         $this->store('partials', new Presenter\Partials());
         $this->store('widgets', new Presenter\Widgets());
@@ -61,8 +63,10 @@ class Presenter extends AbstractRepository
 
             // autoload presenter theme
             if ($config->offsetExists('theme')) {
-                $this->theme->set($config->offsetGet('theme'));
-                //$this->theme->load();
+                if(false !== ($theme = $config->offsetGet('theme'))) {
+                    $this->theme->set($config->offsetGet('theme'));
+                    $this->theme->load();
+                }
             }
 
             // autoload presenter manifest
@@ -110,10 +114,8 @@ class Presenter extends AbstractRepository
             $property = 'loader';
         }
 
-        if (o2system()->hasService($property)) {
-            return o2system()->getService($property);
-        } elseif (o2system()->__isset($property)) {
-            return o2system()->__get($property);
+        if (services()->has($property)) {
+            return services()->get($property);
         } elseif ($property === 'model') {
             return models('controller');
         } elseif ($property === 'services' || $property === 'libraries') {

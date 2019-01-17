@@ -63,7 +63,7 @@ class Pagination extends Unordered
     {
         $this->limit = (int)$limit;
 
-        if ($this->total > 0) {
+        if ($this->total > 0 && $this->limit > 0) {
             $this->setPages(ceil($this->total / $limit));
         }
 

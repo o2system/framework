@@ -35,11 +35,11 @@ class Theme extends SplDirectoryInfo
     private $properties = [];
 
     /**
-     * Theme Config
+     * Theme Presets
      *
      * @var array
      */
-    private $config = [];
+    private $presets = [];
 
     /**
      * Theme Layout
@@ -58,20 +58,16 @@ class Theme extends SplDirectoryInfo
         parent::__construct($dir);
 
         // Set Theme Properties
-        if (is_file($propFilePath = $dir . 'theme.jsprop')) {
+        if (is_file($propFilePath = $dir . 'theme.json')) {
             $properties = json_decode(file_get_contents($propFilePath), true);
 
             if (json_last_error() === JSON_ERROR_NONE) {
+                if(isset($properties['config'])) {
+                    $this->presets = $properties['presets'];
+                    unset($properties['presets']);
+                }
+
                 $this->properties = $properties;
-            }
-        }
-
-        // Set Theme Config
-        if (is_file($propFilePath = $dir . 'theme.jsconf')) {
-            $config = json_decode(file_get_contents($propFilePath), true);
-
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $this->config = $config;
             }
         }
     }
@@ -105,9 +101,9 @@ class Theme extends SplDirectoryInfo
         return new SplArrayObject($this->properties);
     }
 
-    public function getConfig()
+    public function getPresets()
     {
-        return new SplArrayObject($this->config);
+        return new SplArrayObject($this->presets);
     }
 
     public function getUrl($path = null)
@@ -161,10 +157,10 @@ class Theme extends SplDirectoryInfo
     {
         $extensions = ['.php', '.phtml', '.html', '.tpl'];
 
-        if (isset($this->config[ 'extensions' ])) {
-            array_unshift($partialsExtensions, $this->config[ 'extension' ]);
-        } elseif (isset($this->config[ 'extension' ])) {
-            array_unshift($extensions, $this->config[ 'extension' ]);
+        if (isset($this->presets[ 'extensions' ])) {
+            array_unshift($partialsExtensions, $this->presets[ 'extension' ]);
+        } elseif (isset($this->presets[ 'extension' ])) {
+            array_unshift($extensions, $this->presets[ 'extension' ]);
         }
 
         foreach ($extensions as $extension) {

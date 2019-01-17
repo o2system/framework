@@ -37,7 +37,7 @@ trait RelationTrait
      *
      * @return Row|bool
      */
-    public function belongsTo($referenceModel, $foreignKey = null)
+    protected function belongsTo($referenceModel, $foreignKey = null)
     {
         return (new Relations\BelongsTo(
             new Relations\Maps\Inverse($this, $referenceModel, $foreignKey)
@@ -46,7 +46,7 @@ trait RelationTrait
 
     // ------------------------------------------------------------------------
 
-    public function belongsToThrough(
+    protected function belongsToThrough(
         $referenceModel,
         $intermediaryModel,
         $intermediaryCurrentForeignKey = null,
@@ -68,7 +68,7 @@ trait RelationTrait
      *
      * @return Row|bool
      */
-    public function belongsToMany($referenceModel, $foreignKey = null)
+    protected function belongsToMany($referenceModel, $foreignKey = null)
     {
         return (new Relations\BelongsToMany(
             new Relations\Maps\Inverse($this, $referenceModel, $foreignKey)
@@ -77,7 +77,7 @@ trait RelationTrait
 
     // ------------------------------------------------------------------------
 
-    public function belongsToManyThrough(
+    protected function belongsToManyThrough(
         $referenceModel,
         $intermediaryModel,
         $intermediaryCurrentForeignKey = null,
@@ -100,7 +100,7 @@ trait RelationTrait
      *
      * @return Row|bool
      */
-    public function hasOne($referenceModel, $foreignKey = null)
+    protected function hasOne($referenceModel, $foreignKey = null)
     {
         return (new Relations\HasOne(
             new Relations\Maps\Reference($this, $referenceModel, $foreignKey)
@@ -120,7 +120,7 @@ trait RelationTrait
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function hasOneThrough(
+    protected function hasOneThrough(
         $referenceModel,
         $intermediaryModel,
         $intermediaryCurrentForeignKey = null,
@@ -143,7 +143,7 @@ trait RelationTrait
      *
      * @return Result|bool
      */
-    public function hasMany($referenceModel, $foreignKey = null)
+    protected function hasMany($referenceModel, $foreignKey = null)
     {
         return (new Relations\HasMany(
             new Relations\Maps\Reference($this, $referenceModel, $foreignKey)
@@ -163,7 +163,7 @@ trait RelationTrait
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function hasManyThrough(
+    protected function hasManyThrough(
         $referenceModel,
         $intermediaryModel,
         $intermediaryCurrentForeignKey = null,

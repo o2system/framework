@@ -39,7 +39,7 @@ class Theme extends Make
     public function optionName($name)
     {
         if(empty($this->optionPath)) {
-            $this->optionPath = PATH_PUBLIC . 'themes' . DIRECTORY_SEPARATOR;
+            $this->optionPath = PATH_RESOURCES . 'themes' . DIRECTORY_SEPARATOR;
         }
 
         $this->optionName = $name;
