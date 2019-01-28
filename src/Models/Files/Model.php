@@ -1,19 +1,29 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: steevenz
- * Date: 14/03/18
- * Time: 19.37
+ * This file is part of the O2System Content Management System package.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author         Steeve Andrian
+ * @copyright      Copyright (c) Steeve Andrian
  */
+
+// ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Files;
 
+// ------------------------------------------------------------------------
 
 use O2System\Filesystem\Files\JsonFile;
 use O2System\Filesystem\Files\XmlFile;
 use O2System\Framework\Models\Files\Traits\FinderTrait;
 use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
+/**
+ * Class Model
+ * @package O2System\Framework\Models\Files
+ */
 class Model extends AbstractRepository
 {
     use FinderTrait;
@@ -21,6 +31,8 @@ class Model extends AbstractRepository
     public $file;
     public $result;
     public $primaryKey = 'id';
+
+    // ------------------------------------------------------------------------
 
     public function __construct()
     {
@@ -46,6 +58,8 @@ class Model extends AbstractRepository
         }
     }
 
+    // ------------------------------------------------------------------------
+
     public function get($property)
     {
         if (empty($get[ $property ])) {
@@ -61,6 +75,8 @@ class Model extends AbstractRepository
         }
     }
 
+    // ------------------------------------------------------------------------
+
     final protected function loadSubModel($model)
     {
         if (is_file($this->validSubModels[ $model ])) {
@@ -74,6 +90,8 @@ class Model extends AbstractRepository
 
         return $this->{$model};
     }
+
+    // ------------------------------------------------------------------------
 
     final protected function getSubModel($model)
     {

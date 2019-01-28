@@ -212,6 +212,7 @@ class Framework extends Kernel
         if (profiler() !== false) {
             profiler()->watch('Starting Cache Service');
         }
+
         $this->services->add(new Framework\Services\Cache(config('cache', true)), 'cache');
 
         // Instantiate Modules Container
@@ -268,11 +269,12 @@ class Framework extends Kernel
      * Framework::cliHandler
      *
      * @return void
+     * @throws \ReflectionException
      */
     private function cliHandler()
     {
         // Instantiate CLI Router Service
-        $this->services->load(Framework\Cli\Router::class);
+        $this->services->load(Kernel\Cli\Router::class);
 
         if (profiler() !== false) {
             profiler()->watch('Parse Router Request');
@@ -298,7 +300,7 @@ class Framework extends Kernel
                 $modelClassName = str_replace('Commanders', 'Models', $commander->getName());
 
                 if (class_exists($modelClassName)) {
-                    models()->load($modelClassName, 'commander');
+                    $this->models->load($modelClassName, 'commander');
                 }
 
                 // Initialize Controller
@@ -333,6 +335,7 @@ class Framework extends Kernel
      * Framework::httpHandler
      *
      * @return void
+     * @throws \ReflectionException
      */
     private function httpHandler()
     {
@@ -368,7 +371,7 @@ class Framework extends Kernel
             }
 
             if (config('security')->protection[ 'xss' ] === true) {
-                $csrfProtection = new Security\Protections\Xss();
+                $xssProtection = new Security\Protections\Xss();
                 $this->services->add($xssProtection, 'xssProtection');
             }
         }
@@ -420,11 +423,11 @@ class Framework extends Kernel
                 $modelClassName = str_replace(['Controllers', 'Presenters'], 'Models', $controller->getName());
 
                 if (class_exists($modelClassName)) {
-                    $this->models->register('controller', new $modelClassName());
+                    $this->models->load($modelClassName, 'controller');
                 }
 
                 // Autoload Assets
-                if (config()->loadFile('view') === true) {
+                if ($this->services->has('view')) {
                     $controllerAssets = [];
                     $controllerAssetsDirs = [];
 
@@ -515,10 +518,8 @@ class Framework extends Kernel
                     } else {
                         if ($requestControllerOutput === true) {
                             output()->sendError(200);
-                            exit(EXIT_SUCCESS);
                         } elseif ($requestControllerOutput === false) {
                             output()->sendError(204);
-                            exit(EXIT_ERROR);
                         }
                     }
                 } elseif (is_array($requestControllerOutput) or is_object($requestControllerOutput)) {
@@ -551,8 +552,8 @@ class Framework extends Kernel
                         }
 
                         if (presenter()->partials->offsetExists('content')) {
-                            view()->render();
-                            exit(EXIT_SUCCESS);
+                            $htmlOutput = view()->render();
+                            output()->send($htmlOutput);
                         }
                     }
 
@@ -564,13 +565,31 @@ class Framework extends Kernel
                         output()->send($requestControllerOutput);
                     } elseif (is_serialized($requestControllerOutput)) {
                         output()->send($requestControllerOutput);
-                    } elseif (config('presenter', true)->enabled === true) {
-                        presenter()->partials->offsetSet('content', $requestControllerOutput);
-                        view()->render();
+                    } elseif ($this->services->has('view')) {
+                        if($this->services->has('presenter')) {
+                            presenter()->partials->offsetSet('content', $requestControllerOutput);
+                        }
+
+                        $htmlOutput = view()->render();
+
+                        if (presenter()->offsetExists('cacheOutput')) {
+                            $cacheKey = 'o2output_' . underscore(server_request()->getUri()->getSegments()->getString());
+
+                            $cacheItemPool = cache()->getItemPool('default');
+
+                            if (cache()->hasItemPool('output')) {
+                                $cacheItemPool = cache()->getItemPool('output');
+                            }
+
+                            if (presenter()->cacheOutput > 0) {
+                                $cacheItemPool->save(new Cache\Item($cacheKey, $htmlOutput, presenter()->cacheOutput));
+                            }
+                        }
+
+                        output()->send($htmlOutput);
                     } else {
                         output()->send($requestControllerOutput);
                     }
-                    exit(EXIT_SUCCESS);
                 }
             }
         }

@@ -87,10 +87,10 @@ class Body extends Abstracts\AbstractPosition
                 if ($bundleFileStream = @fopen($bundleJsFilePath, 'ab')) {
                     flock($bundleFileStream, LOCK_EX);
 
-                    foreach ($this->css as $css) {
-                        if( ! in_array(pathinfo($css, PATHINFO_FILENAME), $unbundledFilename)) {
-                            $bundleJsMap[ 'sources' ][] = $css;
-                            fwrite($bundleFileStream, file_get_contents($css));
+                    foreach ($this->javascript as $javascript) {
+                        if( ! in_array(pathinfo($javascript, PATHINFO_FILENAME), $unbundledFilename)) {
+                            $bundleJsMap[ 'sources' ][] = $javascript;
+                            fwrite($bundleFileStream, file_get_contents($javascript));
                         }
                     }
 

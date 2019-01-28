@@ -87,17 +87,17 @@ class Models extends SplServiceContainer
      */
     public function add($model, $offset = null)
     {
-        if (is_object($service)) {
-            if ( ! $service instanceof SplServiceRegistry) {
-                $service = new SplServiceRegistry($service);
+        if (is_object($model)) {
+            if ( ! $model instanceof SplServiceRegistry) {
+                $model = new SplServiceRegistry($model);
             }
         }
 
         if (profiler() !== false) {
-            profiler()->watch('Add New Model: ' . $service->getClassName());
+            profiler()->watch('Add New Model: ' . $model->getClassName());
         }
 
-        $this->register($service, $offset);
+        $this->register($model, $offset);
     }
 
     // ------------------------------------------------------------------------

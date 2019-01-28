@@ -104,6 +104,10 @@ class Presenter extends AbstractRepository
         // Add Container
         $storage[ 'globals' ] = globals();
 
+        if (services()->has('csrfProtection')) {
+            $storage['csrfToken'] = services()->get('csrfProtection')->getToken();
+        }
+
         return $storage;
     }
 

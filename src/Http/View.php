@@ -392,22 +392,6 @@ class View implements RenderableInterface
 
         $htmlOutput = $this->document->saveHTML();
 
-        if (presenter()->offsetExists('cacheOutput')) {
-            $cacheKey = 'o2output_' . underscore(server_request()->getUri()->getSegments()->getString());
-
-            $cacheItemPool = cache()->getItemPool('default');
-
-            if (cache()->hasItemPool('output')) {
-                $cacheItemPool = cache()->getItemPool('output');
-            }
-
-            if ($cacheItemPool instanceof CacheItemPoolInterface) {
-                if (presenter()->cacheOutput > 0) {
-                    $cacheItemPool->save(new Item($cacheKey, $htmlOutput, presenter()->cacheOutput));
-                }
-            }
-        }
-
         // Uglify Output
         if ($this->config->output['uglify'] === true) {
             $htmlOutput = preg_replace(
@@ -440,6 +424,6 @@ class View implements RenderableInterface
             profiler()->watch('Ending View Rendering');
         }
 
-        output()->send($htmlOutput);
+        return $htmlOutput;
     }
 }

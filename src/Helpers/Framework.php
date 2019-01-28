@@ -156,7 +156,7 @@ if ( ! function_exists('modules')) {
      *
      * Convenient shortcut for O2System Framework Modules container.
      *
-     * @return O2System\Framework\Containers\Modules
+     * @return O2System\Framework\Containers\Modules|O2System\Framework\Datastructures\Module
      */
     function modules()
     {
@@ -178,7 +178,7 @@ if ( ! function_exists('router')) {
      *
      * Convenient shortcut for O2System Framework Router service.
      *
-     * @return O2System\Framework\Http\Router|O2System\Framework\Cli\Router
+     * @return O2System\Framework\Http\Router|O2System\Kernel\Cli\Router
      */
     function router()
     {
