@@ -133,16 +133,18 @@ class Output extends \O2System\Kernel\Http\Output
         $error = new ErrorException($errorMessage, $errorSeverity, $errorFile, $errorLine, $errorContext);
 
         // Logged the error
-        logger()->error(
-            implode(
-                ' ',
-                [
-                    '[ ' . $error->getStringSeverity() . ' ] ',
-                    $error->getMessage(),
-                    $error->getFile() . ':' . $error->getLine(),
-                ]
-            )
-        );
+        if(services()->has('logger')) {
+            logger()->error(
+                implode(
+                    ' ',
+                    [
+                        '[ ' . $error->getStringSeverity() . ' ] ',
+                        $error->getMessage(),
+                        $error->getFile() . ':' . $error->getLine(),
+                    ]
+                )
+            );
+        }
 
         // Should we display the error?
         if (str_ireplace(['off', 'none', 'no', 'false', 'null'], 0, ini_get('display_errors')) == 1) {
