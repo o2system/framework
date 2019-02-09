@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -29,10 +29,35 @@ class Pagination extends Unordered
 {
     use SizingSetterTrait;
 
+    /**
+     * Pagination::$total
+     *
+     * @var int
+     */
     protected $total = 0;
+
+    /**
+     * Pagination::$limit
+     *
+     * @var int
+     */
     protected $limit = 5;
+
+    /**
+     * Pagination::$pages
+     *
+     * @var int
+     */
     protected $pages = 0;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Pagination::__construct
+     *
+     * @param int $total
+     * @param int $limit
+     */
     public function __construct($total = 0, $limit = 5)
     {
         parent::__construct();
@@ -44,6 +69,15 @@ class Pagination extends Unordered
         $this->setSizingClassPrefix('pagination');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Pagination::setTotal
+     *
+     * @param int $total
+     *
+     * @return static
+     */
     public function setTotal($total)
     {
         $this->total = (int)$total;
@@ -52,6 +86,15 @@ class Pagination extends Unordered
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Pagination::setPages
+     *
+     * @param int $pages
+     *
+     * @return static
+     */
     public function setPages($pages)
     {
         $this->pages = (int)$pages;
@@ -59,6 +102,15 @@ class Pagination extends Unordered
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Pagination::setLimit
+     *
+     * @param int $limit
+     *
+     * @return static
+     */
     public function setLimit($limit)
     {
         $this->limit = (int)$limit;
@@ -70,6 +122,13 @@ class Pagination extends Unordered
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Pagination::render
+     *
+     * @return string
+     */
     public function render()
     {
         // returning empty string if the num pages is zero
@@ -132,6 +191,13 @@ class Pagination extends Unordered
         return implode('', $output);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Pagination::pushChildNode
+     *
+     * @param \O2System\Framework\Libraries\Ui\Element $node
+     */
     protected function pushChildNode(Element $node)
     {
         $node->attributes->addAttributeClass('page-item');

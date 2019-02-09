@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,7 +11,7 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Datastructures\Module\Theme\Layout;
+namespace O2System\Framework\Containers\Modules\DataStructures\Module\Theme\Layout;
 
 // ------------------------------------------------------------------------
 
@@ -21,13 +21,33 @@ use O2System\Spl\Info\SplFileInfo;
 /**
  * Class Partials
  *
- * @package O2System\Framework\Datastructures\Module\Theme\Layout
+ * @package O2System\Framework\Containers\Modules\DataStructures\Module\Theme\Layout
  */
 class Partials extends AbstractRepository
 {
+    /**
+     * Partials::$path
+     *
+     * @var string
+     */
     protected $path;
+
+    /**
+     * Partials::$extension
+     *
+     * @var string
+     */
     protected $extension;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Partials::setPath
+     *
+     * @param string $path
+     *
+     * @return static
+     */
     public function setPath($path)
     {
         if (is_dir($path)) {
@@ -37,6 +57,15 @@ class Partials extends AbstractRepository
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Partials::setExtension
+     *
+     * @param string $extension
+     *
+     * @return static
+     */
     public function setExtension($extension)
     {
         $this->extension = '.' . rtrim($extension, '.');
@@ -44,6 +73,11 @@ class Partials extends AbstractRepository
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Partials::autoload
+     */
     public function autoload()
     {
         if (is_dir($this->path)) {
@@ -51,6 +85,13 @@ class Partials extends AbstractRepository
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Partials::loadDir
+     *
+     * @param string $dir
+     */
     public function loadDir($dir)
     {
         $partialsFiles = scandir($dir);
@@ -68,6 +109,13 @@ class Partials extends AbstractRepository
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Partials::loadFile
+     *
+     * @param string $filePath
+     */
     public function loadFile($filePath)
     {
         if (strrpos($filePath, $this->extension) !== false) {
@@ -76,11 +124,29 @@ class Partials extends AbstractRepository
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Partials::hasPartial
+     *
+     * @param string $partialOffset
+     *
+     * @return bool
+     */
     public function hasPartial($partialOffset)
     {
         return $this->__isset($partialOffset);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Partials::get
+     *
+     * @param string $partial
+     *
+     * @return false|mixed|string|null
+     */
     public function get($partial)
     {
         $partialContent = parent::get($partial);

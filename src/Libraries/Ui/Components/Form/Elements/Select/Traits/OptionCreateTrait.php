@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,6 +24,14 @@ use O2System\Framework\Libraries\Ui\Components\Form\Elements\Select\Option;
  */
 trait OptionCreateTrait
 {
+    /**
+     * OptionCreateTrait::createOptions
+     *
+     * @param array         $options
+     * @param string|null   $selected
+     *
+     * @return static
+     */
     public function createOptions(array $options, $selected = null)
     {
         foreach ($options as $label => $value) {
@@ -39,6 +47,17 @@ trait OptionCreateTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * OptionCreateTrait::createOption
+     *
+     * @param string      $label
+     * @param string|null $value
+     * @param bool        $selected
+     *
+     * @return Option
+     */
     public function createOption($label, $value = null, $selected = false)
     {
         $option = new Option();

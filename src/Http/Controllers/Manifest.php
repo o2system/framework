@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,8 +23,16 @@ use O2System\Framework\Http\Controller;
  */
 class Manifest extends Controller
 {
+    /**
+     * Manifest::index
+     */
     public function index()
     {
-        output()->sendPayload(presenter()->manifest->getArrayCopy());
+        if(false !== ($config = $this->config->loadFile('manifest', true))) {
+            print_out('test');
+        }
+
+        print_out($config);
+        $this->output->sendPayload($this->presenter->manifest->getArrayCopy());
     }
 }

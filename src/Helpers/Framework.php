@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,47 +26,101 @@ if ( ! function_exists('o2system')) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists('loader')) {
-    /**
-     * loader
-     *
-     * Convenient shortcut for O2System Framework Loader service.
-     *
-     * @return O2System\Framework\Services\Loader
-     */
-    function loader()
-    {
-        return services('loader');
-    }
-}
-
-// ------------------------------------------------------------------------
-
 if ( ! function_exists('config')) {
     /**
      * config
      *
      * Convenient shortcut for O2System Framework Config service.
      *
-     * @return O2System\Framework\Services\Config|\O2System\Kernel\Datastructures\Config
+     * @return O2System\Framework\Containers\Config|\O2System\Kernel\DataStructures\Config
      */
     function config()
     {
         $args = func_get_args();
 
-        if ($countArgs = count($args)) {
-            if(services()->has('config')) {
-                $config = services('config');
+        if ($numArgs = count($args)) {
+            $config = o2system()->config;
 
-                if ($countArgs == 1) {
-                    return call_user_func_array([&$config, 'getItem'], $args);
-                } else {
-                    return call_user_func_array([&$config, 'loadFile'], $args);
-                }
+            if ($numArgs == 1) {
+                return call_user_func_array([&$config, 'getItem'], $args);
+            } else {
+                return call_user_func_array([&$config, 'loadFile'], $args);
             }
         }
 
-        return services('config');
+        return o2system()->config;
+    }
+}
+
+// ------------------------------------------------------------------------
+
+if ( ! function_exists('globals')) {
+    /**
+     * globals
+     *
+     * Convenient shortcut for O2System Framework globals container.
+     *
+     * @return mixed|O2System\Framework\Containers\Globals
+     */
+    function globals()
+    {
+        $args = func_get_args();
+
+        if (count($args)) {
+            if (isset($GLOBALS[ $args[ 0 ] ])) {
+                return $GLOBALS[ $args[ 0 ] ];
+            }
+
+            return null;
+        }
+
+        return o2system()->globals;
+    }
+}
+
+// ------------------------------------------------------------------------
+
+if ( ! function_exists('env')) {
+    /**
+     * env
+     *
+     * Convenient shortcut for O2System Framework environment container.
+     *
+     * @return mixed|O2System\Framework\Containers\Globals
+     */
+    function env()
+    {
+        $args = func_get_args();
+
+        if (count($args)) {
+            if (isset($_ENV[ $args[ 0 ] ])) {
+                return $_ENV[ $args[ 0 ] ];
+            }
+
+            return null;
+        }
+
+        return o2system()->environment;
+    }
+}
+
+// ------------------------------------------------------------------------
+
+if ( ! function_exists('loader')) {
+    /**
+     * loader
+     *
+     * Convenient shortcut for O2System Framework Loader service.
+     *
+     * @return O2System\Framework\Services\Loader|bool Returns FALSE if failed
+     */
+    function loader()
+    {
+        if (services()->has('loader')) {
+            return services()->get('loader');
+        }
+
+        return false;
     }
 }
 
@@ -82,7 +136,7 @@ if ( ! function_exists('cache')) {
      */
     function cache()
     {
-        if(services()->has('cache')) {
+        if (services()->has('cache')) {
             return services()->get('cache');
         }
 
@@ -98,11 +152,11 @@ if ( ! function_exists('hooks')) {
      *
      * Convenient shortcut for O2System Framework Hooks service.
      *
-     * @return O2System\Framework\Services\Hooks Returns FALSE if service not exists.
+     * @return O2System\Framework\Services\Hooks|bool Returns FALSE if service not exists.
      */
     function hooks()
     {
-        if(services()->has('hooks')) {
+        if (services()->has('hooks')) {
             return services()->get('hooks');
         }
 
@@ -156,7 +210,7 @@ if ( ! function_exists('modules')) {
      *
      * Convenient shortcut for O2System Framework Modules container.
      *
-     * @return O2System\Framework\Containers\Modules|O2System\Framework\Datastructures\Module
+     * @return O2System\Framework\Containers\Modules|O2System\Framework\Containers\Modules\DataStructures\Module
      */
     function modules()
     {
@@ -182,7 +236,11 @@ if ( ! function_exists('router')) {
      */
     function router()
     {
-        return services('router');
+        if (services()->has('router')) {
+            return services('router');
+        }
+
+        return false;
     }
 }
 
@@ -201,8 +259,8 @@ if ( ! function_exists('session')) {
         $args = func_get_args();
 
         if (count($args)) {
-            if(isset($_SESSION[ $args[0] ])) {
-                return $_SESSION[ $args[0] ];
+            if (isset($_SESSION[ $args[ 0 ] ])) {
+                return $_SESSION[ $args[ 0 ] ];
             }
 
             return null;
@@ -224,7 +282,11 @@ if ( ! function_exists('middleware')) {
      */
     function middleware()
     {
-        return services('middleware');
+        if (services()->has('middleware')) {
+            return services('middleware');
+        }
+
+        return false;
     }
 }
 
@@ -243,7 +305,7 @@ if ( ! function_exists('view')) {
         $args = func_get_args();
 
         if (count($args)) {
-            if(services()->has('view')) {
+            if (services()->has('view')) {
                 $view = services('view');
 
                 return call_user_func_array([&$view, 'load'], $args);
@@ -264,11 +326,15 @@ if ( ! function_exists('parser')) {
      *
      * Convenient shortcut for O2System Parser service.
      *
-     * @return O2System\Framework\Http\Parser
+     * @return O2System\Framework\Http\Parser|bool Returns FALSE if failed.
      */
     function parser()
     {
-        return services('parser');
+        if (services()->has('parser')) {
+            return services('parser');
+        }
+
+        return false;
     }
 }
 
@@ -280,11 +346,15 @@ if ( ! function_exists('presenter')) {
      *
      * Convenient shortcut for O2System Framework Http Presenter service.
      *
-     * @return O2System\Framework\Http\Presenter|object
+     * @return O2System\Framework\Http\Presenter|mixed Returns FALSE if failed.
      */
     function presenter()
     {
-        return services('presenter');
+        if (services()->has('presenter')) {
+            return services('presenter');
+        }
+
+        return false;
     }
 }
 
@@ -300,14 +370,18 @@ if ( ! function_exists('controller')) {
      */
     function controller()
     {
-        $args = func_get_args();
+        if (services()->has('controller')) {
+            $args = func_get_args();
 
-        if (count($args)) {
-            $controller = services()->get('controller');
+            if (count($args)) {
+                $controller = services()->get('controller');
 
-            return call_user_func_array([&$controller, '__call'], $args);
+                return call_user_func_array([&$controller, '__call'], $args);
+            }
+
+            return services('controller');
         }
 
-        return services('controller');
+        return false;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -58,7 +58,9 @@ abstract class AbstractMap
             $this->referenceTable = $this->referenceModel->table;
             $this->referencePrimaryKey = $this->referenceModel->primaryKey;
         } else {
-            $this->referenceModel = new class extends Model {};
+            $this->referenceModel = new class extends Model
+            {
+            };
             $this->referenceModel->table = $this->referenceTable = $referenceModel;
             $this->referenceModel->primaryKey = $this->referencePrimaryKey = 'id';
         }

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,15 +24,15 @@ class Assets
 {
     /**
      * Assets::$head
-     * 
-     * @var \O2System\Framework\Http\Presenter\Assets\Positions\Head 
+     *
+     * @var \O2System\Framework\Http\Presenter\Assets\Positions\Head
      */
     protected $head;
 
     /**
      * Assets::$body
-     * 
-     * @var \O2System\Framework\Http\Presenter\Assets\Positions\Body 
+     *
+     * @var \O2System\Framework\Http\Presenter\Assets\Positions\Body
      */
     protected $body;
 
@@ -44,23 +44,9 @@ class Assets
     public function __construct()
     {
         loader()->addPublicDir('assets', 'assets');
-        
+
         $this->head = new Assets\Positions\Head();
         $this->body = new Assets\Positions\Body();
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Assets::__get
-     *
-     * @param string $property
-     *
-     * @return \O2System\Framework\Http\Presenter\Assets\Positions\Body|\O2System\Framework\Http\Presenter\Assets\Positions\Head|null
-     */
-    public function __get($property)
-    {
-        return isset($this->{$property}) ? $this->{$property} : null;
     }
 
     // ------------------------------------------------------------------------
@@ -213,7 +199,7 @@ class Assets
     /**
      * Assets::loadCss
      *
-     * @param array $files
+     * @param string|array $files
      *
      * @return void
      */
@@ -228,8 +214,8 @@ class Assets
     /**
      * Assets::loadJs
      *
-     * @param string|array  $files
-     * @param string        $position
+     * @param string|array $files
+     * @param string       $position
      *
      * @return void
      */
@@ -289,7 +275,7 @@ class Assets
     public function file($file)
     {
         $filePaths = loader()->getPublicDirs(true);
-        
+
         foreach ($filePaths as $filePath) {
             if (is_file($filePath . $file)) {
                 return path_to_url($filePath . $file);
@@ -374,7 +360,7 @@ class Assets
             ],
             $sourceCode);
 
-        if (presenter()->theme->use === true) {
+        if (presenter()->theme) {
             $sourceCode = str_replace(
                 [
                     '"assets/',
@@ -387,14 +373,14 @@ class Assets
                     "(./assets/",
                 ],
                 [
-                    '"' . presenter()->theme->active->getUrl('assets/'),
-                    "'" . presenter()->theme->active->getUrl('assets/'),
-                    "(" . presenter()->theme->active->getUrl('assets/'),
+                    '"' . presenter()->theme->getUrl('assets/'),
+                    "'" . presenter()->theme->getUrl('assets/'),
+                    "(" . presenter()->theme->getUrl('assets/'),
 
                     // with dot
-                    '"' . presenter()->theme->active->getUrl('assets/'),
-                    "'" . presenter()->theme->active->getUrl('assets/'),
-                    "(" . presenter()->theme->active->getUrl('assets/'),
+                    '"' . presenter()->theme->getUrl('assets/'),
+                    "'" . presenter()->theme->getUrl('assets/'),
+                    "(" . presenter()->theme->getUrl('assets/'),
                 ],
                 $sourceCode);
         }
@@ -421,5 +407,29 @@ class Assets
         }
 
         return $sourceCode;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Assets::getHead
+     *
+     * @return \O2System\Framework\Http\Presenter\Assets\Positions\Head
+     */
+    public function getHead()
+    {
+        return $this->head;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Assets::getBody
+     *
+     * @return \O2System\Framework\Http\Presenter\Assets\Positions\Body
+     */
+    public function getBody()
+    {
+        return $this->body;
     }
 }

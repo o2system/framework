@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,6 +28,14 @@ class Column extends Element implements ContextualInterface
 {
     use ContextualClassSetterTrait;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Column::__construct
+     *
+     * @param array         $attributes
+     * @param string|null   $contextualClass
+     */
     public function __construct(array $attributes = [], $contextualClass = null)
     {
         parent::__construct('td');

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,13 +12,14 @@
 
 if ( ! function_exists('timestamp')) {
     /**
-     * Timestamp
+     * timestamp
      *
      * SQL Timestamp
      *
-     * @param $timestamp
+     * @param int|string $timestamp
      *
      * @return string
+     * @throws \Exception
      */
     function timestamp($timestamp = null)
     {
@@ -35,13 +36,14 @@ if ( ! function_exists('timestamp')) {
 
 if ( ! function_exists('unix_timestamp')) {
     /**
-     * Unix Timestamp
+     * unix_timestamp
      *
      * SQL Unix Timestamp
      *
-     * @param $timestamp
+     * @param int|string $timestamp
      *
      * @return string
+     * @throws \Exception
      */
     function unix_timestamp($timestamp = null)
     {
@@ -61,21 +63,16 @@ if ( ! function_exists('unix_timestamp')) {
 
 if ( ! function_exists('format_date')) {
     /**
-     * Day Date Time Functions
+     * format_date
      *
      * Returns string of day, date time or else, depend on type setting, with custom date separator and multi language
      * support
      *
-     * Author : Steeven Andrian Salim
-     * Email  : steevenz@steevenz.com
-     * URL    : www.steevenz.com
-     * Copyright (c) 2010
-     *
-     * @access  public
-     *
-     * @param   string  timezone
+     * @param int|string $timestamp
+     * @param string     $format
      *
      * @return  string
+     * @throws \Exception
      */
     function format_date($timestamp = null, $format = '%l, %d-%F-%Y %h:%i:%s %a')
     {
@@ -101,21 +98,16 @@ if ( ! function_exists('format_date')) {
 
 if ( ! function_exists('parse_date')) {
     /**
+     * parse_date
+     *
      * Parse Date into Array
      *
      * Simple function to take in a date format and return array of associated formats for each date element
      *
-     * Author : Steeven Andrian Salim
-     * Email  : steevenz@steevenz.com
-     * URL    : www.steevenz.com
-     * Copyright (c) 2010
+     * @param int|string $timestamp
      *
-     *
-     * @access public
-     *
-     * @param numeric $timestamp
-     *
-     * @return array
+     * @return \O2System\Spl\DataStructures\SplArrayObject
+     * @throws \Exception
      */
     function parse_date($timestamp = null)
     {
@@ -126,7 +118,7 @@ if ( ! function_exists('parse_date')) {
                 : strtotime(
                     $timestamp
                 )));
-        $date_parts = new \O2System\Spl\Datastructures\SplArrayObject(
+        $date_parts = new \O2System\Spl\DataStructures\SplArrayObject(
             [
                 't'  => $timestamp,
                 'd'  => date('d', $timestamp),
@@ -156,14 +148,15 @@ if ( ! function_exists('parse_date')) {
 
 if ( ! function_exists('day_name')) {
     /**
+     * day_name
+     *
      * Day Name in Languages
      *
-     * @access public
-     *
-     * @param numeric
-     * @param string
+     * @param int|string $timestamp
+     * @param string     $type
      *
      * @return array
+     * @throws \Exception
      */
     function day_name($timestamp = null, $type = 'D')
     {
@@ -184,14 +177,15 @@ if ( ! function_exists('day_name')) {
 
 if ( ! function_exists('month_name')) {
     /**
+     * month_name
+     *
      * Month Name in Languages
      *
-     * @access public
-     *
-     * @param numeric
-     * @param string
+     * @param int|string $timestamp
+     * @param string     $type
      *
      * @return string
+     * @throws \Exception
      */
     function month_name($timestamp = null, $type = 'M')
     {
@@ -211,20 +205,14 @@ if ( ! function_exists('month_name')) {
 
 if ( ! function_exists('part_time')) {
     /**
+     * part_time
+     *
      * Part Time in Languages
      *
-     * Author : Steeven Andrian Salim
-     * Email  : steevenz@steevenz.com
-     * URL    : www.steevenz.com
-     * Copyright (c) 2010
+     * @param int|string $timestamp
      *
-     *
-     * @access public
-     *
-     * @param numeric $timestamp
-     * @param string  $lang
-     *
-     * @return array
+     * @return string
+     * @throws \Exception
      */
     function time_meridiem($timestamp = null)
     {
@@ -257,15 +245,17 @@ if ( ! function_exists('part_time')) {
 
 if ( ! function_exists('string_time_elapsed')) {
     /**
+     * string_time_elapsed
+     *
      * Day Date Time in String Format
      *
      * Returns String of Day date time
      *
-     * @param   integer $time Time
-     * @param   bool    $full Full String
+     * @param   int|string $time Time
+     * @param   bool       $full Full String
      *
-     * @access  public
      * @return  string
+     * @throws \Exception
      */
     function string_time_elapsed($time = null, $full = false)
     {
@@ -313,15 +303,16 @@ if ( ! function_exists('string_time_elapsed')) {
 
 if ( ! function_exists('dates_between')) {
     /**
-     * Date Between
+     * dates_between
      *
      * Here is a simple function that gets all the dates between 2 given dates and returns an array (including the dates
      * specified)
      *
-     * Example: dates_between('2001-12-28', '2002-01-01');
+     * @example
+     * dates_between('2001-12-28', '2002-01-01');
      *
-     * @param   time|date $start_date Start Date
-     * @param   time|date $end_date   End Date
+     * @param   int|string $start_date Start Date
+     * @param   int|string $end_date   End Date
      *
      * @return  array
      */
@@ -365,7 +356,7 @@ if ( ! function_exists('dates_between')) {
 
 if ( ! function_exists('time_range')) {
     /**
-     * Time Range List
+     * time_range
      *
      * Returns Array of Time Range Options in 15 Minutes Step
      *
@@ -404,9 +395,9 @@ if ( ! function_exists('calculate_days')) {
      *
      * Returns amount of weeks
      *
-     * @param   time|date $start_date Start Date
-     * @param   time|date $end_date   End Date
-     * @param   hour      $hour       Hour
+     * @param   int|string $start_date Start Date
+     * @param   int|string $end_date   End Date
+     * @param   string     $hour       Hour
      *
      * @return  int
      */
@@ -436,9 +427,9 @@ if ( ! function_exists('calculate_weeks')) {
      *
      * Returns amount of weeks
      *
-     * @param   time|date $start_date Start Date
-     * @param   time|date $end_date   End Date
-     * @param   hour      $hour       Hour
+     * @param   int|string $start_date Start Date
+     * @param   int|string $end_date   End Date
+     * @param   string     $hour       Hour
      *
      * @return  int
      */
@@ -464,11 +455,11 @@ if ( ! function_exists('calculate_weeks')) {
 
 if ( ! function_exists('is_weekend')) {
     /**
-     * Is Weekend
+     * is_weekend
      *
      * Validate is the date is a weekend
      *
-     * @param   date|time $date Date
+     * @param   int|string $date Date
      *
      * @return  bool
      */
@@ -488,11 +479,11 @@ if ( ! function_exists('is_weekend')) {
 
 if ( ! function_exists('is_weekday')) {
     /**
-     * Is Week Day
+     * is_weekday
      *
      * Validate is the date is a week day
      *
-     * @param   date|time $date Date
+     * @param   int|string $date Date
      *
      * @return  bool
      */
@@ -512,14 +503,15 @@ if ( ! function_exists('is_weekday')) {
 
 if ( ! function_exists('get_age')) {
     /**
-     * Get Age
+     * get_age
      *
      * Gets the age of an individual
      *
-     * @param date|time $birthday
-     * @param string    $return Return value days|months|years
+     * @param int|string $birthday
+     * @param string     $return Return value days|months|years
      *
      * @return int
+     * @throws \Exception
      */
     function get_age($birthday, $return = 'years')
     {
@@ -554,10 +546,11 @@ if ( ! function_exists('get_tenure')) {
      *
      * Gets tenure from start date and end date
      *
-     * @param date|time      $date_start
-     * @param date|time|null $date_end
+     * @param int|string      $date_start
+     * @param int|string|null $date_end
      *
      * @return string
+     * @throws \Exception
      */
     function get_tenure($date_start, $date_end = null)
     {
@@ -584,11 +577,11 @@ if ( ! function_exists('get_tenure')) {
 
 if ( ! function_exists('time_breakdown')) {
     /**
-     * Time Breakdown
+     * time_breakdown
      *
-     * Breaksdown a timestamp into an array of days, months, etc since the current time
+     * Breakdown a timestamp into an array of days, months, etc since the current time
      *
-     * @param int $time
+     * @param int|string $time
      *
      * @return array
      */
@@ -636,9 +629,11 @@ if ( ! function_exists('time_breakdown')) {
 
 if ( ! function_exists('sec2hms')) {
     /**
-     * Second to Miliseconds
+     * sec2hms
      *
-     * @param $num_secs
+     * Convert second to Miliseconds
+     *
+     * @param int $num_secs
      *
      * @return string
      */
@@ -665,11 +660,13 @@ if ( ! function_exists('sec2hms')) {
 
 if ( ! function_exists('add_time_duration')) {
     /**
+     * add_time_duration
+     *
      * Add Time Duration
      *
-     * @param time|date $start_time Time or Date
-     * @param int       $duration
-     * @param string    $return     Return value|date
+     * @param int|string $start_time Time or Date
+     * @param int        $duration
+     * @param string     $return     Return value|date
      *
      * @return mixed
      */
@@ -691,11 +688,13 @@ if ( ! function_exists('add_time_duration')) {
 
 if ( ! function_exists('calculate_hours')) {
     /**
+     * calculate_hours
+     *
      * Calculate Hours
      *
-     * @param time|date $start_time Time or Date
-     * @param time|date $end_time   Time or Date
-     * @param string    $return     Return value time|hours
+     * @param int|string $start_time Time or Date
+     * @param int|string $end_time   Time or Date
+     * @param string     $return     Return value time|hours
      *
      * @return mixed
      */
@@ -733,11 +732,13 @@ if ( ! function_exists('calculate_hours')) {
 
 if ( ! function_exists('time_difference')) {
     /**
-     * Time Difference
+     * time_difference
      *
-     * @param time|date $start_time Time or Date
-     * @param time|date $end_time   Time or Date
-     * @param string    $return     Return value array|object
+     * Gets the time difference
+     *
+     * @param int|string $start_time Time or Date
+     * @param int|string $end_time   Time or Date
+     * @param string     $return     Return value array|object
      *
      * @return mixed
      */
@@ -761,8 +762,12 @@ if ( ! function_exists('time_difference')) {
 
 if ( ! function_exists('weeks_in_month')) {
     /**
-     * @param null $month
-     * @param null $year
+     * weeks_in_month
+     *
+     * Gets num of weeks in a month.
+     *
+     * @param int|null $month
+     * @param int|null $year
      *
      * @return int
      */
@@ -787,10 +792,12 @@ if ( ! function_exists('weeks_in_month')) {
 
 if ( ! function_exists('monday_of_week')) {
     /**
-     * Monday of Week
+     * monday_of_week
      *
-     * @param $week_number
-     * @param $year
+     * Gets the date of monday of the week.
+     *
+     * @param int      $week_number
+     * @param int|null $year
      *
      * @return int
      */
@@ -812,7 +819,9 @@ if ( ! function_exists('monday_of_week')) {
 
 if ( ! function_exists('week_number_of_month')) {
     /**
-     * Week Number of Month
+     * week_number_of_month
+     *
+     * Gets the week Number of a month.
      *
      * @param int|null $date  Date Number
      * @param int|null $month Month Number
@@ -842,12 +851,13 @@ if ( ! function_exists('week_number_of_month')) {
 
 if ( ! function_exists('format_time')) {
     /**
+     * format_time
+     *
      * Format Time from seconds
      *
-     * @param   int
-     * @param   numeric (for decimal)
+     * @param   int $seconds
      *
-     * @return  ArrayObject
+     * @return \O2System\Spl\DataStructures\SplArrayObject
      */
     function format_time($seconds)
     {
@@ -876,9 +886,10 @@ if ( ! function_exists('format_time')) {
         $format[ 'minutes' ] = $minutes;
         $format[ 'seconds' ] = $seconds;
 
-        return new \O2System\Spl\Datastructures\SplArrayObject($format);
+        return new \O2System\Spl\DataStructures\SplArrayObject($format);
     }
 }
+// ------------------------------------------------------------------------
 
 /**
  * CodeIgniter
@@ -941,6 +952,7 @@ if ( ! function_exists('now')) {
      * @param  $timezone string
      *
      * @return  int
+     * @throws \Exception
      */
     function now($timezone = null)
     {
@@ -963,6 +975,8 @@ if ( ! function_exists('now')) {
 
 if ( ! function_exists('mdate')) {
     /**
+     * mdate
+     *
      * Convert MySQL Style Datecodes
      *
      * This function is identical to PHPs date() function,
@@ -978,6 +992,7 @@ if ( ! function_exists('mdate')) {
      * @param    int
      *
      * @return    int
+     * @throws \Exception
      */
     function mdate($date = '', $time = '')
     {
@@ -999,58 +1014,20 @@ if ( ! function_exists('mdate')) {
 
 // ------------------------------------------------------------------------
 
-if ( ! function_exists('standard_date')) {
-    /**
-     * Standard Date
-     *
-     * Returns a date formatted according to the submitted standard.
-     *
-     * As of PHP 5.2, the DateTime extension provides constants that
-     * serve for the exact same purpose and are used with date().
-     *
-     * @todo          Remove in version 3.1+.
-     * @deprecated    3.0.0    Use PHP's native date() instead.
-     * @link          http://www.php.net/manual/en/class.datetime.php#datetime.constants.types
-     *
-     * @example       date(DATE_RFC822, now()); // default
-     * @example       date(DATE_W3C, $time); // a different format and time
-     *
-     * @param    string $fmt  = 'DATE_RFC822'    the chosen format
-     * @param    int    $time = NULL        Unix timestamp
-     *
-     * @return    string
-     */
-    function standard_date($fmt = 'DATE_RFC822', $time = null)
-    {
-        if (empty($time)) {
-            $time = now();
-        }
-
-        // Procedural style pre-defined constants from the DateTime extension
-        if (strpos($fmt, 'DATE_') !== 0 OR defined($fmt) === false) {
-            return false;
-        }
-
-        return date(constant($fmt), $time);
-    }
-}
-
-// ------------------------------------------------------------------------
-
 if ( ! function_exists('timespan')) {
     /**
-     * Timespan
+     * timespan
      *
      * Returns a span of seconds in this format:
      *    10 days 14 hours 36 minutes 47 seconds
      *
-     * @param    int    a number of seconds
-     * @param    int    Unix timestamp
-     * @param    int    a number of display units
+     * @param    int      $seconds a number of seconds
+     * @param    int|null $time    Unix timestamp
+     * @param    int      $units   a number of display units
      *
      * @return    string
      */
-    function timespan($seconds = 1, $time = '', $units = 7)
+    function timespan($seconds = 1, $time = null, $units = 7)
     {
         language()->loadFile('date');
 
@@ -1130,21 +1107,23 @@ if ( ! function_exists('timespan')) {
 
 if ( ! function_exists('days_in_month')) {
     /**
+     * days_in_month
+     *
      * Number of days in a month
      *
      * Takes a month/year as input and returns the number of days
      * for the given month/year. Takes leap years into consideration.
      *
-     * @param    int    a numeric month
-     * @param    int    a numeric year
+     * @param    int      $month a numeric month
+     * @param    int|null $year  a numeric year
      *
      * @return    int
      */
-    function days_in_month($month = 0, $year = '')
+    function days_in_month($month = 0, $year = null)
     {
-        if ($month < 1 OR $month > 12) {
+        if ($month < 1 or $month > 12) {
             return 0;
-        } elseif ( ! is_numeric($year) OR strlen($year) !== 4) {
+        } elseif ( ! is_numeric($year) or strlen($year) !== 4) {
             $year = date('Y');
         }
 
@@ -1172,17 +1151,17 @@ if ( ! function_exists('days_in_month')) {
 
 if ( ! function_exists('local_to_gmt')) {
     /**
+     * local_to_gmt
+     *
      * Converts a local Unix timestamp to GMT
      *
-     * @param    int    Unix timestamp
+     * @param int $time Unix timestamp
      *
-     * @return    int
+     * @return int
      */
-    function local_to_gmt($time = '')
+    function local_to_gmt($time = null)
     {
-        if ($time === '') {
-            $time = time();
-        }
+        $time = is_numeric($time) ? $time : time();
 
         return mktime(
             gmdate('G', $time),
@@ -1199,20 +1178,25 @@ if ( ! function_exists('local_to_gmt')) {
 
 if ( ! function_exists('gmt_to_local')) {
     /**
+     * gmt_to_local
+     *
      * Converts GMT time to a localized value
      *
      * Takes a Unix timestamp (in GMT) as input, and returns
      * at the local value based on the timezone and DST setting
      * submitted
      *
-     * @param    int       Unix timestamp
-     * @param    string    timezone
-     * @param    bool      whether DST is active
+     * @param    int    $time     Unix timestamp
+     * @param    string $timezone timezone
+     * @param    bool   $dst      whether DST is active
      *
      * @return    int
+     * @throws \Exception
      */
-    function gmt_to_local($time = '', $timezone = 'UTC', $dst = false)
+    function gmt_to_local($time = null, $timezone = 'UTC', $dst = false)
     {
+        $time = is_numeric($time) ? $time : now();
+
         if ($time === '') {
             return now();
         }
@@ -1227,11 +1211,13 @@ if ( ! function_exists('gmt_to_local')) {
 
 if ( ! function_exists('mysql_to_unix')) {
     /**
+     * mysql_to_unix
+     *
      * Converts a MySQL Timestamp to Unix
      *
-     * @param    int    MySQL timestamp YYYY-MM-DD HH:MM:SS
+     * @param int|string $time MySQL timestamp YYYY-MM-DD HH:MM:SS
      *
-     * @return    int    Unix timstamp
+     * @return  int    Unix timestamp
      */
     function mysql_to_unix($time = '')
     {
@@ -1257,35 +1243,40 @@ if ( ! function_exists('mysql_to_unix')) {
 
 if ( ! function_exists('unix_to_human')) {
     /**
+     * unix_to_human
+     *
      * Unix to "Human"
      *
      * Formats Unix timestamp to the following prototype: 2006-08-21 11:35 PM
      *
-     * @param    int       Unix timestamp
-     * @param    bool      whether to show seconds
-     * @param    string    format: us or euro
+     * @param    int    $time    Unix timestamp
+     * @param    bool   $seconds whether to show seconds
+     * @param    string $format  format: us or euro
      *
      * @return    string
+     * @throws \Exception
      */
-    function unix_to_human($time = '', $seconds = false, $fmt = 'us')
+    function unix_to_human($time = null, $seconds = false, $format = 'us')
     {
-        $r = date('Y', $time) . '-' . date('m', $time) . '-' . date('d', $time) . ' ';
+        $time = is_null($time) ? now() : $time;
 
-        if ($fmt === 'us') {
-            $r .= date('h', $time) . ':' . date('i', $time);
+        $result = date('Y', $time) . '-' . date('m', $time) . '-' . date('d', $time) . ' ';
+
+        if ($format === 'us') {
+            $result .= date('h', $time) . ':' . date('i', $time);
         } else {
-            $r .= date('H', $time) . ':' . date('i', $time);
+            $result .= date('H', $time) . ':' . date('i', $time);
         }
 
         if ($seconds) {
-            $r .= ':' . date('s', $time);
+            $result .= ':' . date('s', $time);
         }
 
-        if ($fmt === 'us') {
-            return $r . ' ' . date('A', $time);
+        if ($format === 'us') {
+            return $result . ' ' . date('A', $time);
         }
 
-        return $r;
+        return $result;
     }
 }
 
@@ -1293,13 +1284,15 @@ if ( ! function_exists('unix_to_human')) {
 
 if ( ! function_exists('human_to_unix')) {
     /**
+     * human_to_unix
+     *
      * Convert "human" date to GMT
      *
      * Reverses the above process
      *
-     * @param    string    format: us or euro
+     * @param    string $date format: us or euro
      *
-     * @return    int
+     * @return int
      */
     function human_to_unix($date = '')
     {
@@ -1339,15 +1332,17 @@ if ( ! function_exists('human_to_unix')) {
 
 if ( ! function_exists('nice_date')) {
     /**
+     * nice_date
+     *
      * Turns many "reasonably-date-like" strings into something
      * that is actually useful. This only works for dates after unix epoch.
      *
-     * @param    string    The terribly formatted date-like string
-     * @param    string    Date format to return (same as php date function)
+     * @param    string $bad_date The terribly formatted date-like string
+     * @param    string $format   Date format to return (same as php date function)
      *
-     * @return    string
+     * @return string
      */
-    function nice_date($bad_date = '', $format = false)
+    function nice_date($bad_date = '', $format = null)
     {
         if (empty($bad_date)) {
             return 'Unknown';
@@ -1394,16 +1389,16 @@ if ( ! function_exists('nice_date')) {
 
 if ( ! function_exists('timezones')) {
     /**
-     * Timezones
+     * timezones
      *
      * Returns an array of timezones. This is a helper function
      * for various other ones in this library
      *
-     * @param    string    timezone
+     * @param string $timezone timezone
      *
-     * @return    string
+     * @return string
      */
-    function timezones($tz = '')
+    function timezones($timezone = '')
     {
         // Note: Don't change the order of these even though
         // some items appear to be in the wrong order
@@ -1451,11 +1446,11 @@ if ( ! function_exists('timezones')) {
             'UP14'   => +14,
         ];
 
-        if ($tz === '') {
+        if ($timezone === '') {
             return $zones;
         }
 
-        return isset($zones[ $tz ]) ? $zones[ $tz ] : 0;
+        return isset($zones[ $timezone ]) ? $zones[ $timezone ] : 0;
     }
 }
 
@@ -1463,24 +1458,27 @@ if ( ! function_exists('timezones')) {
 
 if ( ! function_exists('date_range_unix')) {
     /**
+     * date_range_unix
+     *
      * Date range
      *
      * Returns a list of dates within a specified period.
      *
-     * @param    int       unix_start    UNIX timestamp of period start date
-     * @param    int       unix_end|days    UNIX timestamp of period end date
-     *                     or interval in days.
-     * @param    mixed     is_unix        Specifies whether the second parameter
-     *                     is a UNIX timestamp or a day interval
-     *                     - TRUE or 'unix' for a timestamp
-     *                     - FALSE or 'days' for an interval
-     * @param    string    date_format    Browser date format, same as in date()
+     * @param    int    $unix_start unix_start    UNIX timestamp of period start date
+     * @param    int    $mixed      unix_end|days    UNIX timestamp of period end date
+     *                              or interval in days.
+     * @param    mixed  $is_unix    is_unix        Specifies whether the second parameter
+     *                              is a UNIX timestamp or a day interval
+     *                              - TRUE or 'unix' for a timestamp
+     *                              - FALSE or 'days' for an interval
+     * @param    string $format     date_format    Browser date format, same as in date()
      *
-     * @return    array
+     * @return   bool|array
+     * @throws \Exception
      */
-    function date_range_unix($unix_start = '', $mixed = '', $is_unix = true, $format = 'Y-m-d')
+    function date_range_unix($unix_start = null, $mixed = null, $is_unix = true, $format = 'Y-m-d')
     {
-        if ($unix_start == '' OR $mixed == '' OR $format == '') {
+        if (is_null($unix_start) or is_null($mixed) or empty($format)) {
             return false;
         }
 
@@ -1567,7 +1565,8 @@ if ( ! function_exists('date_range_unix')) {
         {
             for ($from->modify('+1 day'), $end_check = $arg->format('Ymd'); $from->format(
                 'Ymd'
-            ) < $end_check; $from->modify('+1 day')) {
+            ) < $end_check; $from->modify('+1 day')
+            ) {
                 $range[] = $from->format($format);
             }
 

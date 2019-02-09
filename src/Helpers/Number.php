@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -389,7 +389,7 @@ if ( ! function_exists('zero_fill')) {
 
 if ( ! function_exists('calculate')) {
     /**
-     * Calculate
+     * calculate
      *
      * Calculate from string
      *

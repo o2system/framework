@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -27,12 +27,24 @@ class Body extends Element
 {
     use ParagraphsCollectorTrait;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Body::__construct
+     */
     public function __construct()
     {
         parent::__construct('div', 'body');
         $this->attributes->addAttributeClass('modal-body');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Body::render
+     *
+     * @return string
+     */
     public function render()
     {
         if ($this->hasParagraphs()) {

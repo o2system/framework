@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,11 +25,24 @@ use O2System\Framework\Libraries\Ui\Element;
 class Slides extends Element
 {
     /**
+     * Slides::$indicators
+     *
      * @var \O2System\Framework\Libraries\Ui\Components\Carousel\Indicators
      */
     private $indicators;
+
+    /**
+     * Slides::$target
+     *
+     * @var string
+     */
     private $target;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Slides::__construct
+     */
     public function __construct()
     {
         parent::__construct('div', 'slides');
@@ -37,6 +50,15 @@ class Slides extends Element
         $this->attributes->addAttribute('role', 'listbox');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Slides::setTarget
+     *
+     * @param string $target
+     *
+     * @return static
+     */
     public function setTarget($target)
     {
         $this->target = $target;
@@ -44,6 +66,15 @@ class Slides extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Slides::setIndicators
+     *
+     * @param Indicators $indicators
+     *
+     * @return static
+     */
     public function setIndicators(Indicators &$indicators)
     {
         $this->indicators =& $indicators;
@@ -51,6 +82,13 @@ class Slides extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Slides::createSlide
+     *
+     * @return Slide
+     */
     public function createSlide()
     {
         $this->childNodes->push(new Slide());

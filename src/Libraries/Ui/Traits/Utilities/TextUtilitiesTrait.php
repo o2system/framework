@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,6 +22,11 @@ namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
  */
 trait TextUtilitiesTrait
 {
+    /**
+     * TextUtilitiesTrait::textHide
+     *
+     * @return static
+     */
     public function textHide()
     {
         $this->attributes->addAttributeClass('text-hide');
@@ -31,6 +36,11 @@ trait TextUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * TextUtilitiesTrait::textLeft
+     *
+     * @return static
+     */
     public function textLeft()
     {
         $this->attributes->addAttributeClass('text-left');
@@ -40,6 +50,11 @@ trait TextUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * TextUtilitiesTrait::textRight
+     *
+     * @return static
+     */
     public function textRight()
     {
         $this->attributes->addAttributeClass('text-right');
@@ -49,6 +64,11 @@ trait TextUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * TextUtilitiesTrait::textJustify
+     *
+     * @return static
+     */
     public function textJustify()
     {
         $this->attributes->addAttributeClass('text-justify');
@@ -58,6 +78,11 @@ trait TextUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * TextUtilitiesTrait::textCenter
+     *
+     * @return static
+     */
     public function textCenter()
     {
         $this->attributes->addAttributeClass('text-center');
@@ -67,6 +92,11 @@ trait TextUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * TextUtilitiesTrait::textNowrap
+     *
+     * @return static
+     */
     public function textNowrap()
     {
         $this->attributes->addAttributeClass('text-nowrap');
@@ -76,6 +106,11 @@ trait TextUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * TextUtilitiesTrait::textTruncate
+     *
+     * @return static
+     */
     public function textTruncate()
     {
         $this->attributes->addAttributeClass('text-truncate');
@@ -85,6 +120,11 @@ trait TextUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * TextUtilitiesTrait::textLowerCase
+     *
+     * @return static
+     */
     public function textLowercase()
     {
         $this->attributes->addAttributeClass('text-lowercase');
@@ -94,6 +134,11 @@ trait TextUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * TextUtilitiesTrait::textUppercase
+     *
+     * @return static
+     */
     public function textUppercase()
     {
         $this->attributes->addAttributeClass('text-uppercase');
@@ -103,6 +148,11 @@ trait TextUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * TextUtilitiesTrait::textCapitalize
+     *
+     * @return static
+     */
     public function textCapitalize()
     {
         $this->attributes->addAttributeClass('text-capitalize');
@@ -112,6 +162,11 @@ trait TextUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * TextUtilitiesTrait::textFontBold
+     *
+     * @return static
+     */
     public function textFontBold()
     {
         $this->attributes->addAttributeClass('font-weight-bold');
@@ -121,6 +176,11 @@ trait TextUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * TextUtilitiesTrait::textFontNormal
+     *
+     * @return static
+     */
     public function textFontNormal()
     {
         $this->attributes->addAttributeClass('font-weight-normal');
@@ -130,6 +190,11 @@ trait TextUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * TextUtilitiesTrait::textFontLight
+     *
+     * @return static
+     */
     public function textFontLight()
     {
         $this->attributes->addAttributeClass('font-weight-light');
@@ -139,6 +204,11 @@ trait TextUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * TextUtilitiesTrait::textFontItalic
+     *
+     * @return static
+     */
     public function textFontItalic()
     {
         $this->attributes->addAttributeClass('font-italic');

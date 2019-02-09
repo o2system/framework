@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,33 +11,33 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Datastructures\Module;
+namespace O2System\Framework\Containers\Modules\DataStructures\Module;
 
 // ------------------------------------------------------------------------
 
-use O2System\Spl\Datastructures\SplArrayObject;
+use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Info\SplDirectoryInfo;
 
 /**
  * Class Widget
  *
- * @package O2System\Framework\Datastructures\Module
+ * @package O2System\Framework\Containers\Modules\DataStructures\Module
  */
 class Widget extends SplDirectoryInfo
 {
     /**
-     * Widget Properties
+     * Widget::$properties
      *
      * @var array
      */
     private $properties = [];
 
     /**
-     * Widget Config
+     * Widget::$presets
      *
      * @var array
      */
-    private $config = [];
+    private $presets = [];
 
     /**
      * Widget::__construct
@@ -49,24 +49,27 @@ class Widget extends SplDirectoryInfo
         parent::__construct($dir);
 
         // Set Widget Properties
-        if (is_file($propFilePath = $dir . 'widget.jsprop')) {
+        if (is_file($propFilePath = $dir . 'widget.json')) {
             $properties = json_decode(file_get_contents($propFilePath), true);
 
             if (json_last_error() === JSON_ERROR_NONE) {
+                if (isset($properties[ 'config' ])) {
+                    $this->presets = $properties[ 'presets' ];
+                    unset($properties[ 'presets' ]);
+                }
+
                 $this->properties = $properties;
-            }
-        }
-
-        // Set Widget Config
-        if (is_file($propFilePath = $dir . 'widget.jsconf')) {
-            $config = json_decode(file_get_contents($propFilePath), true);
-
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $this->config = $config;
             }
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Widget::isValid
+     *
+     * @return bool
+     */
     public function isValid()
     {
         if (count($this->properties)) {
@@ -76,26 +79,61 @@ class Widget extends SplDirectoryInfo
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Widget::getParameter
+     *
+     * @return string
+     */
     public function getParameter()
     {
         return $this->getDirName();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Widget::getCode
+     *
+     * @return string
+     */
     public function getCode()
     {
         return strtoupper(substr(md5($this->getDirName()), 2, 7));
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Widget::getChecksum
+     *
+     * @return string
+     */
     public function getChecksum()
     {
         return md5($this->getMTime());
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Widget::getProperties
+     *
+     * @return \O2System\Spl\DataStructures\SplArrayObject
+     */
     public function getProperties()
     {
         return new SplArrayObject($this->properties);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Widget::getNamespace
+     *
+     * @return mixed|string
+     */
     public function getNamespace()
     {
         if (isset($this->properties[ 'namespace' ])) {
@@ -110,8 +148,15 @@ class Widget extends SplDirectoryInfo
         return $namespace;
     }
 
-    public function getConfig()
+    // ------------------------------------------------------------------------
+
+    /**
+     * Widget::getConfig
+     *
+     * @return \O2System\Spl\DataStructures\SplArrayObject
+     */
+    public function getPresets()
     {
-        return new SplArrayObject($this->config);
+        return new SplArrayObject($this->presets);
     }
 }

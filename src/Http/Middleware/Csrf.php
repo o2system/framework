@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -31,14 +31,16 @@ class Csrf implements RequestHandlerInterface
      * Handles a request and produces a response
      *
      * May call other collaborating code to generate the response.
+     *
+     * @param \O2System\Psr\Http\Message\ServerRequestInterface $request
      */
     public function handle(ServerRequestInterface $request)
     {
         if (services()->has('csrfProtection')) {
             if (hash_equals(input()->server('REQUEST_METHOD'), 'POST')) {
-                if (!services()->get('csrfProtection')->verify()) {
+                if ( ! services()->get('csrfProtection')->verify()) {
                     output()->sendError(403, [
-                        'message' => language()->getLine('403_INVALID_CSRF')
+                        'message' => language()->getLine('403_INVALID_CSRF'),
                     ]);
                 }
             }

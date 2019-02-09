@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -31,6 +31,10 @@ class Cache implements RequestHandlerInterface
      * Handles a request and produces a response
      *
      * May call other collaborating code to generate the response.
+     *
+     * @param \O2System\Psr\Http\Message\ServerRequestInterface $request
+     *
+     * @throws \O2System\Psr\Cache\InvalidArgumentException
      */
     public function handle(ServerRequestInterface $request)
     {
@@ -44,7 +48,7 @@ class Cache implements RequestHandlerInterface
         }
 
         if ($cacheHandle instanceof \O2System\Psr\Cache\CacheItemPoolInterface) {
-            if($cacheHandle->hasItem($cacheKey)) {
+            if ($cacheHandle->hasItem($cacheKey)) {
                 output()
                     ->setContentType('text/html')
                     ->send($cacheHandle->getItem($cacheKey)->get());

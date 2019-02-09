@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,17 +25,55 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Author extends Element
 {
+    /**
+     * Author::$photo
+     *
+     * @var Image|Link
+     */
     public $photo;
+
+    /**
+     * Author::$person
+     *
+     * @var Element|Link
+     */
     public $person;
+
+    /**
+     * Author::$jobTitle
+     *
+     * @var Element|Link
+     */
     public $jobTitle;
+
+    /**
+     * Author::$company
+     *
+     * @var Element|Link
+     */
     public $company;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Author::__construct
+     */
     public function __construct()
     {
         parent::__construct('div', 'card-author');
         $this->attributes->addAttributeClass('card-author');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Author::setPhoto
+     *
+     * @param string       $src
+     * @param string|null  $href
+     *
+     * @return static
+     */
     public function setPhoto($src, $href = null)
     {
         if (isset($href)) {
@@ -47,6 +85,16 @@ class Author extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Author::setPerson
+     *
+     * @param string      $name
+     * @param string|null $href
+     *
+     * @return static
+     */
     public function setPerson($name, $href = null)
     {
         $this->person = new Element('strong', 'person');
@@ -60,6 +108,15 @@ class Author extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Author::setJobTitle
+     *
+     * @param string $position
+     *
+     * @return static
+     */
     public function setJobTitle($position)
     {
         $this->jobTitle = new Element('small', 'source');
@@ -68,6 +125,16 @@ class Author extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Author::setCompany
+     *
+     * @param string      $company
+     * @param string|null $href
+     *
+     * @return static
+     */
     public function setCompany($company, $href = null)
     {
         $this->company = new Element('small', 'source');
@@ -81,6 +148,13 @@ class Author extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Author::render
+     *
+     * @return string
+     */
     public function render()
     {
         // Render Avatar

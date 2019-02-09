@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,8 +24,23 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 trait ImageSetterTrait
 {
+    /**
+     * ImageSetterTrait::$image
+     *
+     * @var \O2System\Framework\Libraries\Ui\Contents\Image
+     */
     public $image;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * ImageSetterTrait::setImage
+     *
+     * @param string       $src
+     * @param string|null  $alt
+     *
+     * @return static
+     */
     public function setImage($src, $alt = null)
     {
         $this->image = new Element('img');

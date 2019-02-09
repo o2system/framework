@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -34,12 +34,24 @@ class Testimonial extends Element
      */
     public $author;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Testimonial::__construct
+     */
     public function __construct()
     {
         parent::__construct('div', 'testimonial');
         $this->attributes->addAttributeClass('card-testimonial');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Testimonial::createAuthor
+     *
+     * @return \O2System\Framework\Libraries\Ui\Components\Card\Body\Author
+     */
     public function createAuthor()
     {
         $this->author = new Author();
@@ -47,6 +59,13 @@ class Testimonial extends Element
         return $this->author;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Testimonial::render
+     *
+     * @return string
+     */
     public function render()
     {
         if ($this->paragraph instanceof Element) {

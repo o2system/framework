@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,6 +25,11 @@ use O2System\Kernel\Cli\Writers\Format;
  */
 class Module extends Make
 {
+    /**
+     * Module::$optionName
+     *
+     * @var string
+     */
     public $optionName;
 
     /**
@@ -36,17 +41,27 @@ class Module extends Make
      */
     protected $commandDescription = 'CLI_MAKE_MODULE_DESC';
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Module::optionName
+     *
+     * @param string $name
+     */
     public function optionName($name)
     {
-        if(empty($this->optionPath)) {
+        if (empty($this->optionPath)) {
             $this->optionPath = PATH_APP . 'Modules' . DIRECTORY_SEPARATOR;
         }
 
         $this->optionName = $name;
-
-        return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Module::execute
+     */
     public function execute()
     {
         parent::execute();
@@ -85,7 +100,7 @@ class Module extends Make
             exit(EXIT_ERROR);
         }
 
-        $jsProps[ 'name' ] = readable(
+        $jsonProperties[ 'name' ] = readable(
             pathinfo($modulePath, PATHINFO_FILENAME),
             true
         );
@@ -98,16 +113,16 @@ class Module extends Make
                 ) . '\\';
         } else {
             $namespace = $this->namespace;
-            $jsProps[ 'namespace' ] = rtrim($namespace, '\\') . '\\';
+            $jsonProperties[ 'namespace' ] = rtrim($namespace, '\\') . '\\';
         }
 
-        $jsProps[ 'created' ] = date('d M Y');
+        $jsonProperties[ 'created' ] = date('d M Y');
 
         loader()->addNamespace($namespace, $modulePath);
 
-        $fileContent = json_encode($jsProps, JSON_PRETTY_PRINT);
+        $fileContent = json_encode($jsonProperties, JSON_PRETTY_PRINT);
 
-        $filePath = $modulePath . strtolower(singular($moduleType)) . '.jsprop';
+        $filePath = $modulePath . strtolower(singular($moduleType)) . '.json';
 
         file_put_contents($filePath, $fileContent);
 

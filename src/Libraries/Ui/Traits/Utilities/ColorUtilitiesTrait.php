@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,6 +23,11 @@ namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
  */
 trait ColorUtilitiesTrait
 {
+    /**
+     * ColorUtilitiesTrait::textPrimary
+     *
+     * @return static
+     */
     public function textPrimary()
     {
         $this->attributes->addAttributeClass('text-primary');
@@ -32,6 +37,11 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::textSecondary
+     *
+     * @return static
+     */
     public function textSecondary()
     {
         $this->attributes->addAttributeClass('text-secondary');
@@ -41,6 +51,11 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::textSuccess
+     *
+     * @return static
+     */
     public function textSuccess()
     {
         $this->attributes->addAttributeClass('text-success');
@@ -50,6 +65,11 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::textDanger
+     *
+     * @return static
+     */
     public function textDanger()
     {
         $this->attributes->addAttributeClass('text-danger');
@@ -59,6 +79,11 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::textWarning
+     *
+     * @return static
+     */
     public function textWarning()
     {
         $this->attributes->addAttributeClass('text-warning');
@@ -68,6 +93,11 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::textInfo
+     *
+     * @return static
+     */
     public function textInfo()
     {
         $this->attributes->addAttributeClass('text-info');
@@ -77,6 +107,11 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::textMuted
+     *
+     * @return static
+     */
     public function textMuted()
     {
         $this->attributes->addAttributeClass('text-muted');
@@ -86,6 +121,11 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::textWhite
+     *
+     * @return static
+     */
     public function textWhite()
     {
         $this->attributes->addAttributeClass('text-white');
@@ -95,6 +135,13 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::backgroundPrimary
+     *
+     * @param bool $gradient
+     *
+     * @return static
+     */
     public function backgroundPrimary($gradient = false)
     {
         $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'primary');
@@ -104,6 +151,11 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::backgroundSecondary
+     *
+     * @return static
+     */
     public function backgroundSecondary($gradient = false)
     {
         $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'secondary');
@@ -113,6 +165,13 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::backgroundDanger
+     *
+     * @param bool $gradient
+     *
+     * @return static
+     */
     public function backgroundSuccess($gradient = false)
     {
         $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'success');
@@ -122,6 +181,13 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::backgroundDanger
+     *
+     * @param bool $gradient
+     *
+     * @return static
+     */
     public function backgroundDanger($gradient = false)
     {
         $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'danger');
@@ -131,6 +197,13 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::backgroundWarning
+     *
+     * @param bool $gradient
+     *
+     * @return static
+     */
     public function backgroundWarning($gradient = false)
     {
         $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'warning');
@@ -140,6 +213,13 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::backgroundInfo
+     *
+     * @param bool $gradient
+     *
+     * @return static
+     */
     public function backgroundInfo($gradient = false)
     {
         $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'info');
@@ -149,6 +229,13 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::backgroundLight
+     *
+     * @param bool $gradient
+     *
+     * @return static
+     */
     public function backgroundLight($gradient = false)
     {
         $this->textDark();
@@ -159,6 +246,11 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::textDark
+     *
+     * @return static
+     */
     public function textDark()
     {
         $this->attributes->addAttributeClass('text-dark');
@@ -168,6 +260,13 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::backgroundDark
+     *
+     * @param bool $gradient
+     *
+     * @return static
+     */
     public function backgroundDark($gradient = false)
     {
         $this->textLight();
@@ -178,6 +277,11 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::textLight
+     *
+     * @return static
+     */
     public function textLight()
     {
         $this->attributes->addAttributeClass('text-light');
@@ -187,6 +291,13 @@ trait ColorUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ColorUtilitiesTrait::backgroundWhite
+     *
+     * @param bool $gradient
+     *
+     * @return static
+     */
     public function backgroundWhite($gradient = false)
     {
         $this->attributes->addAttributeClass('bg-' . ($gradient === true ? 'gradient-' : '') . 'white');

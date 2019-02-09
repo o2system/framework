@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,6 @@ namespace O2System\Framework\Models\Sql\Traits;
 
 // ------------------------------------------------------------------------
 
-use O2System\Database\DataObjects\Result;
 use O2System\Framework\Models\Sql\DataObjects;
 
 /**
@@ -56,6 +55,13 @@ trait FinderTrait
 
     // ------------------------------------------------------------------------
 
+    protected function allWithPaging($fields = null, $limit = null)
+    {
+        return $this->withPaging(null, $limit)->all($fields, $limit);
+    }
+
+    // ------------------------------------------------------------------------
+
     protected function withPaging($page = null, $limit = null)
     {
         $getPage = $this->input->get('page');
@@ -67,13 +73,6 @@ trait FinderTrait
         $this->qb->page($page, $limit);
 
         return $this;
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function allWithPaging($fields = null, $limit = null)
-    {
-        return $this->withPaging(null, $limit)->all($fields, $limit);
     }
 
     // ------------------------------------------------------------------------

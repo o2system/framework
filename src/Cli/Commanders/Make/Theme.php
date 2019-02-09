@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,6 +25,11 @@ use O2System\Kernel\Cli\Writers\Format;
  */
 class Theme extends Make
 {
+    /**
+     * Theme::$optionName
+     *
+     * @var string
+     */
     public $optionName;
 
     /**
@@ -36,15 +41,27 @@ class Theme extends Make
      */
     protected $commandDescription = 'CLI_MAKE_THEME_DESC';
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Theme::optionName
+     *
+     * @param string $name
+     */
     public function optionName($name)
     {
-        if(empty($this->optionPath)) {
+        if (empty($this->optionPath)) {
             $this->optionPath = PATH_RESOURCES . 'themes' . DIRECTORY_SEPARATOR;
         }
 
         $this->optionName = $name;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Theme::execute
+     */
     public function execute()
     {
         parent::execute();
@@ -78,20 +95,20 @@ class Theme extends Make
         // Make default structure
         mkdir($themePath . 'assets' . DIRECTORY_SEPARATOR, 0777, true);
 
-        foreach(['css','js', 'img', 'fonts', 'media', 'packages'] as $assetsDir) {
+        foreach (['css', 'js', 'img', 'fonts', 'media', 'packages'] as $assetsDir) {
             mkdir($themePath . 'assets' . DIRECTORY_SEPARATOR . $assetsDir . DIRECTORY_SEPARATOR, 0777, true);
         }
 
         mkdir($themePath . 'partials' . DIRECTORY_SEPARATOR, 0777, true);
 
-        $jsProps[ 'name' ] = readable(
+        $jsonProperties[ 'name' ] = readable(
             $this->optionName,
             true
         );
 
-        $jsProps[ 'created' ] = date('d M Y');
+        $jsonProperties[ 'created' ] = date('d M Y');
 
-        file_put_contents($themePath . 'theme.jsprop', json_encode($jsProps, JSON_PRETTY_PRINT));
+        file_put_contents($themePath . 'theme.json', json_encode($jsonProperties, JSON_PRETTY_PRINT));
 
         $themeTemplate = <<<THEME
 <!DOCTYPE html>
@@ -110,7 +127,7 @@ class Theme extends Make
 </html>
 THEME;
 
-        file_put_contents($themePath . 'theme.phtml', str_replace('@','$',$themeTemplate));
+        file_put_contents($themePath . 'theme.phtml', str_replace('@', '$', $themeTemplate));
 
         if (is_dir($themePath)) {
             output()->write(

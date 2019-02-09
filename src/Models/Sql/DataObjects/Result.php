@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,7 +23,7 @@ use O2System\Spl\Iterators\ArrayIterator;
 /**
  * Class Result
  *
- * @package O2System\Database\Datastructures
+ * @package O2System\Database\DataStructures
  */
 class Result extends ArrayIterator
 {
@@ -74,7 +74,7 @@ class Result extends ArrayIterator
         $rows = empty($rows) ? 0 : $rows;
 
         $limit = input()->get('limit');
-        $limit = empty( $limit ) ? $this->info->limit : $limit;
+        $limit = empty($limit) ? $this->info->limit : $limit;
 
         return new Pagination($rows, $limit);
     }

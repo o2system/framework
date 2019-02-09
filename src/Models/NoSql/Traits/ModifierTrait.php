@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,18 +23,16 @@ namespace O2System\Framework\Models\NoSql\Traits;
 trait ModifierTrait
 {
     /**
-     * Insert Data
+     * ModifierTrait::insert
      *
      * Method to input data as well as equipping the data in accordance with the fields
      * in the destination database collection.
      *
-     * @access  public
      *
-     * @param   array  $sets  Array of Input Data
-     * @param   string $collection Table Name
+     * @param   array   $sets       Array of Input Data
+     * @param   string $collection  Table Name
      *
      * @return mixed
-     * @throws \O2System\Spl\Exceptions\RuntimeException
      */
     public function insert(array $sets, $collection = null)
     {
@@ -62,17 +60,15 @@ trait ModifierTrait
     // ------------------------------------------------------------------------
 
     /**
-     * Update Data
+     * ModifierTrait::update
      *
      * Method to update data as well as equipping the data in accordance with the fields
      * in the destination database collection.
      *
-     * @access  public
-     *
      * @param   string $collection Table Name
-     * @param   array  $sets  Array of Update Data
+     * @param   array  $sets       Array of Update Data
      *
-     * @return mixed
+     * @return bool|\O2System\Database\DataObjects\Result
      */
     public function update(array $sets, $where = [], $collection = null)
     {
@@ -113,12 +109,18 @@ trait ModifierTrait
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * @param array $sets
+     * @return bool
+     */
     public function insertMany(array $sets)
     {
         $collection = isset($collection) ? $collection : $this->collection;
 
         if (method_exists($this, 'insertRecordSets')) {
-            foreach($sets as $set) {
+            foreach ($sets as $set) {
                 $this->insertRecordSets($set);
             }
         }
@@ -140,6 +142,10 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * @param array $sets
+     * @return bool
+     */
     public function updateMany(array $sets)
     {
         $collection = isset($collection) ? $collection : $this->collection;
@@ -160,7 +166,7 @@ trait ModifierTrait
         $this->primaryKeys = [];
 
         if (method_exists($this, 'updateRecordSets')) {
-            foreach($sets as $set) {
+            foreach ($sets as $set) {
                 $this->updateRecordSets($set);
             }
         }
@@ -178,6 +184,26 @@ trait ModifierTrait
         }
 
         return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Trash many rows from the database collection based on sets of ids.
+     *
+     * @param array $ids
+     *
+     * @return mixed
+     */
+    public function trashMany(array $ids)
+    {
+        $affectedRows = [];
+
+        foreach ($ids as $id) {
+            $affectedRows[ $id ] = $this->trash($id);
+        }
+
+        return $affectedRows;
     }
 
     // ------------------------------------------------------------------------
@@ -240,35 +266,12 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function trashBy($id, array $where = [], $collection = null)
-    {
-        $this->qb->where($where);
-
-        return $this->trash($id, $collection);
-    }
-
-    // ------------------------------------------------------------------------
-
     /**
-     * Trash many rows from the database collection based on sets of ids.
-     *
      * @param array $ids
-     *
-     * @return mixed
+     * @param array $where
+     * @param null $collection
+     * @return array
      */
-    public function trashMany(array $ids)
-    {
-        $affectedRows = [];
-
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->trash($id);
-        }
-
-        return $affectedRows;
-    }
-
-    // ------------------------------------------------------------------------
-
     public function trashManyBy(array $ids, $where = [], $collection = null)
     {
         $affectedRows = [];
@@ -282,6 +285,46 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * @param $id
+     * @param array $where
+     * @param null $collection
+     * @return array|bool
+     */
+    public function trashBy($id, array $where = [], $collection = null)
+    {
+        $this->qb->where($where);
+
+        return $this->trash($id, $collection);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * @param array $ids
+     * @param bool $force
+     * @param null $collection
+     * @return array
+     */
+    public function deleteMany(array $ids, $force = false, $collection = null)
+    {
+        $affectedRows = [];
+
+        foreach ($ids as $id) {
+            $affectedRows[ $id ] = $this->delete($id, $force, $collection);
+        }
+
+        return $affectedRows;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * @param $id
+     * @param bool $force
+     * @param null $collection
+     * @return bool
+     */
     public function delete($id, $force = false, $collection = null)
     {
         if ((isset($collection) AND is_bool($collection)) OR ! isset($collection)) {
@@ -322,26 +365,13 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    public function deleteBy($id, $where = [], $force = false, $collection = null)
-    {
-        $this->qb->where($where);
-
-        return $this->delete($id, $force, $collection);
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function deleteMany(array $ids, $force = false, $collection = null)
-    {
-        $affectedRows = [];
-
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->delete($id, $force, $collection);
-        }
-
-        return $affectedRows;
-    }
-
+    /**
+     * @param array $ids
+     * @param array $where
+     * @param bool $force
+     * @param null $collection
+     * @return array
+     */
     public function deleteManyBy(array $ids, $where = [], $force = false, $collection = null)
     {
         $affectedRows = [];
@@ -353,8 +383,39 @@ trait ModifierTrait
         return $affectedRows;
     }
 
+    /**
+     * @param $id
+     * @param array $where
+     * @param bool $force
+     * @param null $collection
+     * @return bool
+     */
+    public function deleteBy($id, $where = [], $force = false, $collection = null)
+    {
+        $this->qb->where($where);
+
+        return $this->delete($id, $force, $collection);
+    }
+
     // ------------------------------------------------------------------------
 
+    /**
+     * @param $id
+     * @param null $collection
+     * @return bool
+     */
+    public function restore($id, $collection = null)
+    {
+        return $this->publish($id, $collection);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * @param $id
+     * @param null $collection
+     * @return bool
+     */
     public function publish($id, $collection = null)
     {
         $collection = isset($collection) ? $collection : $this->collection;
@@ -405,6 +466,25 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * @param $id
+     * @param array $where
+     * @param null $collection
+     * @return bool
+     */
+    public function restoreBy($id, array $where = [], $collection = null)
+    {
+        return $this->publishBy($id, $where, $collection);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * @param $id
+     * @param array $where
+     * @param null $collection
+     * @return bool
+     */
     public function publishBy($id, array $where = [], $collection = null)
     {
         $this->qb->where($where);
@@ -414,6 +494,23 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * @param array $ids
+     * @param null $collection
+     * @return array
+     */
+    public function restoreMany(array $ids, $collection = null)
+    {
+        return $this->publishMany($ids, $collection);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * @param array $ids
+     * @param null $collection
+     * @return array
+     */
     public function publishMany(array $ids, $collection = null)
     {
         $affectedRows = [];
@@ -427,6 +524,25 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * @param array $ids
+     * @param array $where
+     * @param null $collection
+     * @return array
+     */
+    public function restoreManyBy(array $ids, $where = [], $collection = null)
+    {
+        return $this->publishManyBy($ids, $where, $collection);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * @param array $ids
+     * @param array $where
+     * @param null $collection
+     * @return array
+     */
     public function publishManyBy(array $ids, $where = [], $collection = null)
     {
         $affectedRows = [];
@@ -436,33 +552,5 @@ trait ModifierTrait
         }
 
         return $affectedRows;
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function restore($id, $collection = null)
-    {
-        return $this->publish($id, $collection);
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function restoreBy($id, array $where = [], $collection = null)
-    {
-        return $this->publishBy($id, $where, $collection);
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function restoreMany(array $ids, $collection = null)
-    {
-        return $this->publishMany($ids, $collection);
-    }
-
-    // ------------------------------------------------------------------------
-
-    public function restoreManyBy(array $ids, $where = [], $collection = null)
-    {
-        return $this->publishManyBy($ids, $where, $collection);
     }
 }

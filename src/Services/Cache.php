@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -29,10 +29,22 @@ use O2System\Spl\Iterators\ArrayIterator;
  */
 class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
 {
+    /**
+     * Cache::$poolOffset
+     *
+     * @var string
+     */
     private $poolOffset = 'default';
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Cache::setItemPool
+     *
+     * @param string $poolOffset
+     *
+     * @return static
+     */
     public function setItemPool($poolOffset)
     {
         if ($this->exists($poolOffset)) {
@@ -45,7 +57,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
-     * Adapters::getItems
+     * Cache::getItems
      *
      * Returns a traversable set of cache items.
      *
@@ -73,6 +85,14 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Cache::callPoolOffset
+     *
+     * @param string $method
+     * @param array  $args
+     *
+     * @return bool|mixed
+     */
     public function callPoolOffset($method, array $args = [])
     {
         $poolOffset = $this->poolOffset;
@@ -95,7 +115,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
-     * Adapters::clear
+     * Cache::clear
      *
      * Deletes all items in the pool.
      *
@@ -110,7 +130,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
-     * Adapters::saveDeferred
+     * Cache::saveDeferred
      *
      * Sets a cache item to be persisted later.
      *
@@ -128,7 +148,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
-     * Adapters::commit
+     * Cache::commit
      *
      * Persists any deferred cache items.
      *
@@ -143,6 +163,8 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
+     * Cache::delete
+     *
      * Delete an item from the cache by its unique key.
      *
      * @param string $key The unique cache key of the item to delete.
@@ -160,7 +182,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
-     * Adapters::deleteItem
+     * Cache::deleteItem
      *
      * Removes the item from the pool.
      *
@@ -182,6 +204,8 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
+     * Cache::getMultiple
+     *
      * Obtains multiple cache items by their unique keys.
      *
      * @param iterable $keys    A list of keys that can obtained in a single operation.
@@ -210,6 +234,8 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
+     * Cache::get
+     *
      * Fetches a value from the cache.
      *
      * @param string $key     The unique key of this item in the cache.
@@ -218,6 +244,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
      * @return mixed The value of the item from the cache, or $default in case of cache miss.
      *
      * @throws \O2System\Psr\SimpleCache\InvalidArgumentException
+     * @throws \Exception
      *   MUST be thrown if the $key string is not a legal value.
      */
     public function get($key, $default = null)
@@ -234,7 +261,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
-     * Adapters::hasItem
+     * Cache::hasItem
      *
      * Confirms if the cache contains specified cache item.
      *
@@ -271,6 +298,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
      *   The key for which to return the corresponding Cache Item.
      *
      * @throws InvalidArgumentException
+     * @throws \Exception
      *   If the $key string is not a legal value a \Psr\Cache\InvalidArgumentException
      *   MUST be thrown.
      *
@@ -289,6 +317,8 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
+     * Cache::setMultiple
+     *
      * Persists a set of key => value pairs in the cache, with an optional TTL.
      *
      * @param iterable               $values A list of key => value pairs for a multiple-set operation.
@@ -318,6 +348,8 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
+     * Cache::set
+     *
      * Persists data in the cache, uniquely referenced by a key with an optional expiration TTL time.
      *
      * @param string                 $key   The key of the item to store.
@@ -329,6 +361,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
      * @return bool True on success and false on failure.
      *
      * @throws \O2System\Psr\SimpleCache\InvalidArgumentException
+     * @throws \Exception
      *   MUST be thrown if the $key string is not a legal value.
      */
     public function set($key, $value, $ttl = null)
@@ -339,7 +372,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
-     * Adapters::save
+     * Cache::save
      *
      * Persists a cache item immediately.
      *
@@ -357,6 +390,8 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
+     * Cache::deleteMultiple
+     *
      * Deletes multiple cache items in a single operation.
      *
      * @param iterable $keys A list of string-based keys to be deleted.
@@ -397,6 +432,8 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
     // ------------------------------------------------------------------------
 
     /**
+     * Cache::has
+     *
      * Determines whether an item is present in the cache.
      *
      * NOTE: It is recommended that has() is only to be used for cache warming type purposes

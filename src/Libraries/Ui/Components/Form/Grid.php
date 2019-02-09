@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,6 +26,8 @@ class Grid extends Row
 {
     use ElementsCreatorTrait;
 
+    // ------------------------------------------------------------------------
+
     /**
      * Grid::__construct
      */
@@ -35,6 +37,8 @@ class Grid extends Row
         $this->attributes->removeAttributeClass('row');
         $this->attributes->addAttributeClass('form-row');
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * Grid::createFromGroup

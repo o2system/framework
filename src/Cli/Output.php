@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,20 +11,15 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Http\Controllers;
+namespace O2System\Framework\Cli;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Controller;
-
 /**
- * Class Modules
- * @package O2System\Framework\Http\Controllers
+ * Class Output
+ * @package O2System\Framework\Cli
  */
-class Modules extends Controller
+class Output extends \O2System\Kernel\Cli\Output
 {
-    public function index()
-    {
-        print_out('test');
-    }
+
 }

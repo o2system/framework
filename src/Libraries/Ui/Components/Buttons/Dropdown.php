@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,9 +20,11 @@ namespace O2System\Framework\Libraries\Ui\Components\Buttons;
  */
 class Dropdown extends \O2System\Framework\Libraries\Ui\Components\Dropdown
 {
-    public $toggle;
-    public $toggleButton;
-
+    /**
+     * Dropdown::__construct
+     *
+     * @param string|null $label
+     */
     public function __construct($label = null)
     {
         parent::__construct($label);

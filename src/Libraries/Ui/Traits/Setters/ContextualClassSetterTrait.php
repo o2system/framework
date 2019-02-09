@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,10 +22,20 @@ namespace O2System\Framework\Libraries\Ui\Traits\Setters;
  */
 trait ContextualClassSetterTrait
 {
+    /**
+     * ContextualClassSetterTrait::$contextualClassPrefix
+     *
+     * @var string|null
+     */
     protected $contextualClassPrefix = null;
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ContextualClassSetterTrait::setContextualClass
+     *
+     * @param string $class
+     */
     public function setContextualClass($class)
     {
         if (method_exists($this, $method = 'context' . ucfirst($class))) {
@@ -35,6 +45,11 @@ trait ContextualClassSetterTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ContextualClassSetterTrait::contextOutline
+     *
+     * @return static
+     */
     public function contextOutline()
     {
         $this->attributes->replaceAttributeClass($this->contextualClassPrefix . '-',
@@ -45,6 +60,15 @@ trait ContextualClassSetterTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * ContextualClassSetterTrait::setContextualClassPrefix
+     *
+     * @param string $prefix
+     *
+     * @return static
+     */
     public function setContextualClassPrefix($prefix)
     {
         $this->contextualClassPrefix = $prefix;
@@ -52,6 +76,13 @@ trait ContextualClassSetterTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * ContextualClassSetterTrait::contextDefault
+     *
+     * @return static
+     */
     public function contextDefault()
     {
         $this->setContextualClassSuffix('default');
@@ -59,6 +90,15 @@ trait ContextualClassSetterTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * ContextualClassSetterTrait::setContextualClassSuffix
+     *
+     * @param string $suffix
+     *
+     * @return static
+     */
     public function setContextualClassSuffix($suffix)
     {
         $this->attributes->removeAttributeClass([
@@ -78,6 +118,11 @@ trait ContextualClassSetterTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ContextualClassSetterTrait::contextPrimary
+     *
+     * @return static
+     */
     public function contextPrimary()
     {
         $this->setContextualClassSuffix('primary');
@@ -87,6 +132,11 @@ trait ContextualClassSetterTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ContextualClassSetterTrait::contextSecondary
+     *
+     * @return static
+     */
     public function contextSecondary()
     {
         $this->setContextualClassSuffix('secondary');
@@ -96,6 +146,11 @@ trait ContextualClassSetterTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ContextualClassSetterTrait::contextSuccess
+     *
+     * @return static
+     */
     public function contextSuccess()
     {
         $this->setContextualClassSuffix('success');
@@ -105,6 +160,11 @@ trait ContextualClassSetterTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ContextualClassSetterTrait::contextInfo
+     *
+     * @return static
+     */
     public function contextInfo()
     {
         $this->setContextualClassSuffix('info');
@@ -114,6 +174,11 @@ trait ContextualClassSetterTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ContextualClassSetterTrait::contextWarning
+     *
+     * @return static
+     */
     public function contextWarning()
     {
         $this->setContextualClassSuffix('warning');
@@ -123,6 +188,11 @@ trait ContextualClassSetterTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * ContextualClassSetterTrait::contextDanger
+     *
+     * @return static
+     */
     public function contextDanger()
     {
         $this->setContextualClassSuffix('danger');
@@ -130,6 +200,13 @@ trait ContextualClassSetterTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * ContextualClassSetterTrait::contextLight
+     *
+     * @return static
+     */
     public function contextLight()
     {
         $this->setContextualClassSuffix('light');
@@ -137,6 +214,13 @@ trait ContextualClassSetterTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * ContextualClassSetterTrait::contextDark
+     *
+     * @return static
+     */
     public function contextDark()
     {
         $this->setContextualClassSuffix('dark');
@@ -144,6 +228,13 @@ trait ContextualClassSetterTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * ContextualClassSetterTrait::contextLink
+     *
+     * @return static
+     */
     public function contextLink()
     {
         $this->attributes->addAttributeClass($this->contextualClassPrefix . '-link');

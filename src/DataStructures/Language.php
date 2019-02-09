@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,17 +11,17 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Datastructures;
+namespace O2System\Framework\DataStructures;
 
 // ------------------------------------------------------------------------
 
-use O2System\Spl\Datastructures\SplArrayObject;
+use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Info\SplDirectoryInfo;
 
 /**
  * Class Language
  *
- * @package O2System\Framework\Datastructures
+ * @package O2System\Framework\DataStructures
  */
 class Language extends SplDirectoryInfo
 {
@@ -32,6 +32,13 @@ class Language extends SplDirectoryInfo
      */
     private $properties = [];
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::__construct
+     *
+     * @param string $dir
+     */
     public function __construct($dir)
     {
         parent::__construct($dir);
@@ -46,6 +53,13 @@ class Language extends SplDirectoryInfo
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::isValid
+     *
+     * @return bool
+     */
     public function isValid()
     {
         if (count($this->properties)) {
@@ -55,26 +69,49 @@ class Language extends SplDirectoryInfo
         return false;
     }
 
-    public function getParameter()
-    {
-        return $this->getDirName();
-    }
+    // ------------------------------------------------------------------------
 
+    /**
+     * Language::getCode
+     *
+     * @return string
+     */
     public function getCode()
     {
         return strtoupper(substr(md5($this->getDirName()), 2, 7));
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::getChecksum
+     *
+     * @return string
+     */
     public function getChecksum()
     {
         return md5($this->getMTime());
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::getProperties
+     *
+     * @return \O2System\Spl\DataStructures\SplArrayObject
+     */
     public function getProperties()
     {
         return new SplArrayObject($this->properties);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::getLocale
+     *
+     * @return mixed
+     */
     public function getLocale()
     {
         $parts = explode('-', $this->getParameter());
@@ -82,6 +119,25 @@ class Language extends SplDirectoryInfo
         return reset($parts);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::getParameter
+     *
+     * @return string
+     */
+    public function getParameter()
+    {
+        return $this->getDirName();
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::getIdeom
+     *
+     * @return mixed
+     */
     public function getIdeom()
     {
         $parts = explode('-', $this->getParameter());

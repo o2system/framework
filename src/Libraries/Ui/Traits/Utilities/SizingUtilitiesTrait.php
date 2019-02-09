@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,6 +21,13 @@ namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
  */
 trait SizingUtilitiesTrait
 {
+    /**
+     * SizingUtilitiesTrait::width
+     *
+     * @param int $width
+     *
+     * @return static
+     */
     public function width($width)
     {
         $this->attributes->addAttributeClass('w-' . (int)$width);
@@ -28,6 +35,15 @@ trait SizingUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * SizingUtilitiesTrait::maxWidth
+     *
+     * @param int $maxWidth
+     *
+     * @return static
+     */
     public function maxWidth($maxWidth)
     {
         $this->attributes->addAttributeClass('mw-' . (int)$maxWidth);
@@ -35,6 +51,15 @@ trait SizingUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * SizingUtilitiesTrait::maxHeight
+     *
+     * @param int $maxHeight
+     *
+     * @return static
+     */
     public function maxHeight($maxHeight)
     {
         $this->attributes->addAttributeClass('mh-' . (int)$maxHeight);

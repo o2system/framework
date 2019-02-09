@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,8 +26,22 @@ use O2System\Spl\Iterators\ArrayIterator;
  */
 class Progress extends Element
 {
+    /**
+     * Progress::$bars
+     *
+     * @var \O2System\Spl\Iterators\ArrayIterator
+     */
     protected $bars;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Progress::__construct
+     *
+     * @param int $now
+     * @param int $min
+     * @param int $max
+     */
     public function __construct($now = 0, $min = 0, $max = 100)
     {
         parent::__construct('div');
@@ -42,6 +56,18 @@ class Progress extends Element
         $this->setMax($max);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Progress::addBar
+     *
+     * @param int    $now
+     * @param int    $min
+     * @param int    $max
+     * @param string $contextualClass
+     *
+     * @return static
+     */
     public function addBar($now = 0, $min = 0, $max = 100, $contextualClass = 'primary')
     {
         if ($now instanceof Bar) {
@@ -54,6 +80,15 @@ class Progress extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Progress::setNow
+     *
+     * @param int $number
+     *
+     * @return static
+     */
     public function setNow($number)
     {
         $this->bars->first()->setNow($number);
@@ -61,6 +96,15 @@ class Progress extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Progress::setMin
+     *
+     * @param int $number
+     *
+     * @return static
+     */
     public function setMin($number)
     {
         $this->bars->first()->setMin($number);
@@ -68,6 +112,15 @@ class Progress extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Progress::setMax
+     *
+     * @param int $number
+     *
+     * @return static
+     */
     public function setMax($number)
     {
         $this->bars->first()->setMax($number);
@@ -75,6 +128,13 @@ class Progress extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Progress::withLabel
+     *
+     * @return static
+     */
     public function withLabel()
     {
         $this->bars->first()->withLabel();
@@ -82,6 +142,13 @@ class Progress extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Progress::striped
+     *
+     * @return static
+     */
     public function striped()
     {
         $this->bars->first()->attributes->addAttributeClass('progress-bar-striped');
@@ -89,6 +156,13 @@ class Progress extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Progress::animate
+     *
+     * @return static
+     */
     public function animate()
     {
         $firstBar = $this->bars->first();
@@ -97,6 +171,13 @@ class Progress extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Progress::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();

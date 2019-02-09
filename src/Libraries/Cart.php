@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -65,10 +65,10 @@ class Cart extends AbstractRepository
         if (is_numeric($item[ 'discount' ])) {
             $item[ 'subTotal' ][ 'discount' ] = $item[ 'subTotal' ][ 'price' ] - $item[ 'discount' ];
         } elseif (is_string($item[ 'discount' ]) && strpos($item[ 'discount' ], '+') !== false) {
-            $discounts = explode('+', $item['discount']);
-            if(count($discounts)) {
+            $discounts = explode('+', $item[ 'discount' ]);
+            if (count($discounts)) {
                 $item[ 'subTotal' ][ 'discount' ] = $item[ 'subTotal' ][ 'price' ] * (intval(reset($discounts)) / 100);
-                foreach(array_slice($discounts, 1) as $discount) {
+                foreach (array_slice($discounts, 1) as $discount) {
                     $item[ 'subTotal' ][ 'discount' ] += $item[ 'subTotal' ][ 'discount' ] * (intval($discount) / 100);
                 }
             }
@@ -152,10 +152,14 @@ class Cart extends AbstractRepository
         return $totalPrice;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Card::destroy
+     */
     public function destroy()
     {
         unset($_SESSION[ 'o2system' ][ 'cart' ]);
         parent::destroy();
-
     }
 }

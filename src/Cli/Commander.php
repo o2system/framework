@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,6 +21,13 @@ namespace O2System\Framework\Cli;
  */
 abstract class Commander extends \O2System\Kernel\Cli\Commander
 {
+    /**
+     * Commander::__get
+     *
+     * @param string $property
+     *
+     * @return mixed|\O2System\Framework\Containers\Models|\O2System\Framework\Models\NoSql\Model|\O2System\Framework\Models\Sql\Model
+     */
     public function &__get($property)
     {
         $get[ $property ] = false;

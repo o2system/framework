@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -31,8 +31,21 @@ class Fieldset extends Element implements ContextualInterface
     use SizingSetterTrait;
     use ContextualClassSetterTrait;
 
+    /**
+     * Fieldset::$legend
+     *
+     * @var Fieldset\Legend
+     */
     public $legend;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Fieldset::__construct
+     *
+     * @param array  $attributes
+     * @param string $contextualClass
+     */
     public function __construct(array $attributes = [], $contextualClass = self::DEFAULT_CONTEXT)
     {
         parent::__construct('fieldset');
@@ -61,6 +74,8 @@ class Fieldset extends Element implements ContextualInterface
         }
     }
 
+    // ------------------------------------------------------------------------
+
     /**
      * Fieldset::disabled
      *
@@ -72,6 +87,8 @@ class Fieldset extends Element implements ContextualInterface
 
         return $this;
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * Fieldset::createLegend

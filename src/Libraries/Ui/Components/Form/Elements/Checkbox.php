@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,9 +23,28 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Checkbox extends Element
 {
+    /**
+     * Checkbox::$label
+     *
+     * @var Label
+     */
     public $label;
+
+    /**
+     * Checkbox::$input
+     *
+     * @var Input
+     */
     public $input;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Checkbox::__construct
+     *
+     * @param string|label  $label
+     * @param array         $attributes
+     */
     public function __construct($label = null, array $attributes = [])
     {
         if (is_array($label)) {
@@ -65,6 +84,13 @@ class Checkbox extends Element
         $this->childNodes->push($this->label);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Checkbox::inline
+     *
+     * @return static
+     */
     public function inline()
     {
         $this->attributes->addAttributeClass('form-check-inline');
@@ -72,6 +98,13 @@ class Checkbox extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Checkbox::disabled
+     *
+     * @return static
+     */
     public function disabled()
     {
         $this->attributes->addAttributeClass('disabled');
@@ -79,6 +112,13 @@ class Checkbox extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Checkbox::render
+     *
+     * @return string
+     */
     public function render()
     {
         if ( ! $this->label->hasTextContent()) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -51,6 +51,15 @@ class Select extends Element
         $this->attributes->addAttributeClass(['form-control', 'custom-select']);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Select::createGroup
+     *
+     * @param string $label
+     *
+     * @return Select\Group
+     */
     public function createGroup($label)
     {
         $group = new Select\Group();
@@ -61,6 +70,13 @@ class Select extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Select::multiple
+     *
+     * @return static
+     */
     public function multiple()
     {
         $this->attributes->addAttribute('multiple', 'multiple');

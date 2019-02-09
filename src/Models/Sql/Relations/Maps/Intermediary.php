@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -31,7 +31,7 @@ class Intermediary extends AbstractMap
     public $intermediaryReferenceForeignKey;
 
     // ------------------------------------------------------------------------
-    
+
     public function __construct(
         Model $currentModel,
         $referenceModel,
@@ -73,7 +73,9 @@ class Intermediary extends AbstractMap
             $this->intermediaryModel = new $intermediaryModel();
             $this->intermediaryTable = $intermediaryModel->table;
         } else {
-            $this->intermediaryModel = new class extends Model {};
+            $this->intermediaryModel = new class extends Model
+            {
+            };
             $this->intermediaryModel->table = $this->referenceTable = $intermediaryModel;
         }
     }

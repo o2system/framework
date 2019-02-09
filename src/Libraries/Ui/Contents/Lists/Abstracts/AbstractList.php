@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -27,8 +27,20 @@ use O2System\Kernel\Http\Message\Uri;
  */
 abstract class AbstractList extends Element
 {
+    /**
+     * AbstractList::$inline
+     *
+     * @var bool
+     */
     public $inline = false;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractList::unstyled
+     *
+     * @return static
+     */
     public function unstyled()
     {
         $this->attributes->removeAttributeClass('list-*');
@@ -37,6 +49,15 @@ abstract class AbstractList extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractList::inline
+     *
+     * @param bool $inline
+     *
+     * @return static
+     */
     public function inline($inline = true)
     {
         $this->inline = (bool)$inline;
@@ -44,6 +65,15 @@ abstract class AbstractList extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractList::createLists
+     *
+     * @param array $lists
+     *
+     * @return static
+     */
     public function createLists(array $lists)
     {
         if (count($lists)) {
@@ -55,6 +85,15 @@ abstract class AbstractList extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractList
+     *
+     * @param Item|Element|int|string|null $list
+     *
+     * @return Item
+     */
     public function createList($list = null)
     {
         $node = new Item();
@@ -80,6 +119,13 @@ abstract class AbstractList extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractList::pushChildNode
+     *
+     * @param \O2System\Framework\Libraries\Ui\Element $node
+     */
     protected function pushChildNode(Element $node)
     {
         if ($node->hasChildNodes()) {
@@ -122,6 +168,13 @@ abstract class AbstractList extends Element
         $this->childNodes->push($node);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractList::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();

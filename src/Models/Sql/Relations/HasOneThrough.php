@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,6 @@ namespace O2System\Framework\Models\Sql\Relations;
 
 // ------------------------------------------------------------------------
 
-use O2System\Database\DataObjects\Result;
 use O2System\Framework\Models\Sql;
 
 /**
@@ -33,11 +32,11 @@ class HasOneThrough extends Sql\Relations\Abstracts\AbstractRelation
 
             $this->map->intermediaryModel->qb
                 ->select([
-                    $this->map->referenceTable . '.*'
+                    $this->map->referenceTable . '.*',
                 ])
                 ->join($this->map->referenceTable, implode(' = ', [
                     $this->map->referenceTable . '.' . $this->map->referencePrimaryKey,
-                    $this->map->intermediaryTable . '.' . $this->map->intermediaryReferenceForeignKey
+                    $this->map->intermediaryTable . '.' . $this->map->intermediaryReferenceForeignKey,
                 ]));
 
             if ($result = $this->map->intermediaryModel->find($criteria, $field, 1)) {

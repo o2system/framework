@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,6 +24,11 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Label extends Element
 {
+    /**
+     * Label::__construct
+     *
+     * @param array $attributes
+     */
     public function __construct(array $attributes = [])
     {
         parent::__construct('label');
@@ -43,13 +48,29 @@ class Label extends Element
         $this->attributes->addAttributeClass('form-label-control');
     }
 
-    public function screenReaderOnly($focusable = false)
+    // ------------------------------------------------------------------------
+
+    /**
+     * Label::screenReaderOnly
+     *
+     * @param bool $screenReaderOnly
+     *
+     * @return \O2System\Framework\Libraries\Ui\Element
+     */
+    public function screenReaderOnly($screenReaderOnly = false)
     {
         $this->attributes->removeAttributeClass('form-label-control');
 
-        return parent::screenReaderOnly($focusable);
+        return parent::screenReaderOnly($screenReaderOnly);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Label::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,6 +28,13 @@ class Textarea extends Element
 {
     use SizingSetterTrait;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Textarea::__construct
+     *
+     * @param array $attributes
+     */
     public function __construct(array $attributes = [])
     {
         parent::__construct('textarea');
@@ -49,6 +56,13 @@ class Textarea extends Element
         $this->setSizingClassPrefix('form-control');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Textarea::disabled
+     *
+     * @return static
+     */
     public function disabled()
     {
         $this->attributes->addAttribute('disabled', 'disabled');
@@ -56,6 +70,13 @@ class Textarea extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Textarea::readOnly
+     *
+     * @return static
+     */
     public function readOnly()
     {
         $this->attributes->addAttribute('readonly', 'readonly');

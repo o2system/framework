@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,8 +24,20 @@ use O2System\Framework\Libraries\Ui\Components\Accordion\Card\Body;
  */
 class Card extends \O2System\Framework\Libraries\Ui\Components\Card
 {
+    /**
+     * Card::block
+     *
+     * @var Body
+     */
     public $block;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Card::createBlock
+     *
+     * @return Body
+     */
     public function createBlock()
     {
         $this->childNodes->push(new Body());
@@ -33,6 +45,13 @@ class Card extends \O2System\Framework\Libraries\Ui\Components\Card
         return $this->block = $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Card::show
+     *
+     * @return static
+     */
     public function show()
     {
         $this->block->collapse->attributes->removeAttributeClass('hide');
@@ -41,6 +60,13 @@ class Card extends \O2System\Framework\Libraries\Ui\Components\Card
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Card::hide
+     *
+     * @return static
+     */
     public function hide()
     {
         $this->block->collapse->attributes->removeAttributeClass('show');
@@ -49,6 +75,13 @@ class Card extends \O2System\Framework\Libraries\Ui\Components\Card
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Card::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();

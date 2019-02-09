@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,6 +22,9 @@ namespace O2System\Framework\Libraries\Ui\Components\Navs;
  */
 class Pills extends Base
 {
+    /**
+     * Pills::__construct
+     */
     public function __construct()
     {
         parent::__construct();
@@ -29,6 +32,13 @@ class Pills extends Base
         $this->attributes->addAttributeClass('nav-pills');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Pills::justified
+     *
+     * @return static
+     */
     public function justified()
     {
         $this->attributes->addAttributeClass('nav-justified');
@@ -36,6 +46,13 @@ class Pills extends Base
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Pills::verticalStacked
+     *
+     * @return static
+     */
     public function verticalStacked()
     {
         $this->attributes->addAttributeClass('nav-stacked');

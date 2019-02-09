@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -10,14 +10,14 @@
  */
 // ------------------------------------------------------------------------
 /**
- * Array Helper
+ * Object Helper
  *
- * A collection of helper function to work with array.
+ * A collection of helper function to work with object.
  */
 // ------------------------------------------------------------------------
 if ( ! function_exists('get_object_var')) {
     /**
-     * array_get_value
+     * get_object_var
      *
      * Lets you determine whether an array index is set and whether it has a value.
      * If the element is empty it returns NULL (or whatever you specify as the default value).
@@ -30,18 +30,18 @@ if ( ! function_exists('get_object_var')) {
      */
     function get_object_var($property, $object, $default = null)
     {
-        if(is_object($object)) {
-            if(property_exists($object, $property)) {
+        if (is_object($object)) {
+            if (property_exists($object, $property)) {
                 return $object->{$property};
-            } elseif(method_exists($object, 'has')) {
-                if($object->has($property)) {
+            } elseif (method_exists($object, 'has')) {
+                if ($object->has($property)) {
                     return $object->get($property);
                 }
-            } elseif(method_exists($object, 'offsetExists')) {
-                if($object->offsetExists($property)) {
+            } elseif (method_exists($object, 'offsetExists')) {
+                if ($object->offsetExists($property)) {
                     return $object->offsetGet($property);
                 }
-            } elseif(isset($object->{$property})) {
+            } elseif (isset($object->{$property})) {
                 return $object->{$property};
             }
         }
@@ -49,5 +49,3 @@ if ( ! function_exists('get_object_var')) {
         return $default;
     }
 }
-
-// ------------------------------------------------------------------------

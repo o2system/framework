@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,17 +11,17 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Http\Router\Datastructures;
+namespace O2System\Framework\Http\Router\DataStructures;
 
 // ------------------------------------------------------------------------
 
-use O2System\Spl\Datastructures\SplArrayObject;
+use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Info\SplFileInfo;
 
 /**
  * Class Page
  *
- * @package O2System\Framework\Http\Router\Datastructures
+ * @package O2System\Framework\Http\Router\DataStructures
  */
 class Page extends SplFileInfo
 {
@@ -77,7 +77,7 @@ class Page extends SplFileInfo
      *
      * Gets page variables.
      *
-     * @return \O2System\Spl\Datastructures\SplArrayObject
+     * @return \O2System\Spl\DataStructures\SplArrayObject
      */
     public function getVars()
     {
@@ -91,7 +91,7 @@ class Page extends SplFileInfo
      *
      * Gets page presets.
      *
-     * @return bool|\O2System\Spl\Datastructures\SplArrayObject
+     * @return bool|\O2System\Spl\DataStructures\SplArrayObject
      */
     public function getPresets()
     {

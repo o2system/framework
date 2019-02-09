@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -29,8 +29,21 @@ class Link extends Element
     use PopoverSetterTrait;
     use TooltipSetterTrait;
 
+    /**
+     * Link::$icon
+     *
+     * @var \O2System\Framework\Libraries\Ui\Contents\Icon
+     */
     public $icon;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Link::__construct
+     *
+     * @param Element|string|null $label
+     * @param string|null $href
+     */
     public function __construct($label = null, $href = null)
     {
         parent::__construct('a');
@@ -53,6 +66,13 @@ class Link extends Element
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Link::setAttributeHref
+     *
+     * @param string $href
+     *
+     * @return static
+     */
     public function setAttributeHref($href)
     {
         if (strpos($href, 'http') !== false) {
@@ -70,6 +90,11 @@ class Link extends Element
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Link::getAttributeHref
+     *
+     * @return string
+     */
     public function getAttributeHref()
     {
         return $this->attributes->offsetGet('href');
@@ -77,6 +102,13 @@ class Link extends Element
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Link::setIcon
+     *
+     * @param \O2System\Framework\Libraries\Ui\Contents\Icon $icon
+     *
+     * @return static
+     */
     public function setIcon(Icon $icon)
     {
         $this->icon = $icon;
@@ -86,6 +118,11 @@ class Link extends Element
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Link::active
+     *
+     * @return static
+     */
     public function active()
     {
         $this->attributes->addAttributeClass('active');
@@ -93,6 +130,13 @@ class Link extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Link::disabled
+     *
+     * @return static
+     */
     public function disabled()
     {
         $this->attributes->addAttributeClass('disabled');
@@ -100,6 +144,13 @@ class Link extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Link::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();
@@ -127,6 +178,13 @@ class Link extends Element
         return implode('', $output);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Link::hasIcon
+     *
+     * @return bool
+     */
     public function hasIcon()
     {
         return empty($this->icon) ? false : true;

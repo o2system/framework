@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,17 +24,40 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Row extends Element
 {
+    /**
+     * Row::$auto
+     *
+     * @var bool
+     */
     public $auto = false;
+
+    /**
+     * Row::$childNodesEntities
+     *
+     * @var array
+     */
     protected $childNodesEntities = [];
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Row::__construct
+     */
     public function __construct()
     {
         parent::__construct('div');
         $this->attributes->addAttributeClass('row');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::getColumn
+     *
+     * @param string $index
+     *
+     * @return \O2System\Framework\Libraries\Ui\Contents\Table\Column
+     */
     public function getColumn($index)
     {
         if (is_string($index) and in_array($index, $this->childNodesEntities)) {
@@ -48,6 +71,15 @@ class Row extends Element
         return $this->childNodes->offsetGet($index);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::createoColumn
+     *
+     * @param array $attributes
+     *
+     * @return \O2System\Framework\Libraries\Ui\Contents\Table\Column
+     */
     public function createColumn(array $attributes = [])
     {
         $this->addColumn(new Column($attributes));
@@ -57,6 +89,13 @@ class Row extends Element
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Row::addColumn
+     *
+     * @param Column $column
+     *
+     * @return static
+     */
     public function addColumn($column)
     {
         if ($column instanceof Element) {
@@ -70,6 +109,13 @@ class Row extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::pushColumnChildNodes
+     *
+     * @param \O2System\Framework\Libraries\Ui\Element $column
+     */
     protected function pushColumnChildNodes(Element $column)
     {
         if ( ! $this->hasItem($column->entity->getEntityName())) {
@@ -79,6 +125,15 @@ class Row extends Element
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::hasItem
+     *
+     * @param string $index
+     *
+     * @return bool
+     */
     public function hasItem($index)
     {
         if (is_string($index) and in_array($index, $this->childNodesEntities)) {
@@ -92,6 +147,13 @@ class Row extends Element
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();

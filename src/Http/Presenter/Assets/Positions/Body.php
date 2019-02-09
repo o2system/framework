@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -27,8 +27,8 @@ class Body extends Abstracts\AbstractPosition
 {
     /**
      * Body::$javascript
-     * 
-     * @var \O2System\Framework\Http\Presenter\Assets\Collections\Javascript 
+     *
+     * @var \O2System\Framework\Http\Presenter\Assets\Collections\Javascript
      */
     protected $javascript;
 
@@ -46,7 +46,7 @@ class Body extends Abstracts\AbstractPosition
 
     /**
      * Body::__toString
-     * 
+     *
      * @return string
      */
     public function __toString()
@@ -56,8 +56,8 @@ class Body extends Abstracts\AbstractPosition
 
         // Render js
         if ($this->javascript->count()) {
-            foreach($this->javascript as $js) {
-                if(in_array(pathinfo($js, PATHINFO_FILENAME), $unbundledFilename)) {
+            foreach ($this->javascript as $js) {
+                if (in_array(pathinfo($js, PATHINFO_FILENAME), $unbundledFilename)) {
                     $jsVersion = $this->getVersion($js);
                     $output[] = '<script type="text/javascript" src="' . $this->getUrl($js) . '?v=' . $jsVersion . '"></script>';
                 }
@@ -88,7 +88,7 @@ class Body extends Abstracts\AbstractPosition
                     flock($bundleFileStream, LOCK_EX);
 
                     foreach ($this->javascript as $javascript) {
-                        if( ! in_array(pathinfo($javascript, PATHINFO_FILENAME), $unbundledFilename)) {
+                        if ( ! in_array(pathinfo($javascript, PATHINFO_FILENAME), $unbundledFilename)) {
                             $bundleJsMap[ 'sources' ][] = $javascript;
                             fwrite($bundleFileStream, file_get_contents($javascript));
                         }

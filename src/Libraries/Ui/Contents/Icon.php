@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,6 +24,11 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Icon extends Element
 {
+    /**
+     * Icon::__construct
+     *
+     * @param string|null $iconClass
+     */
     public function __construct($iconClass = null)
     {
         parent::__construct('i');
@@ -33,6 +38,15 @@ class Icon extends Element
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Icon::setClass
+     *
+     * @param string $iconClass
+     *
+     * @return static
+     */
     public function setClass($iconClass)
     {
         $this->attributes->removeAttributeClass(['fa', 'fa-*']);

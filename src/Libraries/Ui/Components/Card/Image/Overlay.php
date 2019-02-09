@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -30,12 +30,24 @@ class Overlay extends Element
     use TitleSetterTrait;
     use ParagraphsCollectorTrait;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Overlay::__construct
+     */
     public function __construct()
     {
         parent::__construct('div', 'overlay');
         $this->attributes->addAttributeClass('card-img-overlay');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Overlay::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();

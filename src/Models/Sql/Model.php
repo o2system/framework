@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -131,6 +131,7 @@ class Model
      * @final   this method cannot be overwritten.
      *
      * @return void
+     * @throws \ReflectionException
      */
     final protected function fetchSubModels()
     {
@@ -225,6 +226,15 @@ class Model
 
     // ------------------------------------------------------------------------
 
+    final protected function hasSubModel($model)
+    {
+        if (array_key_exists($model, $this->validSubModels)) {
+            return (bool)is_file($this->validSubModels[ $model ]);
+        }
+
+        return false;
+    }
+
     final protected function loadSubModel($model)
     {
         if ($this->hasSubModel($model)) {
@@ -243,15 +253,6 @@ class Model
 
         if (property_exists($this, $model)) {
             return $this->{$model};
-        }
-
-        return false;
-    }
-
-    final protected function hasSubModel($model)
-    {
-        if (array_key_exists($model, $this->validSubModels)) {
-            return (bool)is_file($this->validSubModels[ $model ]);
         }
 
         return false;

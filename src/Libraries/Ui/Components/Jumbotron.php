@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,12 +25,24 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Jumbotron extends Element
 {
+    /**
+     * Jumbotron::__construct
+     */
     public function __construct()
     {
         parent::__construct('div');
         $this->attributes->addAttributeClass('jumbotron');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Jumbotron::setImageBackground
+     *
+     * @param string $src
+     *
+     * @return static
+     */
     public function setImageBackground($src)
     {
         $this->attributes->addAttributeClass('jumbotron-bg');
@@ -44,6 +56,16 @@ class Jumbotron extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Jumbotron::setVideoBackground
+     *
+     * @param string        $src
+     * @param string|null   $poster
+     *
+     * @return static
+     */
     public function setVideoBackground($src, $poster = null)
     {
         $this->attributes->addAttributeClass('jumbotron-video');
@@ -76,6 +98,15 @@ class Jumbotron extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Jumbotron::setCarousel
+     *
+     * @param \O2System\Framework\Libraries\Ui\Components\Carousel $carousel
+     *
+     * @return static
+     */
     public function setCarousel(Carousel $carousel)
     {
         $this->attributes->addAttributeClass('jumbotron-carousel');
@@ -84,6 +115,17 @@ class Jumbotron extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Jumbotron::createHeader
+     *
+     * @param string $text
+     * @param string $tagName
+     * @param array  $attributes
+     *
+     * @return Element
+     */
     public function createHeader($text, $tagName = 'h1', array $attributes = ['class' => 'display-3'])
     {
         $header = new Element($tagName, 'header-' . dash($text));
@@ -100,6 +142,15 @@ class Jumbotron extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Jumbotron::createHorizontalRule
+     *
+     * @param array $attributes
+     *
+     * @return Element
+     */
     public function createHorizontalRule(array $attributes = [])
     {
         $hr = new Element('hr');
@@ -115,9 +166,13 @@ class Jumbotron extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * @param null  $text
-     * @param array $attributes
+     * Jumbotron::createParagraph
+     *
+     * @param string|null  $text
+     * @param array        $attributes
      *
      * @return Paragraph
      */
@@ -142,6 +197,13 @@ class Jumbotron extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Jumbotron::fluid
+     *
+     * @return static
+     */
     public function fluid()
     {
         $this->attributes->addAttributeClass('jumbotron-fluid');
@@ -149,6 +211,13 @@ class Jumbotron extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Jumbotron::render
+     *
+     * @return string
+     */
     public function render()
     {
         if ($this->attributes->hasAttributeClass('jumbotron-fluid')) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@ namespace O2System\Framework\Models\Sql\DataObjects\Result;
 
 use O2System\Database;
 use O2System\Framework\Models\Sql\Model;
-use O2System\Spl\Datastructures\SplArrayObject;
+use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Info\SplClassInfo;
 
 /**
@@ -61,7 +61,7 @@ class Row extends SplArrayObject
 
     public function offsetGet($offset)
     {
-        if($this->offsetExists($offset)) {
+        if ($this->offsetExists($offset)) {
             return parent::offsetGet($offset);
         } elseif (null !== ($result = $this->__call($offset))) {
             return $result;
@@ -79,7 +79,7 @@ class Row extends SplArrayObject
         if (method_exists($model, $method)) {
             $model->row = $this;
 
-            if(false !== ($result = call_user_func_array([&$model, $method], $args))) {
+            if (false !== ($result = call_user_func_array([&$model, $method], $args))) {
                 $this->offsetSet($method, $result);
 
                 return $result;

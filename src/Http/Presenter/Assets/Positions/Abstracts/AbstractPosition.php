@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -52,17 +52,17 @@ abstract class AbstractPosition
         }
 
         return (new Uri())
-                ->withQuery(null)
-                ->withSegments(
-                    new Uri\Segments(
-                        str_replace(
-                            [PATH_PUBLIC, DIRECTORY_SEPARATOR],
-                            ['', '/'],
-                            $realPath
-                        )
+            ->withQuery(null)
+            ->withSegments(
+                new Uri\Segments(
+                    str_replace(
+                        [PATH_PUBLIC, DIRECTORY_SEPARATOR],
+                        ['', '/'],
+                        $realPath
                     )
                 )
-                ->__toString();
+            )
+            ->__toString();
     }
 
     // ------------------------------------------------------------------------
@@ -107,7 +107,7 @@ abstract class AbstractPosition
     {
         $property = is_null($subDir) ? 'css' : null;
 
-        if(is_null($property)) {
+        if (is_null($property)) {
             switch ($subDir) {
                 default:
                 case 'css/':
@@ -153,9 +153,9 @@ abstract class AbstractPosition
         foreach ($directories as $directory) {
             $extension = pathinfo($directory . $filePath, PATHINFO_EXTENSION);
 
-            if(empty($extension) and empty($subDir)) {
+            if (empty($extension) and empty($subDir)) {
                 $extensions = ['.css', '.js'];
-            } elseif(empty($extension) and isset($subDir)) {
+            } elseif (empty($extension) and isset($subDir)) {
                 switch ($subDir) {
                     default:
                     case 'css/':
@@ -198,7 +198,7 @@ abstract class AbstractPosition
                 }
             }
 
-            foreach($extensions as $extension) {
+            foreach ($extensions as $extension) {
                 // without subdirectory
                 if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
                     $filePaths[] = $directory . $filePath . '.min' . $extension; // minify version support
@@ -219,7 +219,7 @@ abstract class AbstractPosition
 
         foreach ($filePaths as $filePath) {
             if (is_file($filePath)) {
-                if(empty($property)) {
+                if (empty($property)) {
                     $extension = pathinfo($filePath, PATHINFO_EXTENSION);
                     switch ($extension) {
                         case 'font':
@@ -234,7 +234,7 @@ abstract class AbstractPosition
                             break;
                     }
                 }
-                
+
                 if (property_exists($this, $property)) {
                     if ( ! call_user_func_array([$this->{$property}, 'has'], [$filePath])) {
                         $this->{$property}->append($filePath);
@@ -267,7 +267,7 @@ abstract class AbstractPosition
             $strInt[] = str_pad(hexdec($strPart), 5, '0', STR_PAD_LEFT);
         }
 
-        $codeVersion = round( implode('', $strInt), 10 );
+        $codeVersion = round(implode('', $strInt), 10);
 
         return substr_replace($codeVersion, '.', 3, strlen($codeVersion) - 5);
     }

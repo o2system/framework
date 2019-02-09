@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -27,19 +27,41 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Navbar extends Element
 {
+    /**
+     * Navbar::$brand
+     *
+     * @var Link
+     */
     public $brand;
+
+    /**
+     * Navbar::$collapse
+     *
+     * @var mixed
+     */
     public $collapse;
 
     /**
+     * Navbar::$nav
+     *
      * @var Navbar\Nav
      */
     public $nav;
 
     /**
+     * Navbar::$form
+     *
      * @var Form
      */
     public $form;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Navbar::__construct
+     *
+     * @param string|null $id
+     */
     public function __construct($id = null)
     {
         $id = empty($id) ? 'navbar-' . mt_rand(0, 100) : $id;
@@ -76,8 +98,12 @@ class Navbar extends Element
         $this->collapse = $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * @param $label
+     * Navbar::createBrand
+     *
+     * @param string $label
      *
      * @return \O2System\Framework\Libraries\Ui\Contents\Link
      */
@@ -98,7 +124,11 @@ class Navbar extends Element
         return $this->brand = $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
+     * Navbar::createForm
+     *
      * @return \O2System\Framework\Libraries\Ui\Components\Navbar\Form
      */
     public function createForm()
@@ -108,6 +138,13 @@ class Navbar extends Element
         return $this->form = $this->collapse->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Navbar::dark
+     *
+     * @return \O2System\Framework\Libraries\Ui\Components\Navbar
+     */
     public function dark()
     {
         $this->attributes->removeAttributeClass('navbar-light');
@@ -116,6 +153,13 @@ class Navbar extends Element
         return $this->backgroundDark();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Navbar::light
+     *
+     * @return \O2System\Framework\Libraries\Ui\Components\Navbar
+     */
     public function light()
     {
         $this->attributes->removeAttributeClass('navbar-dark');
@@ -124,6 +168,13 @@ class Navbar extends Element
         return $this->backgroundLight();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Navbar::render
+     *
+     * @return string
+     */
     public function render()
     {
         if ($this->nav->childNodes->count() || $this->textContent->count()) {

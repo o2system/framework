@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -45,7 +45,7 @@ if ( ! function_exists('array_get_values')) {
      *
      * @param array $keys
      * @param array $array
-     * @param null  $default
+     * @param array $default
      *
      * @return array
      */
@@ -141,6 +141,8 @@ if ( ! function_exists('array_group')) {
         return $group_array;
     }
 }
+
+// ------------------------------------------------------------------------
 
 if ( ! function_exists('array_filter_recursive')) {
     /**

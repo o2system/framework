@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -193,7 +193,7 @@ trait HierarchicalTrait
     {
         $childs = [];
 
-        if($result = $this->qb
+        if ($result = $this->qb
             ->table($this->table)
             ->where('id_parent', $idParent)
             ->get()) {
@@ -221,7 +221,7 @@ trait HierarchicalTrait
      */
     protected function getNumChilds($idParent)
     {
-        if($result = $this->qb
+        if ($result = $this->qb
             ->table($this->table)
             ->select('id')
             ->where('id_parent', $idParent)

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,8 +24,22 @@ use O2System\Framework\Http\Presenter\Meta\Opengraph\Abstracts\AbstractNamespace
  */
 class Profile extends AbstractNamespace
 {
+    /**
+     * Profile::$namespace
+     *
+     * @var string
+     */
     public $namespace = 'profile';
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Profile::setName
+     *
+     * @param string $name
+     *
+     * @return static
+     */
     public function setName($name)
     {
         $xName = explode(' ', $name);
@@ -43,6 +57,13 @@ class Profile extends AbstractNamespace
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Profile::setUsername
+     *
+     * @param string $username
+     *
+     * @return static
+     */
     public function setUsername($username)
     {
         $this->setObject('username', $username);
@@ -52,6 +73,13 @@ class Profile extends AbstractNamespace
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Profile::setGender
+     *
+     * @param string $gender
+     *
+     * @return static
+     */
     public function setGender($gender)
     {
         $gender = strtolower($gender);

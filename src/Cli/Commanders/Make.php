@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -87,6 +87,15 @@ class Make extends Commander
      */
     protected $optionFilename;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Make::optionPath
+     *
+     * @param string $path
+     *
+     * @return static
+     */
     public function optionPath($path)
     {
         $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
@@ -102,6 +111,13 @@ class Make extends Commander
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Make::optionFilename
+     *
+     * @param string $name
+     */
     public function optionFilename($name)
     {
         $name = str_replace('.php', '', $name);
@@ -110,26 +126,27 @@ class Make extends Commander
         $this->optionPath = empty($this->optionPath) ? modules()->current()->getRealPath() : $this->optionPath;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Make::optionName
+     *
+     * @param string $name
+     */
     public function optionName($name)
     {
         $this->optionFilename($name);
-
-        return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Make::optionNamespace
+     *
+     * @param string $namespace
+     */
     public function optionNamespace($namespace)
     {
         $this->namespace = $namespace;
-
-        return $this;
-    }
-
-    public function getPhpTemplateFile($filename)
-    {
-        $directories = [
-            PATH_FRAMEWORK . 'Config' . DIRECTORY_SEPARATOR . 'PhpTemplateFiles',
-        ];
-
-        return $this;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,20 +28,31 @@ use O2System\Framework\Libraries\Ui\Element;
 class Content extends Element
 {
     /**
-     * @var \O2System\Framework\Libraries\Ui\Components\Modal\Dialog\Content\Header
+     * Content::$header
+     *
+     * @var Content\Header
      */
     public $header;
 
     /**
-     * @var \O2System\Framework\Libraries\Ui\Components\Modal\Dialog\Content\Body
+     * Content::$body
+     *
+     * @var Content\Body
      */
     public $body;
 
     /**
-     * @var \O2System\Framework\Libraries\Ui\Components\Modal\Dialog\Content\Footer
+     * Content::$footer
+     *
+     * @var Content\Footer
      */
     public $footer;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Content::__construct
+     */
     public function __construct()
     {
         parent::__construct('div', 'content');
@@ -57,6 +68,13 @@ class Content extends Element
         $this->footer = $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Content::render
+     *
+     * @return string
+     */
     public function render()
     {
         if ( ! $this->footer->hasChildNodes() && ! $this->footer->hasTextContent() && ! $this->footer->hasButtons()) {

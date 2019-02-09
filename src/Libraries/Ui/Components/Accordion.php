@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,6 +25,11 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Accordion extends Element
 {
+    /**
+     * Accordion::__construct
+     *
+     * @param string|null $id
+     */
     public function __construct($id = null)
     {
         parent::__construct('div', 'group');
@@ -36,6 +41,16 @@ class Accordion extends Element
         $this->attributes->setAttributeId($id);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Accordion::createCard
+     *
+     * @param string      $title
+     * @param string|null $paragraph
+     *
+     * @return \O2System\Framework\Libraries\Ui\Components\Card
+     */
     public function createCard($title, $paragraph = null)
     {
         $collapseId = dash($title);
@@ -43,7 +58,7 @@ class Accordion extends Element
         $link->attributes->addAttribute('data-toggle', 'collapse');
         $link->attributes->addAttribute('data-parent', '#' . $this->attributes->getAttributeId());
 
-        $card = new \O2System\Framework\Libraries\Ui\Components\Accordion\Card();
+        $card = new Card();
 
         $card->header->attributes->addAttribute('role', 'tab');
         $card->header->childNodes->push($link);

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,8 +16,8 @@ namespace O2System\Framework\Http\Presenter\Meta\Opengraph\Music;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Http\Presenter\Meta\Opengraph\Audio;
-use O2System\Framework\Http\Presenter\Meta\Opengraph\Basic;
 use O2System\Framework\Http\Presenter\Meta\Opengraph\Image;
+use O2System\Framework\Http\Presenter\Meta\Opengraph\Music;
 use O2System\Html\Document;
 
 /**
@@ -25,7 +25,7 @@ use O2System\Html\Document;
  *
  * @package O2System\Framework\Http\Presenter\Meta\Opengraph\Music
  */
-class Radio extends Basic
+class Radio extends Music
 {
     /**
      * Radio::__construct
@@ -34,8 +34,6 @@ class Radio extends Basic
      */
     public function __construct(Document $document)
     {
-        parent::__construct($document);
-
         $this->setType('music.radio_station');
     }
 
@@ -82,7 +80,7 @@ class Radio extends Basic
      */
     public function createImage()
     {
-        return new Image($this->ownerDocument);
+        return new Image();
     }
 
     // ------------------------------------------------------------------------
@@ -94,6 +92,6 @@ class Radio extends Basic
      */
     public function createAudio()
     {
-        return new Audio($this->ownerDocument);
+        return new Audio();
     }
 }

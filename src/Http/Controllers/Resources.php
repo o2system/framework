@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,15 +26,42 @@ use O2System\Spl\Info\SplFileInfo;
  */
 class Resources extends Controller
 {
-    public $resourcesPath;
+    /**
+     * Resources::$directoryPath
+     *
+     * @var string
+     */
+    public $directoryPath;
+
+    /**
+     * Resources::$speedLimit
+     *
+     * @var int
+     */
     public $speedLimit = 1024;
+
+    /**
+     * Resources::$resumeable
+     *
+     * @var bool
+     */
     public $resumeable = true;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Resources::__construct
+     */
     public function __construct()
     {
-        $this->resourcesPath = PATH_RESOURCES;
+        $this->directoryPath = PATH_RESOURCES;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Resources::route
+     */
     public function route()
     {
         $download = false;
@@ -51,7 +78,7 @@ class Resources extends Controller
         }
 
         if (count($segments)) {
-            $filePath = $this->resourcesPath . implode(DIRECTORY_SEPARATOR, $segments);
+            $filePath = $this->directoryPath . implode(DIRECTORY_SEPARATOR, $segments);
             if (is_file($filePath)) {
                 if ($download) {
                     $downloader = new Downloader($filePath);
@@ -65,7 +92,7 @@ class Resources extends Controller
                     header('Content-Transfer-Encoding: binary');
                     header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
                     header('Content-Type: ' . $fileInfo->getMime());
-                    echo readfile($filePath);
+                    echo @readfile($filePath);
                     exit(EXIT_SUCCESS);
                 }
             } else {

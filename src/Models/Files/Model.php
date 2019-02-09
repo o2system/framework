@@ -1,12 +1,12 @@
 <?php
 /**
- * This file is part of the O2System Content Management System package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @author         Steeve Andrian
- * @copyright      Copyright (c) Steeve Andrian
+ * @author         Steeve Andrian Salim
+ * @copyright      Copyright (c) Steeve Andrian Salim
  */
 
 // ------------------------------------------------------------------------
@@ -28,12 +28,32 @@ class Model extends AbstractRepository
 {
     use FinderTrait;
 
+    /**
+     * Model::$file
+     *
+     * @var string
+     */
     public $file;
+
+    /**
+     * Model::$result
+     *
+     * @var \O2System\Spl\Iterators\ArrayIterator
+     */
     public $result;
+
+    /**
+     * Model::$primaryKey
+     *
+     * @var mixed|string
+     */
     public $primaryKey = 'id';
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Model::__construct
+     */
     public function __construct()
     {
         if ( ! empty($this->file)) {
@@ -60,6 +80,13 @@ class Model extends AbstractRepository
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Model::get
+     *
+     * @param string $property
+     *
+     * @return mixed
+     */
     public function get($property)
     {
         if (empty($get[ $property ])) {
@@ -77,6 +104,13 @@ class Model extends AbstractRepository
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Model::loadSubModel
+     *
+     * @param string $model
+     *
+     * @return \O2System\Framework\Models\Files\Model
+     */
     final protected function loadSubModel($model)
     {
         if (is_file($this->validSubModels[ $model ])) {
@@ -93,6 +127,13 @@ class Model extends AbstractRepository
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Model::getSubModel
+     *
+     * @param string $model
+     *
+     * @return \O2System\Framework\Models\Files\Model
+     */
     final protected function getSubModel($model)
     {
         return $this->loadSubModel($model);

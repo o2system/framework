@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,6 @@ namespace O2System\Framework\Libraries\Crud;
 
 use O2System\Database\DataObjects\Result;
 use O2System\Framework\Libraries\Ui;
-use O2System\Framework\Models;
 use O2System\Html\Element;
 
 /**
@@ -220,6 +219,8 @@ class Table extends Ui\Contents\Table
      * Set table configuration.
      *
      * @param array $config
+     *
+     * @return static
      */
     public function setConfig(array $config)
     {
@@ -234,6 +235,13 @@ class Table extends Ui\Contents\Table
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Table::setRows
+     *
+     * @param \O2System\Database\DataObjects\Result $rows
+     *
+     * @return static
+     */
     public function setRows(Result $rows)
     {
         $this->rows = $rows;
@@ -241,6 +249,15 @@ class Table extends Ui\Contents\Table
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Table::setColumns
+     *
+     * @param array $columns
+     *
+     * @return static
+     */
     public function setColumns(array $columns)
     {
         $defaultColumn = [
@@ -273,6 +290,11 @@ class Table extends Ui\Contents\Table
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Table::setPrependColumns
+     */
     protected function setPrependColumns()
     {
         $prependColumns = [
@@ -341,6 +363,11 @@ class Table extends Ui\Contents\Table
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Table::setAppendColumns
+     */
     protected function setAppendColumns()
     {
         $appendColumns = [
@@ -414,6 +441,15 @@ class Table extends Ui\Contents\Table
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Table::setActions
+     *
+     * @param array $actions
+     *
+     * @return static
+     */
     public function setActions(array $actions)
     {
         $this->actions = array_merge($this->actions, $actions);
@@ -421,6 +457,15 @@ class Table extends Ui\Contents\Table
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Table::setTools
+     *
+     * @param array $tools
+     *
+     * @return static
+     */
     public function setTools(array $tools)
     {
         $this->tools = array_merge($this->tools, $tools);
@@ -428,6 +473,15 @@ class Table extends Ui\Contents\Table
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Table::setOptions
+     *
+     * @param array $options
+     *
+     * @return static
+     */
     public function setOptions(array $options)
     {
         $this->options = array_merge($this->options, $options);
@@ -435,6 +489,13 @@ class Table extends Ui\Contents\Table
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Table::render
+     *
+     * @return string
+     */
     public function render()
     {
         if ($this->config[ 'ordering' ]) {
@@ -635,7 +696,8 @@ class Table extends Ui\Contents\Table
 
         $options = [];
         foreach (range((int)$this->config[ 'entries' ][ 'minimum' ], (int)$this->config[ 'entries' ][ 'maximum' ],
-            (int)$this->config[ 'entries' ][ 'step' ]) as $entries) {
+            (int)$this->config[ 'entries' ][ 'step' ]) as $entries
+        ) {
             $options[ $entries ] = $entries;
         }
 
@@ -705,6 +767,15 @@ class Table extends Ui\Contents\Table
         return $card->render();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Table::renderBodyColumn
+     *
+     * @param Element                                   $td
+     * @param array                                     $column
+     * @param \O2System\Database\DataObjects\Result\Row $row
+     */
     protected function renderBodyColumn($td, array $column, Result\Row $row)
     {
         switch ($column[ 'format' ]) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,6 +25,9 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Bullets extends Base
 {
+    /**
+     * Bullets::__construct
+     */
     public function __construct()
     {
         parent::__construct();
@@ -32,6 +35,16 @@ class Bullets extends Base
         $this->attributes->addAttributeClass('nav-bullets');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Bullets::createBullet
+     *
+     * @param string        $bullet
+     * @param string|null   $href
+     *
+     * @return \O2System\Framework\Libraries\Ui\Contents\Lists\Item
+     */
     public function createBullet($bullet, $href = null)
     {
         if (strpos($bullet, 'http') || is_file($bullet)) {
@@ -47,6 +60,13 @@ class Bullets extends Base
         return $this->createList($link);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Bullets::justified
+     *
+     * @return static
+     */
     public function justified()
     {
         $this->attributes->addAttributeClass('nav-justified');
@@ -54,6 +74,13 @@ class Bullets extends Base
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Bullets::verticalStacked
+     *
+     * @return static
+     */
     public function verticalStacked()
     {
         $this->attributes->addAttributeClass('nav-stacked');

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -37,6 +37,11 @@ class Element extends Html\Element
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Element::clearfix
+     *
+     * @return static
+     */
     public function clearfix()
     {
         $this->attributes->addAttributeClass('clearfix');
@@ -46,6 +51,12 @@ class Element extends Html\Element
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Element::embedResponsive
+     *
+     * @param null $ratio
+     * @return static
+     */
     public function embedResponsive($ratio = null)
     {
         $this->attributes->addAttributeClass('embed-responsive');
@@ -76,11 +87,17 @@ class Element extends Html\Element
 
     // ------------------------------------------------------------------------
 
-    public function screenReaderOnly($focusable = false)
+    /**
+     * Element::screenReaderOnly
+     *
+     * @param bool $screenReaderOnly
+     * @return static
+     */
+    public function screenReaderOnly($screenReaderOnly = false)
     {
         $this->attributes->addAttributeClass('sr-only');
 
-        if ($focusable) {
+        if ($screenReaderOnly) {
             $this->attributes->addAttributeClass('sr-only-focusable');
         }
 
@@ -89,6 +106,12 @@ class Element extends Html\Element
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Element::visible
+     *
+     * @param bool $visible
+     * @return static
+     */
     public function visible($visible = true)
     {
         $this->attributes->addAttributeClass(($visible === true ? 'visible' : 'invisible'));

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,10 +15,6 @@ namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Libraries\Ui\Components\Card\Body;
-use O2System\Framework\Libraries\Ui\Components\Card\Footer;
-use O2System\Framework\Libraries\Ui\Components\Card\Header;
-use O2System\Framework\Libraries\Ui\Components\Card\ListGroup;
 use O2System\Framework\Libraries\Ui\Element;
 use O2System\Framework\Libraries\Ui\Interfaces\ContextualInterface;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ContextualClassSetterTrait;
@@ -33,13 +29,56 @@ class Card extends Element implements ContextualInterface
 {
     use ContextualClassSetterTrait;
 
+    /**
+     * Card::$header
+     *
+     * @var \O2System\Framework\Libraries\Ui\Components\Card\Header
+     */
     public $header;
+
+    /**
+     * Card::$ribbons
+     *
+     * @var \O2System\Html\Element\Nodes
+     */
     public $ribbons;
+
+    /**
+     * Card::$badges
+     *
+     * @var \O2System\Html\Element\Nodes
+     */
     public $badges;
+
+    /**
+     * Card::$image
+     *
+     * @var \O2System\Framework\Libraries\Ui\Components\Card\Image|\O2System\Framework\Libraries\Ui\Components\Card\Carousel
+     */
     public $image;
+
+    /**
+     * Card::$body
+     *
+     * @var \O2System\Framework\Libraries\Ui\Components\Card\Body
+     */
     public $body;
+
+    /**
+     * Card::$footer
+     *
+     * @var \O2System\Framework\Libraries\Ui\Components\Card\Footer
+     */
     public $footer;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Card::__construct
+     *
+     * @param string $contextualClass
+     * @param bool   $inverse
+     */
     public function __construct($contextualClass = self::DEFAULT_CONTEXT, $inverse = false)
     {
         parent::__construct('div', 'card');
@@ -53,14 +92,18 @@ class Card extends Element implements ContextualInterface
 
         $this->setContextualClassSuffix($contextualClass);
 
-        $this->header = new Header();
+        $this->header = new Card\Header();
         $this->ribbons = new Nodes();
         $this->badges = new Nodes();
-        $this->body = new Body();
-        $this->footer = new Footer();
+        $this->body = new Card\Body();
+        $this->footer = new Card\Footer();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
+     * Card::createImage
+     *
      * @param string      $src
      * @param string|null $alt
      *
@@ -71,15 +114,18 @@ class Card extends Element implements ContextualInterface
         return $this->image = new Card\Image($src, $alt);
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * @param string      $src
-     * @param string|null $alt
+     * Card::createCarousel
+     *
+     * @param string $id
      *
      * @return \O2System\Framework\Libraries\Ui\Components\Card\Carousel
      */
     public function createCarousel($id = null)
     {
-        return $this->image = new \O2System\Framework\Libraries\Ui\Components\Card\Carousel($id);
+        return $this->image = new Card\Carousel($id);
     }
 
     public function createBadge(
@@ -100,6 +146,17 @@ class Card extends Element implements ContextualInterface
         return $this->badges->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Card::createRibbon
+     *
+     * @param Card\Ribbon|string    $ribbon
+     * @param string                $contextualClass
+     * @param int                   $position
+     *
+     * @return Card\Ribbon
+     */
     public function createRibbon(
         $ribbon,
         $contextualClass = Card\Ribbon::DEFAULT_CONTEXT,
@@ -116,46 +173,69 @@ class Card extends Element implements ContextualInterface
         return $this->ribbons->last();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
+     * Card::createListGroup
+     *
      * @return \O2System\Framework\Libraries\Ui\Components\ListGroup
      */
     public function createListGroup()
     {
-        $this->childNodes->push(new ListGroup());
+        $this->childNodes->push(new Card\ListGroup());
 
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * @return Header
+     * Card::createHeader
+     *
+     * @return Card\Header
      */
     public function createHeader()
     {
-        $this->childNodes->prepend(new Header());
+        $this->childNodes->prepend(new Card\Header());
 
         return $this->header = $this->childNodes->first();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * @return Body
+     * Card::createBody
+     *
+     * @return Card\Body
      */
     public function createBody()
     {
-        $this->childNodes->push(new Body());
+        $this->childNodes->push(new Card\Body());
 
         return $this->body = $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * @return Footer
+     * Card::createFooter
+     *
+     * @return Card\Footer
      */
     public function createFooter()
     {
-        $this->childNodes->push(new Footer());
+        $this->childNodes->push(new Card\Footer());
 
         return $this->footer = $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Card::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();
@@ -163,13 +243,13 @@ class Card extends Element implements ContextualInterface
         // Render header and image
         if ($this->header->hasTextContent() || $this->header->hasChildNodes()) {
             $output[] = $this->header;
-            if ($this->image instanceof \O2System\Framework\Libraries\Ui\Components\Card\Image ||
-                $this->image instanceof \O2System\Framework\Libraries\Ui\Components\Card\Carousel
+            if ($this->image instanceof Card\Image ||
+                $this->image instanceof Card\Carousel
             ) {
                 $this->image->attributes->removeAttributeClass('card-img-top');
             }
-        } elseif ($this->image instanceof \O2System\Framework\Libraries\Ui\Components\Card\Image ||
-            $this->image instanceof \O2System\Framework\Libraries\Ui\Components\Card\Carousel
+        } elseif ($this->image instanceof Card\Image ||
+            $this->image instanceof Card\Carousel
         ) {
             $this->image->attributes->addAttributeClass('card-img-top');
         }
@@ -217,8 +297,8 @@ class Card extends Element implements ContextualInterface
         }
 
         // Render images
-        if ($this->image instanceof \O2System\Framework\Libraries\Ui\Components\Card\Image ||
-            $this->image instanceof \O2System\Framework\Libraries\Ui\Components\Card\Carousel
+        if ($this->image instanceof Card\Image ||
+            $this->image instanceof Card\Carousel
         ) {
             $output[] = $this->image;
         }

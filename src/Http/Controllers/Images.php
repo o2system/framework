@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,26 +26,81 @@ use O2System\Image\Manipulation;
  */
 class Images extends Controller
 {
-    public $imagePath;
-    public $imageNotFound = 'not-found.jpg';
+    /**
+     * Images::$storagePath
+     *
+     * @var string
+     */
+    public $storagePath;
 
+    /**
+     * Images::$imageNotFoundFilename
+     *
+     * @var string
+     */
+    public $imageNotFoundFilename = 'not-found.jpg';
+
+    /**
+     * Images::$imageFilePath
+     *
+     * @var string
+     */
     public $imageFilePath = null;
+
+    /**
+     * Images::$imageFileMime
+     *
+     * @var string
+     */
     public $imageFileMime = null;
+
+    /**
+     * Images::$imageSize
+     *
+     * @var array
+     */
     public $imageSize = [
         'width'  => null,
         'height' => null,
     ];
 
+    /**
+     * Images::$imageScale
+     *
+     * @var string
+     */
     public $imageScale = null;
+
+    /**
+     * Images::$imageQuality
+     *
+     * @var int
+     */
     public $imageQuality = null;
+
+    /**
+     * Images::$imageCrop
+     *
+     * @var bool
+     */
     public $imageCrop = false;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Images::__construct
+     */
     public function __construct()
     {
-        $this->imagePath = PATH_STORAGE . 'images' . DIRECTORY_SEPARATOR;
-        $this->imageNotFound = $this->imagePath . 'not-found.jpg';
+        $this->storagePath = PATH_STORAGE . 'images' . DIRECTORY_SEPARATOR;
+        $this->imageNotFoundFilename = $this->storagePath . 'not-found.jpg';
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Images::route
+     */
     public function route()
     {
         if (func_get_arg(0) === 'index') {
@@ -54,13 +109,13 @@ class Images extends Controller
             $segments = array_merge([func_get_arg(0)], func_get_arg(1));
         }
 
-        $this->imageFilePath = $this->imageNotFound;
+        $this->imageFilePath = $this->imageNotFoundFilename;
 
-        $this->imageSize[ 'width' ] = input()->get('width');
-        $this->imageSize[ 'height' ] = input()->get('height');
-        $this->imageScale = input()->get('scale');
-        $this->imageQuality = input()->get('quality');
-        $this->imageCrop = input()->get('crop');
+        $this->imageSize[ 'width' ] = $this->input->get('width');
+        $this->imageSize[ 'height' ] = $this->input->get('height');
+        $this->imageScale = $this->input->get('scale');
+        $this->imageQuality = $this->input->get('quality');
+        $this->imageCrop = $this->input->get('crop');
 
         if (false !== ($key = array_search('crop', $segments))) {
             $this->imageCrop = true;
@@ -69,16 +124,16 @@ class Images extends Controller
         }
 
         if (count($segments) == 1) {
-            $this->imageFilePath = $this->imagePath . end($segments);
+            $this->imageFilePath = $this->storagePath . end($segments);
         } elseif (count($segments) >= 2) {
             if (preg_match("/(\d+)(x)(\d+)/", $segments[ count($segments) - 2 ], $matches)) {
                 $this->imageSize[ 'width' ] = $matches[ 1 ];
                 $this->imageSize[ 'height' ] = $matches[ 3 ];
 
                 if (count($segments) == 2) {
-                    $this->imageFilePath = $this->imagePath . end($segments);
+                    $this->imageFilePath = $this->storagePath . end($segments);
                 } else {
-                    $this->imageFilePath = $this->imagePath . implode(DIRECTORY_SEPARATOR,
+                    $this->imageFilePath = $this->storagePath . implode(DIRECTORY_SEPARATOR,
                             array_slice($segments, 0,
                                 count($segments) - 2)) . DIRECTORY_SEPARATOR . end($segments);
                 }
@@ -87,14 +142,14 @@ class Images extends Controller
             ) {
                 $this->imageScale = isset($matches[ 1 ]) ? $matches[ 1 ] : $segments[ count($segments) - 2 ];
                 if (count($segments) == 2) {
-                    $this->imageFilePath = $this->imagePath . end($segments);
+                    $this->imageFilePath = $this->storagePath . end($segments);
                 } else {
-                    $this->imageFilePath = $this->imagePath . implode(DIRECTORY_SEPARATOR,
+                    $this->imageFilePath = $this->storagePath . implode(DIRECTORY_SEPARATOR,
                             array_slice($segments, 0,
                                 count($segments) - 2)) . DIRECTORY_SEPARATOR . end($segments);
                 }
             } else {
-                $this->imageFilePath = $this->imagePath . implode(DIRECTORY_SEPARATOR, $segments);
+                $this->imageFilePath = $this->storagePath . implode(DIRECTORY_SEPARATOR, $segments);
             }
         }
 
@@ -128,7 +183,7 @@ class Images extends Controller
         }
 
         if ( ! is_file($this->imageFilePath)) {
-            $this->imageFilePath = $this->imageNotFound;
+            $this->imageFilePath = $this->imageNotFoundFilename;
         }
 
         if ( ! empty($this->imageScale)) {
@@ -140,6 +195,13 @@ class Images extends Controller
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Images::scale
+     *
+     * @throws \O2System\Spl\Exceptions\Runtime\FileNotFoundException
+     */
     protected function scale()
     {
         $config = config('image', true);
@@ -149,8 +211,8 @@ class Images extends Controller
         }
 
         if ($config->cached === true) {
-            if ($this->imageFilePath !== $this->imageNotFound) {
-                $cacheImageKey = 'image-' . $this->imageScale . '-' . str_replace($this->imagePath, '',
+            if ($this->imageFilePath !== $this->imageNotFoundFilename) {
+                $cacheImageKey = 'image-' . $this->imageScale . '-' . str_replace($this->storagePath, '',
                         $this->imageFilePath);
 
                 if (cache()->hasItemPool('images')) {
@@ -183,6 +245,13 @@ class Images extends Controller
         exit(EXIT_SUCCESS);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Images::resize
+     *
+     * @throws \O2System\Spl\Exceptions\Runtime\FileNotFoundException
+     */
     protected function resize()
     {
         $config = config('image', true);
@@ -192,9 +261,9 @@ class Images extends Controller
         }
 
         if ($config->cached === true) {
-            if ($this->imageFilePath !== $this->imageNotFound) {
-                $cacheImageKey = 'image-' . (input()->get('crop') ? 'crop-' : '') . implode('x',
-                        $this->imageSize) . '-' . str_replace($this->imagePath, '', $this->imageFilePath);
+            if ($this->imageFilePath !== $this->imageNotFoundFilename) {
+                $cacheImageKey = 'image-' . ($this->input->get('crop') ? 'crop-' : '') . implode('x',
+                        $this->imageSize) . '-' . str_replace($this->storagePath, '', $this->imageFilePath);
 
                 if (cache()->hasItemPool('images')) {
                     $cacheItemPool = cache()->getItemPool('images');
@@ -227,6 +296,13 @@ class Images extends Controller
         exit(EXIT_SUCCESS);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Images::original
+     *
+     * @throws \O2System\Spl\Exceptions\Runtime\FileNotFoundException
+     */
     protected function original()
     {
         $config = config('image', true);

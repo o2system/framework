@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,8 +24,20 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 abstract class AbstractIcon extends Element
 {
+    /**
+     * AbstractIcon::$iconPrefixClass
+     *
+     * @var string
+     */
     protected $iconPrefixClass;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractIcon::__construct
+     *
+     * @param string|null $iconName
+     */
     public function __construct($iconName = null)
     {
         parent::__construct('span');
@@ -35,6 +47,15 @@ abstract class AbstractIcon extends Element
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractIcon::setClass
+     *
+     * @param string $className
+     *
+     * @return static
+     */
     public function setClass($className)
     {
         $this->attributes->removeAttributeClass($this->iconPrefixClass . '-*');

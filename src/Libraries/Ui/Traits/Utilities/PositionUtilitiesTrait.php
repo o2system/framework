@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,6 +21,11 @@ namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
  */
 trait PositionUtilitiesTrait
 {
+    /**
+     * PositionUtilitiesTrait::positionStatic
+     *
+     * @return static
+     */
     public function positionStatic()
     {
         $this->attributes->addAttributeClass('position-static');
@@ -30,6 +35,11 @@ trait PositionUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * PositionUtilitiesTrait::positionRelative
+     *
+     * @return static
+     */
     public function positionRelative()
     {
         $this->attributes->addAttributeClass('position-relative');
@@ -39,6 +49,12 @@ trait PositionUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * PositionUtilitiesTrait::positionAbsolute
+     *
+     * @return static
+     *
+     */
     public function positionAbsolute()
     {
         $this->attributes->addAttributeClass('position-absolute');
@@ -48,6 +64,11 @@ trait PositionUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * PositionUtilitiesTrait::positionFixed
+     *
+     * @return static
+     */
     public function positionFixed()
     {
         $this->attributes->addAttributeClass('position-fixed');
@@ -57,6 +78,11 @@ trait PositionUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * PositionUtilitiesTrait::positionSticky
+     *
+     * @return static
+     */
     public function positionSticky()
     {
         $this->attributes->addAttributeClass('position-sticky');
@@ -66,6 +92,11 @@ trait PositionUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * PositionUtilitiesTrait::positionFixedTop
+     *
+     * @return static
+     */
     public function positionFixedTop()
     {
         $this->attributes->addAttributeClass('fixed-top');
@@ -75,6 +106,11 @@ trait PositionUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * PositionUtilitiesTrait::positionFixedBottom
+     *
+     * @return static
+     */
     public function positionFixedBottom()
     {
         $this->attributes->addAttributeClass('fixed-bottom');
@@ -84,6 +120,11 @@ trait PositionUtilitiesTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * PositionUtilitiesTrait::positionFixedTop
+     *
+     * @return static
+     */
     public function positionStickyTop()
     {
         $this->attributes->addAttributeClass('sticky-top');

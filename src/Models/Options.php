@@ -1,12 +1,12 @@
 <?php
 /**
- * This file is part of the O2System Content Management System package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @author         Steeve Andrian
- * @copyright      Copyright (c) Steeve Andrian
+ * @author         Steeve Andrian Salim
+ * @copyright      Copyright (c) Steeve Andrian Salim
  */
 
 // ------------------------------------------------------------------------
@@ -23,12 +23,18 @@ use O2System\Framework\Models\Files\Model;
  */
 class Options extends Model
 {
+    /**
+     * Options constructor.
+     */
     public function __construct()
     {
         parent::__construct();
         $this->language->loadFile('options');
     }
 
+    /**
+     * @return array
+     */
     public function religions()
     {
         $religions = [];
@@ -40,6 +46,9 @@ class Options extends Model
         return $religions;
     }
 
+    /**
+     * @return array
+     */
     public function genders()
     {
         $genders = [];
@@ -51,6 +60,9 @@ class Options extends Model
         return $genders;
     }
 
+    /**
+     * @return array
+     */
     public function maritals()
     {
         $maritals = [];
@@ -62,6 +74,9 @@ class Options extends Model
         return $maritals;
     }
 
+    /**
+     * @return array
+     */
     public function bloodTypes()
     {
         $bloodTypes = [];
@@ -73,6 +88,12 @@ class Options extends Model
         return $bloodTypes;
     }
 
+    /**
+     * @param int $start
+     * @param int $end
+     * @param string $labelFormat
+     * @return array
+     */
     public function days($start = 1, $end = 7, $labelFormat = 'l')
     {
         $this->language->loadFile('calendar');
@@ -91,6 +112,12 @@ class Options extends Model
         return $days;
     }
 
+    /**
+     * @param int $start
+     * @param int $end
+     * @param bool $leading
+     * @return array
+     */
     public function dates($start = 1, $end = 31, $leading = true)
     {
         $dates = [];
@@ -105,6 +132,12 @@ class Options extends Model
         return $dates;
     }
 
+    /**
+     * @param int $start
+     * @param int $end
+     * @param bool $leading
+     * @return array
+     */
     public function months($start = 1, $end = 12, $leading = true)
     {
         $this->language->loadFile('calendar');
@@ -122,6 +155,11 @@ class Options extends Model
         return $months;
     }
 
+    /**
+     * @param int $start
+     * @param null $end
+     * @return array
+     */
     public function years($start = 1900, $end = null)
     {
         $end = empty($end) ? date('Y') : $end;
@@ -134,6 +172,9 @@ class Options extends Model
         return $years;
     }
 
+    /**
+     * @return array
+     */
     public function identities()
     {
         $identities = [];
@@ -145,6 +186,9 @@ class Options extends Model
         return $identities;
     }
 
+    /**
+     * @return array
+     */
     public function sizes()
     {
         $sizes = [];
@@ -155,16 +199,22 @@ class Options extends Model
         return $sizes;
     }
 
+    /**
+     * @return array
+     */
     public function boolean()
     {
         $boolean = [];
         foreach (['YES', 'NO'] as $bool) {
-            $boolean[ $bool ] = $this->language->getLine( 'BOOL_' . $bool);
+            $boolean[ $bool ] = $this->language->getLine('BOOL_' . $bool);
         }
 
         return $boolean;
     }
 
+    /**
+     * @return array
+     */
     public function familyRelationships()
     {
         $familyRelationships = [];
@@ -181,12 +231,15 @@ class Options extends Model
                      'AUNTS_UNCLES_CHILD',
                  ] as $relationship
         ) {
-            $familyRelationships[ $relationship ]  = $this->language->getLine($relationship);
+            $familyRelationships[ $relationship ] = $this->language->getLine($relationship);
         }
 
         return $familyRelationships;
     }
 
+    /**
+     * @return array
+     */
     public function status()
     {
         $statuses = [];
@@ -196,10 +249,10 @@ class Options extends Model
                      'UNPUBLISH',
                      'DRAFT',
                      'ARCHIVED',
-                     'TRASH'
+                     'TRASH',
                  ] as $status
         ) {
-            $statuses[ $status ]  = $this->language->getLine($status);
+            $statuses[ $status ] = $this->language->getLine($status);
         }
 
         return $statuses;
@@ -208,6 +261,9 @@ class Options extends Model
     // ------------------------------------------------------------------------
 
 
+    /**
+     * @return array
+     */
     public function visibilities()
     {
         $visibilities = [];
@@ -218,7 +274,7 @@ class Options extends Model
                      'MEMBER',
                  ] as $visibility
         ) {
-            $visibilities[ $visibility ]  = $this->language->getLine($visibility);
+            $visibilities[ $visibility ] = $this->language->getLine($visibility);
         }
 
         return $visibilities;
@@ -235,7 +291,7 @@ class Options extends Model
     {
         $languages = [];
 
-        foreach($this->language->getRegistry() as $language) {
+        foreach ($this->language->getRegistry() as $language) {
             $languages[ $language->getParameter() ] = $language->getProperties()->name;
         }
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -35,8 +35,22 @@ class Button extends Element implements ContextualInterface
     use PopoverSetterTrait;
     use TooltipSetterTrait;
 
+    /**
+     * Button::$icon
+     *
+     * @var Icon
+     */
     public $icon;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Button::__construct
+     *
+     * @param string|null   $label
+     * @param array         $attributes
+     * @param string        $contextualClass
+     */
     public function __construct($label = null, array $attributes = [], $contextualClass = 'default')
     {
         parent::__construct('button');
@@ -67,6 +81,15 @@ class Button extends Element implements ContextualInterface
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Button::setLabel
+     *
+     * @param string $label
+     *
+     * @return static
+     */
     public function setLabel($label)
     {
         $this->textContent->prepend($label);
@@ -75,6 +98,15 @@ class Button extends Element implements ContextualInterface
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Button::setIcon
+     *
+     * @param string $icon
+     *
+     * @return static
+     */
     public function setIcon($icon)
     {
         if ($icon instanceof Icon) {
@@ -86,6 +118,13 @@ class Button extends Element implements ContextualInterface
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Button::disabled
+     *
+     * @return static
+     */
     public function disabled()
     {
         $this->attributes->addAttributeClass('disabled');
@@ -93,6 +132,13 @@ class Button extends Element implements ContextualInterface
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Button::active
+     *
+     * @return static
+     */
     public function active()
     {
         $this->attributes->addAttributeClass('active');
@@ -100,6 +146,13 @@ class Button extends Element implements ContextualInterface
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Button::render
+     *
+     * @return string
+     */
     public function render()
     {
         if ($this->icon instanceof Icon && $this->hasTextContent()) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@ namespace O2System\Framework\Services;
 // ------------------------------------------------------------------------
 
 use O2System\Cache\Item;
-use O2System\Framework\Datastructures;
+use O2System\Framework\DataStructures;
 use O2System\Kernel\Cli\Writers\Format;
 use O2System\Psr\Cache\CacheItemPoolInterface;
 
@@ -56,10 +56,11 @@ class Language extends \O2System\Kernel\Services\Language
      * Load language registry.
      *
      * @return void
+     * @throws \O2System\Psr\Cache\InvalidArgumentException
      */
     public function loadRegistry()
     {
-        if(empty($this->registry)) {
+        if (empty($this->registry)) {
             $cacheItemPool = cache()->getItemPool('default');
 
             if (cache()->hasItemPool('registry')) {
@@ -102,7 +103,7 @@ class Language extends \O2System\Kernel\Services\Language
                 $packageJsonFile = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $packageJsonFile);
                 $packageJsonFileInfo = pathinfo($packageJsonFile);
 
-                if ($packageJsonFileInfo['filename'] === 'language') {
+                if ($packageJsonFileInfo[ 'filename' ] === 'language') {
                     if (is_cli()) {
                         output()->verbose(
                             (new Format())
@@ -112,7 +113,7 @@ class Language extends \O2System\Kernel\Services\Language
                         );
                     }
 
-                    $package = new Datastructures\Language(dirname($packageJsonFile));
+                    $package = new DataStructures\Language(dirname($packageJsonFile));
 
                     if ($package->isValid()) {
                         if (is_cli()) {
@@ -147,15 +148,13 @@ class Language extends \O2System\Kernel\Services\Language
     // ------------------------------------------------------------------------
 
     /**
-     * Language::registered
+     * Language::getDefaultMetadata
      *
-     * @param $package
-     *
-     * @return bool
+     * @return array
      */
-    public function registered($package)
+    public function getDefaultMetadata()
     {
-        return isset($this->registry[ $package ]);
+        return $this->getRegistry($this->getDefault());
     }
 
     // ------------------------------------------------------------------------
@@ -180,9 +179,18 @@ class Language extends \O2System\Kernel\Services\Language
         return $this->registry;
     }
 
-    public function getDefaultMetadata()
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::registered
+     *
+     * @param $package
+     *
+     * @return bool
+     */
+    public function registered($package)
     {
-        return $this->getRegistry( $this->getDefault() );
+        return isset($this->registry[ $package ]);
     }
 
     // ------------------------------------------------------------------------
@@ -207,6 +215,7 @@ class Language extends \O2System\Kernel\Services\Language
      * Update language registry.
      *
      * @return void
+     * @throws \Exception
      */
     public function updateRegistry()
     {
@@ -258,6 +267,7 @@ class Language extends \O2System\Kernel\Services\Language
      * Flush language registry.
      *
      * @return void
+     * @throws \O2System\Psr\Cache\InvalidArgumentException
      */
     public function flushRegistry()
     {

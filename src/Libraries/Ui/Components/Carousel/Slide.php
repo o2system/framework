@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,12 +26,22 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Slide extends Element
 {
+    /**
+     * Slide::__construct
+     */
     public function __construct()
     {
         parent::__construct('div', 'slide');
         $this->attributes->addAttributeClass('carousel-item');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Slide::active
+     *
+     * @return static
+     */
     public function active()
     {
         $this->attributes->addAttributeClass('active');
@@ -39,6 +49,16 @@ class Slide extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Slide::createImage
+     *
+     * @param string      $src
+     * @param string|null $alt
+     *
+     * @return mixed
+     */
     public function createImage($src, $alt = null)
     {
         $this->childNodes->push(new Image($src, $alt));
@@ -46,6 +66,13 @@ class Slide extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Slide::createJumbotron
+     *
+     * @return Jumbotron
+     */
     public function createJumbotron()
     {
         $this->childNodes->push(new Jumbotron());

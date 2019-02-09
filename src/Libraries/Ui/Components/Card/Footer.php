@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,17 +24,30 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Footer extends Element
 {
+    /**
+     * Footer::__construct
+     */
     public function __construct()
     {
         parent::__construct('div', 'heading');
         $this->attributes->addAttributeClass('card-footer');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Footer::createTags
+     */
     public function createTags()
     {
 
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Footer::createOptions
+     */
     public function createOptions()
     {
 

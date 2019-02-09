@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,20 +16,24 @@ namespace O2System\Framework\Containers;
 // ------------------------------------------------------------------------
 
 use O2System\Database;
-use O2System\Framework\Models\Files\Model as FileModel;
-use O2System\Framework\Models\NoSql\Model as NoSqlModel;
-use O2System\Framework\Models\Sql\Model as SqlModel;
-use O2System\Spl\Containers\Datastructures\SplServiceRegistry;
+use O2System\Spl\Containers\DataStructures\SplServiceRegistry;
 use O2System\Spl\Containers\SplServiceContainer;
 
 /**
  * Class Models
  *
- * @package O2System\Framework
+ * @package O2System\Framework\Containers
  */
 class Models extends SplServiceContainer
 {
+    /**
+     * Models::$database
+     *
+     * @var \O2System\Database\Connections
+     */
     public $database;
+
+    // ------------------------------------------------------------------------
 
     /**
      * Models::__construct
@@ -39,12 +43,12 @@ class Models extends SplServiceContainer
         if ($config = config()->loadFile('database', true)) {
             if ( ! empty($config[ 'default' ][ 'hostname' ]) AND ! empty($config[ 'default' ][ 'username' ])) {
 
-                if(profiler() !== false) {
+                if (profiler() !== false) {
                     profiler()->watch('Starting Database Service');
                 }
 
                 $this->database = new Database\Connections(
-                    new Database\Datastructures\Config(
+                    new Database\DataStructures\Config(
                         $config->getArrayCopy()
                     )
                 );
@@ -80,29 +84,6 @@ class Models extends SplServiceContainer
     // ------------------------------------------------------------------------
 
     /**
-     * Models::add
-     *
-     * @param \O2System\Framework\Models\Sql\Model|\O2System\Framework\Models\NoSql\Model|\O2System\Framework\Models\Files\Model $model
-     * @param null $offset
-     */
-    public function add($model, $offset = null)
-    {
-        if (is_object($model)) {
-            if ( ! $model instanceof SplServiceRegistry) {
-                $model = new SplServiceRegistry($model);
-            }
-        }
-
-        if (profiler() !== false) {
-            profiler()->watch('Add New Model: ' . $model->getClassName());
-        }
-
-        $this->register($model, $offset);
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
      * Models::register
      *
      * @param SplServiceRegistry $service
@@ -126,5 +107,28 @@ class Models extends SplServiceContainer
                 }
             }
         }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Models::add
+     *
+     * @param \O2System\Framework\Models\Sql\Model|\O2System\Framework\Models\NoSql\Model|\O2System\Framework\Models\Files\Model $model
+     * @param null                                                                                                               $offset
+     */
+    public function add($model, $offset = null)
+    {
+        if (is_object($model)) {
+            if ( ! $model instanceof SplServiceRegistry) {
+                $model = new SplServiceRegistry($model);
+            }
+        }
+
+        if (profiler() !== false) {
+            profiler()->watch('Add New Model: ' . $model->getClassName());
+        }
+
+        $this->register($model, $offset);
     }
 }

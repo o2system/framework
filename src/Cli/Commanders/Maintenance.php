@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -117,6 +117,11 @@ class Maintenance extends Commander
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Maintenance::optionSwitch
+     *
+     * @param string $switch
+     */
     public function optionSwitch($switch)
     {
         $switch = strtoupper($switch);
@@ -126,26 +131,61 @@ class Maintenance extends Commander
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Maintenance::optionMode
+     *
+     * @param string $mode
+     */
     public function optionMode($mode)
     {
         $this->optionMode = $mode;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Maintenance::optionLifetime
+     *
+     * @param int $lifetime
+     */
     public function optionLifetime($lifetime)
     {
         $this->optionLifetime = (int)$lifetime;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Maintenance::optionTitle
+     *
+     * @param string $title
+     */
     public function optionTitle($title)
     {
         $this->optionTitle = trim($title);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Maintenance::optionMessage
+     *
+     * @param string $message
+     */
     public function optionMessage($message)
     {
         $this->optionMessage = $message;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Maintenance::execute
+     *
+     * @throws \Exception
+     */
     public function execute()
     {
         $options = input()->get();

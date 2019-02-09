@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -131,8 +131,8 @@ class Head extends Abstracts\AbstractPosition
 
         // Render css
         if ($this->css->count()) {
-            foreach($this->css as $css) {
-                if(in_array(pathinfo($css, PATHINFO_FILENAME), $unbundledFilename)) {
+            foreach ($this->css as $css) {
+                if (in_array(pathinfo($css, PATHINFO_FILENAME), $unbundledFilename)) {
                     $cssVersion = $this->getVersion($css);
                     $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $this->getUrl($css) . '?v=' . $cssVersion . '">';
                 }
@@ -163,7 +163,7 @@ class Head extends Abstracts\AbstractPosition
                     flock($bundleFileStream, LOCK_EX);
 
                     foreach ($this->css as $css) {
-                        if( ! in_array(pathinfo($css, PATHINFO_FILENAME), $unbundledFilename)) {
+                        if ( ! in_array(pathinfo($css, PATHINFO_FILENAME), $unbundledFilename)) {
                             $bundleCssMap[ 'sources' ][] = $css;
                             fwrite($bundleFileStream, file_get_contents($css));
                         }
@@ -197,8 +197,8 @@ class Head extends Abstracts\AbstractPosition
 
         // Render js
         if ($this->javascript->count()) {
-            foreach($this->javascript as $js) {
-                if(in_array(pathinfo($css, PATHINFO_FILENAME), $unbundledFilename)) {
+            foreach ($this->javascript as $js) {
+                if (in_array(pathinfo($css, PATHINFO_FILENAME), $unbundledFilename)) {
                     $jsVersion = $this->getVersion($js);
                     $output[] = '<script type="text/javascript" src="' . $this->getUrl($js) . '?v=' . $jsVersion . '"></script>';
                 }
@@ -229,7 +229,7 @@ class Head extends Abstracts\AbstractPosition
                     flock($bundleFileStream, LOCK_EX);
 
                     foreach ($this->css as $css) {
-                        if( ! in_array(pathinfo($css, PATHINFO_FILENAME), $unbundledFilename)) {
+                        if ( ! in_array(pathinfo($css, PATHINFO_FILENAME), $unbundledFilename)) {
                             $bundleJsMap[ 'sources' ][] = $css;
                             fwrite($bundleFileStream, file_get_contents($css));
                         }

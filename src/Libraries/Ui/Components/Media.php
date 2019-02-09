@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,12 +25,24 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Media extends Element
 {
+    /**
+     * Media::__construct
+     */
     public function __construct()
     {
         parent::__construct('div');
         $this->attributes->addAttributeClass('media-list');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Media::createObject
+     *
+     * @param Objects|Element|string|null $list
+     *
+     * @return Objects
+     */
     public function createObject($list = null)
     {
         $node = new Objects();

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,6 +25,9 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Breadcrumb extends Ordered
 {
+    /**
+     * Breadcrumb::__construct
+     */
     public function __construct()
     {
         parent::__construct();
@@ -32,6 +35,15 @@ class Breadcrumb extends Ordered
         $this->attributes->addAttributeClass('breadcrumb');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Breadcrumb::style
+     *
+     * @param string $style
+     *
+     * @return static
+     */
     public function style($style)
     {
         if (in_array($style, ['arrow', 'dot', 'bar'])) {
@@ -42,6 +54,13 @@ class Breadcrumb extends Ordered
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Breadcrumb::pushChildNode
+     *
+     * @param \O2System\Framework\Libraries\Ui\Element $node
+     */
     protected function pushChildNode(Element $node)
     {
         $node->attributes->addAttributeClass('breadcrumb-item');

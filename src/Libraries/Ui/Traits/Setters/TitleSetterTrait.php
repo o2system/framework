@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,9 +24,30 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 trait TitleSetterTrait
 {
+    /**
+     * TitleSetterTrait::$title
+     *
+     * @var Element
+     */
     public $title;
+
+    /**
+     * TitleSetterTrait::$subTitle
+     *
+     * @var Element
+     */
     public $subTitle;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * TitleSetterTrait::setTitle
+     *
+     * @param string $text
+     * @param string $tagName
+     *
+     * @return static
+     */
     public function setTitle($text, $tagName = 'h4')
     {
         $this->title = new Element($tagName, 'title');
@@ -36,6 +57,16 @@ trait TitleSetterTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * TittleSetterTrait::setSubTitle
+     *
+     * @param string $text
+     * @param string $tagName
+     *
+     * @return static
+     */
     public function setSubTitle($text, $tagName = 'h6')
     {
         $this->subTitle = new Element($tagName, 'subTitle');

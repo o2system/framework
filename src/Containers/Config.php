@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,17 +11,16 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Services;
+namespace O2System\Framework\Containers;
 
 // ------------------------------------------------------------------------
 
-use O2System\Kernel\Containers\Environment;
-use O2System\Spl\Datastructures\SplArrayObject;
+use O2System\Spl\DataStructures\SplArrayObject;
 
 /**
  * Class Config
  *
- * @package O2System\Framework\Services
+ * @package O2System\Framework\Containers
  */
 class Config extends Environment
 {
@@ -46,7 +45,7 @@ class Config extends Environment
             PATH_APP . 'Config' . DIRECTORY_SEPARATOR,
         ];
 
-        if (method_exists(modules(), 'getDirs')) {
+        if(null !== o2system()->modules) {
             $configDirs = modules()->getDirs('Config', true);
         }
 
@@ -101,7 +100,7 @@ class Config extends Environment
      *
      * @param string $offset
      *
-     * @return mixed|\O2System\Spl\Datastructures\SplArrayObject
+     * @return mixed|\O2System\Spl\DataStructures\SplArrayObject
      */
     public function &getItem($offset)
     {

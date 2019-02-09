@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -27,11 +27,36 @@ class Ribbon extends Element implements ContextualInterface
 {
     use ContextualClassSetterTrait;
 
+    /**
+     * Ribbon::LEFT_RIBBON
+     *
+     * @var int
+     */
     const LEFT_RIBBON = 0;
+
+    /**
+     * Ribbon::RIGHT_RIBBON
+     *
+     * @var int
+     */
     const RIGHT_RIBBON = 1;
 
+    /**
+     * Ribbon::$position
+     *
+     * @var int
+     */
     public $position;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Ribbon::__construct
+     *
+     * @param string|null  $textContent
+     * @param string       $contextualClass
+     * @param int          $position
+     */
     public function __construct($textContent = null, $contextualClass = 'default', $position = self::LEFT_RIBBON)
     {
         parent::__construct('span');
@@ -46,6 +71,15 @@ class Ribbon extends Element implements ContextualInterface
         $this->position = $position;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Ribbon::setTextContent
+     *
+     * @param string $textContent
+     *
+     * @return static
+     */
     public function setTextContent($textContent)
     {
         $this->entity->setEntityName('ribbon-' . $textContent);

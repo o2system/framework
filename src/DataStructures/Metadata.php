@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,7 +11,7 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Datastructures\Commons;
+namespace O2System\Framework\DataStructures;
 
 // ------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 /**
  * Class Metadata
  *
- * @package O2System\Framework\Datastructures\Commons
+ * @package O2System\Framework\DataStructures\Commons
  */
 class Metadata extends AbstractRepository
 {

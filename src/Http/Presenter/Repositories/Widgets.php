@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,37 +11,61 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Http\Presenter;
+namespace O2System\Framework\Http\Presenter\Repositories;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Datastructures\Module\Widget;
 use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Widgets
  *
- * @package O2System\Framework\Http\Presenter
+ * @package O2System\Framework\Http\Presenter\Repositories
  */
 class Widgets extends AbstractRepository
 {
+    /**
+     * Widgets::hasWidget
+     *
+     * @param string $widgetOffset
+     *
+     * @return bool
+     */
     public function hasWidget($widgetOffset)
     {
         return $this->__isset($widgetOffset);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Widgets::load
+     *
+     * @param string $widgetOffset
+     *
+     * @return bool
+     */
     public function load($widgetOffset)
     {
         $widgetDirectory = modules()->current()->getRealPath() . 'Widgets' . DIRECTORY_SEPARATOR . studlycase($widgetOffset) . DIRECTORY_SEPARATOR;
 
         if (is_dir($widgetDirectory)) {
-            $widget = new Widget($widgetDirectory);
+            $widget = new DataStructures\Module\Widget($widgetDirectory);
             $this->store(camelcase($widgetOffset), $widget);
         }
 
         return $this->exists($widgetOffset);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Widgets::get
+     *
+     * @param string $offset
+     *
+     * @return string
+     */
     public function get($offset)
     {
         if (null !== ($widget = parent::get($offset))) {

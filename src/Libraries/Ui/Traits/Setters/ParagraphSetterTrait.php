@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,8 +24,22 @@ use O2System\Framework\Libraries\Ui\Contents\Paragraph;
  */
 trait ParagraphSetterTrait
 {
+    /**
+     * ParagraphSetterTrait::$paragraph
+     *
+     * @var Paragraph
+     */
     public $paragraph;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * ParagraphSetterTrait::setParagraph
+     *
+     * @param string $text
+     *
+     * @return static
+     */
     public function setParagraph($text)
     {
         $this->paragraph = new Paragraph();

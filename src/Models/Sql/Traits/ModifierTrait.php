@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -30,7 +30,7 @@ trait ModifierTrait
      *
      * @access  public
      *
-     * @param   array  $sets  Array of Input Data
+     * @param   array $sets Array of Input Data
      *
      * @return mixed
      * @throws \O2System\Spl\Exceptions\RuntimeException
@@ -67,7 +67,7 @@ trait ModifierTrait
     protected function insertOrUpdate(array $sets)
     {
         // Try to find
-        if($result = $this->qb->from($this->table)->getWhere($sets)) {
+        if ($result = $this->qb->from($this->table)->getWhere($sets)) {
             return $this->update($sets);
         } else {
             return $this->insert($sets);
@@ -111,7 +111,7 @@ trait ModifierTrait
      *
      * @access  public
      *
-     * @param   array  $sets  Array of Update Data
+     * @param   array $sets Array of Update Data
      *
      * @return mixed
      */
@@ -162,12 +162,14 @@ trait ModifierTrait
     /**
      * Find Or Insert
      *
-     * To insert if there is no record before. 
+     * To insert if there is no record before.
      * This is very important in insert to pivot table and avoid redundan
-     * 
+     *
      * @access public
-     * @param array  $sets Array of Input Data
-     * @param array  $sets Array of Reference
+     *
+     * @param array $sets Array of Input Data
+     * @param array $sets Array of Reference
+     *
      * @return int
      * @throws \O2System\Spl\Exceptions\RuntimeException
      */
@@ -179,14 +181,14 @@ trait ModifierTrait
         } else {
             $result = $this->qb->from($this->table)->getWhere($sets);
         }
-        
+
         if ($result->count() == 0) {
             $this->insert($sets);
-            
+
             return $this->db->getLastInsertId();
         }
 
-        return $result[0]->id;
+        return $result[ 0 ]->id;
     }
 
     protected function updateOrInsert(array $sets, array $where = [])
@@ -208,7 +210,7 @@ trait ModifierTrait
         $this->primaryKeys = [];
 
         // Try to find
-        if($result = $this->qb->from($this->table)->getWhere($where)) {
+        if ($result = $this->qb->from($this->table)->getWhere($where)) {
             return $this->update($sets, $where);
         } else {
             return $this->insert($sets);
@@ -260,6 +262,26 @@ trait ModifierTrait
         }
 
         return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * softDelete many rows from the database table based on sets of ids.
+     *
+     * @param array $ids
+     *
+     * @return mixed
+     */
+    protected function softDeleteMany(array $ids)
+    {
+        $affectedRows = [];
+
+        foreach ($ids as $id) {
+            $affectedRows[ $id ] = $this->softDelete($id);
+        }
+
+        return $affectedRows;
     }
 
     // ------------------------------------------------------------------------
@@ -320,6 +342,19 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
+    protected function softDeleteManyBy(array $ids, $where = [])
+    {
+        $affectedRows = [];
+
+        foreach ($ids as $id) {
+            $affectedRows[ $id ] = $this->softDeleteBy($id, $where);
+        }
+
+        return $affectedRows;
+    }
+
+    // ------------------------------------------------------------------------
+
     protected function softDeleteBy($id, array $where = [])
     {
         $this->qb->where($where);
@@ -329,32 +364,12 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    /**
-     * softDelete many rows from the database table based on sets of ids.
-     *
-     * @param array $ids
-     *
-     * @return mixed
-     */
-    protected function softDeleteMany(array $ids)
+    protected function deleteMany(array $ids, $force = false)
     {
         $affectedRows = [];
 
         foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->softDelete($id);
-        }
-
-        return $affectedRows;
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function softDeleteManyBy(array $ids, $where = [])
-    {
-        $affectedRows = [];
-
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->softDeleteBy($id, $where);
+            $affectedRows[ $id ] = $this->delete($id, $force);
         }
 
         return $affectedRows;
@@ -398,26 +413,6 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    protected function deleteBy($id, $where = [], $force = false)
-    {
-        $this->qb->where($where);
-
-        return $this->delete($id, $force);
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function deleteMany(array $ids, $force = false)
-    {
-        $affectedRows = [];
-
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->delete($id, $force);
-        }
-
-        return $affectedRows;
-    }
-
     protected function deleteManyBy(array $ids, $where = [], $force = false)
     {
         $affectedRows = [];
@@ -427,6 +422,20 @@ trait ModifierTrait
         }
 
         return $affectedRows;
+    }
+
+    protected function deleteBy($id, $where = [], $force = false)
+    {
+        $this->qb->where($where);
+
+        return $this->delete($id, $force);
+    }
+
+    // ------------------------------------------------------------------------
+
+    protected function restore($id)
+    {
+        return $this->publish($id);
     }
 
     // ------------------------------------------------------------------------
@@ -480,11 +489,25 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
+    protected function restoreBy($id, array $where = [])
+    {
+        return $this->publishBy($id, $where);
+    }
+
+    // ------------------------------------------------------------------------
+
     protected function publishBy($id, array $where = [])
     {
         $this->qb->where($where);
 
         return $this->publish($id);
+    }
+
+    // ------------------------------------------------------------------------
+
+    protected function restoreMany(array $ids)
+    {
+        return $this->publishMany($ids);
     }
 
     // ------------------------------------------------------------------------
@@ -502,6 +525,13 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
+    protected function restoreManyBy(array $ids, $where = [])
+    {
+        return $this->publishManyBy($ids, $where);
+    }
+
+    // ------------------------------------------------------------------------
+
     protected function publishManyBy(array $ids, $where = [])
     {
         $affectedRows = [];
@@ -511,33 +541,5 @@ trait ModifierTrait
         }
 
         return $affectedRows;
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function restore($id)
-    {
-        return $this->publish($id);
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function restoreBy($id, array $where = [])
-    {
-        return $this->publishBy($id, $where);
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function restoreMany(array $ids)
-    {
-        return $this->publishMany($ids);
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function restoreManyBy(array $ids, $where = [])
-    {
-        return $this->publishManyBy($ids, $where);
     }
 }

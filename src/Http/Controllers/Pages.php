@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@ namespace O2System\Framework\Http\Controllers;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Http\Controller;
-use O2System\Framework\Http\Router\Datastructures\Page;
+use O2System\Framework\Http\Router\DataStructures\Page;
 
 /**
  * Class Pages
@@ -37,7 +37,7 @@ class Pages extends Controller
     /**
      * Pages::setPage
      *
-     * @param \O2System\Framework\Http\Router\Datastructures\Page $page
+     * @param \O2System\Framework\Http\Router\DataStructures\Page $page
      *
      * @return void
      */
@@ -57,26 +57,26 @@ class Pages extends Controller
     {
         if (false !== ($presets = $this->page->getPresets())) {
             if ($presets->offsetExists('theme')) {
-                presenter()->theme->set($presets->theme);
+                $this->presenter->theme->set($presets->theme);
             }
 
             if ($presets->offsetExists('layout')) {
-                presenter()->theme->setLayout($presets->layout);
+                $this->presenter->theme->setLayout($presets->layout);
             }
 
             if ($presets->offsetExists('title')) {
-                presenter()->meta->title->append($presets->title);
+                $this->presenter->meta->title->append($presets->title);
             }
 
             if ($presets->offsetExists('pageTitle')) {
-                presenter()->meta->title->append($presets->pageTitle);
+                $this->presenter->meta->title->append($presets->pageTitle);
             }
 
             if ($presets->offsetExists('browserTitle')) {
-                presenter()->meta->title->replace($presets->browserTitle);
+                $this->presenter->meta->title->replace($presets->browserTitle);
             }
         }
 
-        view()->page($this->page);
+        $this->view->page($this->page);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,14 +25,32 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Header extends Element
 {
+    /**
+     * Header::$nav
+     *
+     * @var Nav
+     */
     public $nav;
+
+    /**
+     * Header::$options
+     *
+     * @var Nav
+     */
     public $options;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Header::__construct
+     */
     public function __construct()
     {
         parent::__construct('div', 'header');
         $this->attributes->addAttributeClass('card-header');
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * Header::createNav
@@ -46,6 +64,8 @@ class Header extends Element
 
         return $this->nav = $this->childNodes->last();
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * Header::createOptions

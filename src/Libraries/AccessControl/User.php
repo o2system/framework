@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,6 +26,11 @@ use O2System\Spl\Exceptions\RuntimeException;
  */
 class User extends \O2System\Security\Authentication\User
 {
+    /**
+     * User::__construct
+     *
+     * @throws \O2System\Spl\Exceptions\RuntimeException
+     */
     public function __construct()
     {
         parent::__construct();
@@ -39,6 +44,16 @@ class User extends \O2System\Security\Authentication\User
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * User::authenticate
+     *
+     * @param string $username
+     * @param string $password
+     *
+     * @return bool
+     */
     public function authenticate($username, $password)
     {
         $column = 'username';
@@ -54,9 +69,9 @@ class User extends \O2System\Security\Authentication\User
             if ($this->passwordVerify($password, $account->password)) {
                 if ($this->passwordRehash($password)) {
                     models('users')->update([
-                                                'id'       => $account->id,
-                                                'password' => $this->passwordHash($password),
-                                            ]);
+                        'id'       => $account->id,
+                        'password' => $this->passwordHash($password),
+                    ]);
                 }
 
                 $account = $account->getArrayCopy();
@@ -78,17 +93,28 @@ class User extends \O2System\Security\Authentication\User
         return false;
     }
 
-    public function forceLogin($username, $column = 'username') {
+    // ------------------------------------------------------------------------
+
+    /**
+     * User::forceLogin
+     *
+     * @param string $username
+     * @param string $column
+     *
+     * @return bool
+     */
+    public function forceLogin($username, $column = 'username')
+    {
         if (is_numeric($username)) {
             $column = 'id';
         } elseif (filter_var($username, FILTER_VALIDATE_EMAIL)) {
             $column = 'email';
         } elseif (preg_match($this->config[ 'msisdnRegex' ], $username)) {
             $column = 'msisdn';
-        } elseif( strpos($username, 'token-') !== false ) {
+        } elseif (strpos($username, 'token-') !== false) {
             $username = str_replace('token-', '', $username);
             $column = 'token';
-        } elseif( strpos($username, 'sso-') !== false ) {
+        } elseif (strpos($username, 'sso-') !== false) {
             $username = str_replace('sso-', '', $username);
             $column = 'sso';
         }
@@ -104,9 +130,9 @@ class User extends \O2System\Security\Authentication\User
                 }
             }
 
-            if($column === 'token') {
+            if ($column === 'token') {
                 models('users')->update([
-                    'id'    => $account['id'],
+                    'id'    => $account[ 'id' ],
                     'token' => null,
                 ]);
             }
@@ -119,6 +145,15 @@ class User extends \O2System\Security\Authentication\User
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * User::authorize
+     *
+     * @param \O2System\Framework\Http\Message\ServerRequest $request
+     *
+     * @return bool
+     */
     public function authorize(ServerRequest $request)
     {
         if (isset($_SESSION[ 'account' ][ 'role' ])) {
@@ -126,9 +161,9 @@ class User extends \O2System\Security\Authentication\User
             $role = $_SESSION[ 'account' ][ 'role' ];
             if (in_array($role->code, ['DEVELOPER', 'ADMINISTRATOR'])) {
                 globals()->store('authority', new Authority([
-                                                                'permission' => 'GRANTED',
-                                                                'privileges' => '11111111',
-                                                            ]));
+                    'permission' => 'GRANTED',
+                    'privileges' => '11111111',
+                ]));
 
                 return true;
             } elseif ($role->authorities instanceof Authorities) {
@@ -141,9 +176,9 @@ class User extends \O2System\Security\Authentication\User
                 }
 
                 globals()->store('authority', new Authority([
-                                                                'permission' => 'DENIED',
-                                                                'privileges' => '00000000',
-                                                            ]));
+                    'permission' => 'DENIED',
+                    'privileges' => '00000000',
+                ]));
 
                 return false;
             }
@@ -152,11 +187,18 @@ class User extends \O2System\Security\Authentication\User
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * User::getIframeCode
+     *
+     * @return string
+     */
     public function getIframeCode()
     {
         if ($this->signedOn() && $this->loggedIn() === false) {
             return '<iframe id="sign-on-iframe" width="1" height="1" src="' . rtrim($this->config[ 'sso' ][ 'server' ],
-                                                                                    '/') . '" style="display: none; visibility: hidden;"></iframe>';
+                    '/') . '" style="display: none; visibility: hidden;"></iframe>';
         }
 
         return '';
