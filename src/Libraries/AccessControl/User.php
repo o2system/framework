@@ -193,6 +193,7 @@ class User extends \O2System\Security\Authentication\User
      * User::getIframeCode
      *
      * @return string
+     * @throws \O2System\Psr\Cache\InvalidArgumentException
      */
     public function getIframeCode()
     {

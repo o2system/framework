@@ -103,9 +103,15 @@ class Modules extends SplArrayStack
         if ( ! in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
             // Add Public Dir
             loader()->addPublicDir($module->getPublicDir());
+            loader()->addPublicDir($module->getPublicDir() . 'assets' . DIRECTORY_SEPARATOR);
 
             // Add Resources Dir
             loader()->addResourceDir($module->getResourcesDir());
+            loader()->addResourceDir($module->getResourcesDir() . 'controllers' . DIRECTORY_SEPARATOR);
+            loader()->addResourceDir($module->getResourcesDir() . 'pages' . DIRECTORY_SEPARATOR);
+            loader()->addResourceDir($module->getResourcesDir() . 'modules' . DIRECTORY_SEPARATOR);
+            loader()->addResourceDir($module->getResourcesDir() . 'com' . DIRECTORY_SEPARATOR);
+            loader()->addResourceDir($module->getResourcesDir() . 'pages' . DIRECTORY_SEPARATOR);
 
             // Autoload Module Language
             language()
@@ -504,8 +510,6 @@ class Modules extends SplArrayStack
                         $registryKey = dash(snakecase(
                             pathinfo($packageJsonFileInfo[ 'dirname' ], PATHINFO_FILENAME)));
                     }
-                } else {
-                    $registryKey = $registryKey;
                 }
 
                 $registry[ $registryKey ] = (new DataStructures\Module(

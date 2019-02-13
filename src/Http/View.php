@@ -15,8 +15,8 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Containers\Modules\DataStructures\Module\Theme;
 use O2System\Framework\Http\Presenter\Meta;
-use O2System\Framework\Http\Router\DataStructures\Page;
 use O2System\Gear\Toolbar;
 use O2System\Html;
 use O2System\Psr\Patterns\Structural\Composite\RenderableInterface;
@@ -140,8 +140,8 @@ class View implements RenderableInterface
     /**
      * View::modal
      *
-     * @param string  $filename
-     * @param array   $vars
+     * @param string $filename
+     * @param array  $vars
      */
     public function modal($filename, array $vars = [])
     {
@@ -173,7 +173,7 @@ class View implements RenderableInterface
      */
     public function load($filename, array $vars = [], $return = false)
     {
-        if ($filename instanceof Page) {
+        if ($filename instanceof \SplFileInfo) {
             return $this->page($filename->getRealPath(), array_merge($vars, $filename->getVars()));
         }
 
@@ -185,7 +185,6 @@ class View implements RenderableInterface
 
         if (false !== ($filePath = $this->getFilePath($filename))) {
             if ($return === false) {
-
                 if (presenter()->partials->hasPartial('content') === false) {
                     presenter()->partials->addPartial('content', $filePath);
                 } else {
@@ -242,9 +241,7 @@ class View implements RenderableInterface
      */
     public function page($filename, array $vars = [], $return = false)
     {
-        if ($filename instanceof Page) {
-            return $this->page($filename->getRealPath(), array_merge($vars, $filename->getVars()));
-        } else {
+        if ( ! is_file($filename)) {
             $pageDirectories = modules()->getDirs('Pages');
             foreach ($pageDirectories as $pageDirectory) {
                 if (is_file($pageFilePath = $pageDirectory . $filename . '.phtml')) {
@@ -254,15 +251,17 @@ class View implements RenderableInterface
             }
         }
 
-        presenter()->merge($vars);
+        if (count($vars)) {
+            presenter()->merge($vars);
+        }
+
+        presenter()->merge(presenter()->page->getVars());
 
         if ($return === false) {
-            $partials = presenter()->get('partials');
-
-            if ($partials->hasPartial('content') === false) {
-                $partials->addPartial('content', $filename);
+            if (presenter()->partials->hasPartial('content') === false) {
+                presenter()->partials->addPartial('content', $filename);
             } else {
-                $partials->addPartial(pathinfo($filename, PATHINFO_FILENAME), $filename);
+                presenter()->partials->addPartial(pathinfo($filename, PATHINFO_FILENAME), $filename);
             }
         } elseif (parser()->loadFile($filename)) {
             return parser()->parse(presenter()->getArrayCopy());
@@ -364,10 +363,168 @@ class View implements RenderableInterface
             profiler()->watch('Starting View Rendering');
         }
 
-        $htmlOutput = '';
         parser()->loadVars(presenter()->getArrayCopy());
 
-        // set document meta title
+        if (false !== ($pagePresets = presenter()->page->getPresets())) {
+            /**
+             * Sets Page Theme
+             */
+            if ($pagePresets->offsetExists('theme')) {
+                presenter()->setTheme($pagePresets->theme);
+            } elseif (false !== ($theme = presenter()->getConfig('theme'))) {
+                if (modules()->current()->hasTheme($theme)) {
+                    presenter()->setTheme($theme);
+                }
+            }
+
+            /**
+             * Sets Page Layout
+             */
+            if (presenter()->theme !== false) {
+                if ($pagePresets->offsetExists('layout')) {
+                    presenter()->theme->setLayout($pagePresets->layout);
+                }
+
+                if (false !== ($modulePresets = modules()->current()->getPresets())) {
+
+                    /**
+                     * Autoload Module Assets
+                     */
+                    if ($modulePresets->offsetExists('assets')) {
+                        presenter()->assets->autoload($modulePresets->assets);
+                    }
+
+                    $moduleAssets = [
+                        'main',
+                        modules()->current()->getParameter()
+                    ];
+
+                    // Autoload Assets
+                    presenter()->assets->loadCss($moduleAssets);
+                    presenter()->assets->loadJs($moduleAssets);
+
+                    /**
+                     * Sets Module Meta
+                     */
+                    if ($modulePresets->offsetExists('title')) {
+                        presenter()->meta->title->append(language()->getLine($modulePresets->title));
+                    }
+
+                    if ($modulePresets->offsetExists('pageTitle')) {
+                        presenter()->meta->title->replace(language()->getLine($modulePresets->pageTitle));
+                    }
+
+                    if ($modulePresets->offsetExists('browserTitle')) {
+                        presenter()->meta->title->replace(language()->getLine($modulePresets->browserTitle));
+                    }
+
+                    if ($modulePresets->offsetExists('meta')) {
+                        foreach ($modulePresets->meta as $name => $content) {
+                            presenter()->meta->store($name, $content);
+                        }
+                    }
+                }
+
+                /**
+                 * Autoload Page Assets
+                 */
+                if ($pagePresets->offsetExists('assets')) {
+                    presenter()->assets->autoload($pagePresets->assets);
+                }
+
+                if (presenter()->page->file instanceof \SplFileInfo) {
+                    $pageAssets[] = presenter()->page->file->getDirectoryInfo()->getDirName();
+                    $pageAssets[] = implode('/', [
+                        presenter()->page->file->getDirectoryInfo()->getDirName(),
+                        $pageAssets[] = presenter()->page->file->getFilename(),
+                    ]);
+
+                    // Autoload Assets
+                    presenter()->assets->loadCss($pageAssets);
+                    presenter()->assets->loadJs($pageAssets);
+                }
+
+                /**
+                 * Sets Page Meta
+                 */
+                if ($pagePresets->offsetExists('title')) {
+                    presenter()->meta->title->append(language()->getLine($pagePresets->title));
+                }
+
+                if ($pagePresets->offsetExists('pageTitle')) {
+                    presenter()->meta->title->replace(language()->getLine($pagePresets->pageTitle));
+                }
+
+                if ($pagePresets->offsetExists('browserTitle')) {
+                    presenter()->meta->title->replace(language()->getLine($pagePresets->browserTitle));
+                }
+
+                if ($pagePresets->offsetExists('meta')) {
+                    foreach ($pagePresets->meta as $name => $content) {
+                        presenter()->meta->store($name, $content);
+                    }
+                }
+
+                if (false !== ($layout = presenter()->theme->getLayout())) {
+                    parser()->loadFile($layout->getRealPath());
+
+                    $htmlOutput = parser()->parse();
+                    $htmlOutput = presenter()->assets->parseSourceCode($htmlOutput);
+
+                    $this->document->loadHTML($htmlOutput);
+                }
+            } else {
+                output()->sendError(204, language()->getLine('E_THEME_NOT_FOUND', [$theme]));
+            }
+        } elseif (presenter()->theme instanceof Theme) {
+            /**
+             * Autoload Controller Assets
+             */
+            $controllerAssets[] = controller()->getParameter();
+            $controllerAssets[] = implode('/', [
+                controller()->getParameter(),
+                controller()->getRequestMethod(),
+            ]);
+
+            if (false !== ($layout = presenter()->theme->getLayout())) {
+                parser()->loadFile($layout->getRealPath());
+
+                $htmlOutput = parser()->parse();
+                $htmlOutput = presenter()->assets->parseSourceCode($htmlOutput);
+
+                $this->document->loadHTML($htmlOutput);
+            }
+        } elseif (false !== ($theme = presenter()->getConfig('theme'))) {
+            if (modules()->current()->hasTheme($theme)) {
+                presenter()->setTheme($theme);
+
+                /**
+                 * Autoload Controller Assets
+                 */
+                $controllerAssets[] = controller()->getParameter();
+                $controllerAssets[] = implode('/', [
+                    controller()->getParameter(),
+                    controller()->getRequestMethod(),
+                ]);
+
+                if (false !== ($layout = presenter()->theme->getLayout())) {
+                    parser()->loadFile($layout->getRealPath());
+
+                    $htmlOutput = parser()->parse();
+                    $htmlOutput = presenter()->assets->parseSourceCode($htmlOutput);
+
+                    $this->document->loadHTML($htmlOutput);
+                }
+            } else {
+                output()->sendError(204, language()->getLine('E_THEME_NOT_FOUND', [$theme]));
+            }
+        } else {
+            $this->document->find('body')->append(presenter()->partials->__get('content'));
+        }
+
+        /**
+         * Set Document Meta Title
+         */
         if (presenter()->meta->title instanceof Meta\Title) {
             $this->document->title->text(presenter()->meta->title->__toString());
         }
@@ -402,29 +559,13 @@ class View implements RenderableInterface
             }
         }
 
-        if (false !== ($controller = controller())) {
-            presenter()->meta->offsetSet('module-controller', $controller->getClassInfo()->getParameter());
-        }
+        if (presenter()->meta->count()) {
+            $meta = presenter()->meta->getArrayCopy();
 
-        $meta = presenter()->meta->getArrayCopy();
-
-        foreach ($meta as $tag) {
-            $this->document->metaNodes->createElement($tag->attributes->getArrayCopy());
-        }
-
-        if (presenter()->theme) {
-            presenter()->theme->load();
-            if (false !== ($layout = presenter()->theme->getLayout())) {
-                parser()->loadFile($layout->getRealPath());
-                $htmlOutput = parser()->parse();
+            foreach ($meta as $tag) {
+                $this->document->metaNodes->createElement($tag->attributes->getArrayCopy());
             }
-        } else {
-            $this->document->find('body')->append(presenter()->partials->__get('content'));
         }
-
-        $htmlOutput = presenter()->assets->parseSourceCode($htmlOutput);
-
-        $this->document->loadHTML($htmlOutput);
 
         /**
          * Injecting Single Sign-On (SSO) iFrame

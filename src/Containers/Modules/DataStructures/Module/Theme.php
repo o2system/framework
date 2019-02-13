@@ -216,6 +216,7 @@ class Theme extends SplDirectoryInfo
 
             if (is_file($layoutFilePath)) {
                 $this->layout = new Theme\Layout($layoutFilePath);
+                $this->loadLayout();
                 break;
             }
         }

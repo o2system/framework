@@ -30,42 +30,42 @@ class Module extends SplDirectoryInfo
      *
      * @var string
      */
-    private $type = 'MODULE';
+    protected $type = 'MODULE';
 
     /**
      * Module::$namespace
      *
      * @var string
      */
-    private $namespace;
+    protected $namespace;
 
     /**
      * Module::$segments
      *
      * @var string
      */
-    private $segments;
+    protected $segments;
 
     /**
      * Module::$parentSegments
      *
      * @var string
      */
-    private $parentSegments;
+    protected $parentSegments;
 
     /**
      * Module::$properties
      *
      * @var array
      */
-    private $properties = [];
+    protected $properties = [];
 
     /**
-     * Module::$config
+     * Module::$presets
      *
      * @var array
      */
-    private $config = [];
+    protected $presets = [];
 
     // ------------------------------------------------------------------------
 
@@ -196,6 +196,12 @@ class Module extends SplDirectoryInfo
      */
     public function setProperties(array $properties)
     {
+        if (isset($properties[ 'presets' ])) {
+            $this->setPresets($properties[ 'presets' ]);
+
+            unset($properties[ 'presets' ]);
+        }
+
         $this->properties = $properties;
 
         return $this;
@@ -204,27 +210,27 @@ class Module extends SplDirectoryInfo
     // ------------------------------------------------------------------------
 
     /**
-     * Module::getConfig
+     * Module::getPresets
      *
      * @return \O2System\Spl\DataStructures\SplArrayObject
      */
-    public function getConfig()
+    public function getPresets()
     {
-        return new SplArrayObject($this->config);
+        return new SplArrayObject($this->presets);
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Module::setConfig
+     * Module::setPresets
      *
-     * @param array $config
+     * @param array $presets
      *
      * @return static
      */
-    public function setConfig(array $config)
+    public function setPresets(array $presets)
     {
-        $this->config = $config;
+        $this->presets = $presets;
 
         return $this;
     }
@@ -299,7 +305,11 @@ class Module extends SplDirectoryInfo
      */
     public function getResourcesDir()
     {
-        return PATH_RESOURCES . strtolower(str_replace(PATH_APP, '', $this->getRealPath()));
+        if ($this->getParameter() === DIR_APP) {
+            return PATH_RESOURCES;
+        }
+
+        return PATH_RESOURCES . $this->getParameter() . DIRECTORY_SEPARATOR;
     }
 
     // ------------------------------------------------------------------------
@@ -426,7 +436,12 @@ class Module extends SplDirectoryInfo
      */
     public function getThemesPath()
     {
-        return PATH_RESOURCES . DIRECTORY_SEPARATOR . $this->getParameter() . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR;
+        if ($this->getParameter() === DIR_APP) {
+            return PATH_RESOURCES . 'themes' . DIRECTORY_SEPARATOR;
+        }
+
+        return PATH_RESOURCES . $this->getParameter() . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR;
+
     }
 
     // ------------------------------------------------------------------------

@@ -198,7 +198,7 @@ class Loader implements AutoloadInterface
             if (isset($offset)) {
                 $this->publicDirs[ $offset ] = $publicDir;
             } else {
-                $this->publicDirs[] = $publicDir;
+                $this->publicDirs[ rtrim(str_replace(PATH_PUBLIC, '', $publicDir), '/') ] = $publicDir;
             }
         }
     }
@@ -217,14 +217,14 @@ class Loader implements AutoloadInterface
     {
         // normalize the public directory with a trailing separator
         $resourcesDir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $resourcesDir);
-        $resourcesDir = PATH_PUBLIC . str_replace(PATH_PUBLIC, '', $resourcesDir);
+        $resourcesDir = PATH_RESOURCES . str_replace(PATH_RESOURCES, '', $resourcesDir);
         $resourcesDir = rtrim($resourcesDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
         if (is_dir($resourcesDir) and ! in_array($resourcesDir, $this->resourcesDirs)) {
             if (isset($offset)) {
                 $this->resourcesDirs[ $offset ] = $resourcesDir;
             } else {
-                $this->resourcesDirs[] = $resourcesDir;
+                $this->resourcesDirs[ rtrim(str_replace(PATH_RESOURCES, '', $resourcesDir), '/') ] = $resourcesDir;
             }
         }
     }

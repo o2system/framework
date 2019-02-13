@@ -103,11 +103,8 @@ class Images extends Controller
      */
     public function route()
     {
-        if (func_get_arg(0) === 'index') {
-            $segments = func_get_arg(1);
-        } else {
-            $segments = array_merge([func_get_arg(0)], func_get_arg(1));
-        }
+        $segments = server_request()->getUri()->getSegments()->getParts();
+        array_shift($segments);
 
         $this->imageFilePath = $this->imageNotFoundFilename;
 

@@ -64,12 +64,10 @@ class Storage extends Controller
      */
     public function route()
     {
+        $segments = server_request()->getUri()->getSegments()->getParts();
+        array_shift($segments);
+
         $download = false;
-        if (func_get_arg(0) === 'index') {
-            $segments = func_get_arg(1);
-        } else {
-            $segments = array_merge([func_get_arg(0)], func_get_arg(1));
-        }
 
         if (false !== ($key = array_search('download', $segments))) {
             $download = true;

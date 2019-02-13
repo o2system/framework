@@ -19,6 +19,8 @@ use O2System\Framework\Libraries\Ui\Components\Breadcrumb;
 use O2System\Framework\Libraries\Ui\Contents\Link;
 use O2System\Kernel\Http\Message\Uri;
 use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\DataStructures\SplArrayObject;
+use O2System\Spl\Info\SplFileInfo;
 
 /**
  * Class Page
@@ -27,6 +29,29 @@ use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
  */
 class Page extends AbstractRepository
 {
+    /**
+     * Page::$file
+     *
+     * @var \O2System\Spl\Info\SplFileInfo
+     */
+    public $file;
+
+    /**
+     * Page Variables
+     *
+     * @var array
+     */
+    private $vars = [];
+
+    /**
+     * Page Presets
+     *
+     * @var SplArrayObject
+     */
+    private $presets;
+
+    // ------------------------------------------------------------------------
+
     /**
      * Page::__construct
      */
@@ -40,6 +65,107 @@ class Page extends AbstractRepository
         // Store Page Uri
         $uri = new Uri();
         $this->store('uri', $uri);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Page::setVars
+     *
+     * @param array $vars
+     *
+     * @return static
+     */
+    public function setVars(array $vars)
+    {
+        $this->vars = $vars;
+
+        return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Page::getVars
+     *
+     * Gets page variables.
+     *
+     * @return array
+     */
+    public function getVars()
+    {
+        return $this->vars;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Page::setPresets
+     *
+     * @param \O2System\Spl\DataStructures\SplArrayObject $presets
+     *
+     * @return static
+     */
+    public function setPresets(SplArrayObject $presets)
+    {
+        $this->presets = $presets;
+
+        return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Page::getPresets
+     *
+     * Gets page presets.
+     *
+     * @return bool|\O2System\Spl\DataStructures\SplArrayObject
+     */
+    public function getPresets()
+    {
+        if ($this->presets instanceof SplArrayObject) {
+            return $this->presets;
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Page::setFile
+     *
+     * @param $filePath
+     *
+     * @return static
+     */
+    public function setFile($filePath)
+    {
+        if (is_file($filePath)) {
+            $this->file = new SplFileInfo($filePath);
+
+            if (file_exists(
+                $propertiesFilePath = $this->file->getPath() . DIRECTORY_SEPARATOR . str_replace(
+                        '.phtml',
+                        '.json',
+                        strtolower($this->file->getBasename())
+                    )
+            )) {
+                $properties = file_get_contents($propertiesFilePath);
+                $properties = json_decode($properties, true);
+
+                if (isset($properties[ 'vars' ])) {
+                    $this->vars = $properties[ 'vars' ];
+                }
+
+                if (isset($properties[ 'presets' ])) {
+                    $this->presets = new SplArrayObject($properties[ 'presets' ]);
+                }
+            }
+        }
+
+        return $this;
     }
 
     // ------------------------------------------------------------------------
@@ -90,6 +216,24 @@ class Page extends AbstractRepository
     {
         $description = trim($description);
         $this->store('description', $description);
+
+        return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Page::setContent
+     *
+     * @param string $content
+     *
+     * @return static
+     */
+    public function setContent($content)
+    {
+        if ( ! empty($content)) {
+            presenter()->partials->offsetSet('content', $content);
+        }
 
         return $this;
     }

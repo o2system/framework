@@ -11,29 +11,25 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Http\Controllers;
+namespace O2System\Framework\Libraries\Ui\Admin\Sidebar\Menu;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Controller;
-use O2System\Spl\Info\SplFileInfo;
+use O2System\Framework\Libraries\Ui\Contents\Lists\Unordered;
 
 /**
- * Class Pages
- *
- * @package O2System\Framework\Http\Controllers
+ * Class UnorderedList
+ * @package O2System\Framework\Libraries\Ui\Admin\Sidebar\Menu
  */
-class Pages extends Controller
+class UnorderedList extends Unordered
 {
     /**
-     * Pages::index
+     * UnorderedList::__construct
      *
-     * @return void
+     * @param array $attributes
      */
-    public function index()
+    public function __construct(array $attributes = [])
     {
-        if($this->presenter->page->file instanceof SplFileInfo) {
-            $this->view->page(presenter()->page->file->getRealPath());
-        }
+        parent::__construct($attributes);
     }
 }

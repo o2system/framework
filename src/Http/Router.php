@@ -15,14 +15,14 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Containers\Modules\DataStructures\Module as FrameworkModuleDatastructure;
-use O2System\Framework\Http\Router\DataStructures\Page as FrameworkPageDatastructure;
+use O2System\Framework\Containers\Modules\DataStructures\Module as FrameworkModuleDataStructure;
 use O2System\Kernel\Http\Message\Uri as KernelMessageUri;
 use O2System\Kernel\Http\Message\Uri\Segments as KernelMessageUriSegments;
 use O2System\Kernel\Http\Router as KernelRouter;
 use O2System\Kernel\Http\Router\Addresses as KernelAddresses;
-use O2System\Kernel\Http\Router\DataStructures\Action as KernelActionDatastructure;
-use O2System\Kernel\Http\Router\DataStructures\Controller as KernelControllerDatastructure;
+use O2System\Kernel\Http\Router\DataStructures\Action as KernelActionDataStructure;
+use O2System\Kernel\Http\Router\DataStructures\Controller as KernelControllerDataStructure;
+use O2System\Spl\Info\SplFileInfo;
 
 /**
  * Class Router
@@ -132,18 +132,51 @@ class Router extends KernelRouter
             if ( ! $action->isValidHttpMethod(input()->server('REQUEST_METHOD')) && ! $action->isAnyHttpMethod()) {
                 output()->sendError(405);
             } else {
-                if (false !== ($parseSegments = $action->getParseUriString($this->uri->getSegments()->getString()))) {
-                    $uriSegments = $parseSegments;
+                // Checks if action closure is an array
+                if (is_array($closureSegments = $action->getClosure())) {
+                    // Closure App Routing
+                    if (false !== ($app = modules()->getModule(reset($closureSegments)))) {
+                        array_shift($closureSegments);
+                        $this->registerModule($app);
+                    }
+
+                    // Closure Module routing
+                    if ($numOfClosureSegments = count($closureSegments)) {
+                        for ($i = 0; $i <= $numOfClosureSegments; $i++) {
+                            $closureRoutedSegments = array_diff($closureSegments,
+                                array_slice($closureSegments, ($numOfClosureSegments - $i)));
+
+                            if ( ! empty($app)) {
+                                if (reset($closureSegments) !== $app->getParameter()) {
+                                    array_unshift($closureRoutedSegments, $app->getParameter());
+                                }
+                            }
+
+                            if (false !== ($module = modules()->getModule($closureRoutedSegments))) {
+                                $uriSegments = array_diff($closureSegments, $closureRoutedSegments);
+                                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($closureSegments));
+                                $uriString = $this->uri->getSegments()->getString();
+
+                                $this->registerModule($module);
+
+                                break;
+                            }
+                        }
+                    }
                 } else {
-                    $uriSegments = [];
-                }
+                    if (false !== ($parseSegments = $action->getParseUriString($uriString))) {
+                        $uriSegments = $parseSegments;
+                    } else {
+                        $uriSegments = [];
+                    }
 
-                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                $uriString = $this->uri->getSegments()->getString();
+                    $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
+                    $uriString = $this->uri->getSegments()->getString();
 
-                $this->parseAction($action, $uriSegments);
-                if ( ! empty(services()->has('controller'))) {
-                    return true;
+                    $this->parseAction($action, $uriSegments);
+                    if ( ! empty(services()->has('controller'))) {
+                        return true;
+                    }
                 }
             }
         }
@@ -160,45 +193,68 @@ class Router extends KernelRouter
                         $controllerNamespace = 'O2System\Framework\Http\Controllers\\';
                     }
 
-                    $controllerClassName = $controllerNamespace . implode('\\',
-                            array_map('studlycase', $uriRoutedSegments));
-
-                    if (class_exists($controllerClassName)) {
-                        $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
-                        $this->setController(new KernelControllerDatastructure($controllerClassName),
-                            $uriSegments);
-                        break;
-                    } elseif (false !== ($pagesDir = $module->getDir('pages', true))) {
+                    if (false !== ($pagesDir = $module->getDir('pages', true))) {
                         $pageFilePath = $pagesDir . implode(DIRECTORY_SEPARATOR,
-                                array_map('studlycase', $uriRoutedSegments)) . '.phtml';
+                                array_map('dash', $uriRoutedSegments)) . '.phtml';
 
-                        if (is_file($pageFilePath)) {
-                            if ($this->setPage(new FrameworkPageDatastructure($pageFilePath)) !== false) {
-                                return true;
-                                break;
-                            }
-                        }
-                    } elseif (class_exists($controllerClassName = $controllerNamespace . 'Pages')) {
-                        $modelClassName = str_replace('Controllers', 'Models', $controllerClassName);
+                        if ( ! class_exists($controllerClassName = $controllerNamespace . 'Pages')) {
+                            $controllerClassName = '\O2System\Framework\Http\Controllers\Pages';
+                        } else {
+                            $controller = new $controllerClassName();
 
-                        if (class_exists($modelClassName)) {
-                            models()->load($modelClassName, 'controller');
+                            /**
+                             * Try to find from database
+                             */
+                            $modelClassName = str_replace('Controllers', 'Models', $controllerClassName);
 
-                            if (false !== ($page = models('controller')->find($uriString, 'segments'))) {
-                                $controller = new $controllerClassName();
+                            if (class_exists($modelClassName)) {
+                                models()->load($modelClassName, 'controller');
 
-                                if (method_exists($controller, 'setPage')) {
-                                    $controller->setPage($page);
+                                if (false !== ($page = models('controller')->find($uriString, 'segments'))) {
+                                    if (isset($page->content)) {
+                                        presenter()->partials->offsetSet('content', $page->content);
 
-                                    $this->setController(
-                                        (new KernelControllerDatastructure($controller))
-                                            ->setRequestMethod('index')
-                                    );
+                                        $this->setController(
+                                            (new KernelControllerDataStructure($controller))
+                                                ->setRequestMethod('index')
+                                        );
 
-                                    return true;
+                                        return true;
+                                        break;
+                                    }
                                 }
                             }
                         }
+
+                        /**
+                         * Try to find from page file
+                         */
+                        if (is_file($pageFilePath)) {
+                            presenter()->page->setFile($pageFilePath);
+                        } else {
+                            $pageFilePath = str_replace('.phtml', DIRECTORY_SEPARATOR . 'index.phtml', $pageFilePath);
+                            if(is_file($pageFilePath)) {
+                                presenter()->page->setFile($pageFilePath);
+                            }
+                        }
+
+                        if(presenter()->page->file instanceof SplFileInfo) {
+                            $this->setController(
+                                (new KernelControllerDataStructure($controllerClassName))
+                                    ->setRequestMethod('index')
+                            );
+
+                            return true;
+                            break;
+                        }
+                    }
+
+                    if (class_exists($controllerClassName = $controllerNamespace . implode('\\',
+                            array_map('studlycase', $uriRoutedSegments)))) {
+                        $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
+                        $this->setController(new KernelControllerDataStructure($controllerClassName),
+                            $uriSegments);
+                        break;
                     }
                 }
 
@@ -211,7 +267,7 @@ class Router extends KernelRouter
         }
 
         if (class_exists($controllerClassName = modules()->current()->getDefaultControllerClassName())) {
-            $this->setController(new KernelControllerDatastructure($controllerClassName),
+            $this->setController(new KernelControllerDataStructure($controllerClassName),
                 $uriSegments);
 
             return true;
@@ -226,9 +282,9 @@ class Router extends KernelRouter
     /**
      * Router::registerModule
      *
-     * @param FrameworkModuleDatastructure $module
+     * @param FrameworkModuleDataStructure $module
      */
-    final protected function registerModule(FrameworkModuleDatastructure $module)
+    final public function registerModule(FrameworkModuleDataStructure $module)
     {
         // Push Subdomain App Module
         modules()->push($module);
@@ -287,12 +343,12 @@ class Router extends KernelRouter
     /**
      * Router::parseAction
      *
-     * @param KernelActionDatastructure $action
+     * @param KernelActionDataStructure $action
      * @param array                     $uriSegments
      *
      * @throws \ReflectionException
      */
-    protected function parseAction(KernelActionDatastructure $action, array $uriSegments = [])
+    protected function parseAction(KernelActionDataStructure $action, array $uriSegments = [])
     {
         ob_start();
         $closure = $action->getClosure();
@@ -306,11 +362,11 @@ class Router extends KernelRouter
                 ? $action->getClosureParameters()
                 : $uriSegments;
             $this->setController(
-                (new KernelControllerDatastructure($closure))
+                (new KernelControllerDataStructure($closure))
                     ->setRequestMethod('index'),
                 $uriSegments
             );
-        } elseif ($closure instanceof KernelControllerDatastructure) {
+        } elseif ($closure instanceof KernelControllerDataStructure) {
             $this->setController($closure, $action->getClosureParameters());
         } elseif (is_array($closure)) {
             $uri = (new KernelMessageUri())
@@ -320,13 +376,13 @@ class Router extends KernelRouter
         } else {
             if (class_exists($closure)) {
                 $this->setController(
-                    (new KernelControllerDatastructure($closure))
+                    (new KernelControllerDataStructure($closure))
                         ->setRequestMethod('index'),
                     $uriSegments
                 );
             } elseif (preg_match("/([a-zA-Z0-9\\\]+)(@)([a-zA-Z0-9\\\]+)/", $closure, $matches)) {
                 $this->setController(
-                    (new KernelControllerDatastructure($matches[ 1 ]))
+                    (new KernelControllerDataStructure($matches[ 1 ]))
                         ->setRequestMethod($matches[ 3 ]),
                     $uriSegments
                 );
@@ -359,45 +415,5 @@ class Router extends KernelRouter
                 exit(EXIT_ERROR);
             }
         }
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Router::setPage
-     *
-     * @param FrameworkPageDatastructure $page
-     *
-     * @return bool
-     * @throws \ReflectionException
-     */
-    final protected function setPage(FrameworkPageDatastructure $page)
-    {
-        foreach (modules()->getNamespaces() as $controllersNamespace) {
-            $controllerPagesClassName = $controllersNamespace->name . 'Controllers\Pages';
-
-            if ($controllersNamespace->name === 'O2System\Framework\\') {
-                $controllerPagesClassName = 'O2System\Framework\Http\Controllers\Pages';
-            }
-
-            if (class_exists($controllerPagesClassName)) {
-                $controller = new $controllerPagesClassName();
-
-                if (method_exists($controller, 'setPage')) {
-                    $controller->setPage($page);
-
-                    $this->setController(
-                        (new KernelControllerDatastructure($controller))
-                            ->setRequestMethod('index')
-                    );
-
-                    return true;
-                }
-
-                break;
-            }
-        }
-
-        return false;
     }
 }

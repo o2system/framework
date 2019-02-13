@@ -122,9 +122,21 @@ class Restful extends Controller
      */
     protected $accessControlMaxAge = 86400;
 
-    // ------------------------------------------------------------------------
-
+    /**
+     * Restful::$ajaxOnly
+     *
+     * @var bool
+     */
     protected $ajaxOnly = false;
+
+    /**
+     * Restful::$model
+     *
+     * @var \O2System\Framework\Models\Sql\Model|\O2System\Framework\Models\NoSql\Model|\O2System\Framework\Models\Files\Model
+     */
+    public $model;
+
+    // ------------------------------------------------------------------------
 
     /**
      * Restful::__construct
@@ -132,7 +144,7 @@ class Restful extends Controller
     public function __construct()
     {
         if (services()->has('presenter')) {
-            presenter()->theme->set(false);
+            presenter()->setTheme(false);
         }
 
         if (is_ajax()) {

@@ -441,9 +441,6 @@ class Framework extends Kernel
 
             // Instantiate Http Presenter Service
             $this->services->load(Framework\Http\Presenter::class);
-
-            // Initialize Http Presenter Service
-            presenter()->initialize();
         }
 
         // Instantiate Http Middleware Service
@@ -492,33 +489,6 @@ class Framework extends Kernel
 
             // Autoload Assets
             if ($this->services->has('view')) {
-                $controllerAssets = [];
-                $controllerAssetsDirs = [];
-
-                // Autoload Assets
-                foreach ($this->modules as $module) {
-                    if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
-                        continue;
-                    }
-
-                    $controllerAssets[] = $module->getParameter();
-                    $controllerAssetsDirs[] = $module->getParameter();
-                }
-
-                $controllerAssets = array_reverse($controllerAssets);
-                $controllerAssetsDirs = array_reverse($controllerAssetsDirs);
-
-                $controllerAssets[] = $controllerParameter;
-                $controllerAssetsDirs[] = $controllerParameter;
-
-                $controllerAssets[] = $controllerRequestMethod;
-
-                foreach ($controllerAssetsDirs as $controllerAssetsDir) {
-                    $controllerAssets[] = $controllerAssetsDir . '/' . $controllerParameter;
-                    $controllerAssets[] = $controllerAssetsDir . '/' . $controllerRequestMethod;
-                    $controllerAssets[] = $controllerAssetsDir . '/' . $controllerParameter . '/' . $controllerRequestMethod;
-                }
-
                 // Autoload Presenter
                 $presenterClassName = str_replace('Controllers', 'Presenters', $controller->getName());
 
@@ -529,9 +499,18 @@ class Framework extends Kernel
                     }
                 }
 
+                // Initialize Presenter
+                presenter()->initialize();
+
                 // Autoload Assets
-                presenter()->assets->loadCss($controllerAssets);
-                presenter()->assets->loadJs($controllerAssets);
+                foreach ($this->modules as $module) {
+                    if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
+                        continue;
+                    }
+
+                    presenter()->assets->loadCss($module->getParameter());
+                    presenter()->assets->loadJs($module->getParameter());
+                }
             }
 
             // Initialize Controller

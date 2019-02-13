@@ -146,8 +146,10 @@ abstract class AbstractPosition
      */
     public function loadFile($filePath, $subDir = null)
     {
-        $directories = loader()->getPublicDirs(true);
-        $filePath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $filePath);
+        $publicDirectories = loader()->getPublicDirs(true);
+        $resourcesDirectories = loader()->getResourcesDirs(true);
+
+        $directories = array_merge($publicDirectories, $resourcesDirectories);
 
         // set filepaths
         foreach ($directories as $directory) {
@@ -158,18 +160,18 @@ abstract class AbstractPosition
             } elseif (empty($extension) and isset($subDir)) {
                 switch ($subDir) {
                     default:
-                    case 'css/':
+                    case 'css' . DIRECTORY_SEPARATOR:
                         $property = 'css';
                         $extensions = ['.css'];
                         break;
-                    case 'font/':
-                    case 'fonts/':
+                    case 'font' . DIRECTORY_SEPARATOR:
+                    case 'fonts' . DIRECTORY_SEPARATOR:
                         $property = 'font';
                         $extensions = ['.css'];
                         break;
-                    case 'js/':
-                    case 'javascript/':
-                    case 'javascripts/':
+                    case 'js' . DIRECTORY_SEPARATOR:
+                    case 'javascript' . DIRECTORY_SEPARATOR:
+                    case 'javascripts' . DIRECTORY_SEPARATOR:
                         $property = 'javascript';
                         $extensions = ['.js'];
                         break;
@@ -218,6 +220,8 @@ abstract class AbstractPosition
         }
 
         foreach ($filePaths as $filePath) {
+            $filePath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $filePath);
+
             if (is_file($filePath)) {
                 if (empty($property)) {
                     $extension = pathinfo($filePath, PATHINFO_EXTENSION);

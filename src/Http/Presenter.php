@@ -109,13 +109,6 @@ class Presenter extends AbstractRepository
             $this->assets->autoload($config[ 'assets' ]);
         }
 
-        // autoload presenter theme
-        if (isset($config[ 'theme' ])) {
-            if (false !== ($theme = $config[ 'theme' ])) {
-                $this->setTheme($theme);
-            }
-        }
-
         return $this;
     }
 

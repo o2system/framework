@@ -366,7 +366,7 @@ if ( ! function_exists('controller')) {
      *
      * Convenient shortcut for O2System Framework Controller service.
      *
-     * @return O2System\Framework\Http\Controller|bool
+     * @return O2System\Framework\Http\Controller|\O2System\Kernel\Http\Controller|\O2System\Kernel\Http\Router\DataStructures\Controller|bool
      */
     function controller()
     {
