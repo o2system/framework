@@ -52,7 +52,13 @@ class Body extends Abstracts\AbstractPosition
     public function __toString()
     {
         $output = [];
-        $unbundledFilename = ['app', 'app.min', 'theme', 'theme.min'];
+        $unbundledFilename = [
+            'app',
+            'app.min',
+            'theme',
+            'theme.min',
+        ];
+
 
         // Render js
         if ($this->javascript->count()) {
@@ -70,21 +76,22 @@ class Body extends Abstracts\AbstractPosition
 
             // Bundled Js
             $bundleJsVersion = $this->getVersion(serialize($bundleJsContents));
+            $bundleJsFilename = modules()->current()->getParameter();
 
             if(presenter()->page->file instanceof \SplFileInfo) {
                 if(presenter()->page->file->getFilename() === 'index') {
-                    $bundleJsFilename = 'body-' . presenter()->page->file->getDirectoryInfo()->getDirName();
+                    $bundleJsFilename.= '-body-' . presenter()->page->file->getDirectoryInfo()->getDirName();
                 } else {
-                    $bundleJsFilename = 'body-' . presenter()->page->file->getDirectoryInfo()->getDirName() . '-' . presenter()->page->file->getFilename();
+                    $bundleJsFilename.= '-body-' . presenter()->page->file->getDirectoryInfo()->getDirName() . '-' . presenter()->page->file->getFilename();
                 }
             } elseif(services()->has('controller')) {
-                $bundleJsFilename = 'body-' . controller()->getParameter();
+                $bundleJsFilename.= '-body-' . controller()->getParameter();
 
                 if(controller()->getRequestMethod() !== 'index') {
-                    $bundleJsFilename.= '-' . controller()->getRequestMethod();
+                    $bundleJsFilename.= '-' . router()->getRequestMethod();
                 }
             } else {
-                $bundleJsFilename = 'body-' . md5($bundleJsVersion);
+                $bundleJsFilename.= '-body-' . md5($bundleJsVersion);
             }
 
             $bundlePublicDir = modules()->current()->getPublicDir() . 'assets' . DIRECTORY_SEPARATOR;

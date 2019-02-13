@@ -434,10 +434,7 @@ class View implements RenderableInterface
 
                 if (presenter()->page->file instanceof \SplFileInfo) {
                     $pageAssets[] = presenter()->page->file->getDirectoryInfo()->getDirName();
-                    $pageAssets[] = implode('/', [
-                        presenter()->page->file->getDirectoryInfo()->getDirName(),
-                        $pageAssets[] = presenter()->page->file->getFilename(),
-                    ]);
+                    $pageAssets[] = str_replace([modules()->current()->getDir('Pages'), '.phtml'], '', presenter()->page->file->getRealPath());
 
                     // Autoload Assets
                     presenter()->assets->loadCss($pageAssets);
@@ -477,12 +474,54 @@ class View implements RenderableInterface
                 output()->sendError(204, language()->getLine('E_THEME_NOT_FOUND', [$theme]));
             }
         } elseif (presenter()->theme instanceof Theme) {
+            if (false !== ($modulePresets = modules()->current()->getPresets())) {
+
+                /**
+                 * Autoload Module Assets
+                 */
+                if ($modulePresets->offsetExists('assets')) {
+                    presenter()->assets->autoload($modulePresets->assets);
+                }
+
+                $moduleAssets = [
+                    'main',
+                    modules()->current()->getParameter()
+                ];
+
+                // Autoload Assets
+                presenter()->assets->loadCss($moduleAssets);
+                presenter()->assets->loadJs($moduleAssets);
+
+                /**
+                 * Sets Module Meta
+                 */
+                if ($modulePresets->offsetExists('title')) {
+                    presenter()->meta->title->append(language()->getLine($modulePresets->title));
+                }
+
+                if ($modulePresets->offsetExists('pageTitle')) {
+                    presenter()->meta->title->replace(language()->getLine($modulePresets->pageTitle));
+                }
+
+                if ($modulePresets->offsetExists('browserTitle')) {
+                    presenter()->meta->title->replace(language()->getLine($modulePresets->browserTitle));
+                }
+
+                if ($modulePresets->offsetExists('meta')) {
+                    foreach ($modulePresets->meta as $name => $content) {
+                        presenter()->meta->store($name, $content);
+                    }
+                }
+            }
+
             /**
              * Autoload Controller Assets
              */
-            $controllerAssets[] = controller()->getParameter();
+            $controllerFilename = str_replace([modules()->current()->getDir('Controllers'), '.php'], '', controller()->getFileInfo()->getRealPath());
+            $controllerFilename = dash($controllerFilename);
+            $controllerAssets[] = $controllerFilename;
             $controllerAssets[] = implode('/', [
-                controller()->getParameter(),
+                $controllerFilename,
                 controller()->getRequestMethod(),
             ]);
 
@@ -498,12 +537,54 @@ class View implements RenderableInterface
             if (modules()->current()->hasTheme($theme)) {
                 presenter()->setTheme($theme);
 
+                if (false !== ($modulePresets = modules()->current()->getPresets())) {
+
+                    /**
+                     * Autoload Module Assets
+                     */
+                    if ($modulePresets->offsetExists('assets')) {
+                        presenter()->assets->autoload($modulePresets->assets);
+                    }
+
+                    $moduleAssets = [
+                        'main',
+                        modules()->current()->getParameter()
+                    ];
+
+                    // Autoload Assets
+                    presenter()->assets->loadCss($moduleAssets);
+                    presenter()->assets->loadJs($moduleAssets);
+
+                    /**
+                     * Sets Module Meta
+                     */
+                    if ($modulePresets->offsetExists('title')) {
+                        presenter()->meta->title->append(language()->getLine($modulePresets->title));
+                    }
+
+                    if ($modulePresets->offsetExists('pageTitle')) {
+                        presenter()->meta->title->replace(language()->getLine($modulePresets->pageTitle));
+                    }
+
+                    if ($modulePresets->offsetExists('browserTitle')) {
+                        presenter()->meta->title->replace(language()->getLine($modulePresets->browserTitle));
+                    }
+
+                    if ($modulePresets->offsetExists('meta')) {
+                        foreach ($modulePresets->meta as $name => $content) {
+                            presenter()->meta->store($name, $content);
+                        }
+                    }
+                }
+
                 /**
                  * Autoload Controller Assets
                  */
-                $controllerAssets[] = controller()->getParameter();
+                $controllerFilename = str_replace([modules()->current()->getDir('Controllers'), '.php'], '', controller()->getFileInfo()->getRealPath());
+                $controllerFilename = dash($controllerFilename);
+                $controllerAssets[] = $controllerFilename;
                 $controllerAssets[] = implode('/', [
-                    controller()->getParameter(),
+                    $controllerFilename,
                     controller()->getRequestMethod(),
                 ]);
 
@@ -568,6 +649,12 @@ class View implements RenderableInterface
         }
 
         /**
+         * Inject body attributes
+         */
+        $body = $this->document->getElementsByTagName('body');
+        $body->item(0)->setAttribute('module', modules()->current()->getParameter());
+
+        /**
          * Injecting Single Sign-On (SSO) iFrame
          */
         if (services()->has('user')) {
@@ -579,7 +666,7 @@ class View implements RenderableInterface
         }
 
         if (input()->env('DEBUG_STAGE') === 'DEVELOPER' and
-            config()->getItem('presenter')->debugToolBar === true and
+            presenter()->getConfig('debugToolBar') === true and
             services()->has('profiler')
         ) {
             $this->document->find('body')->append((new Toolbar())->__toString());

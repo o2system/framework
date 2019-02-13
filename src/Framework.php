@@ -529,8 +529,6 @@ class Framework extends Kernel
                 $requestController->__reconstruct();
             }
 
-            $this->services->add($requestController, 'controller');
-
             if (profiler() !== false) {
                 profiler()->watch('Calling Hooks Service: Post Controller');
             }
