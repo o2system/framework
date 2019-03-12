@@ -23,14 +23,69 @@ use O2System\Framework\Models\Sql\Model;
  */
 abstract class AbstractMap
 {
+    /**
+     * AbstractMap::$currentModel
+     * 
+     * @var Model
+     */
     public $currentModel;
+
+    /**
+     * AbstractMap::$currentTable
+     *
+     * @var string
+     */
     public $currentTable;
+
+    /**
+     * AbstractMap::$currentPrimaryKey
+     *
+     * @var string
+     */
     public $currentPrimaryKey;
+
+    /**
+     * AbstractMap::$currentForeignKey
+     *
+     * @var string
+     */
     public $currentForeignKey;
+
+    /**
+     * AbstractMap::$referenceModel
+     *
+     * @var Model
+     */
     public $referenceModel;
+
+    /**
+     * AbstractMap::$referenceTable
+     *
+     * @var string
+     */
     public $referenceTable;
+
+    /**
+     * AbstractMap::$referencePrimaryKey
+     *
+     * @var string
+     */
     public $referencePrimaryKey;
 
+    /**
+     * AbstractMap::$referenceForeignKey
+     *
+     * @var string
+     */
+    public $referenceForeignKey;
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractMap::mappingCurrentModel
+     *
+     * @param string|Model $currentModel
+     */
     protected function mappingCurrentModel($currentModel)
     {
         if ($currentModel instanceof Model) {
@@ -38,7 +93,7 @@ abstract class AbstractMap
             $this->currentTable = $this->currentModel->table;
             $this->currentPrimaryKey = $this->currentModel->primaryKey;
         } elseif (class_exists($currentModel)) {
-            $this->currentModel = new $currentModel();
+            $this->currentModel = models($currentModel);
             $this->currentTable = $this->currentModel->table;
             $this->currentPrimaryKey = $this->currentModel->primaryKey;
         } else {
@@ -47,6 +102,13 @@ abstract class AbstractMap
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractMap::mappingReferenceModel
+     *
+     * @param string|Model $referenceModel
+     */
     protected function mappingReferenceModel($referenceModel)
     {
         if ($referenceModel instanceof Model) {
@@ -54,7 +116,7 @@ abstract class AbstractMap
             $this->referenceTable = $this->referenceModel->table;
             $this->referencePrimaryKey = $this->referenceModel->primaryKey;
         } elseif (class_exists($referenceModel)) {
-            $this->referenceModel = new $referenceModel();
+            $this->referenceModel = models($referenceModel);
             $this->referenceTable = $this->referenceModel->table;
             $this->referencePrimaryKey = $this->referenceModel->primaryKey;
         } else {

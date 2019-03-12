@@ -180,8 +180,8 @@ class Page extends AbstractRepository
     public function setHeader($header)
     {
         $header = trim($header);
+        $header = language($header);
         $this->store('header', $header);
-        presenter()->meta->offsetSet('subtitle', $header);
         presenter()->meta->title->append($header);
 
         return $this;
@@ -190,15 +190,18 @@ class Page extends AbstractRepository
     // ------------------------------------------------------------------------
 
     /**
-     * Page::setSubHeader
+     * Page::setTitle
      *
-     * @param string $subHeader
+     * @param string $title
      *
      * @return static
      */
-    public function setSubHeader($subHeader)
+    public function setTitle($title)
     {
-        $this->store('subHeader', trim($subHeader));
+        $title = trim($title);
+        $title = language($title);
+        $this->store('title', $title);
+        presenter()->meta->title->append($title);
 
         return $this;
     }

@@ -23,37 +23,34 @@ namespace O2System\Framework\Models\Sql\Traits;
 trait AdjacencyTrait
 {
     /**
-     * Parent Key Field
+     * AdjacencyTrait::$parentKey
      *
-     * @access  public
-     * @type    string
+     * @var string
      */
     public $parentKey = 'id_parent';
 
     /**
-     * Adjacency Enabled Flag
+     * AdjacencyTrait::$adjacency
      *
-     * @access  protected
-     * @type    bool
+     * @var bool
      */
     protected $adjacency = true;
 
-    /**
-     * Get Children
-     *
-     * @param int         $idParent
-     * @param string|null $table
-     *
-     * @access  public
-     * @return  mixed
-     */
-    protected function getChildren($idParent, $table = null)
-    {
-        $table = isset($table) ? $table : $this->table;
+    // ------------------------------------------------------------------------
 
+    /**
+     * AdjacencyTrait::getChilds
+     *
+     * @param int $idParent
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function getChilds($idParent)
+    {
         if ($result = $this->qb
-            ->from($table)
-            ->getWhere([$this->parentKey => $idParent])) {
+            ->from($this->table)
+            ->where([$this->parentKey => $idParent])
+            ->get()) {
             if ($result->count() > 0) {
                 return $result;
             }
@@ -65,22 +62,19 @@ trait AdjacencyTrait
     // ------------------------------------------------------------------------
 
     /**
-     * Has Children
+     * AdjacencyTrait
      *
-     * @param int         $idParent
-     * @param string|null $table
+     * @param int $idParent
      *
-     * @access  public
-     * @return  bool
+     * @return bool
      */
-    protected function hasChildren($idParent, $table = null)
+    public function hasChilds($idParent)
     {
-        $table = isset($table) ? $table : $this->table;
-
         if ($result = $this->qb
             ->select('id')
-            ->from($table)
-            ->getWhere([$this->parentKey => $idParent])) {
+            ->from($this->table)
+            ->where([$this->parentKey => $idParent])
+            ->get()) {
             if ($result->count() > 0) {
                 return true;
             }

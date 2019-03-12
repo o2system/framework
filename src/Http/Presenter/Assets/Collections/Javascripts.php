@@ -15,14 +15,12 @@ namespace O2System\Framework\Http\Presenter\Assets\Collections;
 
 // ------------------------------------------------------------------------
 
-use O2System\Spl\Iterators\ArrayIterator;
-
 /**
- * Class Font
+ * Class Javascripts
  *
  * @package O2System\Framework\Http\Presenter\Assets\Collections
  */
-class Font extends ArrayIterator
+class Javascripts extends Abstracts\AbstractCollection
 {
 
 }

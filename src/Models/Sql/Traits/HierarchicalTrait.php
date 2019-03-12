@@ -38,16 +38,16 @@ trait HierarchicalTrait
      */
     protected $hierarchical = true;
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Rebuild Tree
+     * HierarchicalTrait::rebuildTree
+     * 
+     * @param int $idParent
+     * @param int $left
+     * @param int $depth
      *
-     * Rebuild self hierarchical table
-     *
-     * @access public
-     *
-     * @param string $table Working database table
-     *
-     * @return int  Right column value
+     * @return int
      */
     protected function rebuildTree($idParent = 0, $left = 1, $depth = 0)
     {
@@ -108,13 +108,120 @@ trait HierarchicalTrait
     // ------------------------------------------------------------------------
 
     /**
-     * Has Childs
+     * HierarchicalTrait::getParents
      *
-     * Check if there is a child rows
+     * @param int    $id
+     * @param string $ordering ASC|DESC
      *
-     * @param string $table Working database table
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    protected function getParents($id, $ordering = 'ASC')
+    {
+        if ($result = $this->qb
+            ->select($this->table . '.*')
+            ->from($this->table)
+            ->from($this->table . ' AS node')
+            ->whereBetween('node.record_left', [$this->table . '.record_left', $this->table . '.record_right'])
+            ->where([
+                'node.id' => $id,
+            ])
+            ->orderBy($this->table . '.record_left', $ordering)
+            ->get()) {
+            if ($result->count()) {
+                return $result;
+            }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * HierarchicalTrait::hasParent
+     * 
+     * @param int $id
      *
-     * @access public
+     * @return bool
+     */
+    protected function hasParent($id)
+    {
+        if ($result = $this->qb
+            ->table($this->table)
+            ->select('id')
+            ->where('id', $id)
+            ->get()) {
+            return (bool)($result->count() == 0 ? false : true);
+        }
+
+        return false;
+    }
+    
+    // ------------------------------------------------------------------------
+
+    /**
+     * HierarchicalTrait::getNumParents
+     *
+     * @param int  $idParent
+     * @param bool $direct
+     *
+     * @return int
+     */
+    protected function getNumParents($id, $direct = true)
+    {
+        if($direct) {
+            if ($result = $this->qb
+                ->table($this->table)
+                ->select('id')
+                ->where('id', $id)
+                ->get()) {
+                return $result->count();
+            }
+        } else {
+            if($parents = $this->getParents($id)) {
+                return $parents->count();
+            }
+        }
+
+        return 0;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * HierarchicalTrait::getChilds
+     * 
+     * @param int    $idParent
+     * @param string $ordering ASC|DESC
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    protected function getChilds($idParent, $ordering = 'ASC')
+    {
+        if ($result = $this->qb
+            ->select($this->table . '.*')
+            ->from($this->table)
+            ->from($this->table . ' AS node')
+            ->whereBetween('node.record_left', [$this->table . '.record_left', $this->table . '.record_right'])
+            ->where([
+                $this->table . '.id' => $id,
+            ])
+            ->get()) {
+            if ($result->count()) {
+                return $result;
+            }
+        }
+
+        return false;
+    }
+    
+    // ------------------------------------------------------------------------
+
+    /**
+     * HierarchicalTrait::hasChilds
+     *
+     * @param int $idParent
+     *
      * @return bool
      */
     protected function hasChilds($idParent)
@@ -133,100 +240,27 @@ trait HierarchicalTrait
     // ------------------------------------------------------------------------
 
     /**
-     * Find Parents
+     * HierarchicalTrait::getNumChilds
+     * 
+     * @param int  $idParent
+     * @param bool $direct
      *
-     * Retreive parents of a record
-     *
-     * @param numeric $id Record ID
-     *
-     * @access public
-     * @return array
+     * @return int
      */
-    protected function getParents($id, &$parents = [])
+    protected function getNumChilds($idParent, $direct = true)
     {
-        if ($result = $this->qb
-            ->from($this->table)
-            ->whereIn('id', $this->qb
-                ->subQuery()
-                ->from($this->table)
-                ->select('id_parent')
-                ->where('id', $id)
-            )
-            ->get()) {
-            if ($result->count()) {
-                $parents[] = $row = $result->first();
-
-                if ($this->hasParent($row->id_parent)) {
-                    $this->getParents($row->id, $parents);
-                }
+        if($direct) {
+            if ($result = $this->qb
+                ->table($this->table)
+                ->select('id')
+                ->where('id_parent', $idParent)
+                ->get()) {
+                return $result->count();
             }
-        }
-
-        return array_reverse($parents);
-    }
-
-    protected function hasParent($idParent)
-    {
-        if ($result = $this->qb
-            ->table($this->table)
-            ->select('id')
-            ->where('id', $idParent)
-            ->get()) {
-            return (bool)($result->count() == 0 ? false : true);
-        }
-
-        return false;
-    }
-    // ------------------------------------------------------------------------
-
-    /**
-     * Find Childs
-     *
-     * Retreive all childs
-     *
-     * @param numeric $idParent Parent ID
-     *
-     * @access public
-     * @return array
-     */
-    protected function getChilds($idParent)
-    {
-        $childs = [];
-
-        if ($result = $this->qb
-            ->table($this->table)
-            ->where('id_parent', $idParent)
-            ->get()) {
-            foreach ($result as $row) {
-                $childs[] = $row;
-                if ($this->hasChild($row->id)) {
-                    $row->childs = $this->getChilds($row->id);
-                }
+        } else {
+            if($childs = $this->getChilds($idParent)) {
+                return $childs->count();
             }
-        }
-
-        return $childs;
-    }
-    // ------------------------------------------------------------------------
-
-    /**
-     * Count Childs
-     *
-     * Num childs of a record
-     *
-     * @param numeric $idParent Record Parent ID
-     *
-     * @access public
-     * @return bool
-     */
-    protected function getNumChilds($idParent)
-    {
-        if ($result = $this->qb
-            ->table($this->table)
-            ->select('id')
-            ->where('id_parent', $idParent)
-            ->get()) {
-            return $result->count();
         }
 
         return 0;

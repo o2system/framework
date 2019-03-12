@@ -114,6 +114,22 @@ if ( ! function_exists('current_url')) {
     }
 }
 
+if ( ! function_exists('public_url')) {
+    /**
+     * public_url
+     *
+     * @param string $path Uri path.
+     *
+     * @return string
+     */
+    function public_url($path)
+    {
+        return path_to_url($path);
+    }
+}
+
+// ------------------------------------------------------------------------
+
 if ( ! function_exists('assets_url')) {
     /**
      * assets_url

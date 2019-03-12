@@ -25,19 +25,17 @@ use O2System\Framework\Models\Sql;
 class HasOne extends Sql\Relations\Abstracts\AbstractRelation
 {
     /**
-     * Get Result
-     *
-     * @return null
+     * HasOne::getResult
+     * 
+     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
     public function getResult()
     {
         if ($this->map->currentModel->row instanceof Sql\DataObjects\Result\Row) {
-            $criteria = $this->map->currentModel->row->offsetGet($this->map->currentModel->primaryKey);
-            $condition = [
-                $this->map->referenceTable . '.' . $this->map->currentForeignKey => $criteria,
-            ];
+            $criteria = $this->map->currentModel->row->offsetGet($this->map->currentPrimaryKey);
+            $field = $this->map->referenceTable . '.' . $this->map->referenceForeignKey;
 
-            if ($result = $this->map->referenceModel->findWhere($condition, 1)) {
+            if ($result = $this->map->referenceModel->find($criteria, $field, 1)) {
                 return $result;
             }
         }

@@ -24,6 +24,11 @@ use O2System\Framework\Models\Sql;
  */
 class BelongsTo extends Abstracts\AbstractRelation
 {
+    /**
+     * BelongsTo::getResult
+     * 
+     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
     public function getResult()
     {
         if ($this->map->currentModel->row instanceof Sql\DataObjects\Result\Row) {

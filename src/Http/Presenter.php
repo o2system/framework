@@ -109,6 +109,11 @@ class Presenter extends AbstractRepository
             $this->assets->autoload($config[ 'assets' ]);
         }
 
+        // autoload presenter theme
+        if(isset($config['theme'])) {
+            $this->setTheme($config['theme']);
+        }
+
         return $this;
     }
 
@@ -125,31 +130,42 @@ class Presenter extends AbstractRepository
     {
         if (is_bool($theme)) {
             $this->theme = false;
-        } elseif (($this->theme = modules()->current()->getTheme($theme)) instanceof Theme) {
-            $pathTheme = str_replace(PATH_RESOURCES, PATH_PUBLIC, $this->theme->getRealPath());
-
-            if ( ! defined('PATH_THEME')) {
-                define('PATH_THEME', $pathTheme);
-            }
-
-            // add theme view directory
-            view()->addFilePath($this->theme->getRealPath());
-
-            // add theme output directory
-            output()->setFileDirName('views'); // replace views folder base on theme structure
-            output()->addFilePath($this->theme->getRealPath(), 'theme');
-            output()->setFileDirName('Views'); // restore Views folder base on PSR-4 folder structure
-
-            // add public theme directory
-            loader()->addPublicDir($pathTheme, 'theme');
-
-            // add public theme assets directory
-            loader()->addPublicDir($pathTheme . 'assets' . DIRECTORY_SEPARATOR, 'themeAssets');
-
-            // load theme and layout
-            $this->theme->load();
+        } elseif(($moduleTheme = modules()->top()->getTheme($theme, true)) instanceof Theme) {
+            $this->theme = $moduleTheme;
+        } elseif(($appTheme = modules()->first()->getTheme($theme, true)) instanceof Theme) {
+            $this->theme = $appTheme;
         }
 
+        if($this->theme) {
+            if ( ! defined('PATH_THEME')) {
+                define('PATH_THEME', $this->theme->getRealPath());
+            }
+
+            // add theme assets directory
+            $this->assets->pushFilePath($this->theme->getRealPath());
+
+            if(is_dir($themeViewPath = $this->theme->getRealPath() . 'views' . DIRECTORY_SEPARATOR)) {
+
+                // add theme view directory
+                view()->addFilePath($this->theme->getRealPath());
+
+                // add theme output directory
+                output()->pushFilePath($themeViewPath);
+
+                $modules = modules()->getArrayCopy();
+
+                foreach($modules as $module) {
+                    if ( ! in_array($module->getType(), ['KERNEL', 'FRAMEWORK', 'APP'])) {
+                        $moduleResourcesPath = str_replace(PATH_RESOURCES, '', $module->getResourcesDir());
+
+                        if(is_dir($themeViewPath . $moduleResourcesPath)) {
+                            view()->pushFilePath($themeViewPath . $moduleResourcesPath);
+                        }
+                    }
+                }
+            }
+        }
+        
         return $this;
     }
 

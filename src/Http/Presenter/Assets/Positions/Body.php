@@ -15,7 +15,6 @@ namespace O2System\Framework\Http\Presenter\Assets\Positions;
 
 // ------------------------------------------------------------------------
 
-use MatthiasMullie\Minify\JS;
 use O2System\Framework\Http\Presenter\Assets\Collections;
 
 /**
@@ -26,11 +25,11 @@ use O2System\Framework\Http\Presenter\Assets\Collections;
 class Body extends Abstracts\AbstractPosition
 {
     /**
-     * Body::$javascript
+     * Body::$javascripts
      *
-     * @var \O2System\Framework\Http\Presenter\Assets\Collections\Javascript
+     * @var \O2System\Framework\Http\Presenter\Assets\Collections\Javascripts
      */
-    protected $javascript;
+    protected $javascripts;
 
     // ------------------------------------------------------------------------
 
@@ -39,7 +38,40 @@ class Body extends Abstracts\AbstractPosition
      */
     public function __construct()
     {
-        $this->javascript = new Collections\Javascript();
+        $this->javascripts = new Collections\Javascripts();
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Body::loadFile
+     *
+     * @param string      $filename
+     * @param string|null $subDir
+     *
+     * @return void
+     */
+    public function loadFile($filename, $subDir = null)
+    {
+        if (is_file($filename)) {
+            $this->javascripts->append($filename);
+        } else {
+            $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+            if (empty($extension)) {
+                if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
+                    if (false !== ($filePath = $this->getFilePath($filename . '.min.js'))) {
+                        $this->javascripts->append($filePath);
+                    }
+                } else {
+                    if (false !== ($filePath = $this->getFilePath($filename . '.js', $subDir))) {
+                        $this->javascripts->append($filePath);
+                    }
+                }
+            } elseif (false !== ($filePath = $this->getFilePath($filename, $subDir))) {
+                $this->javascripts->append($filePath);
+            }
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -52,94 +84,58 @@ class Body extends Abstracts\AbstractPosition
     public function __toString()
     {
         $output = [];
-        $unbundledFilename = [
-            'app',
-            'app.min',
-            'theme',
-            'theme.min',
-        ];
+        $unbundledFilenames = ['app', 'app.min', 'theme', 'theme.min'];
 
+        if (presenter()->page->file instanceof \SplFileInfo) {
+            if (presenter()->page->file->getFilename() === 'index') {
+                $bundleFilename = 'body-' . presenter()->page->file->getDirectoryInfo()->getDirName();
+            } else {
+                $bundleFilename = 'body-' . presenter()->page->file->getDirectoryInfo()->getDirName() . '-' . presenter()->page->file->getFilename();
+            }
+        } elseif (services()->has('controller')) {
+            $bundleFilename = 'body-' . controller()->getParameter();
+
+            if (controller()->getRequestMethod() !== 'index') {
+                $bundleFilename .= '-' . controller()->getRequestMethod();
+            }
+        } else {
+            $bundleFilename = 'body-' . uniqid();
+        }
+
+        $bundleFilename = 'assets' . DIRECTORY_SEPARATOR . $bundleFilename;
 
         // Render js
-        if ($this->javascript->count()) {
-            $bundleJsContents = [];
+        if ($this->javascripts->count()) {
+            $bundleJavascriptSources = [];
 
-            foreach ($this->javascript as $js) {
-                if (in_array(pathinfo($js, PATHINFO_FILENAME), $unbundledFilename)) {
-                    $jsVersion = $this->getVersion($js);
-                    $output[] = '<script type="text/javascript" src="' . $this->getUrl($js) . '?v=' . $jsVersion . '"></script>';
-                } else {
-                    $bundleJsMap[ 'sources' ][] = $js;
-                    $bundleJsContents[] = file_get_contents($js);
-                }
-            }
+            foreach ($this->javascripts as $javascript) {
+                if (in_array(pathinfo($javascript, PATHINFO_FILENAME), $unbundledFilenames)) {
+                    $fileVersion = $this->getVersion(filemtime($javascript));
+                    $output[] = '<script type="text/javascript" id="js-'.pathinfo($javascript, PATHINFO_FILENAME).'" src="' . $this->getUrl($javascript) . '?v=' . $fileVersion . '"></script>';
+                } elseif (in_array(pathinfo($javascript, PATHINFO_FILENAME), ['module', 'module.min'])) {
+                    $modulePublicFile = $this->publishFile($javascript);
 
-            // Bundled Js
-            $bundleJsVersion = $this->getVersion(serialize($bundleJsContents));
-            $bundleJsFilename = modules()->current()->getParameter();
-
-            if(presenter()->page->file instanceof \SplFileInfo) {
-                if(presenter()->page->file->getFilename() === 'index') {
-                    $bundleJsFilename.= '-body-' . presenter()->page->file->getDirectoryInfo()->getDirName();
-                } else {
-                    $bundleJsFilename.= '-body-' . presenter()->page->file->getDirectoryInfo()->getDirName() . '-' . presenter()->page->file->getFilename();
-                }
-            } elseif(services()->has('controller')) {
-                $bundleJsFilename.= '-body-' . controller()->getParameter();
-
-                if(controller()->getRequestMethod() !== 'index') {
-                    $bundleJsFilename.= '-' . router()->getRequestMethod();
-                }
-            } else {
-                $bundleJsFilename.= '-body-' . md5($bundleJsVersion);
-            }
-
-            $bundlePublicDir = modules()->current()->getPublicDir() . 'assets' . DIRECTORY_SEPARATOR;
-            $bundleJsFilePath = $bundlePublicDir . $bundleJsFilename . '.js';
-            $bundleJsMinifyFilePath = $bundlePublicDir . $bundleJsFilename . '.min.js';
-
-            if (is_file($bundleJsFilePath . '.map')) {
-                $bundleJsMap = json_decode(file_get_contents($bundleJsFilePath . '.map'), true);
-                // if the file version is changed delete it first
-                if ( ! hash_equals($bundleJsVersion, $bundleJsMap[ 'version' ])) {
-                    unlink($bundleJsFilePath);
-                    unlink($bundleJsFilePath . '.map');
-                }
-            }
-
-            if ( ! is_file($bundleJsFilePath)) {
-                $bundleJsMap[ 'version' ] = $bundleJsVersion;
-
-                // Create css file
-                if (count($bundleJsContents)) {
-                    if ($bundleFileStream = @fopen($bundleJsFilePath, 'ab')) {
-                        flock($bundleFileStream, LOCK_EX);
-                        fwrite($bundleFileStream, implode(PHP_EOL, $bundleJsContents));
-                        flock($bundleFileStream, LOCK_UN);
-                        fclose($bundleFileStream);
-
-                        // Create css map
-                        if ($bundleFileStream = @fopen($bundleJsFilePath . '.map', 'ab')) {
-                            flock($bundleFileStream, LOCK_EX);
-
-                            fwrite($bundleFileStream, json_encode($bundleJsMap));
-
-                            flock($bundleFileStream, LOCK_UN);
-                            fclose($bundleFileStream);
+                    if (is_file($modulePublicFile[ 'filePath' ])) {
+                        if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
+                            $output[] = '<script type="text/javascript" id="js-module" src="' . $modulePublicFile[ 'minify' ][ 'url' ] . '?v=' . $modulePublicFile[ 'version' ] . '"></script>';
+                        } else {
+                            $output[] = '<script type="text/javascript" id="js-module" src="' . $modulePublicFile[ 'url' ] . '?v=' . $modulePublicFile[ 'version' ] . '"></script>';
                         }
-
-                        // Create javascript file minify version
-                        $minifyJsHandler = new JS($bundleJsFilePath);
-                        $minifyJsHandler->minify($bundleJsMinifyFilePath);
                     }
+                } else {
+                    $bundleJavascriptSources[] = $javascript;
                 }
             }
 
-            if(is_file($bundleJsFilePath)) {
-                if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
-                    $output[] = '<script type="text/javascript" src="' . $this->getUrl($bundleJsMinifyFilePath) . '?v=' . $bundleJsVersion . '"></script>';
-                } else {
-                    $output[] = '<script type="text/javascript" src="' . $this->getUrl($bundleJsFilePath) . '?v=' . $bundleJsVersion . '"></script>';
+            if (count($bundleJavascriptSources)) {
+                $bundleJavascriptPublicFile = $this->bundleFile($bundleFilename . '.js', $bundleJavascriptSources);
+
+                if (is_file($bundleJavascriptPublicFile[ 'filePath' ])) {
+                    if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
+                        $output[] = '<script type="text/javascript" id="js-bundle" src="' . $bundleJavascriptPublicFile[ 'minify' ][ 'url' ] . '?v=' . $bundleJavascriptPublicFile[ 'version' ] . '"></script>';
+                    } else {
+                        $output[] = '<script type="text/javascript" id="js-bundle" src="' . $bundleJavascriptPublicFile[ 'url' ] . '?v=' . $bundleJavascriptPublicFile[ 'version' ] . '"></script>';
+                    }
                 }
             }
         }

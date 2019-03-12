@@ -76,12 +76,13 @@ trait ModifierTrait
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
     protected function insertMany(array $sets)
     {
         if (method_exists($this, 'insertRecordSets')) {
             foreach ($sets as $set) {
                 $this->insertRecordSets($set);
-
                 if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
                     $set[ 'record_ordering' ] = $this->getRecordOrdering($this->table);
                 }
@@ -102,6 +103,8 @@ trait ModifierTrait
 
         return false;
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * Update Data
@@ -159,6 +162,8 @@ trait ModifierTrait
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
      * Find Or Insert
      *
@@ -191,6 +196,8 @@ trait ModifierTrait
         return $result[ 0 ]->id;
     }
 
+    // ------------------------------------------------------------------------
+    
     protected function updateOrInsert(array $sets, array $where = [])
     {
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
@@ -225,20 +232,6 @@ trait ModifierTrait
     {
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
-        $where = [];
-        if (empty($this->primaryKeys)) {
-            $where[ $primaryKey ] = $sets[ $primaryKey ];
-            $this->qb->where($primaryKey, $sets[ $primaryKey ]);
-        } else {
-            foreach ($this->primaryKeys as $primaryKey) {
-                $where[ $primaryKey ] = $sets[ $primaryKey ];
-            }
-        }
-
-        // Reset Primary Keys
-        $this->primaryKey = 'id';
-        $this->primaryKeys = [];
-
         if (method_exists($this, 'updateRecordSets')) {
             foreach ($sets as $set) {
                 $this->updateRecordSets($set);
@@ -253,7 +246,7 @@ trait ModifierTrait
             $this->beforeUpdateMany($sets);
         }
 
-        if ($this->qb->table($this->table)->updateBatch($sets, $where)) {
+        if ($this->qb->table($this->table)->updateBatch($sets, $primaryKey)) {
             if (method_exists($this, 'afterUpdateMany')) {
                 return $this->afterUpdateMany();
             }
@@ -321,7 +314,7 @@ trait ModifierTrait
         $this->primaryKeys = [];
 
         if (method_exists($this, 'updateRecordSets')) {
-            $this->setRecordStatus('DELETE');
+            $this->setRecordStatus('DELETED');
             $this->updateRecordSets($sets);
         }
 
@@ -533,6 +526,170 @@ trait ModifierTrait
     // ------------------------------------------------------------------------
 
     protected function publishManyBy(array $ids, $where = [])
+    {
+        $affectedRows = [];
+
+        foreach ($ids as $id) {
+            $affectedRows[ $id ] = $this->publishBy($id, $where);
+        }
+
+        return $affectedRows;
+    }
+
+    protected function unpublish($id)
+    {
+        $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
+
+        $sets = [];
+        $where = [];
+
+        if (empty($this->primaryKeys)) {
+            $where[ $primaryKey ] = $id;
+            $sets[ $primaryKey ] = $id;
+        } elseif (is_array($id)) {
+            foreach ($this->primaryKeys as $primaryKey) {
+                $where[ $primaryKey ] = $sets[ $primaryKey ];
+                $sets[ $primaryKey ] = $id[ $primaryKey ];
+            }
+        } else {
+            foreach ($this->primaryKeys as $primaryKey) {
+                $where[ $primaryKey ] = $sets[ $primaryKey ];
+            }
+
+            $sets[ reset($this->primaryKeys) ] = $id;
+        }
+
+        // Reset Primary Keys
+        $this->primaryKey = 'id';
+        $this->primaryKeys = [];
+
+        if (method_exists($this, 'updateRecordSets')) {
+            $this->setRecordStatus('UNPUBLISH');
+            $this->updateRecordSets($sets);
+        }
+
+        if (method_exists($this, 'beforeUnpublish')) {
+            $this->beforePublish($sets);
+        }
+
+        if ($this->qb->table($this->table)->update($sets, $where)) {
+            if (method_exists($this, 'afterUnpublish')) {
+                return $this->afterPublish();
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    protected function unpublishBy($id, array $where = [])
+    {
+        $this->qb->where($where);
+
+        return $this->publish($id);
+    }
+
+    // ------------------------------------------------------------------------
+
+    protected function unpublishMany(array $ids)
+    {
+        $affectedRows = [];
+
+        foreach ($ids as $id) {
+            $affectedRows[ $id ] = $this->publish($id);
+        }
+
+        return $affectedRows;
+    }
+
+    // ------------------------------------------------------------------------
+
+    protected function unpublishManyBy(array $ids, $where = [])
+    {
+        $affectedRows = [];
+
+        foreach ($ids as $id) {
+            $affectedRows[ $id ] = $this->publishBy($id, $where);
+        }
+
+        return $affectedRows;
+    }
+
+    protected function archive($id)
+    {
+        $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
+
+        $sets = [];
+        $where = [];
+
+        if (empty($this->primaryKeys)) {
+            $where[ $primaryKey ] = $id;
+            $sets[ $primaryKey ] = $id;
+        } elseif (is_array($id)) {
+            foreach ($this->primaryKeys as $primaryKey) {
+                $where[ $primaryKey ] = $sets[ $primaryKey ];
+                $sets[ $primaryKey ] = $id[ $primaryKey ];
+            }
+        } else {
+            foreach ($this->primaryKeys as $primaryKey) {
+                $where[ $primaryKey ] = $sets[ $primaryKey ];
+            }
+
+            $sets[ reset($this->primaryKeys) ] = $id;
+        }
+
+        // Reset Primary Keys
+        $this->primaryKey = 'id';
+        $this->primaryKeys = [];
+
+        if (method_exists($this, 'updateRecordSets')) {
+            $this->setRecordStatus('ARCHIVED');
+            $this->updateRecordSets($sets);
+        }
+
+        if (method_exists($this, 'beforeArchive')) {
+            $this->beforePublish($sets);
+        }
+
+        if ($this->qb->table($this->table)->update($sets, $where)) {
+            if (method_exists($this, 'afterArchive')) {
+                return $this->afterPublish();
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    protected function archiveBy($id, array $where = [])
+    {
+        $this->qb->where($where);
+
+        return $this->publish($id);
+    }
+
+    // ------------------------------------------------------------------------
+
+    protected function archiveMany(array $ids)
+    {
+        $affectedRows = [];
+
+        foreach ($ids as $id) {
+            $affectedRows[ $id ] = $this->publish($id);
+        }
+
+        return $affectedRows;
+    }
+
+    // ------------------------------------------------------------------------
+
+    protected function archiveManyBy(array $ids, $where = [])
     {
         $affectedRows = [];
 

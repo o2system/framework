@@ -177,13 +177,49 @@ class Theme extends SplDirectoryInfo
             presenter()->assets->autoload($this->getPresets()->offsetGet('assets'));
         }
 
-        presenter()->assets->loadCss('theme.css');
-        presenter()->assets->loadJs('theme.js');
+        presenter()->assets->loadCss('theme');
+        presenter()->assets->loadJs('theme');
 
         // Autoload default theme layout
         $this->loadLayout();
 
         return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Theme::hasLayout
+     * 
+     * @return bool
+     */
+    public function hasLayout($layout)
+    {
+        $extensions = ['.php', '.phtml', '.html', '.tpl'];
+
+        if (isset($this->presets[ 'extensions' ])) {
+            array_unshift($partialsExtensions, $this->presets[ 'extension' ]);
+        } elseif (isset($this->presets[ 'extension' ])) {
+            array_unshift($extensions, $this->presets[ 'extension' ]);
+        }
+
+        $found = false;
+        foreach ($extensions as $extension) {
+            $extension = trim($extension, '.');
+
+            if ($layout === 'theme') {
+                $layoutFilePath = $this->getRealPath() . 'theme.' . $extension;
+            } else {
+                $layoutFilePath = $this->getRealPath() . 'layouts' . DIRECTORY_SEPARATOR . dash($layout) . DIRECTORY_SEPARATOR . 'layout.' . $extension;
+            }
+
+            if (is_file($layoutFilePath)) {
+                $found = true;
+                break;
+            }
+        }
+
+        return (bool) $found;
     }
 
     // ------------------------------------------------------------------------
@@ -216,7 +252,7 @@ class Theme extends SplDirectoryInfo
 
             if (is_file($layoutFilePath)) {
                 $this->layout = new Theme\Layout($layoutFilePath);
-                $this->loadLayout();
+                //$this->loadLayout();
                 break;
             }
         }

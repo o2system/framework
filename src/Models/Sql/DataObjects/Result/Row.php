@@ -28,11 +28,13 @@ use O2System\Spl\Info\SplClassInfo;
 class Row extends SplArrayObject
 {
     /**
-     * Row Model Instance
+     * Row::$model
      *
-     * @var Model
+     * @var \O2System\Spl\Info\SplClassInfo
      */
     private $model;
+
+    // ------------------------------------------------------------------------
 
     /**
      * Row::__construct
@@ -59,6 +61,13 @@ class Row extends SplArrayObject
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Row::offsetGet
+     *
+     * @param string $offset
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result|\O2System\Framework\Models\Sql\DataObjects\Result\Row|null
+     */
     public function offsetGet($offset)
     {
         if ($this->offsetExists($offset)) {
@@ -72,6 +81,14 @@ class Row extends SplArrayObject
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Row::__call
+     *
+     * @param string $method
+     * @param array  $args
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result|\O2System\Framework\Models\Sql\DataObjects\Result\Row|null
+     */
     public function __call($method, $args = [])
     {
         $model = models($this->model->getClass());

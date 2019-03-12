@@ -14,6 +14,7 @@
 namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
+
 use O2System\Gear\Trace;
 use O2System\Spl\Exceptions\Abstracts\AbstractException;
 use O2System\Spl\Exceptions\ErrorException;
@@ -24,6 +25,20 @@ use O2System\Spl\Exceptions\ErrorException;
  */
 class Output extends \O2System\Kernel\Http\Output
 {
+    /**
+     * Output::__construct
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        if(services()->has('csrfProtection')) {
+            $this->addHeader('X-CSRF-TOKEN', services()->get('csrfProtection')->getToken());
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
     /**
      * Output::shutdownHandler
      *
@@ -216,12 +231,14 @@ class Output extends \O2System\Kernel\Http\Output
             ));
         } elseif ($exception instanceof AbstractException) {
 
-            if (presenter()->theme) {
-                presenter()->theme->load();
-            }
+            if (services()->has('presenter')) {
+                if (presenter()->theme) {
+                    presenter()->theme->load();
+                }
 
-            $vars = presenter()->getArrayCopy();
-            extract($vars);
+                $vars = presenter()->getArrayCopy();
+                extract($vars);
+            }
 
             ob_start();
             include $this->getFilePath('exception');

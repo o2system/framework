@@ -20,6 +20,7 @@ use O2System\Framework\Http\Presenter\Meta;
 use O2System\Gear\Toolbar;
 use O2System\Html;
 use O2System\Psr\Patterns\Structural\Composite\RenderableInterface;
+use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Exceptions\ErrorException;
 use O2System\Spl\Traits\Collectors\FileExtensionCollectorTrait;
 use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
@@ -57,10 +58,10 @@ class View implements RenderableInterface
      */
     public function __construct()
     {
-        $this->setFileDirName('Views');
-        $this->addFilePath(PATH_APP);
+        $this->setFileDirName('views');
+        $this->addFilePath(PATH_RESOURCES);
 
-        output()->addFilePath(PATH_APP);
+        output()->addFilePath(PATH_RESOURCES);
 
         $this->config = config()->loadFile('view', true);
 
@@ -153,10 +154,9 @@ class View implements RenderableInterface
             }
         }
 
-        presenter()->merge($vars);
-
-        if (parser()->loadFile($filename)) {
-            output()->send(parser()->parse(presenter()->getArrayCopy()));
+        if ($content = $this->load($filename, $vars, true)) {
+            echo $content;
+            exit(EXIT_SUCCESS);
         }
     }
 
@@ -186,7 +186,14 @@ class View implements RenderableInterface
         if (false !== ($filePath = $this->getFilePath($filename))) {
             if ($return === false) {
                 if (presenter()->partials->hasPartial('content') === false) {
-                    presenter()->partials->addPartial('content', $filePath);
+                    if(is_ajax()) {
+                        parser()->loadFile($filePath);
+                        $content = parser()->parse(presenter()->getArrayCopy());
+
+                        presenter()->partials->addPartial('content', $content);
+                    } else {
+                        presenter()->partials->addPartial('content', $filePath);
+                    }
                 } else {
                     presenter()->partials->addPartial(pathinfo($filePath, PATHINFO_FILENAME), $filePath);
                 }
@@ -242,7 +249,7 @@ class View implements RenderableInterface
     public function page($filename, array $vars = [], $return = false)
     {
         if ( ! is_file($filename)) {
-            $pageDirectories = modules()->getDirs('Pages');
+            $pageDirectories = modules()->getResourcesDirs('pages');
             foreach ($pageDirectories as $pageDirectory) {
                 if (is_file($pageFilePath = $pageDirectory . $filename . '.phtml')) {
                     $filename = $pageFilePath;
@@ -284,63 +291,45 @@ class View implements RenderableInterface
         if (is_file($filename)) {
             return realpath($filename);
         } else {
-            $viewsFileExtensions = $this->fileExtensions;
-            $viewsDirectories = modules()->getDirs('Views');
-            $viewsDirectories = array_merge($viewsDirectories, $this->filePaths);
+            $viewsDirectories = array_merge([
+                PATH_KERNEL . 'Views' . DIRECTORY_SEPARATOR,
+                PATH_FRAMEWORK . 'Views' . DIRECTORY_SEPARATOR,
+            ], $this->filePaths);
+
             $viewsDirectories = array_unique($viewsDirectories);
+            $viewsDirectories = array_reverse($viewsDirectories);
 
-            $deviceDirectory = null;
-            if (services('userAgent')->isMobile()) {
-                $deviceDirectory = 'mobile';
-            }
-
-            if (presenter()->theme) {
-                $moduleReplacementPath = presenter()->theme->getPathName()
-                    . DIRECTORY_SEPARATOR
-                    . 'views'
-                    . DIRECTORY_SEPARATOR
-                    . strtolower(
-                        str_replace(PATH_APP, '', modules()->current()->getRealpath())
-                    );
-
-                if (is_dir($moduleReplacementPath)) {
-                    array_unshift($viewsDirectories, $moduleReplacementPath);
-
-                    // Add Theme File Extensions
-                    if (presenter()->theme->getPresets()->offsetExists('extension')) {
-                        array_unshift($viewsFileExtensions,
-                            presenter()->theme->getPresets()->offsetGet('extension'));
-                    } elseif (presenter()->theme->getPresets()->offsetExists('extensions')) {
-                        $viewsFileExtensions = array_merge(
-                            presenter()->theme->getPresets()->offsetGet('extensions'),
-                            $viewsFileExtensions
-                        );
-                    }
-
-                    // Add Theme Parser Engine
-                    if (presenter()->theme->getPresets()->offsetExists('driver')) {
-                        $parserDriverClassName = '\O2System\Parser\Drivers\\' . camelcase(
-                                presenter()->theme->getPresets()->offsetGet('driver')
-                            );
-
-                        if (class_exists($parserDriverClassName)) {
-                            parser()->addDriver(
-                                new $parserDriverClassName(),
-                                presenter()->theme->getPresets()->offsetGet('driver')
-                            );
-                        }
-                    }
-                }
-            }
+            $controllerSubDir = services('controller')->getParameter() . DIRECTORY_SEPARATOR;
 
             foreach ($viewsDirectories as $viewsDirectory) {
-                foreach ($viewsFileExtensions as $fileExtension) {
-                    $filename = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $filename);
+                $filename = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $filename);
 
-                    if (is_file($filePath = $viewsDirectory . $filename . $fileExtension)) {
+                // Find specific view file for mobile version
+                if (services('userAgent')->isMobile()) {
+                    // Find without controller parameter as sub directory
+                    if (is_file($filePath = $viewsDirectory . $filename . '.mobile.phtml')) {
                         return realpath($filePath);
                         break;
                     }
+
+                    // Find without controller parameter as sub directory
+                    if (is_file($filePath = $viewsDirectory . $controllerSubDir . $filename . '.mobile.phtml')) {
+                        return realpath($filePath);
+                        break;
+                    }
+                }
+
+                // Find without controller parameter as sub directory
+                if (is_file($filePath = $viewsDirectory . $filename . '.phtml')) {
+                    return realpath($filePath);
+                    break;
+                }
+
+                // Find without controller parameter as sub directory
+                if (is_file($filePath = $viewsDirectory . $controllerSubDir . $filename . '.phtml')) {
+                    print_line('found: ' . $viewsDirectory . $controllerSubDir . $filename . '.phtml');
+                    return realpath($filePath);
+                    break;
                 }
             }
         }
@@ -365,14 +354,31 @@ class View implements RenderableInterface
 
         parser()->loadVars(presenter()->getArrayCopy());
 
-        if (false !== ($pagePresets = presenter()->page->getPresets())) {
+        if (presenter()->page->file instanceof \SplFileInfo) {
+
+            if (false === ($pagePresets = presenter()->page->getPresets())) {
+                if (presenter()->page->file->getFilename() === 'index') {
+                    $title = presenter()->page->file->getDirectoryInfo()->getDirName();
+                } else {
+                    $titles[] = presenter()->page->file->getDirectoryInfo()->getDirName();
+                    $titles[] = presenter()->page->file->getFilename();
+
+                    $title = implode(' - ', array_unique($titles));
+                }
+
+                $pagePresets = new SplArrayObject([
+                    'title'  => readable($title, true),
+                    'access' => 'public',
+                ]);
+            }
+
             /**
              * Sets Page Theme
              */
             if ($pagePresets->offsetExists('theme')) {
                 presenter()->setTheme($pagePresets->theme);
             } elseif (false !== ($theme = presenter()->getConfig('theme'))) {
-                if (modules()->current()->hasTheme($theme)) {
+                if (modules()->top()->hasTheme($theme)) {
                     presenter()->setTheme($theme);
                 }
             }
@@ -385,7 +391,12 @@ class View implements RenderableInterface
                     presenter()->theme->setLayout($pagePresets->layout);
                 }
 
-                if (false !== ($modulePresets = modules()->current()->getPresets())) {
+                /**
+                 * Autoload Theme Assets
+                 */
+                presenter()->theme->load();
+
+                if (false !== ($modulePresets = modules()->top()->getPresets())) {
 
                     /**
                      * Autoload Module Assets
@@ -393,15 +404,6 @@ class View implements RenderableInterface
                     if ($modulePresets->offsetExists('assets')) {
                         presenter()->assets->autoload($modulePresets->assets);
                     }
-
-                    $moduleAssets = [
-                        'main',
-                        modules()->current()->getParameter()
-                    ];
-
-                    // Autoload Assets
-                    presenter()->assets->loadCss($moduleAssets);
-                    presenter()->assets->loadJs($moduleAssets);
 
                     /**
                      * Sets Module Meta
@@ -425,6 +427,16 @@ class View implements RenderableInterface
                     }
                 }
 
+                $moduleAssets = [
+                    'app',
+                    'module',
+                    modules()->top()->getParameter(),
+                ];
+                
+                // Autoload Assets
+                presenter()->assets->loadCss($moduleAssets);
+                presenter()->assets->loadJs($moduleAssets);
+
                 /**
                  * Autoload Page Assets
                  */
@@ -433,8 +445,22 @@ class View implements RenderableInterface
                 }
 
                 if (presenter()->page->file instanceof \SplFileInfo) {
-                    $pageAssets[] = presenter()->page->file->getDirectoryInfo()->getDirName();
-                    $pageAssets[] = str_replace([modules()->current()->getDir('Pages'), '.phtml'], '', presenter()->page->file->getRealPath());
+                    $pageDir = presenter()->page->file->getRealPath();
+                    $pageDir = str_replace('.' . pathinfo($pageDir, PATHINFO_EXTENSION), '', $pageDir);
+                    $pageDirParts = explode('pages' . DIRECTORY_SEPARATOR,
+                        str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $pageDir));
+                    $pageDir = end($pageDirParts);
+
+                    $pageDir = rtrim($pageDir, DIRECTORY_SEPARATOR);
+                    $pageDirParts = explode(DIRECTORY_SEPARATOR, $pageDir);
+
+                    $totalParts = count($pageDirParts);
+
+                    for ($i = 0; $i < $totalParts; $i++) {
+                        $pageAssets[] = implode(DIRECTORY_SEPARATOR, array_slice($pageDirParts, 0, ($totalParts - $i)));
+                    }
+
+                    $pageAssets[] = implode(DIRECTORY_SEPARATOR, [end($pageAssets), end($pageAssets)]);
 
                     // Autoload Assets
                     presenter()->assets->loadCss($pageAssets);
@@ -474,7 +500,12 @@ class View implements RenderableInterface
                 output()->sendError(204, language()->getLine('E_THEME_NOT_FOUND', [$theme]));
             }
         } elseif (presenter()->theme instanceof Theme) {
-            if (false !== ($modulePresets = modules()->current()->getPresets())) {
+            /**
+             * Autoload Theme Assets
+             */
+            presenter()->theme->load();
+
+            if (false !== ($modulePresets = modules()->top()->getPresets())) {
 
                 /**
                  * Autoload Module Assets
@@ -482,15 +513,6 @@ class View implements RenderableInterface
                 if ($modulePresets->offsetExists('assets')) {
                     presenter()->assets->autoload($modulePresets->assets);
                 }
-
-                $moduleAssets = [
-                    'main',
-                    modules()->current()->getParameter()
-                ];
-
-                // Autoload Assets
-                presenter()->assets->loadCss($moduleAssets);
-                presenter()->assets->loadJs($moduleAssets);
 
                 /**
                  * Sets Module Meta
@@ -514,16 +536,30 @@ class View implements RenderableInterface
                 }
             }
 
+            $moduleAssets = [
+                'app',
+                'module',
+                modules()->top()->getParameter(),
+            ];
+
+            // Autoload Assets
+            presenter()->assets->loadCss($moduleAssets);
+            presenter()->assets->loadJs($moduleAssets);
+
             /**
              * Autoload Controller Assets
              */
-            $controllerFilename = str_replace([modules()->current()->getDir('Controllers'), '.php'], '', controller()->getFileInfo()->getRealPath());
+            $controllerFilename = str_replace([modules()->top()->getDir('Controllers'), '.php'], '',
+                controller()->getFileInfo()->getRealPath());
             $controllerFilename = dash($controllerFilename);
             $controllerAssets[] = $controllerFilename;
             $controllerAssets[] = implode('/', [
                 $controllerFilename,
                 controller()->getRequestMethod(),
             ]);
+
+            presenter()->assets->loadCss($controllerAssets);
+            presenter()->assets->loadJs($controllerAssets);
 
             if (false !== ($layout = presenter()->theme->getLayout())) {
                 parser()->loadFile($layout->getRealPath());
@@ -534,10 +570,15 @@ class View implements RenderableInterface
                 $this->document->loadHTML($htmlOutput);
             }
         } elseif (false !== ($theme = presenter()->getConfig('theme'))) {
-            if (modules()->current()->hasTheme($theme)) {
+            if (modules()->top()->hasTheme($theme)) {
                 presenter()->setTheme($theme);
 
-                if (false !== ($modulePresets = modules()->current()->getPresets())) {
+                /**
+                 * Autoload Theme Assets
+                 */
+                presenter()->theme->load();
+
+                if (false !== ($modulePresets = modules()->top()->getPresets())) {
 
                     /**
                      * Autoload Module Assets
@@ -545,15 +586,6 @@ class View implements RenderableInterface
                     if ($modulePresets->offsetExists('assets')) {
                         presenter()->assets->autoload($modulePresets->assets);
                     }
-
-                    $moduleAssets = [
-                        'main',
-                        modules()->current()->getParameter()
-                    ];
-
-                    // Autoload Assets
-                    presenter()->assets->loadCss($moduleAssets);
-                    presenter()->assets->loadJs($moduleAssets);
 
                     /**
                      * Sets Module Meta
@@ -577,10 +609,21 @@ class View implements RenderableInterface
                     }
                 }
 
+                $moduleAssets = [
+                    'app',
+                    'module',
+                    modules()->top()->getParameter(),
+                ];
+
+                // Autoload Assets
+                presenter()->assets->loadCss($moduleAssets);
+                presenter()->assets->loadJs($moduleAssets);
+
                 /**
                  * Autoload Controller Assets
                  */
-                $controllerFilename = str_replace([modules()->current()->getDir('Controllers'), '.php'], '', controller()->getFileInfo()->getRealPath());
+                $controllerFilename = str_replace([modules()->top()->getDir('Controllers'), '.php'], '',
+                    controller()->getFileInfo()->getRealPath());
                 $controllerFilename = dash($controllerFilename);
                 $controllerAssets[] = $controllerFilename;
                 $controllerAssets[] = implode('/', [
@@ -652,7 +695,7 @@ class View implements RenderableInterface
          * Inject body attributes
          */
         $body = $this->document->getElementsByTagName('body');
-        $body->item(0)->setAttribute('module', modules()->current()->getParameter());
+        $body->item(0)->setAttribute('module', modules()->top()->getParameter());
 
         /**
          * Injecting Single Sign-On (SSO) iFrame

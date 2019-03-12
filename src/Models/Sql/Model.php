@@ -18,6 +18,7 @@ namespace O2System\Framework\Models\Sql;
 use O2System\Framework\Models\Sql\DataObjects\Result\Row;
 use O2System\Framework\Models\Sql\Traits\FinderTrait;
 use O2System\Framework\Models\Sql\Traits\ModifierTrait;
+use O2System\Framework\Models\Sql\Traits\RecordTrait;
 
 /**
  * Class Model
@@ -28,6 +29,7 @@ class Model
 {
     use FinderTrait;
     use ModifierTrait;
+    use RecordTrait;
 
     /**
      * AbstractModel::$db
@@ -147,7 +149,7 @@ class Model
         $dirName = dirname($filePath) . DIRECTORY_SEPARATOR;
 
         // Get sub models or siblings models
-        if ($filename === 'Model' || $filename === modules()->current()->getDirName()) {
+        if ($filename === 'Model' || $filename === modules()->top()->getDirName()) {
             $subModelsDirName = dirname($dirName) . DIRECTORY_SEPARATOR . 'Models' . DIRECTORY_SEPARATOR;
 
             if (is_dir($subModelsDirName)) {
@@ -173,16 +175,14 @@ class Model
 
     final public static function __callStatic($method, array $arguments = [])
     {
-        $modelClassName = get_called_class();
-
-        if ( ! models()->has($modelClassName)) {
-            models()->load($modelClassName, $modelClassName);
-        }
-
-        $modelInstance = models()->get($modelClassName);
-
-        if (method_exists($modelInstance, $method)) {
-            return $modelInstance->__call($method, $arguments);
+        if (false !== ($modelInstance = models(get_called_class()))) {
+            if (method_exists($modelInstance, $method)) {
+                return call_user_func_array([&$modelInstance, $method], $arguments);
+            } elseif (method_exists($modelInstance->db, $method)) {
+                return call_user_func_array([&$modelInstance->db, $method], $arguments);
+            } elseif (method_exists($modelInstance->qb, $method)) {
+                return call_user_func_array([&$modelInstance->qb, $method], $arguments);
+            }
         }
 
         return false;
@@ -190,15 +190,7 @@ class Model
 
     final public function __call($method, array $arguments = [])
     {
-        if (method_exists($this, $method)) {
-            return call_user_func_array([&$this, $method], $arguments);
-        } elseif (method_exists($this->db, $method)) {
-            return call_user_func_array([&$this->db, $method], $arguments);
-        } elseif (method_exists($this->qb, $method)) {
-            return call_user_func_array([&$this->qb, $method], $arguments);
-        }
-
-        return false;
+        return static::__callStatic($method, $arguments);
     }
 
     // ------------------------------------------------------------------------
@@ -245,7 +237,7 @@ class Model
 
             foreach ($classNames as $className) {
                 if (class_exists($className)) {
-                    $this->{$model} = new $className();
+                    $this->{$model} = models($className);
                     break;
                 }
             }

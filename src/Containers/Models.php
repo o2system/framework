@@ -67,7 +67,9 @@ class Models extends SplServiceContainer
     public function load($model, $offset = null)
     {
         if (is_string($model)) {
-            $service = new SplServiceRegistry($model);
+            if (class_exists($model)) {
+                $service = new SplServiceRegistry($model);
+            }
         } elseif ($model instanceof SplServiceRegistry) {
             $service = $model;
         }
@@ -130,5 +132,50 @@ class Models extends SplServiceContainer
         }
 
         $this->register($model, $offset);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Models::autoload
+     *
+     * @param string      $model
+     * @param string|null $offset
+     *
+     * @return mixed
+     */
+    public function autoload($model, $offset = null)
+    {
+        if (isset($offset)) {
+            if ($this->has($offset)) {
+                return $this->get($offset);
+            }
+
+            // Try to load
+            if (is_string($model)) {
+                if ($this->has($model)) {
+                    return $this->get($model);
+                }
+
+                $this->load($model, $offset);
+
+                if ($this->has($offset)) {
+                    return $this->get($offset);
+                }
+            }
+        } elseif (is_string($model)) {
+            if ($this->has($model)) {
+                return $this->get($model);
+            }
+
+            // Try to load
+            $this->load($model, $model);
+
+            if ($this->has($model)) {
+                return $this->get($model);
+            }
+        }
+
+        return false;
     }
 }

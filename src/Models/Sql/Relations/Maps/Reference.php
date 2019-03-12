@@ -25,20 +25,24 @@ use O2System\Framework\Models\Sql\Relations\Maps\Abstracts\AbstractMap;
  */
 class Reference extends AbstractMap
 {
+    /**
+     * Reference::__construct
+     *
+     * @param \O2System\Framework\Models\Sql\Model        $currentModel
+     * @param string|\O2System\Framework\Models\Sql\Model $referenceModel
+     * @param string|null                                 $foreignKey
+     */
     public function __construct(
         Model $currentModel,
         $referenceModel,
         $foreignKey = null
     ) {
-        $this->currentModel =& $currentModel;
-        $this->currentTable = $currentModel->table;
-        $this->currentPrimaryKey = $currentModel->primaryKey;
-
-        // Mapping Reference Model
+        // Mapping Models
+        $this->mappingCurrentModel($currentModel);
         $this->mappingReferenceModel($referenceModel);
 
         // Defined Current Foreign Key
-        $this->currentForeignKey = (isset($foreignKey) ? $foreignKey
-            : $this->currentForeignKey);
+        $this->referenceForeignKey = (isset($foreignKey) ? $foreignKey
+            : 'id_' . $this->currentTable);
     }
 }

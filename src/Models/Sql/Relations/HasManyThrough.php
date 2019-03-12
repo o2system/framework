@@ -24,6 +24,11 @@ use O2System\Framework\Models\Sql;
  */
 class HasManyThrough extends Sql\Relations\Abstracts\AbstractRelation
 {
+    /**
+     * HasManyThrough::getResult
+     * 
+     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
     public function getResult()
     {
         if ($this->map->currentModel->row instanceof Sql\DataObjects\Result\Row) {

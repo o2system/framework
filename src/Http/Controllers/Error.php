@@ -35,7 +35,7 @@ class Error extends Controller
 
         $viewFilePath = 'error-code';
 
-        if (is_dir(modules()->current()->getDir('Views/errors'))) {
+        if (is_dir(modules()->top()->getDir('Views/errors'))) {
             $viewFilePath = 'errors/' . $viewFilePath;
         }
 

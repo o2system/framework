@@ -24,7 +24,15 @@ use O2System\Framework\Models\Sql\DataObjects;
  */
 trait FinderTrait
 {
-    protected function all($fields = null, $limit = null)
+    /**
+     * FinderTrait::all
+     *
+     * @param array|string|null $fields
+     * @param int|null          $limit
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function all($fields = null, $limit = null)
     {
         if (isset($fields)) {
             $this->qb->select($fields);
@@ -55,14 +63,30 @@ trait FinderTrait
 
     // ------------------------------------------------------------------------
 
-    protected function allWithPaging($fields = null, $limit = null)
+    /**
+     * FinderTrait::allWithPaging
+     *
+     * @param array|string|null $fields
+     * @param int|null          $limit
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function allWithPaging($fields = null, $limit = null)
     {
         return $this->withPaging(null, $limit)->all($fields, $limit);
     }
 
     // ------------------------------------------------------------------------
 
-    protected function withPaging($page = null, $limit = null)
+    /**
+     * FinderTrait::withPaging
+     *
+     * @param int|null $page
+     * @param int|null $limit
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function withPaging($page = null, $limit = null)
     {
         $getPage = $this->input->get('page');
         $getLimit = $this->input->get('limit');
@@ -77,7 +101,16 @@ trait FinderTrait
 
     // ------------------------------------------------------------------------
 
-    protected function find($criteria, $field = null, $limit = null)
+    /**
+     * FinderTrait::find
+     *
+     * @param mixed       $criteria
+     * @param string|null $field
+     * @param int|null    $limit
+     *
+     * @return bool|mixed|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function find($criteria, $field = null, $limit = null)
     {
         if (is_array($criteria)) {
             return $this->findIn($criteria, $field);
@@ -110,46 +143,14 @@ trait FinderTrait
     // ------------------------------------------------------------------------
 
     /**
-     * Find In
+     * FinderTrait::findWhere
      *
-     * Find many records within criteria on specific field
+     * @param array    $conditions
+     * @param int|null $limit
      *
-     * @param   array  $inCriteria List of criteria
-     * @param   string $field      Table column field name | set to primary key by default
-     *
-     * @return  DataObjects\Result|bool Returns FALSE if failed.
+     * @return bool|mixed|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    protected function findIn(array $inCriteria, $field = null)
-    {
-        $field = isset($field) ? $field : $this->primaryKey;
-        $field = $this->table . '.' . $field;
-
-        if ($result = $this->qb
-            ->from($this->table)
-            ->whereIn($field, $inCriteria)
-            ->get()) {
-            $this->result = new DataObjects\Result($result, $this);
-            $this->result->setInfo($result->getInfo());
-
-            return $this->result;
-        }
-
-        return false;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Find By
-     *
-     * Find single record based on certain conditions
-     *
-     * @param   array $conditions List of conditions with criteria
-     *
-     * @access  protected
-     * @return  DataObjects\Result|bool Returns FALSE if failed.
-     */
-    protected function findWhere(array $conditions, $limit = null)
+    public function findWhere(array $conditions, $limit = null)
     {
         foreach ($conditions as $field => $criteria) {
             if (strpos($field, '.') === false) {
@@ -177,16 +178,42 @@ trait FinderTrait
     // ------------------------------------------------------------------------
 
     /**
-     * Find In
+     * FinderTrait::findIn
      *
-     * Find many records not within criteria on specific field
+     * @param array       $inCriteria
+     * @param string|null $field
      *
-     * @param   array  $notInCriteria List of criteria
-     * @param   string $field         Table column field name | set to primary key by default
-     *
-     * @return  DataObjects\Result|bool Returns FALSE if failed.
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    protected function findNotIn(array $notInCriteria, $field = null)
+    public function findIn(array $inCriteria, $field = null)
+    {
+        $field = isset($field) ? $field : $this->primaryKey;
+        $field = $this->table . '.' . $field;
+
+        if ($result = $this->qb
+            ->from($this->table)
+            ->whereIn($field, $inCriteria)
+            ->get()) {
+            $this->result = new DataObjects\Result($result, $this);
+            $this->result->setInfo($result->getInfo());
+
+            return $this->result;
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * FinderTrait::findNotIn
+     *
+     * @param array       $notInCriteria
+     * @param string|null $field
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function findNotIn(array $notInCriteria, $field = null)
     {
         $field = isset($field) ? $field : $this->primaryKey;
         if (strpos($field, '.') === false) {

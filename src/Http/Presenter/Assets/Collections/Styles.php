@@ -15,14 +15,12 @@ namespace O2System\Framework\Http\Presenter\Assets\Collections;
 
 // ------------------------------------------------------------------------
 
-use O2System\Spl\Iterators\ArrayIterator;
-
 /**
- * Class Css
+ * Class Styles
  *
  * @package O2System\Framework\Http\Presenter\Assets\Collections
  */
-class Css extends ArrayIterator
+class Styles extends Abstracts\AbstractCollection
 {
 
 }

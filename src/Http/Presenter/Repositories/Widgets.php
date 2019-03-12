@@ -47,7 +47,7 @@ class Widgets extends AbstractRepository
      */
     public function load($widgetOffset)
     {
-        $widgetDirectory = modules()->current()->getRealPath() . 'Widgets' . DIRECTORY_SEPARATOR . studlycase($widgetOffset) . DIRECTORY_SEPARATOR;
+        $widgetDirectory = modules()->top()->getRealPath() . 'Widgets' . DIRECTORY_SEPARATOR . studlycase($widgetOffset) . DIRECTORY_SEPARATOR;
 
         if (is_dir($widgetDirectory)) {
             $widget = new DataStructures\Module\Widget($widgetDirectory);

@@ -516,7 +516,7 @@ class Loader implements AutoloadInterface
         ];
 
         if (method_exists(modules(), 'current')) {
-            array_push($helperDirectories, modules()->current()->getPath() . 'Helpers' . DIRECTORY_SEPARATOR);
+            array_push($helperDirectories, modules()->top()->getPath() . 'Helpers' . DIRECTORY_SEPARATOR);
         }
 
         if ( ! array_key_exists($helper, $this->loadedHelpers)) {

@@ -24,12 +24,17 @@ use O2System\Framework\Models\Sql;
  */
 class HasMany extends Sql\Relations\Abstracts\AbstractRelation
 {
+    /**
+     * HasMany::getResult
+     * 
+     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
     public function getResult()
     {
         if ($this->map->currentModel->row instanceof Sql\DataObjects\Result\Row) {
-            $criteria = $this->map->currentModel->row->offsetGet($this->map->currentModel->primaryKey);
+            $criteria = $this->map->currentModel->row->offsetGet($this->map->currentPrimaryKey);
             $condition = [
-                $this->map->referenceTable . '.' . $this->map->currentForeignKey => $criteria,
+                $this->map->referenceTable . '.' . $this->map->referenceForeignKey => $criteria,
             ];
 
             if ($result = $this->map->referenceModel->findWhere($condition)) {

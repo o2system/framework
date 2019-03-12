@@ -11,18 +11,22 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Http\Presenter\Assets\Collections;
+namespace O2System\Framework\Http\Presenter\Assets\Collections\Abstracts;
 
 // ------------------------------------------------------------------------
 
 use O2System\Spl\Iterators\ArrayIterator;
 
 /**
- * Class Javascript
- *
+ * Class AbstractCollection
  * @package O2System\Framework\Http\Presenter\Assets\Collections
  */
-class Javascript extends ArrayIterator
+abstract class AbstractCollection extends ArrayIterator
 {
-
+    public function append($value)
+    {
+        if ( ! $this->has($value)) {
+            parent::append($value);
+        }
+    }
 }

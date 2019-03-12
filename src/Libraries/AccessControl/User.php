@@ -16,8 +16,10 @@ namespace O2System\Framework\Libraries\AccessControl;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Http\Message\ServerRequest;
+use O2System\Security\Authentication\User\Account;
 use O2System\Security\Authentication\User\Authorities;
 use O2System\Security\Authentication\User\Authority;
+use O2System\Security\Authentication\User\Role;
 use O2System\Spl\Exceptions\RuntimeException;
 
 /**
@@ -65,21 +67,28 @@ class User extends \O2System\Security\Authentication\User
             $column = 'msisdn';
         }
 
-        if ($account = models('users')->findWhere([$column => $username], 1)) {
-            if ($this->passwordVerify($password, $account->password)) {
-                if ($this->passwordRehash($password)) {
-                    models('users')->update([
-                        'id'       => $account->id,
-                        'password' => $this->passwordHash($password),
-                    ]);
+        if ($user = models('users')->findWhere([$column => $username], 1)) {
+            if ($user->account) {
+                if ($this->passwordVerify($password, $user->account->password)) {
+                    if ($this->passwordRehash($password)) {
+                        $user->account->update([
+                            'id'       => $user->id,
+                            'password' => $this->passwordHash($password),
+                        ]);
+                    }
+
+                    $account = $user->account->getArrayCopy();
                 }
+            } elseif ($this->passwordVerify($password, $user->password)) {
+                $account = $user;
+            }
 
-                $account = $account->getArrayCopy();
-
+            if (isset($account)) {
                 foreach ($account as $key => $value) {
                     if (strpos($key, 'record') !== false) {
                         unset($account[ $key ]);
-                    } elseif (in_array($key, ['password', 'pin', 'token', 'sso'])) {
+                    } elseif (in_array($key,
+                        ['password', 'pin', 'token', 'sso', 'id_sys_user', 'id_sys_module', 'id_sys_module_role'])) {
                         unset($account[ $key ]);
                     }
                 }
@@ -88,6 +97,50 @@ class User extends \O2System\Security\Authentication\User
 
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * User::loggedIn
+     *
+     * @return bool
+     * @throws \O2System\Psr\Cache\InvalidArgumentException
+     */
+    public function loggedIn()
+    {
+        if (parent::loggedIn()) {
+            $account = new Account($_SESSION[ 'account' ]);
+
+            if ($user = models('users')->findWhere(['username' => $account->username], 1)) {
+                // Store Account Profile
+                if ($profile = $user->profile) {
+                    $account->store('profile', $profile);
+                }
+
+                // Store Account Role
+                if ($role = $user->role) {
+                    $account->store('role', new Role([
+                        'label'       => $role->label,
+                        'description' => $role->description,
+                        'code'        => $role->code,
+                        'authorities' => $role->authorities,
+                    ]));
+                }
+            }
+            
+            // Store Globals Account
+            globals()->store('account', $account);
+
+            // Store Presenter Account
+            if (services()->has('view')) {
+                presenter()->store('account', $account);
+            }
+
+            return true;
         }
 
         return false;
@@ -156,9 +209,9 @@ class User extends \O2System\Security\Authentication\User
      */
     public function authorize(ServerRequest $request)
     {
-        if (isset($_SESSION[ 'account' ][ 'role' ])) {
+        if (isset($GLOBALS[ 'account' ][ 'role' ])) {
             $uriSegments = $request->getUri()->getSegments()->getString();
-            $role = $_SESSION[ 'account' ][ 'role' ];
+            $role = $GLOBALS[ 'account' ][ 'role' ];
             if (in_array($role->code, ['DEVELOPER', 'ADMINISTRATOR'])) {
                 globals()->store('authority', new Authority([
                     'permission' => 'GRANTED',

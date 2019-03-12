@@ -34,10 +34,13 @@ class Result extends ArrayIterator
      */
     public $info;
 
+    // ------------------------------------------------------------------------
+
     /**
      * Result::__construct
      *
-     * @param array $rows
+     * @param \O2System\Database\DataObjects\Result $result
+     * @param \O2System\Framework\Models\Sql\Model  $model
      */
     public function __construct(\O2System\Database\DataObjects\Result $result, Model &$model)
     {
@@ -55,12 +58,14 @@ class Result extends ArrayIterator
     }
 
     // ------------------------------------------------------------------------
-
-    public function getInfo()
-    {
-        return $this->info;
-    }
-
+    
+    /**
+     * Result::setInfo
+     *
+     * @param \O2System\Database\DataObjects\Result\Info $info
+     *
+     * @return static
+     */
     public function setInfo(Info $info)
     {
         $this->info = $info;
@@ -68,6 +73,25 @@ class Result extends ArrayIterator
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Result::getInfo
+     * 
+     * @return \O2System\Database\DataObjects\Result\Info
+     */
+    public function getInfo()
+    {
+        return $this->info;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Result::pagination
+     * 
+     * @return \O2System\Framework\Libraries\Ui\Components\Pagination
+     */
     public function pagination()
     {
         $rows = $this->info->getTotal()->rows;

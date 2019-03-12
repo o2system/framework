@@ -101,17 +101,6 @@ class Modules extends SplArrayStack
         $this->autoloadHelpers($module);
 
         if ( ! in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
-            // Add Public Dir
-            loader()->addPublicDir($module->getPublicDir());
-            loader()->addPublicDir($module->getPublicDir() . 'assets' . DIRECTORY_SEPARATOR);
-
-            // Add Resources Dir
-            loader()->addResourceDir($module->getResourcesDir());
-            loader()->addResourceDir($module->getResourcesDir() . 'controllers' . DIRECTORY_SEPARATOR);
-            loader()->addResourceDir($module->getResourcesDir() . 'pages' . DIRECTORY_SEPARATOR);
-            loader()->addResourceDir($module->getResourcesDir() . 'modules' . DIRECTORY_SEPARATOR);
-            loader()->addResourceDir($module->getResourcesDir() . 'com' . DIRECTORY_SEPARATOR);
-            loader()->addResourceDir($module->getResourcesDir() . 'pages' . DIRECTORY_SEPARATOR);
 
             // Autoload Module Language
             language()
@@ -772,29 +761,63 @@ class Modules extends SplArrayStack
      *
      * Gets module directories
      *
-     * @param string $dirName
+     * @param string $subDir
      * @param bool   $reverse
      *
      * @return array
      */
-    public function getDirs($dirName, $reverse = false)
+    public function getDirs($subDir, $reverse = false)
     {
         $dirs = [];
-        $dirName = prepare_class_name($dirName);
-        $dirName = str_replace(
+        $subDir = prepare_class_name($subDir);
+        $subDir = str_replace(
             ['\\', '/'],
             DIRECTORY_SEPARATOR,
-            $dirName
+            $subDir
         );
 
         foreach ($this as $module) {
             if ($module instanceof DataStructures\Module) {
-                if (is_dir($dirPath = $module->getRealPath() . $dirName)) {
+                if (is_dir($dirPath = $module->getRealPath() . $subDir)) {
                     $dirs[] = $dirPath . DIRECTORY_SEPARATOR;
                 }
 
-                if (is_dir($dirPath = $module->getRealPath() . (is_cli() ? 'Cli' : 'Http') . DIRECTORY_SEPARATOR . $dirName)) {
+                if (is_dir($dirPath = $module->getRealPath() . (is_cli() ? 'Cli' : 'Http') . DIRECTORY_SEPARATOR . $subDir)) {
                     $dirs[] = $dirPath . DIRECTORY_SEPARATOR;
+                }
+            }
+        }
+
+        return $reverse === true ? array_reverse($dirs) : $dirs;
+    }
+
+
+    // ------------------------------------------------------------------------
+    
+    /**
+     * Modules::getResourcesDirs
+     *
+     * Gets module resources directories
+     *
+     * @param string $subDir
+     * @param bool   $reverse
+     *
+     * @return array
+     */
+    public function getResourcesDirs($subDir, $reverse = false)
+    {
+        $dirs = [];
+        $subDir = dash($subDir);
+        $subDir = str_replace(
+            ['\\', '/'],
+            DIRECTORY_SEPARATOR,
+            $subDir
+        );
+
+        foreach ($this as $module) {
+            if ($module instanceof DataStructures\Module) {
+                if(is_dir($dirPath = $module->getResourcesDir($subDir))) {
+                    $dirs[] = $dirPath;
                 }
             }
         }

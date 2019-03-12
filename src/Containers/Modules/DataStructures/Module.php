@@ -301,15 +301,29 @@ class Module extends SplDirectoryInfo
     /**
      * Module::getResourcesDir
      *
-     * @return string
+     * @param string|null $subDir
+     *
+     * @return bool|string
      */
-    public function getResourcesDir()
+    public function getResourcesDir($subDir = null)
     {
-        if ($this->getParameter() === DIR_APP) {
-            return PATH_RESOURCES;
+        $dirResources = PATH_RESOURCES;
+
+        $dirPath = str_replace(PATH_APP, '', $this->getRealPath());
+        $dirPathParts = explode(DIRECTORY_SEPARATOR, $dirPath);
+
+        if(count($dirPathParts)) {
+            $dirPathParts = array_map('dash', $dirPathParts);
+            $dirResources.= implode(DIRECTORY_SEPARATOR, $dirPathParts);
         }
 
-        return PATH_RESOURCES . $this->getParameter() . DIRECTORY_SEPARATOR;
+        if (is_null($subDir)) {
+            return $dirResources;
+        } elseif (is_dir($dirResources . $subDir . DIRECTORY_SEPARATOR)) {
+            return $dirResources . $subDir . DIRECTORY_SEPARATOR;
+        }
+
+        return false;
     }
 
     // ------------------------------------------------------------------------
@@ -327,7 +341,7 @@ class Module extends SplDirectoryInfo
         $theme = dash($theme);
 
         if ($failover === false) {
-            if (is_dir($themePath = $this->getResourcesDir() . 'themes' . DIRECTORY_SEPARATOR . $theme . DIRECTORY_SEPARATOR)) {
+            if (is_dir($themePath = $this->getResourcesDir('themes') . $theme . DIRECTORY_SEPARATOR)) {
                 $themeObject = new Module\Theme($themePath);
 
                 if ($themeObject->isValid()) {
@@ -392,17 +406,17 @@ class Module extends SplDirectoryInfo
     /**
      * Module::getDir
      *
-     * @param string $dirName
+     * @param string $subDir
      * @param bool   $psrDir
      *
      * @return bool|string
      */
-    public function getDir($dirName, $psrDir = false)
+    public function getDir($subDir, $psrDir = false)
     {
-        $dirName = $psrDir === true ? prepare_class_name($dirName) : $dirName;
-        $dirName = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $dirName);
+        $subDir = $psrDir === true ? prepare_class_name($subDir) : $subDir;
+        $subDir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $subDir);
 
-        if (is_dir($dirPath = $this->getRealPath() . $dirName)) {
+        if (is_dir($dirPath = $this->getRealPath() . $subDir)) {
             return $dirPath . DIRECTORY_SEPARATOR;
         }
 
@@ -420,8 +434,16 @@ class Module extends SplDirectoryInfo
      */
     public function hasTheme($theme)
     {
-        if (is_dir($this->getThemesPath() . $theme)) {
+        if (is_dir($this->getThemesDir() . $theme)) {
             return true;
+        } else {
+            foreach (modules() as $module) {
+                if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
+                    continue;
+                } elseif (is_dir($module->getResourcesDir('themes') . $theme)) {
+                    return true;
+                }
+            }
         }
 
         return false;
@@ -430,18 +452,13 @@ class Module extends SplDirectoryInfo
     // ------------------------------------------------------------------------
 
     /**
-     * Module::getThemesPath
+     * Module::getThemesDir
      *
      * @return string
      */
-    public function getThemesPath()
+    public function getThemesDir()
     {
-        if ($this->getParameter() === DIR_APP) {
-            return PATH_RESOURCES . 'themes' . DIRECTORY_SEPARATOR;
-        }
-
-        return PATH_RESOURCES . $this->getParameter() . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR;
-
+        return $this->getResourcesDir('themes');
     }
 
     // ------------------------------------------------------------------------

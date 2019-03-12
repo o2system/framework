@@ -349,8 +349,10 @@ class Framework extends Kernel
                 language()->loadFile($commander->getRequestMethod());
                 language()->loadFile($commander->getParameter() . '/' . $commander->getRequestMethod());
 
-                // Autoload Model
-                foreach ($this->modules as $module) {
+                $modules = $this->modules->getArrayCopy();
+
+                // Run Module Autoloader
+                foreach ($modules as $module) {
                     if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
                         continue;
                     }
@@ -431,7 +433,7 @@ class Framework extends Kernel
 
         if (config()->loadFile('view') === true) {
             // Instantiate Http UserAgent Service
-            $this->services->load(Framework\Http\UserAgent::class);
+            $this->services->load(Framework\Http\UserAgent::class, 'userAgent');
 
             // Instantiate Http View Service
             $this->services->load(Framework\Http\Parser::class);
@@ -465,19 +467,38 @@ class Framework extends Kernel
             $controllerParameter = dash($controller->getParameter());
             $controllerRequestMethod = dash($controller->getRequestMethod());
 
+            $modules = $this->modules->getArrayCopy();
+            
+            // Run Module Autoloader
+            foreach ($modules as $module) {
+                if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
+                    continue;
+                }
+
+                // Autoload Module Language
+                if ($this->services->has('language')) {
+                    language()->loadFile($module->getParameter());
+                }
+
+                // Autoload Module Model
+                $module->loadModel();
+
+                // Add View Resource Directory
+                if($this->services->has('view')) {
+                    view()->addFilePath($module->getResourcesDir());
+                    presenter()->assets->pushFilePath($module->getResourcesDir());
+                }
+            }
+            
+            if ($this->services->has('view')) {
+                presenter()->initialize();
+            }
+
             // Autoload Language
             if ($this->services->has('language')) {
                 language()->loadFile($controller->getParameter());
                 language()->loadFile($controller->getRequestMethod());
                 language()->loadFile($controller->getParameter() . '/' . $controller->getRequestMethod());
-            }
-
-            // Autoload Model
-            foreach ($this->modules as $module) {
-                if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
-                    continue;
-                }
-                $module->loadModel();
             }
 
             // Autoload Model
@@ -487,7 +508,6 @@ class Framework extends Kernel
                 $this->models->load($modelClassName, 'controller');
             }
 
-            // Autoload Assets
             if ($this->services->has('view')) {
                 // Autoload Presenter
                 $presenterClassName = str_replace('Controllers', 'Presenters', $controller->getName());
@@ -497,19 +517,6 @@ class Framework extends Kernel
                     if ($presenterClassObject instanceof Framework\Http\Presenter) {
                         $this->services->add($presenterClassObject, 'presenter');
                     }
-                }
-
-                // Initialize Presenter
-                presenter()->initialize();
-
-                // Autoload Assets
-                foreach ($this->modules as $module) {
-                    if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
-                        continue;
-                    }
-
-                    presenter()->assets->loadCss($module->getParameter());
-                    presenter()->assets->loadJs($module->getParameter());
                 }
             }
 
@@ -549,11 +556,8 @@ class Framework extends Kernel
 
             ob_start();
             $requestControllerOutput = $requestController->__call($requestMethod, $requestMethodArgs);
-
-            if (empty($requestControllerOutput)) {
-                $requestControllerOutput = ob_get_contents();
-                ob_end_clean();
-            }
+            $requestControllerOutput = ob_get_contents();
+            ob_end_clean();
 
             if (is_numeric($requestControllerOutput)) {
                 output()->sendError($requestControllerOutput);
@@ -566,7 +570,7 @@ class Framework extends Kernel
             } elseif (is_array($requestControllerOutput) or is_object($requestControllerOutput)) {
                 output()->sendPayload($requestControllerOutput);
             } elseif ($requestController instanceof Framework\Http\Controllers\Restful) {
-                if (empty($requestControllerOutput) or $requestControllerOutput === '') {
+                if (empty($requestControllerOutput)) {
                     $requestController->sendError(204);
                 } elseif (is_string($requestControllerOutput)) {
                     if (is_json($requestControllerOutput)) {
@@ -579,9 +583,11 @@ class Framework extends Kernel
                 }
             } elseif (is_string($requestControllerOutput)) {
                 if (is_json($requestControllerOutput)) {
-                    output()->setContentType('application/json');
+                    output()
+                        ->setContentType('application/json')
+                        ->send($requestControllerOutput);
                 } elseif ($this->services->has('view')) {
-                    if (empty($requestControllerOutput) or $requestControllerOutput === '') {
+                    if (empty($requestControllerOutput)) {
                         $filenames = [
                             $controllerRequestMethod,
                             $controllerParameter . DIRECTORY_SEPARATOR . $controllerRequestMethod,
@@ -602,13 +608,17 @@ class Framework extends Kernel
                     }
 
                     if (presenter()->partials->offsetExists('content')) {
-                        $htmlOutput = view()->render();
-
-                        if (empty($htmlOutput)) {
-                            output()->sendError(204);
+                        if(is_ajax()) {
+                            echo presenter()->partials->content;
                         } else {
-                            output()->setContentType('text/html');
-                            output()->send($htmlOutput);
+                            $htmlOutput = view()->render();
+
+                            if (empty($htmlOutput)) {
+                                output()->sendError(204);
+                            } else {
+                                output()->setContentType('text/html');
+                                output()->send($htmlOutput);
+                            }
                         }
                     } else {
                         output()->sendError(204);

@@ -25,32 +25,62 @@ use O2System\Framework\Models\Sql\Relations\Maps\Abstracts\AbstractMap;
  */
 class Intermediary extends AbstractMap
 {
+    /**
+     * Intermediary::$intermediaryModel
+     *
+     * @var \O2System\Framework\Models\Sql\Model
+     */
     public $intermediaryModel;
+
+    /**
+     * Intermediary::$intermediaryTable
+     *
+     * @var string
+     */
     public $intermediaryTable;
+
+    /**
+     * Intermediary::$intermediaryPrimaryKey
+     *
+     * @var string
+     */
+    public $intermediaryPrimaryKey;
+
+    /**
+     * Intermediary::$intermediaryCurrentForeignKey
+     *
+     * @var string
+     */
     public $intermediaryCurrentForeignKey;
+
+    /**
+     * Intermediary::$intermediaryReferenceForeignKey
+     *
+     * @var string
+     */
     public $intermediaryReferenceForeignKey;
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Intermediary::__construct
+     *
+     * @param \O2System\Framework\Models\Sql\Model        $currentModel
+     * @param string|\O2System\Framework\Models\Sql\Model $referenceModel
+     * @param string|\O2System\Framework\Models\Sql\Model $intermediaryModel
+     * @param string|null                                 $intermediaryCurrentForeignKey
+     * @param string|null                                 $intermediaryReferenceForeignKey
+     */
     public function __construct(
         Model $currentModel,
         $referenceModel,
-        $intermediaryModel = null,
+        $intermediaryModel,
         $intermediaryCurrentForeignKey = null,
         $intermediaryReferenceForeignKey = null
     ) {
-
-        $this->currentModel =& $currentModel;
-        $this->currentTable = $currentModel->table;
-        $this->currentPrimaryKey = $currentModel->primaryKey;
-
-        // Mapping Reference Model
+        // Mapping  Models
+        $this->mappingCurrentModel($currentModel);
         $this->mappingReferenceModel($referenceModel);
-
-        // Defined Current Foreign Key
-        $this->currentForeignKey = (isset($foreignKey) ? $foreignKey
-            : $this->currentForeignKey);
-
         $this->mappingIntermediaryModel($intermediaryModel);
 
         $this->intermediaryCurrentForeignKey = empty($intermediaryCurrentForeignKey)
@@ -64,14 +94,21 @@ class Intermediary extends AbstractMap
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Intermediary::mappingIntermediaryModel
+     *
+     * @param string|\O2System\Framework\Models\Sql\Model $intermediaryModel
+     */
     protected function mappingIntermediaryModel($intermediaryModel)
     {
         if ($intermediaryModel instanceof Model) {
             $this->intermediaryModel = $intermediaryModel;
             $this->intermediaryTable = $intermediaryModel->table;
+            $this->intermediaryPrimaryKey = $this->intermediaryModel->primaryKey;
         } elseif (class_exists($intermediaryModel)) {
-            $this->intermediaryModel = new $intermediaryModel();
-            $this->intermediaryTable = $intermediaryModel->table;
+            $this->intermediaryModel = models($intermediaryModel);
+            $this->intermediaryTable = $this->intermediaryModel->table;
+            $this->intermediaryPrimaryKey = $this->intermediaryModel->primaryKey;
         } else {
             $this->intermediaryModel = new class extends Model
             {

@@ -14,6 +14,7 @@
 namespace O2System\Framework\Http\Presenter;
 
 // ------------------------------------------------------------------------
+use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
 
 /**
  * Class Assets
@@ -22,6 +23,8 @@ namespace O2System\Framework\Http\Presenter;
  */
 class Assets
 {
+    use FilePathCollectorTrait;
+
     /**
      * Assets::$head
      *
@@ -43,7 +46,7 @@ class Assets
      */
     public function __construct()
     {
-        loader()->addPublicDir('assets', 'assets');
+        $this->addFilePath(PATH_RESOURCES);
 
         $this->head = new Assets\Positions\Head();
         $this->body = new Assets\Positions\Body();

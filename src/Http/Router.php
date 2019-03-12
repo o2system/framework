@@ -16,6 +16,7 @@ namespace O2System\Framework\Http;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Containers\Modules\DataStructures\Module as FrameworkModuleDataStructure;
+use O2System\Framework\Containers\Modules\DataStructures\Module;
 use O2System\Kernel\Http\Message\Uri as KernelMessageUri;
 use O2System\Kernel\Http\Message\Uri\Segments as KernelMessageUriSegments;
 use O2System\Kernel\Http\Router as KernelRouter;
@@ -104,25 +105,31 @@ class Router extends KernelRouter
         }
 
         // Module routing
-        if ($uriTotalSegments = count($uriSegments)) {
-            for ($i = 0; $i <= $uriTotalSegments; $i++) {
-                $uriRoutedSegments = array_diff($uriSegments,
-                    array_slice($uriSegments, ($uriTotalSegments - $i)));
-
-                if ( ! empty($app)) {
-                    if (reset($uriSegments) !== $app->getParameter()) {
-                        array_unshift($uriRoutedSegments, $app->getParameter());
-                    }
-                }
-
-                if (false !== ($module = modules()->getModule($uriRoutedSegments))) {
-                    $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
+        if ($numOfUriSegments = count($uriSegments)) {
+            if (empty($app)) {
+                if (false !== ($module = modules()->getModule( reset($uriSegments) ))) {
+                    //array_shift($uriSegments);
                     $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
                     $uriString = $this->uri->getSegments()->getString();
 
                     $this->registerModule($module);
+                }
+            }
 
-                    break;
+            if($numOfUriSegments = count($uriSegments)) {
+                for ($i = 0; $i <= $numOfUriSegments; $i++) {
+                    $uriRoutedSegments = array_diff($uriSegments,
+                        array_slice($uriSegments, ($numOfUriSegments - $i)));
+
+                    if (false !== ($module = modules()->getModule($uriRoutedSegments))) {
+                        $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
+                        $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
+                        $uriString = $this->uri->getSegments()->getString();
+
+                        $this->registerModule($module);
+
+                        break;
+                    }
                 }
             }
         }
@@ -182,9 +189,9 @@ class Router extends KernelRouter
         }
 
         // Try to get route from controller & page
-        if ($uriTotalSegments = count($uriSegments)) {
-            for ($i = 0; $i <= $uriTotalSegments; $i++) {
-                $uriRoutedSegments = array_slice($uriSegments, 0, ($uriTotalSegments - $i));
+        if ($numOfUriSegments = count($uriSegments)) {
+            for ($i = 0; $i <= $numOfUriSegments; $i++) {
+                $uriRoutedSegments = array_slice($uriSegments, 0, ($numOfUriSegments - $i));
                 $modules = modules()->getArrayCopy();
 
                 foreach ($modules as $module) {
@@ -193,14 +200,23 @@ class Router extends KernelRouter
                         $controllerNamespace = 'O2System\Framework\Http\Controllers\\';
                     }
 
-                    if (false !== ($pagesDir = $module->getDir('pages', true))) {
-                        $pageFilePath = $pagesDir . implode(DIRECTORY_SEPARATOR,
-                                array_map('dash', $uriRoutedSegments)) . '.phtml';
+                    /**
+                     * Try to find requested controller
+                     */
+                    if (class_exists($controllerClassName = $controllerNamespace . implode('\\',
+                            array_map('studlycase', $uriRoutedSegments)))) {
+                        $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
+                        $this->setController(new KernelControllerDataStructure($controllerClassName),
+                            $uriSegments);
 
-                        if ( ! class_exists($controllerClassName = $controllerNamespace . 'Pages')) {
-                            $controllerClassName = '\O2System\Framework\Http\Controllers\Pages';
-                        } else {
-                            $controller = new $controllerClassName();
+                        break;
+                    }
+
+                    /**
+                     * Try to find requested page
+                     */
+                    if (false !== ($pagesDir = $module->getResourcesDir('pages', true))) {
+                        if($controllerClassName = $this->getPagesControllerClassName()) {
 
                             /**
                              * Try to find from database
@@ -224,37 +240,32 @@ class Router extends KernelRouter
                                     }
                                 }
                             }
-                        }
 
-                        /**
-                         * Try to find from page file
-                         */
-                        if (is_file($pageFilePath)) {
-                            presenter()->page->setFile($pageFilePath);
-                        } else {
-                            $pageFilePath = str_replace('.phtml', DIRECTORY_SEPARATOR . 'index.phtml', $pageFilePath);
-                            if(is_file($pageFilePath)) {
+                            /**
+                             * Try to find from page file
+                             */
+                            $pageFilePath = $pagesDir . implode(DIRECTORY_SEPARATOR,
+                                    array_map('dash', $uriRoutedSegments)) . '.phtml';
+
+                            if (is_file($pageFilePath)) {
                                 presenter()->page->setFile($pageFilePath);
+                            } else {
+                                $pageFilePath = str_replace('.phtml', DIRECTORY_SEPARATOR . 'index.phtml', $pageFilePath);
+                                if(is_file($pageFilePath)) {
+                                    presenter()->page->setFile($pageFilePath);
+                                }
+                            }
+
+                            if(presenter()->page->file instanceof SplFileInfo) {
+                                $this->setController(
+                                    (new KernelControllerDataStructure($controllerClassName))
+                                        ->setRequestMethod('index')
+                                );
+
+                                return true;
+                                break;
                             }
                         }
-
-                        if(presenter()->page->file instanceof SplFileInfo) {
-                            $this->setController(
-                                (new KernelControllerDataStructure($controllerClassName))
-                                    ->setRequestMethod('index')
-                            );
-
-                            return true;
-                            break;
-                        }
-                    }
-
-                    if (class_exists($controllerClassName = $controllerNamespace . implode('\\',
-                            array_map('studlycase', $uriRoutedSegments)))) {
-                        $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
-                        $this->setController(new KernelControllerDataStructure($controllerClassName),
-                            $uriSegments);
-                        break;
                     }
                 }
 
@@ -266,7 +277,7 @@ class Router extends KernelRouter
             }
         }
 
-        if (class_exists($controllerClassName = modules()->current()->getDefaultControllerClassName())) {
+        if (class_exists($controllerClassName = modules()->top()->getDefaultControllerClassName())) {
             $this->setController(new KernelControllerDataStructure($controllerClassName),
                 $uriSegments);
 
@@ -275,6 +286,36 @@ class Router extends KernelRouter
 
         // Let's the framework do the rest when there is no controller found
         // the framework will redirect to PAGE 404
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Router::getPagesControllerClassName
+     *
+     * @return bool|string
+     */
+    final protected function getPagesControllerClassName()
+    {
+        $modules = modules()->getArrayCopy();
+
+        foreach($modules as $module) {
+            $controllerClassName = $module->getNamespace() . 'Controllers\Pages';
+            if ($module->getNamespace() === 'O2System\Framework\\') {
+                $controllerClassName = 'O2System\Framework\Http\Controllers\Pages';
+            }
+
+            if(class_exists($controllerClassName)) {
+                return $controllerClassName;
+                break;
+            }
+        }
+
+        if(class_exists('O2System\Framework\Http\Controllers\Pages')) {
+            return 'O2System\Framework\Http\Controllers\Pages';
+        }
+
+        return false;
     }
 
     // ------------------------------------------------------------------------

@@ -15,6 +15,8 @@ namespace O2System\Framework\Http\Presenter\Assets\Positions\Abstracts;
 
 // ------------------------------------------------------------------------
 
+use MatthiasMullie\Minify\CSS;
+use MatthiasMullie\Minify\JS;
 use O2System\Kernel\Http\Message\Uri;
 
 /**
@@ -76,6 +78,7 @@ abstract class AbstractPosition
     {
         foreach ($collections as $subDir => $files) {
             if (is_array($files) and count($files)) {
+
                 // normalize the subDirectory with a trailing separator
                 $subDir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $subDir);
                 $subDir = rtrim($subDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
@@ -139,114 +142,273 @@ abstract class AbstractPosition
     /**
      * AbstractPosition::loadFile
      *
-     * @param string $filePath
-     * @param string $subDir
+     * @param string      $filename
+     * @param string|null $subDir
      *
-     * @return bool
+     * @return void
      */
-    public function loadFile($filePath, $subDir = null)
+    abstract public function loadFile($filename, $subDir = null);
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractPosition::publishFile
+     *
+     * @param $filePath
+     *
+     * @return array
+     */
+    protected function publishFile($filePath)
     {
-        $publicDirectories = loader()->getPublicDirs(true);
-        $resourcesDirectories = loader()->getResourcesDirs(true);
+        $publicFilePath = str_replace(PATH_RESOURCES, PATH_PUBLIC, $filePath);
+        $publicFileDir = dirname($publicFilePath) . DIRECTORY_SEPARATOR;
 
-        $directories = array_merge($publicDirectories, $resourcesDirectories);
+        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
 
-        // set filepaths
-        foreach ($directories as $directory) {
-            $extension = pathinfo($directory . $filePath, PATHINFO_EXTENSION);
+        $publicMinifyFilePath = str_replace('.' . $extension, '.min.' . $extension, $publicFilePath);
 
-            if (empty($extension) and empty($subDir)) {
-                $extensions = ['.css', '.js'];
-            } elseif (empty($extension) and isset($subDir)) {
-                switch ($subDir) {
-                    default:
-                    case 'css' . DIRECTORY_SEPARATOR:
-                        $property = 'css';
-                        $extensions = ['.css'];
-                        break;
-                    case 'font' . DIRECTORY_SEPARATOR:
-                    case 'fonts' . DIRECTORY_SEPARATOR:
-                        $property = 'font';
-                        $extensions = ['.css'];
-                        break;
-                    case 'js' . DIRECTORY_SEPARATOR:
-                    case 'javascript' . DIRECTORY_SEPARATOR:
-                    case 'javascripts' . DIRECTORY_SEPARATOR:
-                        $property = 'javascript';
-                        $extensions = ['.js'];
-                        break;
-                }
-            } else {
-                // remove filename extension
-                $filePath = str_replace('.' . $extension, '', $filePath);
-                switch ($extension) {
-                    default:
-                    case 'css':
-                        $property = 'css';
-                        $subDir = 'css' . DIRECTORY_SEPARATOR;
-                        $extensions = ['.css'];
-                        break;
-                    case 'font':
-                        $property = 'font';
-                        $subDir = 'fonts' . DIRECTORY_SEPARATOR;
-                        $extensions = ['.css'];
-                        break;
-                    case 'js':
-                    case 'javascript':
-                        $property = 'javascript';
-                        $subDir = 'js' . DIRECTORY_SEPARATOR;
-                        $extensions = ['.js'];
-                        break;
-                }
+        $fileContent = file_get_contents($filePath);
+        $fileVersion = $this->getVersion($fileContent);
+        
+        if (is_file($mapFilePath = $publicFilePath . '.map')) {
+            $mapMetadata = json_decode(file_get_contents($mapFilePath), true);
+            // if the file version is changed delete it first
+            if ( ! hash_equals($fileVersion, $mapMetadata[ 'version' ])) {
+                unlink($publicFilePath);
+                unlink($publicMinifyFilePath);
+                unlink($mapFilePath);
             }
+        }
 
-            foreach ($extensions as $extension) {
-                // without subdirectory
-                if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
-                    $filePaths[] = $directory . $filePath . '.min' . $extension; // minify version support
+        if ( ! is_file($mapFilePath)) {
+            if ( ! empty($fileContent)) {
+                $mapMetadata = [
+                    'version'        => $fileVersion,
+                    'sources'        => [
+                        $filePath,
+                    ],
+                    'names'          => [],
+                    'mappings'       => [],
+                    'file'           => pathinfo($publicMinifyFilePath, PATHINFO_BASENAME),
+                    'sourcesContent' => [
+                        $fileContent,
+                    ],
+                    'sourceRoot'     => '',
+                ];
+                
+                if ( ! is_dir($publicFileDir)) {
+                    @mkdir($publicFileDir, 0777, true);
                 }
 
-                $filePaths[] = $directory . $filePath . $extension;
+                if (is_writable($publicFileDir)) {
+                    if ($fileStream = @fopen($publicFilePath, 'ab')) {
+                        flock($fileStream, LOCK_EX);
+                        fwrite($fileStream, $fileContent);
+                        flock($fileStream, LOCK_UN);
+                        fclose($fileStream);
 
-                // with subdirectory
-                if (isset($subDir)) {
-                    if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
-                        $filePaths[] = $directory . $subDir . $filePath . '.min' . $extension; // minify version support
+                        // File Map
+                        if ($fileStream = @fopen($mapFilePath, 'ab')) {
+                            flock($fileStream, LOCK_EX);
+
+                            fwrite($fileStream, json_encode($mapMetadata));
+
+                            flock($fileStream, LOCK_UN);
+                            fclose($fileStream);
+                        }
+
+                        switch ($extension) {
+                            case 'min.css':
+                            case 'css':
+                                $minifyStyleHandler = new CSS($publicFilePath);
+                                $minifyStyleHandler->minify($publicMinifyFilePath);
+                                break;
+
+                            case 'min.js':
+                            case 'js':
+                                $minifyJavascriptHandler = new JS($publicFilePath);
+                                $minifyJavascriptHandler->minify($publicMinifyFilePath);
+                                break;
+                        }
+
                     }
-
-                    $filePaths[] = $directory . $subDir . $filePath . $extension;
                 }
             }
         }
 
-        foreach ($filePaths as $filePath) {
-            $filePath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $filePath);
+        return [
+            'filePath' => $publicFilePath,
+            'url'      => $this->getUrl($publicFilePath),
+            'minify'   => [
+                'filePath' => $publicMinifyFilePath,
+                'url'      => $this->getUrl($publicMinifyFilePath),
+            ],
+            'version'  => $fileVersion,
+        ];
+    }
 
-            if (is_file($filePath)) {
-                if (empty($property)) {
-                    $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-                    switch ($extension) {
-                        case 'font':
-                            $extension = 'font';
-                            break;
-                        case 'js':
-                            $extension = 'javascript';
-                            break;
-                        default:
-                        case 'css':
-                            $extension = 'css';
-                            break;
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractPosition::bundleFile
+     *
+     * @param string $filename
+     * @param array  $sources
+     *
+     * @return array
+     */
+    protected function bundleFile($filename, array $sources)
+    {
+        $sourcesContent = [];
+        foreach ($sources as $key => $source) {
+            $content = file_get_contents($source);
+
+            if ( ! empty($content)) {
+                $sourcesContent[] = $content;
+            } else {
+                unset($sources[ $key ]);
+            }
+        }
+
+        $fileContent = implode(PHP_EOL, $sourcesContent);
+        $fileVersion = $this->getVersion($fileContent);
+
+        $publicFilePath = PATH_PUBLIC . $filename;
+        $filename = pathinfo($publicFilePath, PATHINFO_BASENAME);
+
+        $publicFileDir = dirname($publicFilePath) . DIRECTORY_SEPARATOR . 'bundled' . DIRECTORY_SEPARATOR;
+        $publicFilePath = $publicFileDir . $filename;
+
+        $extension = pathinfo($publicFilePath, PATHINFO_EXTENSION);
+
+        $publicMinifyFilePath = str_replace('.' . $extension, '.min.' . $extension, $publicFilePath);
+
+        if ( ! empty($sourcesContent)) {
+            if (is_file($mapFilePath = $publicFilePath . '.map')) {
+                $mapMetadata = json_decode(file_get_contents($mapFilePath), true);
+                // if the file version is changed delete it first
+                if ( ! hash_equals($fileVersion, $mapMetadata[ 'version' ])) {
+                    unlink($publicFilePath);
+                    unlink($publicMinifyFilePath);
+                    unlink($mapFilePath);
+                }
+            }
+
+            if ( ! is_file($mapFilePath)) {
+                if ( ! empty($fileContent)) {
+                    $mapMetadata = [
+                        'version'        => $fileVersion,
+                        'sources'        => $sources,
+                        'names'          => [],
+                        'mappings'       => [],
+                        'file'           => pathinfo($publicMinifyFilePath, PATHINFO_BASENAME),
+                        'sourcesContent' => $sourcesContent,
+                        'sourceRoot'     => '',
+                    ];
+
+                    if ( ! is_writable($publicFileDir)) {
+                        @mkdir($publicFileDir, 0777, true);
+                    }
+
+                    if (is_writable($publicFileDir)) {
+                        if ($fileStream = @fopen($publicFilePath, 'ab')) {
+                            flock($fileStream, LOCK_EX);
+                            fwrite($fileStream, $fileContent);
+                            flock($fileStream, LOCK_UN);
+                            fclose($fileStream);
+
+                            // File Map
+                            if ($fileStream = @fopen($mapFilePath, 'ab')) {
+                                flock($fileStream, LOCK_EX);
+
+                                fwrite($fileStream, json_encode($mapMetadata));
+
+                                flock($fileStream, LOCK_UN);
+                                fclose($fileStream);
+                            }
+
+                            switch ($extension) {
+                                case 'min.css':
+                                case 'css':
+                                    $minifyStyleHandler = new CSS($publicFilePath);
+                                    $minifyStyleHandler->minify($publicMinifyFilePath);
+                                    break;
+
+                                case 'min.js':
+                                case 'js':
+                                    $minifyJavascriptHandler = new JS($publicFilePath);
+                                    $minifyJavascriptHandler->minify($publicMinifyFilePath);
+                                    break;
+                            }
+
+                        }
                     }
                 }
+            }
+        }
 
-                if (property_exists($this, $property)) {
-                    if ( ! call_user_func_array([$this->{$property}, 'has'], [$filePath])) {
-                        $this->{$property}->append($filePath);
+        return [
+            'filePath' => $publicFilePath,
+            'url'      => $this->getUrl($publicFilePath),
+            'minify'   => [
+                'filePath' => $publicMinifyFilePath,
+                'url'      => $this->getUrl($publicMinifyFilePath),
+            ],
+            'version'  => $fileVersion,
+        ];
+    }
 
-                        return true;
-                        break;
-                    }
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractPosition::getFilePath
+     *
+     * @param string      $filename
+     * @param string|null $subDir
+     *
+     * @return string
+     */
+    protected function getFilePath($filename, $subDir = null)
+    {
+        $directories = presenter()->assets->getFilePaths();
+        
+        foreach ($directories as $directory) {
+
+            /**
+             * Try with sub directory
+             * find from public directory first then resource directory
+             */
+            if (isset($subDir)) {
+                $subDir = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $subDir);
+
+                if (is_file($filePath = str_replace(PATH_RESOURCES, PATH_PUBLIC,
+                        $directory) . $subDir . $filename)) {
+                    return $filePath;
+                    break;
+                } elseif (is_file($filePath = str_replace(PATH_RESOURCES, PATH_PUBLIC . 'assets' . DIRECTORY_SEPARATOR,
+                        $directory) . $subDir . $filename)) {
+                    return $filePath;
+                    break;
+                } elseif (is_file($filePath = $directory . $subDir . $filename)) {
+                    return $filePath;
+                    break;
                 }
+            }
+
+            /**
+             * Try without sub directory
+             * find from public directory first then resource directory
+             */
+            if (is_file($filePath = str_replace(PATH_RESOURCES, PATH_PUBLIC, $directory) . $filename)) {
+                return $filePath;
+                break;
+            } elseif (is_file($filePath = str_replace(PATH_RESOURCES, PATH_PUBLIC . 'assets' . DIRECTORY_SEPARATOR,
+                    $directory) . $filename)) {
+                return $filePath;
+                break;
+            } elseif (is_file($filePath = $directory . $filename)) {
+                return $filePath;
+                break;
             }
         }
 

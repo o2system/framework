@@ -15,8 +15,6 @@ namespace O2System\Framework\Http\Presenter\Assets\Positions;
 
 // ------------------------------------------------------------------------
 
-use MatthiasMullie\Minify\CSS;
-use MatthiasMullie\Minify\JS;
 use O2System\Framework\Http\Presenter\Assets\Collections;
 
 /**
@@ -27,25 +25,25 @@ use O2System\Framework\Http\Presenter\Assets\Collections;
 class Head extends Abstracts\AbstractPosition
 {
     /**
-     * Head::$font
+     * Head::$fonts
      *
-     * @var \O2System\Framework\Http\Presenter\Assets\Collections\Font
+     * @var \O2System\Framework\Http\Presenter\Assets\Collections\Fonts
      */
-    protected $font;
+    protected $fonts;
 
     /**
-     * Head::$css
+     * Head::$styles
      *
-     * @var \O2System\Framework\Http\Presenter\Assets\Collections\Css
+     * @var \O2System\Framework\Http\Presenter\Assets\Collections\Styles
      */
-    protected $css;
+    protected $styles;
 
     /**
-     * Head::$javascript
+     * Head::$javascripts
      *
-     * @var \O2System\Framework\Http\Presenter\Assets\Collections\Javascript
+     * @var \O2System\Framework\Http\Presenter\Assets\Collections\Javascripts
      */
-    protected $javascript;
+    protected $javascripts;
 
     // ------------------------------------------------------------------------
 
@@ -54,9 +52,128 @@ class Head extends Abstracts\AbstractPosition
      */
     public function __construct()
     {
-        $this->font = new Collections\Font();
-        $this->css = new Collections\Css();
-        $this->javascript = new Collections\Javascript();
+        $this->fonts = new Collections\Fonts();
+        $this->styles = new Collections\Styles();
+        $this->javascripts = new Collections\Javascripts();
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Head::loadFile
+     *
+     * @param string      $filename
+     * @param string|null $subDir
+     *
+     * @return void
+     */
+    public function loadFile($filename, $subDir = null)
+    {
+        if (is_file($filename)) {
+            if (strpos($filename, 'font') !== false) {
+                $this->fonts->append($filename);
+            } else {
+                $type = pathinfo($filename, PATHINFO_EXTENSION);
+
+                switch ($type) {
+                    case 'css':
+                        $this->styles->append($filename);
+                        break;
+
+                    case 'js':
+                        $this->javascripts->append($filename);
+                        break;
+                }
+            }
+        } elseif (isset($subDir)) {
+            $type = pathinfo($filename, PATHINFO_EXTENSION);
+
+            if (empty($type)) {
+                $type = substr($subDir, 0, -1);
+            }
+
+            switch ($type) {
+                case 'css':
+                    if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
+                        if (false !== ($filePath = $this->getFilePath($filename . '.min.css', $subDir))) {
+                            $this->styles->append($filePath);
+                        }
+                    } else {
+                        if (false !== ($filePath = $this->getFilePath($filename . '.css', $subDir))) {
+                            $this->styles->append($filePath);
+                        }
+                    }
+                    break;
+
+                case 'fonts':
+                    if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
+                        if (false !== ($filePath = $this->getFilePath($filename . '.min.css', $subDir))) {
+                            $this->fonts->append($filePath);
+                        }
+                    } else {
+                        if (false !== ($filePath = $this->getFilePath($filename . '.css', $subDir))) {
+                            $this->fonts->append($filePath);
+                        }
+                    }
+                    break;
+
+                case 'js':
+                    if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
+                        if (false !== ($filePath = $this->getFilePath($filename . '.min.js', $subDir))) {
+                            $this->styles->append($filePath);
+                        }
+                    } else {
+                        if (false !== ($filePath = $this->getFilePath($filename . '.js', $subDir))) {
+                            $this->styles->append($filePath);
+                        }
+                    }
+                    break;
+            }
+        } else {
+            $type = pathinfo($filename, PATHINFO_EXTENSION);
+
+            if (empty($type)) {
+                if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
+                    // Search Style or Font
+                    if (false !== ($filePath = $this->getFilePath($filename . '.min.css'))) {
+                        $this->styles->append($filePath);
+                    } elseif (false !== ($filePath = $this->getFilePath($filename . '.min.css'))) {
+                        $this->fonts->append($filePath);
+                    }
+
+                    // Search Javascript
+                    if (false !== ($filePath = $this->getFilePath($filename . '.min.js'))) {
+                        $this->javascripts->append($filePath);
+                    }
+                } else {
+                    // Search Style or Font
+                    if (false !== ($filePath = $this->getFilePath($filename . '.css'))) {
+                        $this->styles->append($filePath);
+                    } elseif (false !== ($filePath = $this->getFilePath($filename . '.css'))) {
+                        $this->fonts->append($filePath);
+                    }
+
+                    // Search Javascript
+                    if (false !== ($filePath = $this->getFilePath($filename . '.js'))) {
+                        $this->javascripts->append($filePath);
+                    }
+                }
+            } else {
+                switch ($type) {
+                    case 'css':
+                        if (false !== ($filePath = $this->getFilePath($filename))) {
+                            $this->styles->append($filePath);
+                        }
+                        break;
+
+                    case 'js':
+                        if (false !== ($filePath = $this->getFilePath($filename))) {
+                            $this->javascripts->append($filePath);
+                        }
+                        break;
+                }
+            }
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -71,227 +188,108 @@ class Head extends Abstracts\AbstractPosition
         $output = [];
 
         // Render fonts
-        if ($this->font->count()) {
+        if ($this->fonts->count()) {
 
-            $bundleFontCollection = $this->font->getArrayCopy();
-            $bundleFontVersion = $this->getVersion(serialize($bundleFontCollection));
-            $bundleFontFilePath = PATH_PUBLIC . 'assets' . DIRECTORY_SEPARATOR . 'fonts.css';
-            $bundleFontMinifyFilePath = PATH_PUBLIC . 'assets' . DIRECTORY_SEPARATOR . 'fonts.min.css';
+            $bundleFontsFile = $this->bundleFile('assets' . DIRECTORY_SEPARATOR . 'fonts.css',
+                implode(PHP_EOL, $this->fonts));
 
-            if (is_file($bundleFontFilePath . '.map')) {
-                $bundleFontMap = json_decode(file_get_contents($bundleFontFilePath . '.map'), true);
-                // if the file version is changed delete it first
-                if ( ! hash_equals($bundleFontVersion, $bundleFontMap[ 'version' ])) {
-                    unlink($bundleFontFilePath);
-                    unlink($bundleFontFilePath . '.map');
-                }
-            }
-
-            if ( ! is_file($bundleFontFilePath)) {
-                $bundleFontMap = [
-                    'version' => $bundleFontVersion,
-                ];
-
-                // Create css font file
-                if ($bundleFileStream = @fopen($bundleFontFilePath, 'ab')) {
-                    flock($bundleFileStream, LOCK_EX);
-
-                    foreach ($this->font as $font) {
-                        $bundleFontMap[ 'sources' ][] = $font;
-                        fwrite($bundleFileStream, file_get_contents($font));
-                    }
-
-                    flock($bundleFileStream, LOCK_UN);
-                    fclose($bundleFileStream);
-                }
-
-                // Create css font map
-                if ($bundleFileStream = @fopen($bundleFontFilePath . '.map', 'ab')) {
-                    flock($bundleFileStream, LOCK_EX);
-
-                    fwrite($bundleFileStream, json_encode($bundleFontMap));
-
-                    flock($bundleFileStream, LOCK_UN);
-                    fclose($bundleFileStream);
-                }
-
-                // Create css font file minify version
-                $minifyFontHandler = new CSS($bundleFontFilePath);
-                $minifyFontHandler->minify($bundleFontMinifyFilePath);
-            }
-
-            if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
-                $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $this->getUrl($bundleFontMinifyFilePath) . '?v=' . $bundleFontVersion . '">';
-            } else {
-                $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $this->getUrl($bundleFontFilePath) . '?v=' . $bundleFontVersion . '">';
-            }
-        }
-
-        $unbundledFilename = ['app', 'app.min', 'theme', 'theme.min'];
-
-        // Render css
-        if ($this->css->count()) {
-            $bundleCssContents = [];
-
-            foreach ($this->css as $css) {
-                if (in_array(pathinfo($css, PATHINFO_FILENAME), $unbundledFilename)) {
-                    $cssVersion = $this->getVersion($css);
-                    $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $this->getUrl($css) . '?v=' . $cssVersion . '">';
-                } else {
-                    $bundleCssMap[ 'sources' ][] = $css;
-                    $bundleCssContents[] = file_get_contents($css);
-                }
-            }
-
-            // Bundled Css
-            $bundleCssVersion = $this->getVersion(serialize($bundleCssContents));
-
-            if(presenter()->page->file instanceof \SplFileInfo) {
-                if(presenter()->page->file->getFilename() === 'index') {
-                    $bundleJsFilename = 'body-' . presenter()->page->file->getDirectoryInfo()->getDirName();
-                } else {
-                    $bundleJsFilename = 'body-' . presenter()->page->file->getDirectoryInfo()->getDirName() . '-' . presenter()->page->file->getFilename();
-                }
-            } elseif(services()->has('controller')) {
-                $bundleJsFilename = 'body-' . controller()->getParameter();
-
-                if(controller()->getRequestMethod() !== 'index') {
-                    $bundleJsFilename.= '-' . controller()->getRequestMethod();
-                }
-            } else {
-                $bundleJsFilename = 'body-' . md5($bundleCssVersion);
-            }
-
-            $bundlePublicDir = modules()->current()->getPublicDir() . 'assets' . DIRECTORY_SEPARATOR;
-            $bundleCssFilePath = $bundlePublicDir . $bundleJsFilename . '.css';
-            $bundleCssMinifyFilePath = $bundlePublicDir . $bundleJsFilename . '.min.css';
-
-            if (is_file($bundleCssFilePath . '.map')) {
-                $bundleCssMap = json_decode(file_get_contents($bundleCssFilePath . '.map'), true);
-                // if the file version is changed delete it first
-                if ( ! hash_equals($bundleCssVersion, $bundleCssMap[ 'version' ])) {
-                    unlink($bundleCssFilePath);
-                    unlink($bundleCssFilePath . '.map');
-                }
-            }
-
-            if ( ! is_file($bundleCssFilePath)) {
-                $bundleCssMap[ 'version' ] = $bundleCssVersion;
-
-                // Create css file
-                if (count($bundleCssContents)) {
-                    if ($bundleFileStream = @fopen($bundleCssFilePath, 'ab')) {
-                        flock($bundleFileStream, LOCK_EX);
-                        fwrite($bundleFileStream, implode(PHP_EOL, $bundleCssContents));
-                        flock($bundleFileStream, LOCK_UN);
-                        fclose($bundleFileStream);
-
-                        // Create css map
-                        if ($bundleFileStream = @fopen($bundleCssFilePath . '.map', 'ab')) {
-                            flock($bundleFileStream, LOCK_EX);
-
-                            fwrite($bundleFileStream, json_encode($bundleCssMap));
-
-                            flock($bundleFileStream, LOCK_UN);
-                            fclose($bundleFileStream);
-                        }
-
-                        // Create css file minify version
-                        $minifyCssHandler = new CSS($bundleCssFilePath);
-                        $minifyCssHandler->minify($bundleCssMinifyFilePath);
-                    }
-                }
-            }
-
-            // Add link css
-            if (is_file($bundleCssFilePath)) {
+            if (is_file($bundleFontsFile[ 'filePath' ])) {
                 if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
-                    $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $this->getUrl($bundleCssMinifyFilePath) . '?v=' . $bundleCssVersion . '">';
+                    $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $bundleFontsFile[ 'url' ] . '?v=' . $bundleFontsFile[ 'version' ] . '">';
                 } else {
-                    $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $this->getUrl($bundleCssFilePath) . '?v=' . $bundleCssVersion . '">';
+                    $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $bundleFontsFile[ 'url' ] . '?v=' . $bundleFontsFile[ 'version' ] . '">';
                 }
             }
         }
 
-        // Render js
-        if ($this->javascript->count()) {
-            $bundleJsContents = [];
+        $unbundledFilenames = ['app', 'app.min', 'theme', 'theme.min'];
 
-            foreach ($this->javascript as $js) {
-                if (in_array(pathinfo($js, PATHINFO_FILENAME), $unbundledFilename)) {
-                    $jsVersion = $this->getVersion($js);
-                    $output[] = '<script type="text/javascript" src="' . $this->getUrl($js) . '?v=' . $jsVersion . '"></script>';
-                } else {
-                    $bundleJsMap[ 'sources' ][] = $js;
-                    $bundleJsContents[] = file_get_contents($js);
-                }
-            }
-
-            // Bundled Js
-            $bundleJsVersion = $this->getVersion(serialize($bundleJsContents));
-
-            if(presenter()->page->file instanceof \SplFileInfo) {
-                if(presenter()->page->file->getFilename() === 'index') {
-                    $bundleJsFilename = 'body-' . presenter()->page->file->getDirectoryInfo()->getDirName();
-                } else {
-                    $bundleJsFilename = 'body-' . presenter()->page->file->getDirectoryInfo()->getDirName() . '-' . presenter()->page->file->getFilename();
-                }
-            } elseif(services()->has('controller')) {
-                $bundleJsFilename = 'body-' . controller()->getParameter();
-
-                if(controller()->getRequestMethod() !== 'index') {
-                    $bundleJsFilename.= '-' . controller()->getRequestMethod();
-                }
+        if (presenter()->page->file instanceof \SplFileInfo) {
+            if (presenter()->page->file->getFilename() === 'index') {
+                $bundleFilename = 'head-' . presenter()->page->file->getDirectoryInfo()->getDirName();
             } else {
-                $bundleJsFilename = 'body-' . md5($bundleJsVersion);
+                $bundleFilename = 'head-' . presenter()->page->file->getDirectoryInfo()->getDirName() . '-' . presenter()->page->file->getFilename();
             }
+        } elseif (services()->has('controller')) {
+            $bundleFilename = 'head-' . controller()->getParameter();
 
-            $bundlePublicDir = modules()->current()->getPublicDir() . 'assets' . DIRECTORY_SEPARATOR;
-            $bundleJsFilePath = $bundlePublicDir . $bundleJsFilename . '.js';
-            $bundleJsMinifyFilePath = $bundlePublicDir . $bundleJsFilename . '.min.js';
+            if (controller()->getRequestMethod() !== 'index') {
+                $bundleFilename .= '-' . controller()->getRequestMethod();
+            }
+        } else {
+            $bundleFilename = 'head-' . uniqid();
+        }
 
-            if (is_file($bundleJsFilePath . '.map')) {
-                $bundleJsMap = json_decode(file_get_contents($bundleJsFilePath . '.map'), true);
-                // if the file version is changed delete it first
-                if ( ! hash_equals($bundleJsVersion, $bundleJsMap[ 'version' ])) {
-                    unlink($bundleJsFilePath);
-                    unlink($bundleJsFilePath . '.map');
+        $bundleFilename = 'assets' . DIRECTORY_SEPARATOR . $bundleFilename;
+        
+        // Render style
+        if ($this->styles->count()) {
+            $bundleStyleSources = [];
+
+            foreach ($this->styles as $style) {
+                if (in_array(pathinfo($style, PATHINFO_FILENAME), $unbundledFilenames)) {
+                    $fileVersion = $this->getVersion(filemtime($style));
+                    $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $this->getUrl($style) . '?v=' . $fileVersion . '">';
+                } elseif (in_array(pathinfo($style, PATHINFO_FILENAME), ['module', 'module.min'])) {
+                    $modulePublicFile = $this->publishFile($style);
+                    
+                    if (is_file($modulePublicFile[ 'filePath' ])) {
+                        if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
+                            $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $modulePublicFile[ 'minify' ][ 'url' ] . '?v=' . $modulePublicFile[ 'version' ] . '">';
+                        } else {
+                            $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $modulePublicFile[ 'url' ] . '?v=' . $modulePublicFile[ 'version' ] . '">';
+                        }
+                    }
+                } else {
+                    $bundleStyleSources[] = $style;
                 }
             }
 
-            if ( ! is_file($bundleJsFilePath)) {
-                $bundleJsMap[ 'version' ] = $bundleJsVersion;
+            if (count($bundleStyleSources)) {
+                $bundleStylePublicFile = $this->bundleFile($bundleFilename . '.css', $bundleStyleSources);
 
-                // Create css file
-                if (count($bundleJsContents)) {
-                    if ($bundleFileStream = @fopen($bundleJsFilePath, 'ab')) {
-                        flock($bundleFileStream, LOCK_EX);
-                        fwrite($bundleFileStream, implode(PHP_EOL, $bundleJsContents));
-                        flock($bundleFileStream, LOCK_UN);
-                        fclose($bundleFileStream);
-
-                        // Create css map
-                        if ($bundleFileStream = @fopen($bundleJsFilePath . '.map', 'ab')) {
-                            flock($bundleFileStream, LOCK_EX);
-
-                            fwrite($bundleFileStream, json_encode($bundleJsMap));
-
-                            flock($bundleFileStream, LOCK_UN);
-                            fclose($bundleFileStream);
-                        }
-
-                        // Create javascript file minify version
-                        $minifyJsHandler = new JS($bundleJsFilePath);
-                        $minifyJsHandler->minify($bundleJsMinifyFilePath);
+                if (is_file($bundleStylePublicFile[ 'filePath' ])) {
+                    if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
+                        $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $bundleStylePublicFile[ 'minify' ][ 'url' ] . '?v=' . $bundleStylePublicFile[ 'version' ] . '">';
+                    } else {
+                        $output[] = '<link rel="stylesheet" type="text/css" media="all" href="' . $bundleStylePublicFile[ 'url' ] . '?v=' . $bundleStylePublicFile[ 'version' ] . '">';
                     }
                 }
             }
+        }
 
-            if(is_file($bundleJsFilePath)) {
-                if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
-                    $output[] = '<script type="text/javascript" src="' . $this->getUrl($bundleJsMinifyFilePath) . '?v=' . $bundleJsVersion . '"></script>';
+        // Render javascript
+        if ($this->javascripts->count()) {
+            $bundleJavascriptSources = [];
+
+            foreach ($this->javascripts as $javascript) {
+                if (in_array(pathinfo($style, PATHINFO_FILENAME), $unbundledFilenames)) {
+                    $fileVersion = $this->getVersion(filemtime($javascript));
+                    $output[] = '<script type="text/javascript" id="js-'.pathinfo($javascript, PATHINFO_FILENAME).'" src="' . $this->getUrl($javascript) . '?v=' . $fileVersion . '"></script>';
+                } elseif (in_array(pathinfo($javascript, PATHINFO_FILENAME), ['module', 'module.min'])) {
+                    $modulePublicFile = $this->publishFile($javascript);
+                    
+                    if (is_file($modulePublicFile[ 'filePath' ])) {
+                        if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
+                            $output[] = '<script type="text/javascript" id="js-module" src="' . $modulePublicFile[ 'minify' ][ 'url' ] . '?v=' . $modulePublicFile[ 'version' ] . '"></script>';
+                        } else {
+                            $output[] = '<script type="text/javascript" id="js-module" src="' . $modulePublicFile[ 'url' ] . '?v=' . $modulePublicFile[ 'version' ] . '"></script>';
+                        }
+                    }
                 } else {
-                    $output[] = '<script type="text/javascript" src="' . $this->getUrl($bundleJsFilePath) . '?v=' . $bundleJsVersion . '"></script>';
+                    $bundleJavascriptSources[] = $javascript;
+                }
+            }
+
+            if (count($bundleJavascriptSources)) {
+                $bundleJavascriptPublicFile = $this->bundleFile($bundleFilename . '.js', $bundleJavascriptSources);
+
+                if (is_file($bundleJavascriptPublicFile[ 'filePath' ])) {
+                    if (input()->env('DEBUG_STAGE') === 'PRODUCTION') {
+                        $output[] = '<script type="text/javascript" id="js-bundle" src="' . $bundleJavascriptPublicFile[ 'minify' ][ 'url' ] . '?v=' . $bundleJavascriptPublicFile[ 'version' ] . '"></script>';
+                    } else {
+                        $output[] = '<script type="text/javascript" id="js-bundle" src="' . $bundleJavascriptPublicFile[ 'url' ] . '?v=' . $bundleJavascriptPublicFile[ 'version' ] . '"></script>';
+                    }
                 }
             }
         }

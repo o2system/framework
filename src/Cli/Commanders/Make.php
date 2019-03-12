@@ -123,7 +123,7 @@ class Make extends Commander
         $name = str_replace('.php', '', $name);
         $this->optionFilename = prepare_filename($name) . '.php';
 
-        $this->optionPath = empty($this->optionPath) ? modules()->current()->getRealPath() : $this->optionPath;
+        $this->optionPath = empty($this->optionPath) ? modules()->top()->getRealPath() : $this->optionPath;
     }
 
     // ------------------------------------------------------------------------

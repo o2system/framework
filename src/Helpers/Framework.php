@@ -194,8 +194,10 @@ if ( ! function_exists('models')) {
     {
         $args = func_get_args();
 
-        if (count($args)) {
-            return o2system()->models->get($args[ 0 ]);
+        if (count($args) == 1) {
+            return o2system()->models->autoload($args[ 0 ]);
+        } else if (count($args) == 2) {
+            return o2system()->models->autoload($args[ 0 ], $args[ 1 ]);
         }
 
         return o2system()->models;

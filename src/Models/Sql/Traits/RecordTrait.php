@@ -53,7 +53,7 @@ trait RecordTrait
      */
     protected $recordOrdering = false;
 
-    protected function setRecordUser($idUser)
+    public function setRecordUser($idUser)
     {
         if (is_numeric($idUser)) {
             $this->recordUser = $idUser;
@@ -62,11 +62,11 @@ trait RecordTrait
         return $this;
     }
 
-    protected function setRecordStatus($status)
+    public function setRecordStatus($status)
     {
         $status = strtoupper($status);
 
-        if (in_array($status, ['UNPUBLISH', 'PUBLISH', 'DRAFT', 'DELETE', 'ARCHIVE'])) {
+        if (in_array($status, ['UNPUBLISH', 'PUBLISH', 'DRAFT', 'DELETED', 'ARCHIVED'])) {
             $this->recordStatus = $status;
         }
 
@@ -83,6 +83,12 @@ trait RecordTrait
 
         if (empty($this->primaryKeys)) {
             $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
+
+            if (isset($sets[ $primaryKey ])) {
+                if (empty($sets[ $primaryKey ])) {
+                    unset($sets[ $primaryKey ]);
+                }
+            }
 
             if (empty($sets[ $primaryKey ])) {
                 if ( ! isset($sets[ 'record_create_user' ])) {
@@ -142,26 +148,5 @@ trait RecordTrait
         $table = isset($table) ? $table : $this->table;
 
         return $this->qb->countAllResults($table) + 1;
-    }
-
-    protected function withRecordStatus($recordStatus)
-    {
-        $this->qb->where('record_status', strtoupper($recordStatus));
-
-        return $this;
-    }
-
-    protected function createdBy($recordCreateUser)
-    {
-        $this->qb->where('record_create_user', $recordCreateUser);
-
-        return $this;
-    }
-
-    protected function updatedBy($recordUpdateUser)
-    {
-        $this->qb->where('record_update_user', $recordUpdateUser);
-
-        return $this;
     }
 }
