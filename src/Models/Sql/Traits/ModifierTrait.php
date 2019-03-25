@@ -23,40 +23,36 @@ namespace O2System\Framework\Models\Sql\Traits;
 trait ModifierTrait
 {
     /**
-     * Insert Data
+     * ModifierTrait::insert
      *
-     * Method to input data as well as equipping the data in accordance with the fields
-     * in the destination database table.
+     * @param array $sets
      *
-     * @access  public
-     *
-     * @param   array $sets Array of Input Data
-     *
-     * @return mixed
-     * @throws \O2System\Spl\Exceptions\RuntimeException
+     * @return bool
      */
-    protected function insert(array $sets)
+    public function insert(array $sets)
     {
-        if (method_exists($this, 'insertRecordSets')) {
-            $this->insertRecordSets($sets);
-        }
-
-        if (method_exists($this, 'beforeInsert')) {
-            $this->beforeInsert($sets);
-        }
-
-        if (method_exists($this, 'getRecordOrdering')) {
-            if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
-                $sets[ 'record_ordering' ] = $this->getRecordOrdering($this->table);
-            }
-        }
-
-        if ($this->qb->table($this->table)->insert($sets)) {
-            if (method_exists($this, 'afterInsert')) {
-                return $this->afterInsert();
+        if (count($sets)) {
+            if (method_exists($this, 'insertRecordSets')) {
+                $this->insertRecordSets($sets);
             }
 
-            return true;
+            if (method_exists($this, 'beforeInsert')) {
+                $this->beforeInsert($sets);
+            }
+
+            if (method_exists($this, 'getRecordOrdering')) {
+                if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
+                    $sets[ 'record_ordering' ] = $this->getRecordOrdering($this->table);
+                }
+            }
+
+            if ($this->qb->table($this->table)->insert($sets)) {
+                if (method_exists($this, 'afterInsert')) {
+                    return $this->afterInsert();
+                }
+
+                return true;
+            }
         }
 
         return false;
@@ -64,9 +60,15 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    protected function insertOrUpdate(array $sets)
+    /**
+     * ModifierTrait::insertOrUpdate
+     *
+     * @param array $sets
+     *
+     * @return bool
+     */
+    public function insertOrUpdate(array $sets)
     {
-        // Try to find
         if ($result = $this->qb->from($this->table)->getWhere($sets)) {
             return $this->update($sets);
         } else {
@@ -78,27 +80,36 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    protected function insertMany(array $sets)
+    /**
+     * ModifierTrait::insertMany
+     *
+     * @param array $sets
+     *
+     * @return bool|int
+     */
+    public function insertMany(array $sets)
     {
-        if (method_exists($this, 'insertRecordSets')) {
-            foreach ($sets as $set) {
-                $this->insertRecordSets($set);
-                if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
-                    $set[ 'record_ordering' ] = $this->getRecordOrdering($this->table);
+        if (count($sets)) {
+            if (method_exists($this, 'insertRecordSets')) {
+                foreach ($sets as $set) {
+                    $this->insertRecordSets($set);
+                    if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
+                        $set[ 'record_ordering' ] = $this->getRecordOrdering($this->table);
+                    }
                 }
             }
-        }
 
-        if (method_exists($this, 'beforeInsertMany')) {
-            $this->beforeInsertMany($sets);
-        }
-
-        if ($this->qb->table($this->table)->insertBatch($sets)) {
-            if (method_exists($this, 'afterInsertMany')) {
-                return $this->afterInsertMany();
+            if (method_exists($this, 'beforeInsertMany')) {
+                $this->beforeInsertMany($sets);
             }
 
-            return true;
+            if ($this->qb->table($this->table)->insertBatch($sets)) {
+                if (method_exists($this, 'afterInsertMany')) {
+                    return $this->afterInsertMany();
+                }
+
+                return $this->db->getAffectedRows();
+            }
         }
 
         return false;
@@ -107,56 +118,21 @@ trait ModifierTrait
     // ------------------------------------------------------------------------
 
     /**
-     * Update Data
+     * ModifierTrait::insertIfNotExists
      *
-     * Method to update data as well as equipping the data in accordance with the fields
-     * in the destination database table.
+     * @param array $sets
+     * @param array $conditions
      *
-     * @access  public
-     *
-     * @param   array $sets Array of Update Data
-     *
-     * @return mixed
+     * @return bool
      */
-    protected function update(array $sets, $where = [])
+    public function insertIfNotExists(array $sets, array $conditions = [])
     {
-        $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
-
-        if (empty($where)) {
-            if (empty($this->primaryKeys)) {
-                $where[ $primaryKey ] = $sets[ $primaryKey ];
-            } else {
-                foreach ($this->primaryKeys as $primaryKey) {
-                    $where[ $primaryKey ] = $sets[ $primaryKey ];
+        if (count($sets)) {
+            if ($result = $this->qb->from($this->table)->getWhere($conditions)) {
+                if ($result->count() == 0) {
+                    return $this->insert($sets);
                 }
             }
-        }
-
-        // Reset Primary Keys
-        $this->primaryKey = 'id';
-        $this->primaryKeys = [];
-
-        if (method_exists($this, 'updateRecordSets')) {
-            $this->updateRecordSets($sets);
-        }
-
-        if (method_exists($this, 'beforeUpdate')) {
-            $sets = $this->beforeUpdate($sets);
-        }
-
-        if (method_exists($this, 'getRecordOrdering')) {
-            if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
-                $sets[ 'record_ordering' ] = $this->getRecordOrdering($this->table);
-            }
-        }
-
-        if ($this->qb->table($this->table)->update($sets, $where)) {
-
-            if (method_exists($this, 'afterUpdate')) {
-                return $this->afterUpdate();
-            }
-
-            return true;
         }
 
         return false;
@@ -165,62 +141,46 @@ trait ModifierTrait
     // ------------------------------------------------------------------------
 
     /**
-     * Find Or Insert
+     * ModifierTrait::update
      *
-     * To insert if there is no record before.
-     * This is very important in insert to pivot table and avoid redundan
+     * @param array $sets
+     * @param array $conditions
      *
-     * @access public
-     *
-     * @param array $sets Array of Input Data
-     * @param array $sets Array of Reference
-     *
-     * @return int
-     * @throws \O2System\Spl\Exceptions\RuntimeException
+     * @return bool
      */
-    protected function findOrInsert(array $sets, array $reference = null)
+    public function update(array $sets, $conditions = [])
     {
-        if ($reference != null) {
-            // Disini where nya berdasarkan hasil define.
-            $result = $this->qb->from($this->table)->getWhere($reference);
-        } else {
-            $result = $this->qb->from($this->table)->getWhere($sets);
-        }
+        if (count($sets)) {
+            $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
-        if ($result->count() == 0) {
-            $this->insert($sets);
-
-            return $this->db->getLastInsertId();
-        }
-
-        return $result[ 0 ]->id;
-    }
-
-    // ------------------------------------------------------------------------
-    
-    protected function updateOrInsert(array $sets, array $where = [])
-    {
-        $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
-
-        if (empty($where)) {
-            if (empty($this->primaryKeys)) {
-                $where[ $primaryKey ] = $sets[ $primaryKey ];
-            } else {
-                foreach ($this->primaryKeys as $primaryKey) {
-                    $where[ $primaryKey ] = $sets[ $primaryKey ];
+            if (empty($conditions)) {
+                if (isset($sets[ $primaryKey ])) {
+                    $conditions = [$primaryKey => $sets[ $primaryKey ]];
                 }
             }
-        }
 
-        // Reset Primary Keys
-        $this->primaryKey = 'id';
-        $this->primaryKeys = [];
+            if (method_exists($this, 'updateRecordSets')) {
+                $this->updateRecordSets($sets);
+            }
 
-        // Try to find
-        if ($result = $this->qb->from($this->table)->getWhere($where)) {
-            return $this->update($sets, $where);
-        } else {
-            return $this->insert($sets);
+            if (method_exists($this, 'beforeUpdate')) {
+                $sets = $this->beforeUpdate($sets);
+            }
+
+            if (method_exists($this, 'getRecordOrdering')) {
+                if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
+                    $sets[ 'record_ordering' ] = $this->getRecordOrdering($this->table);
+                }
+            }
+
+            if ($this->qb->table($this->table)->update($sets, $conditions)) {
+
+                if (method_exists($this, 'afterUpdate')) {
+                    return $this->afterUpdate();
+                }
+
+                return true;
+            }
         }
 
         return false;
@@ -228,17 +188,54 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    protected function updateMany(array $sets)
+    /**
+     * ModifierTrait::updateOrInsert
+     *
+     * @param array $sets
+     * @param array $conditions
+     *
+     * @return bool
+     */
+    public function updateOrInsert(array $sets, array $conditions = [])
+    {
+        if (count($sets)) {
+            $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
+
+            if (empty($conditions)) {
+                if (isset($sets[ $primaryKey ])) {
+                    $conditions = [$primaryKey => $sets[ $primaryKey ]];
+                } else {
+                    $conditions = $sets;
+                }
+            }
+
+            // Try to find
+            if ($result = $this->qb->from($this->table)->getWhere($conditions)) {
+                return $this->update($sets, $conditions);
+            } else {
+                return $this->insert($sets);
+            }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::updateMany
+     *
+     * @param array $sets
+     *
+     * @return bool|int
+     */
+    public function updateMany(array $sets)
     {
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
         if (method_exists($this, 'updateRecordSets')) {
-            foreach ($sets as $set) {
-                $this->updateRecordSets($set);
-
-                if ($this->recordOrdering === true && empty($sets[ 'record_ordering' ])) {
-                    $set[ 'record_ordering' ] = $this->getRecordOrdering($this->table);
-                }
+            foreach ($sets as $key => $set) {
+                $this->updateRecordSets($sets[ $key ]);
             }
         }
 
@@ -251,7 +248,7 @@ trait ModifierTrait
                 return $this->afterUpdateMany();
             }
 
-            return true;
+            return $this->db->getAffectedRows();
         }
 
         return false;
@@ -260,140 +257,21 @@ trait ModifierTrait
     // ------------------------------------------------------------------------
 
     /**
-     * softDelete many rows from the database table based on sets of ids.
+     * ModifierTrait::delete
      *
-     * @param array $ids
+     * @param int $id
      *
-     * @return mixed
+     * @return bool
      */
-    protected function softDeleteMany(array $ids)
-    {
-        $affectedRows = [];
-
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->softDelete($id);
-        }
-
-        return $affectedRows;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * softDelete
-     *
-     * @param      $id
-     *
-     * @return array|bool
-     */
-    protected function softDelete($id)
+    public function delete($id)
     {
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
-
-        $sets = [];
-        $where = [];
-
-        if (empty($this->primaryKeys)) {
-            $where[ $primaryKey ] = $id;
-            $sets[ $primaryKey ] = $id;
-        } elseif (is_array($id)) {
-            foreach ($this->primaryKeys as $primaryKey) {
-                $where[ $primaryKey ] = $sets[ $primaryKey ];
-                $sets[ $primaryKey ] = $id[ $primaryKey ];
-            }
-        } else {
-            foreach ($this->primaryKeys as $primaryKey) {
-                $where[ $primaryKey ] = $sets[ $primaryKey ];
-            }
-
-            $sets[ reset($this->primaryKeys) ] = $id;
-        }
-
-        // Reset Primary Keys
-        $this->primaryKey = 'id';
-        $this->primaryKeys = [];
-
-        if (method_exists($this, 'updateRecordSets')) {
-            $this->setRecordStatus('DELETED');
-            $this->updateRecordSets($sets);
-        }
-
-        if (method_exists($this, 'beforesoftDelete')) {
-            $this->beforesoftDelete($sets);
-        }
-
-        if ($this->qb->table($this->table)->update($sets, $where)) {
-            if (method_exists($this, 'aftersoftDelete')) {
-                return $this->aftersoftDelete();
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function softDeleteManyBy(array $ids, $where = [])
-    {
-        $affectedRows = [];
-
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->softDeleteBy($id, $where);
-        }
-
-        return $affectedRows;
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function softDeleteBy($id, array $where = [])
-    {
-        $this->qb->where($where);
-
-        return $this->softDelete($id);
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function deleteMany(array $ids, $force = false)
-    {
-        $affectedRows = [];
-
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->delete($id, $force);
-        }
-
-        return $affectedRows;
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function delete($id)
-    {
-        $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
-
-        $where = [];
-        if (empty($this->primaryKeys)) {
-            $where[ $primaryKey ] = $id;
-        } elseif (is_array($id)) {
-            foreach ($this->primaryKeys as $primaryKey) {
-                $where[ $primaryKey ] = $id[ $primaryKey ];
-            }
-        } else {
-            $where[ reset($this->primaryKeys) ] = $id;
-        }
-
-        // Reset Primary Keys
-        $this->primaryKey = 'id';
-        $this->primaryKeys = [];
 
         if (method_exists($this, 'beforeDelete')) {
             $this->beforeDelete();
         }
 
-        if ($this->qb->table($this->table)->delete($where)) {
+        if ($this->qb->table($this->table)->limit(1)->delete([$primaryKey => $id])) {
             if (method_exists($this, 'afterDelete')) {
                 return $this->afterDelete();
             }
@@ -406,72 +284,119 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    protected function deleteManyBy(array $ids, $where = [], $force = false)
+    /**
+     * ModifierTrait::deleteBy
+     *
+     * @param array $conditions
+     *
+     * @return bool
+     */
+    public function deleteBy($conditions = [])
     {
-        $affectedRows = [];
+        if (count($conditions)) {
+            if (method_exists($this, 'beforeDelete')) {
+                $this->beforeDelete();
+            }
 
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->deleteBy($id, $where, $force);
+            if (method_exists($this, 'beforeDelete')) {
+                $this->beforeDelete();
+            }
+
+            if ($this->qb->table($this->table)->limit(1)->delete($conditions)) {
+                if (method_exists($this, 'afterDelete')) {
+                    return $this->afterDelete();
+                }
+
+                return $this->db->getAffectedRows();
+            }
         }
 
-        return $affectedRows;
-    }
-
-    protected function deleteBy($id, $where = [], $force = false)
-    {
-        $this->qb->where($where);
-
-        return $this->delete($id, $force);
+        return false;
     }
 
     // ------------------------------------------------------------------------
 
-    protected function restore($id)
-    {
-        return $this->publish($id);
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function publish($id)
+    /**
+     * ModifierTrait::deleteMany
+     *
+     * @param array $ids
+     *
+     * @return bool|int
+     */
+    public function deleteMany(array $ids)
     {
         $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
-        $sets = [];
-        $where = [];
-
-        if (empty($this->primaryKeys)) {
-            $where[ $primaryKey ] = $id;
-            $sets[ $primaryKey ] = $id;
-        } elseif (is_array($id)) {
-            foreach ($this->primaryKeys as $primaryKey) {
-                $where[ $primaryKey ] = $sets[ $primaryKey ];
-                $sets[ $primaryKey ] = $id[ $primaryKey ];
-            }
-        } else {
-            foreach ($this->primaryKeys as $primaryKey) {
-                $where[ $primaryKey ] = $sets[ $primaryKey ];
-            }
-
-            $sets[ reset($this->primaryKeys) ] = $id;
+        if (method_exists($this, 'beforeDelete')) {
+            $this->beforeDelete();
         }
 
-        // Reset Primary Keys
-        $this->primaryKey = 'id';
-        $this->primaryKeys = [];
+        $this->qb->whereIn($primaryKey, $ids);
+
+        if ($this->qb->table($this->table)->delete()) {
+            if (method_exists($this, 'afterDelete')) {
+                return $this->afterDelete();
+            }
+
+            return $this->db->getAffectedRows();
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::deleteManyBy
+     *
+     * @param array $conditions
+     *
+     * @return bool|int
+     */
+    public function deleteManyBy($conditions = [])
+    {
+        if (count($conditions)) {
+            if (method_exists($this, 'beforeDelete')) {
+                $this->beforeDelete();
+            }
+
+            if ($this->qb->table($this->table)->delete($conditions)) {
+                if (method_exists($this, 'afterDelete')) {
+                    return $this->afterDelete();
+                }
+
+                return $this->db->getAffectedRows();
+            }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::updateRecordStatus
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    private function updateRecordStatus($id, $recordStatus, $method)
+    {
+        $sets[ 'record_status' ] = $recordStatus;
+        $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
         if (method_exists($this, 'updateRecordSets')) {
-            $this->setRecordStatus('PUBLISH');
             $this->updateRecordSets($sets);
         }
 
-        if (method_exists($this, 'beforePublish')) {
-            $this->beforePublish($sets);
+        if (method_exists($this, $beforeMethod = 'before' . ucfirst($method))) {
+            call_user_func_array([&$this, $beforeMethod], [$sets]);
         }
 
-        if ($this->qb->table($this->table)->update($sets, $where)) {
-            if (method_exists($this, 'afterPublish')) {
-                return $this->afterPublish();
+        if ($this->qb->table($this->table)->limit(1)->update($sets, [$primaryKey => $id])) {
+            if (method_exists($this, $afterMethod = 'after' . ucfirst($method))) {
+                return call_user_func([&$this, $beforeMethod]);
             }
 
             return true;
@@ -482,102 +407,36 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    protected function restoreBy($id, array $where = [])
+    /**
+     * ModifierTrait::updateRecordStatusMany
+     *
+     * @param array $ids
+     *
+     * @return bool|int
+     */
+    private function updateRecordStatusMany(array $ids, $recordStatus, $method)
     {
-        return $this->publishBy($id, $where);
-    }
+        if (count($ids)) {
+            $sets[ 'record_status' ] = $recordStatus;
+            $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
-    // ------------------------------------------------------------------------
+            $this->qb->whereIn($primaryKey, $ids);
 
-    protected function publishBy($id, array $where = [])
-    {
-        $this->qb->where($where);
-
-        return $this->publish($id);
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function restoreMany(array $ids)
-    {
-        return $this->publishMany($ids);
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function publishMany(array $ids)
-    {
-        $affectedRows = [];
-
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->publish($id);
-        }
-
-        return $affectedRows;
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function restoreManyBy(array $ids, $where = [])
-    {
-        return $this->publishManyBy($ids, $where);
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function publishManyBy(array $ids, $where = [])
-    {
-        $affectedRows = [];
-
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->publishBy($id, $where);
-        }
-
-        return $affectedRows;
-    }
-
-    protected function unpublish($id)
-    {
-        $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
-
-        $sets = [];
-        $where = [];
-
-        if (empty($this->primaryKeys)) {
-            $where[ $primaryKey ] = $id;
-            $sets[ $primaryKey ] = $id;
-        } elseif (is_array($id)) {
-            foreach ($this->primaryKeys as $primaryKey) {
-                $where[ $primaryKey ] = $sets[ $primaryKey ];
-                $sets[ $primaryKey ] = $id[ $primaryKey ];
-            }
-        } else {
-            foreach ($this->primaryKeys as $primaryKey) {
-                $where[ $primaryKey ] = $sets[ $primaryKey ];
+            if (method_exists($this, 'updateRecordSets')) {
+                $this->updateRecordSets($sets[ $key ]);
             }
 
-            $sets[ reset($this->primaryKeys) ] = $id;
-        }
-
-        // Reset Primary Keys
-        $this->primaryKey = 'id';
-        $this->primaryKeys = [];
-
-        if (method_exists($this, 'updateRecordSets')) {
-            $this->setRecordStatus('UNPUBLISH');
-            $this->updateRecordSets($sets);
-        }
-
-        if (method_exists($this, 'beforeUnpublish')) {
-            $this->beforePublish($sets);
-        }
-
-        if ($this->qb->table($this->table)->update($sets, $where)) {
-            if (method_exists($this, 'afterUnpublish')) {
-                return $this->afterPublish();
+            if (method_exists($this, $beforeMethod = 'before' . ucfirst($method))) {
+                call_user_func_array([&$this, $beforeMethod], [$sets]);
             }
 
-            return true;
+            if ($this->qb->table($this->table)->update($sets)) {
+                if (method_exists($this, $afterMethod = 'after' . ucfirst($method))) {
+                    return call_user_func([&$this, $beforeMethod]);
+                }
+
+                return $this->getAffectedRows();
+            }
         }
 
         return false;
@@ -585,81 +444,34 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    protected function unpublishBy($id, array $where = [])
+    /**
+     * ModifierTrait::updateRecordStatusBy
+     *
+     * @param int   $id
+     * @param array $conditions
+     *
+     * @return bool|int
+     */
+    private function updateRecordStatusBy(array $conditions = [], $recordStatus, $method)
     {
-        $this->qb->where($where);
+        if (count($conditions)) {
+            $sets[ 'record_status' ] = $recordStatus;
 
-        return $this->publish($id);
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function unpublishMany(array $ids)
-    {
-        $affectedRows = [];
-
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->publish($id);
-        }
-
-        return $affectedRows;
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function unpublishManyBy(array $ids, $where = [])
-    {
-        $affectedRows = [];
-
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->publishBy($id, $where);
-        }
-
-        return $affectedRows;
-    }
-
-    protected function archive($id)
-    {
-        $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
-
-        $sets = [];
-        $where = [];
-
-        if (empty($this->primaryKeys)) {
-            $where[ $primaryKey ] = $id;
-            $sets[ $primaryKey ] = $id;
-        } elseif (is_array($id)) {
-            foreach ($this->primaryKeys as $primaryKey) {
-                $where[ $primaryKey ] = $sets[ $primaryKey ];
-                $sets[ $primaryKey ] = $id[ $primaryKey ];
-            }
-        } else {
-            foreach ($this->primaryKeys as $primaryKey) {
-                $where[ $primaryKey ] = $sets[ $primaryKey ];
+            if (method_exists($this, 'updateRecordSets')) {
+                $this->updateRecordSets($sets);
             }
 
-            $sets[ reset($this->primaryKeys) ] = $id;
-        }
-
-        // Reset Primary Keys
-        $this->primaryKey = 'id';
-        $this->primaryKeys = [];
-
-        if (method_exists($this, 'updateRecordSets')) {
-            $this->setRecordStatus('ARCHIVED');
-            $this->updateRecordSets($sets);
-        }
-
-        if (method_exists($this, 'beforeArchive')) {
-            $this->beforePublish($sets);
-        }
-
-        if ($this->qb->table($this->table)->update($sets, $where)) {
-            if (method_exists($this, 'afterArchive')) {
-                return $this->afterPublish();
+            if (method_exists($this, $beforeMethod = 'before' . ucfirst($method))) {
+                call_user_func_array([&$this, $beforeMethod], [$sets]);
             }
 
-            return true;
+            if ($this->qb->table($this->table)->update($sets, $conditions)) {
+                if (method_exists($this, $afterMethod = 'after' . ucfirst($method))) {
+                    return call_user_func([&$this, $beforeMethod]);
+                }
+
+                return $this->getAffectedRows();
+            }
         }
 
         return false;
@@ -667,36 +479,372 @@ trait ModifierTrait
 
     // ------------------------------------------------------------------------
 
-    protected function archiveBy($id, array $where = [])
+    /**
+     * ModifierTrait::updateRecordStatusManyBy
+     *
+     * @param array $ids
+     * @param array $conditions
+     *
+     * @return bool|int
+     */
+    private function updateRecordStatusManyBy($conditions = [], $recordStatus, $method)
     {
-        $this->qb->where($where);
+        if (count($conditions)) {
+            $sets[ 'record_status' ] = $recordStatus;
 
-        return $this->publish($id);
+            if (method_exists($this, 'updateRecordSets')) {
+                $this->updateRecordSets($sets);
+            }
+
+            if (method_exists($this, $beforeMethod = 'before' . ucfirst($method))) {
+                call_user_func_array([&$this, $beforeMethod], [$sets]);
+            }
+
+            if ($this->qb->table($this->table)->update($sets, $conditions)) {
+                if (method_exists($this, $afterMethod = 'after' . ucfirst($method))) {
+                    return call_user_func([&$this, $beforeMethod]);
+                }
+
+                return $this->getAffectedRows();
+            }
+        }
+
+        return false;
     }
 
     // ------------------------------------------------------------------------
 
-    protected function archiveMany(array $ids)
+    /**
+     * ModifierTrait::publish
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    public function publish($id)
     {
-        $affectedRows = [];
-
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->publish($id);
-        }
-
-        return $affectedRows;
+        return $this->updateRecordStatus($id, 'PUBLISH', 'publish');
     }
 
     // ------------------------------------------------------------------------
 
-    protected function archiveManyBy(array $ids, $where = [])
+    /**
+     * ModifierTrait::publishBy
+     *
+     * @param array $conditions
+     *
+     * @return bool|int
+     */
+    public function publishBy(array $conditions = [])
     {
-        $affectedRows = [];
+        return $this->updateRecordStatusBy($conditions, 'PUBLISH', 'publishBy');
+    }
 
-        foreach ($ids as $id) {
-            $affectedRows[ $id ] = $this->publishBy($id, $where);
-        }
+    // ------------------------------------------------------------------------
 
-        return $affectedRows;
+    /**
+     * ModifierTrait::publishMany
+     *
+     * @param array $ids
+     *
+     * @return bool|int
+     */
+    public function publishMany(array $ids)
+    {
+        return $this->updateRecordStatusMany($ids, 'PUBLISH', 'publishMany');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::publishManyBy
+     *
+     * @param array $conditions
+     *
+     * @return bool|int
+     */
+    public function publishManyBy($conditions = [])
+    {
+        return $this->updateRecordStatusManyBy($ids, 'PUBLISH', 'publishManyBy');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTriat::restore
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    public function restore($id)
+    {
+        return $this->updateRecordStatus($id, 'PUBLISH', 'restore');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::restoreBy
+     *
+     * @param array $conditions
+     *
+     * @return bool
+     */
+    public function restoreBy(array $conditions = [])
+    {
+        return $this->updateRecordStatusBy($conditions, 'PUBLISH', 'restoreBy');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::restoreMany
+     *
+     * @param array $ids
+     *
+     * @return bool|int
+     */
+    public function restoreMany(array $ids)
+    {
+        return $this->updateRecordStatusMany($ids, 'PUBLISH', 'restoreMany');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::restoreManyBy
+     *
+     * @param array $conditions
+     *
+     * @return bool|int
+     */
+    public function restoreManyBy(array $ids, $conditions = [])
+    {
+        return $this->updateRecordStatusManyBy($ids, 'PUBLISH', 'restoreManyBy');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTriat::unpublish
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    public function unpublish($id)
+    {
+        return $this->updateRecordStatus($id, 'UNPUBLISH', 'unpublish');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::unpublishBy
+     *
+     * @param array $conditions
+     *
+     * @return bool
+     */
+    public function unpublishBy(array $conditions = [])
+    {
+        return $this->updateRecordStatusBy($conditions, 'UNPUBLISH', 'unpublishBy');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::unpublishMany
+     *
+     * @param array $ids
+     *
+     * @return bool|int
+     */
+    public function unpublishMany(array $ids)
+    {
+        return $this->updateRecordStatusMany($ids, 'UNPUBLISH', 'unpublishMany');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::unpublishManyBy
+     *
+     * @param array $conditions
+     *
+     * @return bool|int
+     */
+    public function unpublishManyBy(array $ids, $conditions = [])
+    {
+        return $this->updateRecordStatusManyBy($ids, 'UNPUBLISH', 'unpublishManyBy');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTriat::softDelete
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    public function softDelete($id)
+    {
+        return $this->updateRecordStatus($id, 'DELETED', 'softDelete');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::softDeleteBy
+     *
+     * @param array $conditions
+     *
+     * @return bool
+     */
+    public function softDeleteBy(array $conditions = [])
+    {
+        return $this->updateRecordStatusBy($conditions, 'DELETED', 'softDeleteBy');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::softDeleteMany
+     *
+     * @param array $ids
+     *
+     * @return bool|int
+     */
+    public function softDeleteMany(array $ids)
+    {
+        return $this->updateRecordStatusMany($ids, 'DELETED', 'softDeleteMany');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::softDeleteManyBy
+     *
+     * @param array $conditions
+     *
+     * @return bool|int
+     */
+    public function softDeleteManyBy(array $ids, $conditions = [])
+    {
+        return $this->updateRecordStatusManyBy($ids, 'DELETED', 'softDeleteManyBy');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTriat::archive
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    public function archive($id)
+    {
+        return $this->updateRecordStatus($id, 'ARCHIVED', 'archive');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::archiveBy
+     *
+     * @param array $conditions
+     *
+     * @return bool
+     */
+    public function archiveBy(array $conditions = [])
+    {
+        return $this->updateRecordStatusBy($conditions, 'ARCHIVED', 'archiveBy');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::archiveMany
+     *
+     * @param array $ids
+     *
+     * @return bool|int
+     */
+    public function archiveMany(array $ids)
+    {
+        return $this->updateRecordStatusMany($ids, 'ARCHIVED', 'archiveMany');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::archiveManyBy
+     *
+     * @param array $conditions
+     *
+     * @return bool|int
+     */
+    public function archiveManyBy(array $ids, $conditions = [])
+    {
+        return $this->updateRecordStatusManyBy($ids, 'ARCHIVED', 'archiveManyBy');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTriat::lock
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    public function lock($id)
+    {
+        return $this->updateRecordStatus($id, 'LOCKED', 'lock');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::lockBy
+     *
+     * @param array $conditions
+     *
+     * @return bool
+     */
+    public function lockBy(array $conditions = [])
+    {
+        return $this->updateRecordStatusBy($conditions, 'LOCKED', 'lockBy');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::lockMany
+     *
+     * @param array $ids
+     *
+     * @return bool|int
+     */
+    public function lockMany(array $ids)
+    {
+        return $this->updateRecordStatusMany($ids, 'LOCKED', 'lockMany');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::lockManyBy
+     *
+     * @param array $conditions
+     *
+     * @return bool|int
+     */
+    public function lockManyBy(array $ids, $conditions = [])
+    {
+        return $this->updateRecordStatusManyBy($ids, 'LOCKED', 'lockManyBy');
     }
 }

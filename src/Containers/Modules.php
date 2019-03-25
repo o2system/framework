@@ -54,6 +54,13 @@ class Modules extends SplArrayStack
      */
     private $registry = [];
 
+    /**
+     * Modules::loaded
+     *
+     * @var array
+     */
+    private $loaded = [];
+
     // ------------------------------------------------------------------------
 
     /**
@@ -95,33 +102,39 @@ class Modules extends SplArrayStack
      */
     private function autoload(DataStructures\Module $module)
     {
-        // Register Framework\Services\Loader Namespace
-        loader()->addNamespace($module->getNamespace(), $module->getRealPath());
+        if ( ! in_array($module->getRealPath(), $this->loaded)) {
+            // Register to loaded property
+            $this->loaded[] = $module->getRealPath();
 
-        $this->autoloadHelpers($module);
+            // Register Framework\Services\Loader Namespace
+            loader()->addNamespace($module->getNamespace(), $module->getRealPath());
 
-        if ( ! in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
+            $this->autoloadHelpers($module);
 
-            // Autoload Module Language
-            language()
-                ->addFilePath($module->getRealPath())
-                ->loadFile(dash($module->getParameter()));
+            if ( ! in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
 
-            // Autoload Module Config
-            $this->autoloadConfig($module);
+                // Autoload Module Language
+                language()
+                    ->addFilePath($module->getRealPath())
+                    ->loadFile(dash($module->getParameter()));
 
-            // Autoload Module Addresses
-            $this->autoloadAddresses($module);
+                // Autoload Module Config
+                $this->autoloadConfig($module);
 
-            // Autoload Module Hooks Closures
-            $this->autoloadHooks($module);
+                // Autoload Module Addresses
+                $this->autoloadAddresses($module);
 
-            // Autoload Module Models
-            $this->autoloadModels($module);
+                // Autoload Module Hooks Closures
+                $this->autoloadHooks($module);
 
-            // Autoload Services Models
-            $this->autoloadServices($module);
+                // Autoload Module Models
+                $this->autoloadModels($module);
+
+                // Autoload Services Models
+                $this->autoloadServices($module);
+            }
         }
+
     }
 
     // ------------------------------------------------------------------------
@@ -135,6 +148,8 @@ class Modules extends SplArrayStack
      */
     private function autoloadHelpers(DataStructures\Module $module)
     {
+        loader()->loadHelper(studlycase($module->getParameter()));
+
         if (is_file(
             $filePath = $module->getRealPath() . 'Config' . DIRECTORY_SEPARATOR . ucfirst(
                     strtolower(ENVIRONMENT)
@@ -793,7 +808,7 @@ class Modules extends SplArrayStack
 
 
     // ------------------------------------------------------------------------
-    
+
     /**
      * Modules::getResourcesDirs
      *
@@ -816,7 +831,7 @@ class Modules extends SplArrayStack
 
         foreach ($this as $module) {
             if ($module instanceof DataStructures\Module) {
-                if(is_dir($dirPath = $module->getResourcesDir($subDir))) {
+                if (is_dir($dirPath = $module->getResourcesDir($subDir))) {
                     $dirs[] = $dirPath;
                 }
             }

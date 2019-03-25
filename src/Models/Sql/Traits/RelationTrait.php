@@ -28,7 +28,7 @@ use O2System\Framework\Models\Sql\Relations;
 trait RelationTrait
 {
     /**
-     * belongsTo
+     * RelationTrait::belongsTo
      *
      * Belongs To is the inverse of one to one relationship.
      *
@@ -46,6 +46,16 @@ trait RelationTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * RelationTrait::belongsToThrough
+     *
+     * @param string|Model $referenceModel
+     * @param string|Model $intermediaryModel
+     * @param string|null  $intermediaryCurrentForeignKey
+     * @param string|null  $intermediaryReferenceForeignKey
+     *
+     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
     protected function belongsToThrough(
         $referenceModel,
         $intermediaryModel,
@@ -58,8 +68,10 @@ trait RelationTrait
         ))->getResult();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * belongsToMany
+     * RelationTrait::belongsToMany
      *
      * Belongs To is the inverse of one to many relationship.
      *
@@ -77,6 +89,16 @@ trait RelationTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * RelationTrait::belongsToManyThrough
+     *
+     * @param string|Model $referenceModel
+     * @param string|Model $intermediaryModel
+     * @param string|null  $intermediaryCurrentForeignKey
+     * @param string|null  $intermediaryReferenceForeignKey
+     *
+     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
     protected function belongsToManyThrough(
         $referenceModel,
         $intermediaryModel,
@@ -89,8 +111,10 @@ trait RelationTrait
         ))->getResult();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * hasOne
+     * RelationTrait::hasOne
      *
      * Has one is a one to one relationship. The reference model might be associated
      * with one relation model / table.
@@ -110,13 +134,13 @@ trait RelationTrait
     // ------------------------------------------------------------------------
 
     /**
-     * hasOneThrough
+     * RelationTrait::hasOneThrough
      *
-     * @param      $referenceModel
-     * @param      $intermediaryModel
-     * @param null $intermediaryCurrentForeignKey
-     * @param null $intermediaryReferenceForeignKey
-     * @param null $primaryKey
+     * @param string|Model $referenceModel
+     * @param string|Model $intermediaryModel
+     * @param string|null  $intermediaryCurrentForeignKey
+     * @param string|null  $intermediaryReferenceForeignKey
+     * @param string|null  $primaryKey
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
@@ -132,8 +156,10 @@ trait RelationTrait
         ))->getResult();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * hasMany
+     * RelationTrait::hasMany
      *
      * Has Many is a one to many relationship, is used to define relationships where a single
      * reference model owns any amount of others relation model.
@@ -153,13 +179,13 @@ trait RelationTrait
     // ------------------------------------------------------------------------
 
     /**
-     * hasManyThrough
+     * RelationTrait::hasManyThrough
      *
-     * @param      $referenceModel
-     * @param      $intermediaryModel
-     * @param null $intermediaryCurrentForeignKey
-     * @param null $intermediaryReferenceForeignKey
-     * @param null $primaryKey
+     * @param string|Model $referenceModel
+     * @param string|Model $intermediaryModel
+     * @param string|null  $intermediaryCurrentForeignKey
+     * @param string|null  $intermediaryReferenceForeignKey
+     * @param string|null  $primaryKey
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */

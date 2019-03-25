@@ -23,26 +23,23 @@ namespace O2System\Framework\Models\Sql\Traits;
 trait RecordTrait
 {
     /**
-     * Unix Timestamp Flag
+     * RecordTrait::$unixTimestamp
      *
-     * @access  protected
-     * @type    bool
+     * @var bool
      */
-    protected $unixTimestamp = false;
+    public $unixTimestamp = false;
 
     /**
-     * Default Record Status
+     * RecordTrait::$recordStatus
      *
-     * @access  protected
-     * @type    string
+     * @var string
      */
     protected $recordStatus = 'PUBLISH';
 
     /**
-     * Default Record User
+     * RecordTrait::$recordUser
      *
-     * @access  protected
-     * @type    int
+     * @var int|null
      */
     protected $recordUser = null;
 
@@ -51,8 +48,17 @@ trait RecordTrait
      *
      * @var bool
      */
-    protected $recordOrdering = false;
+    public $recordOrdering = false;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * RecordTrait::setRecordUser
+     *
+     * @param int $idUser
+     *
+     * @return static
+     */
     public function setRecordUser($idUser)
     {
         if (is_numeric($idUser)) {
@@ -62,20 +68,42 @@ trait RecordTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * RecordTrait::setRecordStatus
+     *
+     * @param string $status
+     *
+     * @return static
+     */
     public function setRecordStatus($status)
     {
         $status = strtoupper($status);
 
-        if (in_array($status, ['UNPUBLISH', 'PUBLISH', 'DRAFT', 'DELETED', 'ARCHIVED'])) {
+        if (in_array($status, ['UNPUBLISH', 'PUBLISH', 'DRAFT', 'DELETED', 'ARCHIVED', 'LOCKED'])) {
             $this->recordStatus = $status;
         }
 
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * RecordTrait::insertRecordSets
+     *
+     * @param array $sets
+     */
     protected function insertRecordSets(array &$sets)
     {
         $timestamp = $this->unixTimestamp === true ? strtotime(date('Y-m-d H:i:s')) : date('Y-m-d H:i:s');
+
+        if(is_null($this->recordUser)) {
+            if(globals()->offsetExists('account')) {
+                $this->setRecordUser(globals()->account->id);
+            }
+        }
 
         if ( ! isset($sets[ 'record_status' ])) {
             $sets[ 'record_status' ] = $this->recordStatus;
@@ -117,19 +145,43 @@ trait RecordTrait
             }
         }
 
-        $sets[ 'record_update_user' ] = $this->recordUser;
+        if ( ! isset($sets[ 'record_update_user' ])) {
+            $sets[ 'record_update_user' ] = $this->recordUser;
+        }
 
         if ( ! isset($sets[ 'record_update_timestamp' ])) {
             $sets[ 'record_update_timestamp' ] = $timestamp;
         } elseif ($this->unixTimestamp) {
             $sets[ 'record_update_timestamp' ] = strtotime($sets[ 'record_update_timestamp' ]);
         }
+
+        if ( ! isset($sets[ 'record_ordering' ]) && $this->recordOrdering === true) {
+            $sets[ 'record_ordering' ] = $this->getRecordOrdering();
+        }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * RecordTrait::updateRecordSets
+     *
+     * @param array $sets
+     */
     protected function updateRecordSets(array &$sets)
     {
-        $sets[ 'record_status' ] = $this->recordStatus;
-        $sets[ 'record_update_user' ] = $this->recordUser;
+        if(is_null($this->recordUser)) {
+            if(globals()->offsetExists('account')) {
+                $this->setRecordUser(globals()->account->id);
+            }
+        }
+
+        if ( ! isset($sets[ 'record_status' ])) {
+            $sets[ 'record_status' ] = $this->recordStatus;
+        }
+
+        if ( ! isset($sets[ 'record_update_user' ])) {
+            $sets[ 'record_update_user' ] = $this->recordUser;
+        }
 
         $timestamp = $this->unixTimestamp === true ? strtotime(date('Y-m-d H:i:s')) : date('Y-m-d H:i:s');
 
@@ -138,15 +190,19 @@ trait RecordTrait
         }
     }
 
-    /**
-     * Process Row Ordering
-     *
-     * @access  public
-     */
-    protected function getRecordOrdering($table = null)
-    {
-        $table = isset($table) ? $table : $this->table;
+    // ------------------------------------------------------------------------
 
-        return $this->qb->countAllResults($table) + 1;
+    /**
+     * RecordTrait::getRecordOrdering
+     *
+     * @return int
+     */
+    public function getRecordOrdering()
+    {
+        if($this->recordOrdering === true) {
+            return $this->qb->countAllResults($this->table) + 1;
+        }
+
+        return 0;
     }
 }

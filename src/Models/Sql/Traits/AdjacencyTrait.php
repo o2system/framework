@@ -39,20 +39,20 @@ trait AdjacencyTrait
     // ------------------------------------------------------------------------
 
     /**
-     * AdjacencyTrait::getChilds
+     * AdjacencyTrait::getParent
      *
-     * @param int $idParent
+     * @param int $id
      *
-     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
-    public function getChilds($idParent)
+    public function getParent($id)
     {
-        if ($result = $this->qb
+        if ($parent = $this->qb
             ->from($this->table)
-            ->where([$this->parentKey => $idParent])
-            ->get()) {
-            if ($result->count() > 0) {
-                return $result;
+            ->where($this->parentKey, $id)
+            ->get(1)) {
+            if ($parent->count() == 1) {
+                return $parent;
             }
         }
 
@@ -62,7 +62,88 @@ trait AdjacencyTrait
     // ------------------------------------------------------------------------
 
     /**
-     * AdjacencyTrait
+     * AdjacencyTrait::getNumOfParent
+     *
+     * @param int $id
+     *
+     * @return int
+     */
+    public function getNumOfParent($id)
+    {
+        if ($parents = $this->qb
+            ->table($this->table)
+            ->select('id')
+            ->where('id', $id)
+            ->get(1)) {
+            return $parents->count();
+        }
+
+        return 0;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AdjacencyTrait::hasParent
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    public function hasParent($id)
+    {
+        if (($numParents = $this->getNumOfParent($id)) > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AdjacencyTrait::getChilds
+     *
+     * @param int $idParent
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function getChilds($idParent)
+    {
+        if ($childs = $this->qb
+            ->from($this->table)
+            ->where($this->parentKey, $idParent)
+            ->get()) {
+            if ($childs->count() > 0) {
+                return $childs;
+            }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AdjacencyTrait::getNumChilds
+     *
+     * @param int $idParent
+     *
+     * @return bool
+     */
+    public function getNumOfChilds($idParent)
+    {
+        if ($childs = $this->getChilds($idParent)) {
+            return $childs->count();
+        }
+
+        return 0;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AdjacencyTrait::hasChilds
      *
      * @param int $idParent
      *
@@ -70,14 +151,8 @@ trait AdjacencyTrait
      */
     public function hasChilds($idParent)
     {
-        if ($result = $this->qb
-            ->select('id')
-            ->from($this->table)
-            ->where([$this->parentKey => $idParent])
-            ->get()) {
-            if ($result->count() > 0) {
-                return true;
-            }
+        if ($numOfChilds = $this->getNumOfChilds($idParent)) {
+            return (bool)($numOfChilds == 0 ? false : true);
         }
 
         return false;
