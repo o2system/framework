@@ -62,6 +62,20 @@ class Restful extends Controller
     protected $accessControlAllowCredentials = true;
 
     /**
+     * Access-Control-Method
+     *
+     * @var string
+     */
+    protected $accessControlMethod = 'GET';
+
+    /**
+     * Access-Control-Params
+     *
+     * @var array
+     */
+    protected $accessControlParams = [];
+
+    /**
      * Access-Control-Allow-Methods
      *
      * Used for indicates, as part of the response to a preflight request,
@@ -213,6 +227,22 @@ class Restful extends Controller
 
         if (input()->server('REQUEST_METHOD') === 'OPTIONS') {
             exit(EXIT_SUCCESS);
+        } elseif ( ! in_array(input()->server('REQUEST_METHOD'), $this->accessControlAllowMethods)) {
+            $this->sendError(405);
+        } elseif (count($this->accessControlParams)) {
+            if ($this->accessControlMethod === 'GET') {
+                if (empty($_GET)) {
+                    $this->sendError(400);
+                }
+            } elseif ($this->accessControlMethod === 'POST') {
+                if (empty($_POST)) {
+                    $this->sendError(400);
+                }
+            } elseif (in_array($this->accessControlMethod, ['GETPOST', 'POSTGET'])) {
+                if (empty($_REQUEST)) {
+                    $this->sendError(400);
+                }
+            }
         }
     }
 

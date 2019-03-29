@@ -39,7 +39,6 @@
     "o2system/parser": "*",
     "o2system/image": "*",
     "o2system/security": "*",
-    "o2system/curl": "*",
     "o2system/email": "*",
     "matthiasmullie/minify": "^1.3"
   },

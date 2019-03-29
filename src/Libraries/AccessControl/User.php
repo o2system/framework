@@ -58,16 +58,7 @@ class User extends \O2System\Security\Authentication\User
      */
     public function authenticate($username, $password)
     {
-        $column = 'username';
-        if (is_numeric($username)) {
-            $column = 'id';
-        } elseif (filter_var($username, FILTER_VALIDATE_EMAIL)) {
-            $column = 'email';
-        } elseif (preg_match($this->config[ 'msisdnRegex' ], $username)) {
-            $column = 'msisdn';
-        }
-
-        if ($user = models('users')->findWhere([$column => $username], 1)) {
+        if ($user = $this->find($username)) {
             if ($user->account) {
                 if ($this->passwordVerify($password, $user->account->password)) {
                     if ($this->passwordRehash($password)) {
@@ -97,6 +88,33 @@ class User extends \O2System\Security\Authentication\User
 
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * User::find
+     *
+     * @param string $username
+     *
+     * @return bool|mixed|\O2System\Database\DataObjects\Result|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function find($username)
+    {
+        $column = 'username';
+        if (is_numeric($username)) {
+            $column = 'id';
+        } elseif (filter_var($username, FILTER_VALIDATE_EMAIL)) {
+            $column = 'email';
+        } elseif (preg_match($this->config[ 'msisdnRegex' ], $username)) {
+            $column = 'msisdn';
+        }
+
+        if ($user = models('users')->findWhere([$column => $username], 1)) {
+            return $user;
         }
 
         return false;
