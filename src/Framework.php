@@ -583,9 +583,8 @@ class Framework extends Kernel
                 }
             } elseif (is_string($requestControllerOutput)) {
                 if (is_json($requestControllerOutput)) {
-                    output()
-                        ->setContentType('application/json')
-                        ->send($requestControllerOutput);
+                    output()->setContentType('application/json');
+                    echo $requestControllerOutput;
                 } elseif ($this->services->has('view')) {
                     if (empty($requestControllerOutput)) {
                         $filenames = [

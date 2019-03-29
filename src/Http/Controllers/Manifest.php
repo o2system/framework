@@ -29,10 +29,7 @@ class Manifest extends Controller
     public function index()
     {
         if(false !== ($config = $this->config->loadFile('manifest', true))) {
-            print_out('test');
+            output()->sendPayload($config->getArrayCopy());
         }
-
-        print_out($config);
-        $this->output->sendPayload($this->presenter->manifest->getArrayCopy());
     }
 }
