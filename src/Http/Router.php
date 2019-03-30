@@ -61,6 +61,20 @@ class Router extends KernelRouter
                 array_push($uriSegments, $endSegment);
                 $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
                 $uriString = $this->uri->getSegments()->getString();
+            } elseif (strpos(end($uriSegments), '.js') !== false) {
+                output()->setContentType('application/x-javascript');
+                $endSegment = str_replace('.js', '', end($uriSegments));
+                array_pop($uriSegments);
+                array_push($uriSegments, $endSegment);
+                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
+                $uriString = $this->uri->getSegments()->getString();
+            } elseif (strpos(end($uriSegments), '.css') !== false) {
+                output()->setContentType('text/css');
+                $endSegment = str_replace('.css', '', end($uriSegments));
+                array_pop($uriSegments);
+                array_push($uriSegments, $endSegment);
+                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
+                $uriString = $this->uri->getSegments()->getString();
             }
         } else {
             $uriPath = urldecode(

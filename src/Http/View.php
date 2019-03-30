@@ -327,7 +327,6 @@ class View implements RenderableInterface
 
                 // Find without controller parameter as sub directory
                 if (is_file($filePath = $viewsDirectory . $controllerSubDir . $filename . '.phtml')) {
-                    print_line('found: ' . $viewsDirectory . $controllerSubDir . $filename . '.phtml');
                     return realpath($filePath);
                     break;
                 }

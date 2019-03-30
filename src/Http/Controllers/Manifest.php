@@ -28,8 +28,19 @@ class Manifest extends Controller
      */
     public function index()
     {
-        if(false !== ($config = $this->config->loadFile('manifest', true))) {
-            output()->sendPayload($config->getArrayCopy());
+        if (false !== ($manifest = $this->config->loadFile('manifest', true))) {
+            output()->sendPayload([
+                'short_name'           => $manifest->shortName,
+                'name'                 => $manifest->name,
+                'description'          => $manifest->description,
+                'icons'                => array_values($manifest->icons),
+                'start_url'            => empty($manifest->startUrl) ? '/' : $manifest->startUrl,
+                'display'              => $manifest->display,
+                'orientation'          => $manifest->orientation,
+                'theme_color'          => $manifest->themeColor,
+                'background_color'     => $manifest->backgroundColor,
+                'related_applications' => empty($manifest->relatedApplications) ? [] : $manifest->relatedApplications,
+            ]);
         }
     }
 }

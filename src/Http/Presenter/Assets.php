@@ -46,7 +46,10 @@ class Assets
      */
     public function __construct()
     {
-        $this->addFilePath(PATH_RESOURCES);
+        $this->addFilePaths([
+            PATH_RESOURCES,
+            PATH_RESOURCES . 'views' . DIRECTORY_SEPARATOR
+        ]);
 
         $this->head = new Assets\Positions\Head();
         $this->body = new Assets\Positions\Body();
