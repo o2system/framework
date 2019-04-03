@@ -87,7 +87,12 @@ trait HierarchicalTrait
 
                 $update[ 'id' ] = $child->id;
 
-                if ($this->hasChilds($child->id)) {
+                if ($this->qb
+                    ->table($this->table)
+                    ->select('id')
+                    ->where($this->parentKey, $child->id)
+                    ->orderBy('id')
+                    ->get()) {
                     $right = $this->rebuildTree($child->id, $right, $depth + 1);
                     $this->qb
                         ->from($this->table)
