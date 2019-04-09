@@ -246,19 +246,19 @@ trait HierarchicalTrait
      * HierarchicalTrait::getChilds
      *
      * @param int    $idParent
-     * @param string $ordering ASC|DESC
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function getChilds($idParent, $ordering = 'ASC')
+    public function getChilds($idParent)
     {
         if ($childs = $this->qb
-            ->select($this->table . '.*')
+            ->select('node.*')
             ->from($this->table)
             ->from($this->table . ' AS node')
             ->whereBetween('node.record_left', [$this->table . '.record_left', $this->table . '.record_right'])
             ->where([
-                $this->table . '.id' => $id,
+                $this->table . '.id' => $idParent,
+                'node.id !=' => $idParent,
             ])
             ->get()) {
             if ($childs->count()) {
