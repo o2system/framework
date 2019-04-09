@@ -71,7 +71,7 @@ class User extends \O2System\Security\Authentication\User
                     $account = $user->account->getArrayCopy();
                 }
             } elseif ($this->passwordVerify($password, $user->password)) {
-                $account = $user;
+                $account = $user->getArrayCopy();
             }
 
             if (isset($account)) {

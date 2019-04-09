@@ -184,9 +184,16 @@ class View implements RenderableInterface
         presenter()->merge($vars);
 
         if (false !== ($filePath = $this->getFilePath($filename))) {
+
+            // Load Assets
+            presenter()->assets->addFilePath(dirname($filePath) . DIRECTORY_SEPARATOR);
+
+            presenter()->assets->loadCss(pathinfo($filePath, PATHINFO_FILENAME));
+            presenter()->assets->loadJs(pathinfo($filePath, PATHINFO_FILENAME));
+
             if ($return === false) {
                 if (presenter()->partials->hasPartial('content') === false) {
-                    if(is_ajax()) {
+                    if (is_ajax()) {
                         parser()->loadFile($filePath);
                         $content = parser()->parse(presenter()->getArrayCopy());
 
@@ -431,7 +438,7 @@ class View implements RenderableInterface
                     'module',
                     modules()->top()->getParameter(),
                 ];
-                
+
                 // Autoload Assets
                 presenter()->assets->loadCss($moduleAssets);
                 presenter()->assets->loadJs($moduleAssets);
@@ -446,9 +453,12 @@ class View implements RenderableInterface
                 if (presenter()->page->file instanceof \SplFileInfo) {
                     $pageDir = presenter()->page->file->getRealPath();
                     $pageDir = str_replace('.' . pathinfo($pageDir, PATHINFO_EXTENSION), '', $pageDir);
+
                     $pageDirParts = explode('pages' . DIRECTORY_SEPARATOR,
                         str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $pageDir));
                     $pageDir = end($pageDirParts);
+
+                    presenter()->assets->addFilePath(reset($pageDirParts) . 'pages' . DIRECTORY_SEPARATOR);
 
                     $pageDir = rtrim($pageDir, DIRECTORY_SEPARATOR);
                     $pageDirParts = explode(DIRECTORY_SEPARATOR, $pageDir);

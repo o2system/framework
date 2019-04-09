@@ -555,7 +555,7 @@ class Framework extends Kernel
             }
 
             ob_start();
-            $requestControllerOutput = $requestController->__call($requestMethod, $requestMethodArgs);
+            $requestController->__call($requestMethod, $requestMethodArgs);
             $requestControllerOutput = ob_get_contents();
             ob_end_clean();
 

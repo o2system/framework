@@ -473,6 +473,7 @@ class Modules extends SplArrayStack
                                 PATH_APP,
                                 $packageJsonFileInfo[ 'basename' ],
                                 ucfirst($modularType) . DIRECTORY_SEPARATOR,
+                                ucfirst($modularType . 's') . DIRECTORY_SEPARATOR, // manual plural
                             ],
                             '',
                             $packageJsonFile

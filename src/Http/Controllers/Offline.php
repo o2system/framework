@@ -22,9 +22,28 @@ use O2System\Framework\Http\Controller;
  */
 class Offline extends Controller
 {
+    /**
+     * Offline::index
+     */
     public function index()
     {
-        view('offline', [
+        $viewFilePath = 'offline';
+
+        if (is_dir(modules()->top()->getDir('Views/errors'))) {
+            $viewFilePath = 'errors/' . $viewFilePath;
+        }
+
+        if (presenter()->theme->use === true) {
+            presenter()->theme->setLayout('offline');
+
+            if (false !== ($layout = presenter()->theme->active->getLayout())) {
+                if ($layout->getFilename() === 'theme') {
+                    presenter()->theme->set(false);
+                }
+            }
+        }
+
+        view($viewFilePath, [
             'title' => language('OFFLINE_TITLE'),
             'message' => language('OFFLINE_MESSAGE')
         ]);
