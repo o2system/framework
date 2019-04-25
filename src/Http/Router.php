@@ -16,7 +16,6 @@ namespace O2System\Framework\Http;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Containers\Modules\DataStructures\Module as FrameworkModuleDataStructure;
-use O2System\Framework\Containers\Modules\DataStructures\Module;
 use O2System\Kernel\Http\Message\Uri as KernelMessageUri;
 use O2System\Kernel\Http\Message\Uri\Segments as KernelMessageUriSegments;
 use O2System\Kernel\Http\Router as KernelRouter;
@@ -210,6 +209,7 @@ class Router extends KernelRouter
 
                 foreach ($modules as $module) {
                     $controllerNamespace = $module->getNamespace() . 'Controllers\\';
+
                     if ($module->getNamespace() === 'O2System\Framework\\') {
                         $controllerNamespace = 'O2System\Framework\Http\Controllers\\';
                     }
@@ -245,7 +245,7 @@ class Router extends KernelRouter
                                         presenter()->partials->offsetSet('content', $page->content);
 
                                         $this->setController(
-                                            (new KernelControllerDataStructure($controller))
+                                            (new KernelControllerDataStructure($controllerClassName))
                                                 ->setRequestMethod('index')
                                         );
 
@@ -344,8 +344,14 @@ class Router extends KernelRouter
         // Push Subdomain App Module
         modules()->push($module);
 
+        // Add Config FilePath
+        config()->addFilePath($module->getRealPath());
+
+        // Reload Config
+        config()->reload();
+
         // Load modular addresses config
-        if (false !== ($configDir = $module->getDir('config', true))) {
+        if (false !== ($configDir = $module->getDir('Config', true))) {
             unset($addresses);
 
             $reconfig = false;
@@ -424,7 +430,7 @@ class Router extends KernelRouter
         } elseif ($closure instanceof KernelControllerDataStructure) {
             $this->setController($closure, $action->getClosureParameters());
         } elseif (is_array($closure)) {
-            $uri = (new KernelMessageUri())
+            $this->uri = (new KernelMessageUri())
                 ->withSegments(new KernelMessageUriSegments(''))
                 ->withQuery('');
             $this->parseRequest($this->uri->addSegments($closure));

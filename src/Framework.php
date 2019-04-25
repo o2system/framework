@@ -23,6 +23,7 @@ namespace O2System;
  * Different environments will require different levels of error reporting.
  * By default development will show errors but testing and live will hide them.
  */
+
 switch (strtoupper(ENVIRONMENT)) {
     case 'DEVELOPMENT':
         error_reporting(-1);
@@ -130,6 +131,18 @@ if ( ! defined('PATH_RESOURCES')) {
     define('PATH_RESOURCES', PATH_ROOT . DIR_RESOURCES . DIRECTORY_SEPARATOR);
 }
 
+/*
+ *---------------------------------------------------------------
+ * DATABASE PATH
+ *---------------------------------------------------------------
+ *
+ * RealPath to writable database folder.
+ *
+ * WITH TRAILING SLASH!
+ */
+if ( ! defined('PATH_DATABASE')) {
+    define('PATH_DATABASE', PATH_ROOT . DIR_DATABASE . DIRECTORY_SEPARATOR);
+}
 
 /*
  *---------------------------------------------------------------
@@ -357,6 +370,7 @@ class Framework extends Kernel
                         continue;
                     }
                     $module->loadModel();
+                    $this->config->addFilePath($module->getRealPath());
                 }
 
                 // Autoload Model
@@ -402,6 +416,28 @@ class Framework extends Kernel
      */
     private function httpHandler()
     {
+        if (config()->loadFile('view') === true) {
+            // Instantiate Http UserAgent Service
+            $this->services->load(Framework\Http\UserAgent::class, 'userAgent');
+
+            // Instantiate Http View Service
+            $this->services->load(Framework\Http\Parser::class);
+
+            // Instantiate Http View Service
+            $this->services->load(Framework\Http\View::class);
+
+            // Instantiate Http Presenter Service
+            $this->services->load(Framework\Http\Presenter::class);
+        }
+
+        // Instantiate Http Router Service
+        $this->services->load(Framework\Http\Router::class);
+
+        if (profiler() !== false) {
+            profiler()->watch('Parse Router Request');
+        }
+        router()->parseRequest();
+
         if (config()->loadFile('session') === true) {
 
             // Instantiate Session Service
@@ -431,30 +467,8 @@ class Framework extends Kernel
             }
         }
 
-        if (config()->loadFile('view') === true) {
-            // Instantiate Http UserAgent Service
-            $this->services->load(Framework\Http\UserAgent::class, 'userAgent');
-
-            // Instantiate Http View Service
-            $this->services->load(Framework\Http\Parser::class);
-
-            // Instantiate Http View Service
-            $this->services->load(Framework\Http\View::class);
-
-            // Instantiate Http Presenter Service
-            $this->services->load(Framework\Http\Presenter::class);
-        }
-
         // Instantiate Http Middleware Service
         $this->services->load(Framework\Http\Middleware::class);
-
-        // Instantiate Http Router Service
-        $this->services->load(Framework\Http\Router::class);
-
-        if (profiler() !== false) {
-            profiler()->watch('Parse Router Request');
-        }
-        router()->parseRequest();
 
         if (profiler() !== false) {
             profiler()->watch('Running Middleware Service: Pre Controller');

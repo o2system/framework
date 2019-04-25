@@ -310,7 +310,7 @@ class Module extends SplDirectoryInfo
         $dirResources = PATH_RESOURCES;
 
         $dirPath = str_replace(PATH_APP, '', $this->getRealPath());
-        $dirPathParts = explode(DIRECTORY_SEPARATOR, $dirPath);
+        $dirPathParts = explode(DIRECTORY_SEPARATOR, str_replace(['/','\\'], DIRECTORY_SEPARATOR, $dirPath));
 
         if(count($dirPathParts)) {
             $dirPathParts = array_map('dash', $dirPathParts);

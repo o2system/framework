@@ -167,6 +167,14 @@ class Theme extends SplDirectoryInfo
     // ------------------------------------------------------------------------
 
     /**
+     * Theme::getPublicPath
+     */
+    public function getPublicPath()
+    {
+        return str_replace(PATH_RESOURCES, PATH_PUBLIC, $this->getRealPath());
+    }
+
+    /**
      * Theme::load
      *
      * @return static
