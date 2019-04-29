@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@ namespace O2System\Framework\Models\Files\Traits;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Models\Sql\DataObjects;
-use O2System\Spl\Datastructures\SplArrayObject;
+use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Iterators\ArrayIterator;
 
 /**
@@ -29,8 +29,8 @@ trait FinderTrait
     /**
      * FinderTrait::all
      *
-     * @param null $fields
-     * @param null $limit
+     * @param array|null $fields
+     * @param int|null   $limit
      *
      * @return bool|DataObjects\Result
      */
@@ -63,6 +63,7 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
@@ -70,7 +71,11 @@ trait FinderTrait
      *
      * Find record by page.
      *
-     * @param int $page
+     * @param array|null $fields
+     * @param int        $page
+     * @param int        $entries
+     *
+     * @return bool|ArrayIterator
      */
     public function page($fields = null, $page = 1, $entries = 5)
     {
@@ -100,15 +105,17 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
-     * Find
+     * FinderTrait::find
      *
      * Find single or many record base on criteria by specific field
      *
-     * @param   string      $criteria Criteria value
-     * @param   string|null $field    Table column field name | set to primary key by default
+     * @param   string          $criteria Criteria value
+     * @param   string|null     $field Table column field name | set to primary key by default
+     * @param   int|null        $limit
      *
      * @return  DataObjects\Result|DataObjects\Result\Row|bool Returns FALSE if failed.
      */
@@ -150,10 +157,11 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
-     * Find In
+     * FinderTrait::findIn
      *
      * Find many records within criteria on specific field
      *
@@ -196,16 +204,17 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
-     * Find By
+     * FinderTrait::findWhere
      *
      * Find single record based on certain conditions
      *
-     * @param   array $conditions List of conditions with criteria
+     * @param   array       $conditions List of conditions with criteria
+     * @param   int|null    $limit
      *
-     * @access  protected
      * @return  DataObjects\Result|bool Returns FALSE if failed.
      */
     public function findWhere(array $conditions, $limit = null)
@@ -240,10 +249,11 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
-     * Find In
+     * FinderTrait::findNotIn
      *
      * Find many records not within criteria on specific field
      *

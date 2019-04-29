@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -46,6 +46,12 @@ trait RecordTrait
      */
     protected $recordUser = null;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * @param $idUser
+     * @return $this
+     */
     protected function setRecordUser($idUser)
     {
         if (is_numeric($idUser)) {
@@ -55,6 +61,12 @@ trait RecordTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * @param $status
+     * @return $this
+     */
     protected function setRecordStatus($status)
     {
         $status = strtoupper($status);
@@ -66,6 +78,11 @@ trait RecordTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * @param array $sets
+     */
     protected function insertRecordSets(array &$sets)
     {
         if (is_null($this->recordUser) and function_exists('globals')) {
@@ -115,6 +132,11 @@ trait RecordTrait
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * @param array $sets
+     */
     protected function updateRecordSets(array &$sets)
     {
         $sets[ 'record_status' ] = $this->recordStatus;

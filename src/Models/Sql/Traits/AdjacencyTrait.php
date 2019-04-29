@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,62 +23,136 @@ namespace O2System\Framework\Models\Sql\Traits;
 trait AdjacencyTrait
 {
     /**
-     * Parent Key Field
+     * AdjacencyTrait::$parentKey
      *
-     * @access  public
-     * @type    string
+     * @var string
      */
     public $parentKey = 'id_parent';
 
     /**
-     * Adjacency Enabled Flag
+     * AdjacencyTrait::$adjacency
      *
-     * @access  protected
-     * @type    bool
+     * @var bool
      */
-    protected $isUseAdjacency = true;
+    protected $adjacency = true;
+
+    // ------------------------------------------------------------------------
 
     /**
-     * Get Children
+     * AdjacencyTrait::getParent
      *
-     * @param int         $id_parent
-     * @param string|null $table
+     * @param int $id
      *
-     * @access  public
-     * @return  mixed
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
-    public function getChildren($id_parent, $table = null)
+    public function getParent($id)
     {
-        $table = isset($table) ? $table : $this->table;
-
-        $result = $this->qb->table($table)->getWhere([$this->parentKey => $id_parent]);
-
-        if ($result->count() > 0) {
-            return $result;
+        if ($parent = $this->qb
+            ->from($this->table)
+            ->where($this->parentKey, $id)
+            ->get(1)) {
+            if ($parent->count() == 1) {
+                return $parent;
+            }
         }
 
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Has Children
+     * AdjacencyTrait::getNumOfParent
      *
-     * @param int         $id_parent
-     * @param string|null $table
+     * @param int $id
      *
-     * @access  public
-     * @return  bool
+     * @return int
      */
-    public function hasChildren($id_parent, $table = null)
+    public function getNumOfParent($id)
     {
-        $table = isset($table) ? $table : $this->table;
+        if ($parents = $this->qb
+            ->table($this->table)
+            ->select('id')
+            ->where('id', $id)
+            ->get(1)) {
+            return $parents->count();
+        }
 
-        $result = $this->qb->select('id')->table($table)->getWhere([$this->parentKey => $id_parent]);
+        return 0;
+    }
 
-        print_out($this->db->getLastQuery());
+    // ------------------------------------------------------------------------
 
-        if ($result->count() > 0) {
+    /**
+     * AdjacencyTrait::hasParent
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    public function hasParent($id)
+    {
+        if (($numParents = $this->getNumOfParent($id)) > 0) {
             return true;
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AdjacencyTrait::getChilds
+     *
+     * @param int $idParent
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function getChilds($idParent)
+    {
+        if ($childs = $this->qb
+            ->from($this->table)
+            ->where($this->parentKey, $idParent)
+            ->get()) {
+            if ($childs->count() > 0) {
+                return $childs;
+            }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AdjacencyTrait::getNumChilds
+     *
+     * @param int $idParent
+     *
+     * @return bool
+     */
+    public function getNumOfChilds($idParent)
+    {
+        if ($childs = $this->getChilds($idParent)) {
+            return $childs->count();
+        }
+
+        return 0;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AdjacencyTrait::hasChilds
+     *
+     * @param int $idParent
+     *
+     * @return bool
+     */
+    public function hasChilds($idParent)
+    {
+        if ($numOfChilds = $this->getNumOfChilds($idParent)) {
+            return (bool)($numOfChilds == 0 ? false : true);
         }
 
         return false;

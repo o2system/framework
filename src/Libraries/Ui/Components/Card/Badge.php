@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,12 +23,43 @@ use O2System\Framework\Libraries\Ui\Components;
  */
 class Badge extends Components\Badge
 {
+    /**
+     * Badge::LEFT_BADGE
+     *
+     * @var int
+     */
     const LEFT_BADGE = 0;
+
+    /**
+     * Badge::RIGHT_BADGE
+     *
+     * @var int
+     */
     const RIGHT_BADGE = 1;
+
+    /**
+     * Badge::INLINE_BADGE
+     *
+     * @var int
+     */
     const INLINE_BADGE = 2;
 
+    /**
+     * Badge::$position
+     *
+     * @var int
+     */
     public $position;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Badge::__construct
+     *
+     * @param string|null $textContent
+     * @param string      $contextualClass
+     * @param int         $position
+     */
     public function __construct($textContent = null, $contextualClass = 'default', $position = self::LEFT_BADGE)
     {
         parent::__construct($textContent, $contextualClass);

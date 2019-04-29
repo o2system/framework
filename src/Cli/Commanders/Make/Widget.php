@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -34,6 +34,11 @@ class Widget extends Make
      */
     protected $commandDescription = 'CLI_MAKE_WIDGET_DESC';
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Widget::execute
+     */
     public function execute()
     {
         parent::execute();
@@ -68,7 +73,7 @@ class Widget extends Make
             exit(EXIT_ERROR);
         }
 
-        $jsProps[ 'name' ] = readable(
+        $jsonProperties[ 'name' ] = readable(
             pathinfo($widgetPath, PATHINFO_FILENAME),
             true
         );
@@ -81,16 +86,16 @@ class Widget extends Make
                 ) . '\\';
         } else {
             $namespace = prepare_class_name($this->namespace);
-            $jsProps[ 'namespace' ] = rtrim($namespace, '\\') . '\\';
+            $jsonProperties[ 'namespace' ] = rtrim($namespace, '\\') . '\\';
         }
 
-        $jsProps[ 'created' ] = date('d M Y');
+        $jsonProperties[ 'created' ] = date('d M Y');
 
         loader()->addNamespace($namespace, $widgetPath);
 
-        $fileContent = json_encode($jsProps, JSON_PRETTY_PRINT);
+        $fileContent = json_encode($jsonProperties, JSON_PRETTY_PRINT);
 
-        $filePath = $widgetPath . 'widget.jsprop';
+        $filePath = $widgetPath . 'widget.json';
 
         file_put_contents($filePath, $fileContent);
 

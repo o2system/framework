@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -27,6 +27,11 @@ class Group extends Element
 {
     use SizingSetterTrait;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Group::__construct
+     */
     public function __construct()
     {
         parent::__construct('div');
@@ -38,8 +43,12 @@ class Group extends Element
         $this->setSizingClassPrefix('btn-group');
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * @param $label
+     * Group::createButton
+     *
+     * @param string $label
      *
      * @return Button
      */
@@ -71,6 +80,13 @@ class Group extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Group::verticalStacked
+     *
+     * @return static
+     */
     public function verticalStacked()
     {
         $this->attributes->removeAttributeClass('btn-group');
@@ -79,6 +95,13 @@ class Group extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Group::justified
+     *
+     * @return static
+     */
     public function justified()
     {
         $this->attributes->addAttributeClass('btn-group-justified');

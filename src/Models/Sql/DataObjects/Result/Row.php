@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@ namespace O2System\Framework\Models\Sql\DataObjects\Result;
 
 use O2System\Database;
 use O2System\Framework\Models\Sql\Model;
-use O2System\Spl\Datastructures\SplArrayObject;
+use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Info\SplClassInfo;
 
 /**
@@ -28,11 +28,13 @@ use O2System\Spl\Info\SplClassInfo;
 class Row extends SplArrayObject
 {
     /**
-     * Row Model Instance
+     * Row::$model
      *
-     * @var Model
+     * @var \O2System\Spl\Info\SplClassInfo
      */
     private $model;
+
+    // ------------------------------------------------------------------------
 
     /**
      * Row::__construct
@@ -44,8 +46,8 @@ class Row extends SplArrayObject
     {
         $this->model = new SplClassInfo($model);
 
-        if ( ! models()->has($this->model->getParameter())) {
-            models()->register($this->model->getParameter(), $model);
+        if ( ! models()->has($this->model->getClass())) {
+            models()->add($model, $this->model->getClass());
         }
 
         if ($row instanceof Database\DataObjects\Result\Row) {
@@ -54,30 +56,51 @@ class Row extends SplArrayObject
             parent::__construct($row);
         }
 
-        models($this->model->getParameter())->row = $this;
+        models($this->model->getClass())->row = $this;
     }
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Row::offsetGet
+     *
+     * @param string $offset
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result|\O2System\Framework\Models\Sql\DataObjects\Result\Row|null
+     */
     public function offsetGet($offset)
     {
-        if (null !== ($result = $this->__call($offset))) {
+        if ($this->offsetExists($offset)) {
+            return parent::offsetGet($offset);
+        } elseif (null !== ($result = $this->__call($offset))) {
             return $result;
         }
 
-        return parent::offsetGet($offset);
+        return null;
     }
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Row::__call
+     *
+     * @param string $method
+     * @param array  $args
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result|\O2System\Framework\Models\Sql\DataObjects\Result\Row|null
+     */
     public function __call($method, $args = [])
     {
-        $model = models($this->model->getParameter());
+        $model = models($this->model->getClass());
 
         if (method_exists($model, $method)) {
             $model->row = $this;
 
-            return call_user_func_array([&$model, $method], $args);
+            if (false !== ($result = call_user_func_array([&$model, $method], $args))) {
+                $this->offsetSet($method, $result);
+
+                return $result;
+            }
         }
 
         return null;

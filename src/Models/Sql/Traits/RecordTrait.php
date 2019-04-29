@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,26 +23,23 @@ namespace O2System\Framework\Models\Sql\Traits;
 trait RecordTrait
 {
     /**
-     * Unix Timestamp Flag
+     * RecordTrait::$unixTimestamp
      *
-     * @access  protected
-     * @type    bool
+     * @var bool
      */
-    protected $unixTimestamp = false;
+    public $unixTimestamp = false;
 
     /**
-     * Default Record Status
+     * RecordTrait::$recordStatus
      *
-     * @access  protected
-     * @type    string
+     * @var string
      */
     protected $recordStatus = 'PUBLISH';
 
     /**
-     * Default Record User
+     * RecordTrait::$recordUser
      *
-     * @access  protected
-     * @type    int
+     * @var int|null
      */
     protected $recordUser = null;
 
@@ -51,9 +48,18 @@ trait RecordTrait
      *
      * @var bool
      */
-    protected $recordOrdering = false;
+    public $recordOrdering = false;
 
-    protected function setRecordUser($idUser)
+    // ------------------------------------------------------------------------
+
+    /**
+     * RecordTrait::setRecordUser
+     *
+     * @param int $idUser
+     *
+     * @return static
+     */
+    public function setRecordUser($idUser)
     {
         if (is_numeric($idUser)) {
             $this->recordUser = $idUser;
@@ -62,92 +68,141 @@ trait RecordTrait
         return $this;
     }
 
-    protected function setRecordStatus($status)
+    // ------------------------------------------------------------------------
+
+    /**
+     * RecordTrait::setRecordStatus
+     *
+     * @param string $status
+     *
+     * @return static
+     */
+    public function setRecordStatus($status)
     {
         $status = strtoupper($status);
 
-        if (in_array($status, ['UNPUBLISH', 'PUBLISH', 'DRAFT', 'DELETE', 'ARCHIVE'])) {
+        if (in_array($status, ['UNPUBLISH', 'PUBLISH', 'DRAFT', 'DELETED', 'ARCHIVED', 'LOCKED'])) {
             $this->recordStatus = $status;
         }
 
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * RecordTrait::insertRecordSets
+     *
+     * @param array $sets
+     */
     protected function insertRecordSets(array &$sets)
     {
-        if (is_null($this->recordUser) and function_exists('globals')) {
-            if ($account = globals()->offsetGet('account')) {
-                $this->recordUser = isset($account->id_user_account)
-                    ? $account->id_user_account
-                    : $account->id;
+        $timestamp = $this->unixTimestamp === true ? strtotime(date('Y-m-d H:i:s')) : date('Y-m-d H:i:s');
+
+        if(is_null($this->recordUser)) {
+            if(globals()->offsetExists('account')) {
+                $this->setRecordUser(globals()->account->id);
             }
         }
-
-        $timestamp = $this->unixTimestamp === true ? strtotime(date('Y-m-d H:i:s')) : date('Y-m-d H:i:s');
 
         if ( ! isset($sets[ 'record_status' ])) {
             $sets[ 'record_status' ] = $this->recordStatus;
         }
 
-        if (empty($this->primary_keys)) {
-            $primary_key = isset($this->primary_key) ? $this->primary_key : 'id';
+        if (empty($this->primaryKeys)) {
+            $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
-            if (empty($sets[ $primary_key ])) {
+            if (isset($sets[ $primaryKey ])) {
+                if (empty($sets[ $primaryKey ])) {
+                    unset($sets[ $primaryKey ]);
+                }
+            }
+
+            if (empty($sets[ $primaryKey ])) {
                 if ( ! isset($sets[ 'record_create_user' ])) {
                     $sets[ 'record_create_user' ] = $this->recordUser;
                 }
 
                 if ( ! isset($sets[ 'record_create_timestamp' ])) {
                     $sets[ 'record_create_timestamp' ] = $timestamp;
+                } elseif ($this->unixTimestamp) {
+                    $sets[ 'record_create_timestamp' ] = strtotime($sets[ 'record_create_timestamp' ]);
                 }
             }
         } else {
-            foreach ($this->primary_keys as $primary_key) {
-                if (empty($sets[ $primary_key ])) {
+            foreach ($this->primaryKeys as $primaryKey) {
+                if (empty($sets[ $primaryKey ])) {
                     if ( ! isset($sets[ 'record_create_user' ])) {
                         $sets[ 'record_create_user' ] = $this->recordUser;
                     }
 
                     if ( ! isset($sets[ 'record_create_timestamp' ])) {
                         $sets[ 'record_create_timestamp' ] = $timestamp;
+                    } elseif ($this->unixTimestamp) {
+                        $sets[ 'record_create_timestamp' ] = strtotime($sets[ 'record_create_timestamp' ]);
                     }
                 }
             }
         }
 
-        $sets[ 'record_update_user' ] = $this->recordUser;
+        if ( ! isset($sets[ 'record_update_user' ])) {
+            $sets[ 'record_update_user' ] = $this->recordUser;
+        }
 
         if ( ! isset($sets[ 'record_update_timestamp' ])) {
             $sets[ 'record_update_timestamp' ] = $timestamp;
+        } elseif ($this->unixTimestamp) {
+            $sets[ 'record_update_timestamp' ] = strtotime($sets[ 'record_update_timestamp' ]);
+        }
+
+        if ( ! isset($sets[ 'record_ordering' ]) && $this->recordOrdering === true) {
+            $sets[ 'record_ordering' ] = $this->getRecordOrdering();
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * RecordTrait::updateRecordSets
+     *
+     * @param array $sets
+     */
     protected function updateRecordSets(array &$sets)
     {
-        $sets[ 'record_status' ] = $this->recordStatus;
-        $sets[ 'record_update_user' ] = $this->recordUser;
+        if(is_null($this->recordUser)) {
+            if(globals()->offsetExists('account')) {
+                $this->setRecordUser(globals()->account->id);
+            }
+        }
+
+        if ( ! isset($sets[ 'record_status' ])) {
+            $sets[ 'record_status' ] = $this->recordStatus;
+        }
+
+        if ( ! isset($sets[ 'record_update_user' ])) {
+            $sets[ 'record_update_user' ] = $this->recordUser;
+        }
 
         $timestamp = $this->unixTimestamp === true ? strtotime(date('Y-m-d H:i:s')) : date('Y-m-d H:i:s');
 
         if ( ! isset($sets[ 'record_update_timestamp' ])) {
             $sets[ 'record_update_timestamp' ] = $timestamp;
         }
-
-        if ($this->recordStatus === 'PUBLISH') {
-            $sets[ 'record_delete_timestamp' ] = null;
-            $sets[ 'record_delete_user' ] = null;
-        }
     }
 
-    /**
-     * Process Row Ordering
-     *
-     * @access  public
-     */
-    protected function getRecordOrdering($table = null)
-    {
-        $table = isset($table) ? $table : $this->table;
+    // ------------------------------------------------------------------------
 
-        return $this->qb->countAllResults($table) + 1;
+    /**
+     * RecordTrait::getRecordOrdering
+     *
+     * @return int
+     */
+    public function getRecordOrdering()
+    {
+        if($this->recordOrdering === true) {
+            return $this->qb->countAllResults($this->table) + 1;
+        }
+
+        return 0;
     }
 }

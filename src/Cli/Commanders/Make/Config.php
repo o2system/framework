@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -34,6 +34,11 @@ class Config extends Make
      */
     protected $commandDescription = 'CLI_MAKE_CONFIG_DESC';
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Config::execute
+     */
     public function execute()
     {
         parent::execute();
@@ -55,8 +60,10 @@ class Config extends Make
             $filePath = $this->optionPath . $this->optionFilename;
         }
 
-        if ( ! is_dir(dirname($filePath))) {
-            mkdir(dirname($filePath), 777, true);
+        $fileDirectory = dirname($filePath) . DIRECTORY_SEPARATOR;
+
+        if ( ! is_dir($fileDirectory)) {
+            mkdir($fileDirectory, 0777, true);
         }
 
         if (is_file($filePath)) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -111,7 +111,7 @@ class UserAgent
      *
      * @var string
      */
-    public $version = '';
+    public $browserVersion = '';
 
     /**
      * Current user-agent mobile name
@@ -144,7 +144,7 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Constructor
+     * UserAgent::__construct
      *
      * Sets the User Agent and runs the compilation routine
      *
@@ -164,6 +164,8 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
+     * UserAgent::loadAgentFile
+     *
      * Compile the User Agent Data
      *
      * @return    bool
@@ -210,9 +212,9 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Compile the User Agent Data
+     * UserAgent::compileData
      *
-     * @return    bool
+     * Compile the User Agent Data
      */
     protected function compileData()
     {
@@ -228,9 +230,11 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
+     * UserAgent::setPlatform
+     *
      * Set the Platform
      *
-     * @return    bool
+     * @return bool
      */
     protected function setPlatform()
     {
@@ -252,11 +256,13 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
+     * UserAgent::isBrowser
+     *
      * Is Browser
      *
-     * @param    string $key
+     * @param string|null $key
      *
-     * @return    bool
+     * @return bool
      */
     public function isBrowser($key = null)
     {
@@ -300,11 +306,13 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
+     * UserAgent::isMobile
+     *
      * Is Mobile
      *
-     * @param    string $key
+     * @param  string $key
      *
-     * @return    bool
+     * @return bool
      */
     public function isMobile($key = null)
     {
@@ -324,9 +332,11 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
+     * UserAgent::isReferral
+     *
      * Is this a referral from another site?
      *
-     * @return    bool
+     * @return bool
      */
     public function isReferral()
     {
@@ -335,7 +345,7 @@ class UserAgent
                 $this->referer = false;
             } else {
                 $referer_host = @parse_url($_SERVER[ 'HTTP_REFERER' ], PHP_URL_HOST);
-                $own_host = parse_url(o2system()->config->base_url(), PHP_URL_HOST);
+                $own_host = parse_url(base_url(), PHP_URL_HOST);
 
                 $this->referer = ($referer_host && $referer_host !== $own_host);
             }
@@ -347,11 +357,13 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Agent String
+     * UserAgent::getString
      *
-     * @return    string
+     * Gets the user agent string.
+     *
+     * @return string
      */
-    public function agentString()
+    public function getString()
     {
         return $this->string;
     }
@@ -359,11 +371,13 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Get Platform
+     * UserAgent::getPlatform
      *
-     * @return    string
+     * Gets the user platform name.
+     *
+     * @return string
      */
-    public function platform()
+    public function getPlatform()
     {
         return $this->platform;
     }
@@ -371,11 +385,13 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Get Browser Name
+     * UserAgent::getBrowser
      *
-     * @return    string
+     * Gets the user browser name.
+     *
+     * @return string
      */
-    public function browser()
+    public function getBrowser()
     {
         return $this->browser;
     }
@@ -383,23 +399,27 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Get the Browser Version
+     * UserAgent::getBrowserVersion
      *
-     * @return    string
+     * Gets the user browser version.
+     *
+     * @return string
      */
-    public function version()
+    public function getBrowserVersion()
     {
-        return $this->version;
+        return $this->browserVersion;
     }
 
     // --------------------------------------------------------------------
 
     /**
-     * Get The Robot Name
+     * UserAgent::getRobot
      *
-     * @return    string
+     * Gets the robot name.
+     *
+     * @return string
      */
-    public function robot()
+    public function getRobot()
     {
         return $this->robot;
     }
@@ -407,11 +427,13 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Get the Mobile Device
+     * UserAgent::getMobile
      *
-     * @return    string
+     * Gets the user mobile device name.
+     *
+     * @return string
      */
-    public function mobile()
+    public function getMobile()
     {
         return $this->mobile;
     }
@@ -419,11 +441,13 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Get the referrer
+     * UserAgent::isHttpReferrerExists
      *
-     * @return    bool
+     * Determine if the server http referrer exists.
+     *
+     * @return bool
      */
-    public function referrer()
+    public function isHttpReferrerExists()
     {
         return empty($_SERVER[ 'HTTP_REFERER' ]) ? '' : trim($_SERVER[ 'HTTP_REFERER' ]);
     }
@@ -431,25 +455,29 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Test for a particular language
+     * UserAgent::isLanguageAllowed
      *
-     * @param    string $lang
+     * Checks for a particular language.
      *
-     * @return    bool
+     * @param string $lang
+     *
+     * @return bool
      */
-    public function acceptLang($lang = 'en')
+    public function isLanguageAllowed($lang = 'en')
     {
-        return in_array(strtolower($lang), $this->languages(), true);
+        return in_array(strtolower($lang), $this->getLanguages(), true);
     }
 
     // --------------------------------------------------------------------
 
     /**
-     * Get the accepted languages
+     * UserAgent::getLanguages
+     *
+     * Gets the accepted languages.
      *
      * @return    array
      */
-    public function languages()
+    public function getLanguages()
     {
         if (count($this->languages) === 0) {
             $this->setLanguages();
@@ -461,9 +489,11 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Set the accepted languages
+     * UserAgent::setLanguages
      *
-     * @return    void
+     * Sets the accepted languages.
+     *
+     * @return void
      */
     protected function setLanguages()
     {
@@ -485,25 +515,29 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Test for a particular character set
+     * UserAgent::isCharsetAllowed
      *
-     * @param    string $charset
+     * Checks for a particular character set.
+     *
+     * @param string $charset
      *
      * @return    bool
      */
-    public function acceptCharset($charset = 'utf-8')
+    public function isCharsetAllowed($charset = 'utf-8')
     {
-        return in_array(strtolower($charset), $this->charsets(), true);
+        return in_array(strtolower($charset), $this->getCharsets(), true);
     }
 
     // --------------------------------------------------------------------
 
     /**
-     * Get the accepted Character Sets
+     * UserAgent::getCharsets
      *
-     * @return    array
+     * Gets the accepted character set.
+     *
+     * @return array
      */
-    public function charsets()
+    public function getCharsets()
     {
         if (count($this->charsets) === 0) {
             $this->setCharsets();
@@ -515,9 +549,11 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Set the accepted character sets
+     * UserAgent::setCharsets
      *
-     * @return    void
+     * Sets the accepted character sets
+     *
+     * @return void
      */
     protected function setCharsets()
     {
@@ -540,11 +576,13 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
+     * UserAgent::parse
+     *
      * Parse a custom user-agent string
      *
-     * @param    string $string
+     * @param string $string
      *
-     * @return    void
+     * @return void
      */
     public function parse($string)
     {
@@ -553,7 +591,7 @@ class UserAgent
         $this->isRobot = false;
         $this->isMobile = false;
         $this->browser = '';
-        $this->version = '';
+        $this->browserVersion = '';
         $this->mobile = '';
         $this->robot = '';
 
@@ -568,7 +606,9 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Set the Browser
+     * UserAgent::setBrowser
+     *
+     * Sets the user agent browser.
      *
      * @return    bool
      */
@@ -578,7 +618,7 @@ class UserAgent
             foreach (static::$browsers as $key => $val) {
                 if (preg_match('|' . $key . '.*?([0-9\.]+)|i', $this->string, $match)) {
                     $this->isBrowser = true;
-                    $this->version = $match[ 1 ];
+                    $this->browserVersion = $match[ 1 ];
                     $this->browser = $val;
                     $this->setMobile();
 
@@ -593,9 +633,11 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Set the Mobile Device
+     * UserAgent::setMobile
      *
-     * @return    bool
+     * Sets the user agent mobile device.
+     *
+     * @return bool
      */
     protected function setMobile()
     {
@@ -616,9 +658,11 @@ class UserAgent
     // --------------------------------------------------------------------
 
     /**
-     * Set the Robot
+     * UserAgent::setRobot
      *
-     * @return    bool
+     * Sets the user agent robot.
+     *
+     * @return bool
      */
     protected function setRobot()
     {

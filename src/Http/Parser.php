@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,15 +15,18 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
-use O2System\Parser\Drivers;
+use O2System\Parser\Compiler;
 
 /**
  * Class Parser
  *
  * @package O2System\Framework\Http
  */
-class Parser extends Drivers
+class Parser extends Compiler
 {
+    /**
+     * Parser::__construct
+     */
     public function __construct()
     {
         $config = config()->loadFile('parser', true);

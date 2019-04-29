@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,6 @@ namespace O2System\Framework\Models\Sql\Relations;
 
 // ------------------------------------------------------------------------
 
-use O2System\Database\DataObjects\Result;
 use O2System\Framework\Models\Sql;
 
 /**
@@ -26,42 +25,18 @@ use O2System\Framework\Models\Sql;
 class HasOne extends Sql\Relations\Abstracts\AbstractRelation
 {
     /**
-     * Get Result
-     *
-     * @return null
+     * HasOne::getResult
+     * 
+     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
     public function getResult()
     {
-        if ($this->map->referenceModel->row instanceof Sql\DataObjects\Result\Row) {
+        if ($this->map->currentModel->row instanceof Sql\DataObjects\Result\Row) {
+            $criteria = $this->map->currentModel->row->offsetGet($this->map->currentPrimaryKey);
+            $field = $this->map->referenceTable . '.' . $this->map->referenceForeignKey;
 
-            $criteria = $this->map->referenceModel->row->offsetGet($this->map->referenceModel->primaryKey);
-            $conditions = [$this->map->relationForeignKey => $criteria];
-
-            if ($this->map->relationModel instanceof Sql\Model) {
-                $result = $this->map->relationModel->qb
-                    ->from($this->map->relationTable)
-                    ->getWhere($conditions, 1);
-
-                if ($result instanceof Result) {
-                    if ($result->count() > 0) {
-                        $this->map->relationModel->result = new Sql\DataObjects\Result($result,
-                            $this->map->relationModel);
-
-                        return $this->map->relationModel->row = $this->map->relationModel->result->first();
-                    }
-                }
-            } elseif ( ! empty($this->map->relationTable)) {
-                $result = $this->map->referenceModel->qb
-                    ->from($this->map->relationTable)
-                    ->getWhere($conditions, 1);
-
-                if ($result instanceof Result) {
-                    if ($result->count() > 0) {
-                        $result = new Sql\DataObjects\Result($result, $this->map->referenceModel);
-
-                        return $result->first();
-                    }
-                }
+            if ($result = $this->map->referenceModel->find($criteria, $field, 1)) {
+                return $result;
             }
         }
 

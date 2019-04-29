@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@ namespace O2System\Framework\Cli\Commanders;
 
 // ------------------------------------------------------------------------
 
-use O2System\Kernel\Cli\Commander;
+use O2System\Framework\Cli\Commander;
 use O2System\Kernel\Cli\Writers\Format;
 
 /**
@@ -79,16 +79,35 @@ class Serve extends Commander
      */
     protected $optionPort;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Serve::optionHost
+     *
+     * @param string $host
+     */
     public function optionHost($host)
     {
         $this->optionHost = $host;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Serve::optionPort
+     *
+     * @param int $port
+     */
     public function optionPort($port)
     {
         $this->optionPort = $port;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Serve::execute
+     */
     public function execute()
     {
         $options = input()->get();

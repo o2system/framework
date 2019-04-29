@@ -30,7 +30,7 @@
     "forum": "https://www.facebook.com/groups/498147006994512"
   },
   "require": {
-    "php": ">=5.6.0",
+    "php": "^7.2.0",
     "o2system/kernel": "*",
     "o2system/filesystem": "*",
     "o2system/cache": "*",
@@ -39,7 +39,6 @@
     "o2system/parser": "*",
     "o2system/image": "*",
     "o2system/security": "*",
-    "o2system/curl": "*",
     "o2system/email": "*",
     "matthiasmullie/minify": "^1.3"
   },

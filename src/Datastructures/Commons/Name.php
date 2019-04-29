@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,23 +11,23 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Datastructures\Commons;
+namespace O2System\Framework\DataStructures\Commons;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Name
  *
- * @package O2System\Framework\Datastructures\Commons
+ * @package O2System\Framework\DataStructures\Commons
  */
 class Name extends AbstractRepository
 {
     /**
      * Name::__construct
      *
-     * @param string $name
+     * @param string|array $name
      */
     public function __construct($name)
     {
@@ -61,6 +61,13 @@ class Name extends AbstractRepository
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Name::__toString
+     *
+     * @return string
+     */
     public function __toString()
     {
         $name = $this->offsetGet('first');

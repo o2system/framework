@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,6 @@ namespace O2System\Framework\Models\Sql\Traits;
 
 // ------------------------------------------------------------------------
 
-use O2System\Database\DataObjects\Result;
 use O2System\Framework\Models\Sql\DataObjects;
 
 /**
@@ -28,10 +27,10 @@ trait FinderTrait
     /**
      * FinderTrait::all
      *
-     * @param null $fields
-     * @param null $limit
+     * @param array|string|null $fields
+     * @param int|null          $limit
      *
-     * @return bool|DataObjects\Result
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
     public function all($fields = null, $limit = null)
     {
@@ -43,9 +42,14 @@ trait FinderTrait
             $this->qb->limit($limit);
         }
 
-        $result = $this->qb->from($this->table)->get();
+        if (property_exists($this, 'hierarchical')) {
+            $this->qb->orderBy($this->table . '.record_left', 'ASC');
+            $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
+        } elseif (property_exists($this, 'adjacency')) {
+            $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
+        }
 
-        if ($result instanceof Result) {
+        if ($result = $this->qb->from($this->table)->get()) {
             if ($result->count() > 0) {
                 $this->result = new DataObjects\Result($result, $this);
                 $this->result->setInfo($result->getInfo());
@@ -56,52 +60,55 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
-     * FinderTrait::page
+     * FinderTrait::allWithPaging
      *
-     * Find record by page.
+     * @param array|string|null $fields
+     * @param int|null          $limit
      *
-     * @param int $page
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function page($fields = null, $page = 1, $entries = 5)
+    public function allWithPaging($fields = null, $limit = null)
     {
-        $page = empty($page) ? 1 : $page;
-        $entries = empty($entries) ? 5 : $entries;
-
-        if (isset($fields)) {
-            if (is_numeric($fields)) {
-                $page = $fields;
-            } else {
-                $this->qb->select($fields);
-            }
-        }
-
-        $this->qb->page($page, $entries);
-
-        $result = $this->qb->from($this->table)->get();
-
-        if ($result->count() > 0) {
-            $this->result = new DataObjects\Result($result, $this);
-            $this->result->setInfo($result->getInfo());
-
-            return $this->result;
-        }
-
-        return false;
+        return $this->withPaging(null, $limit)->all($fields, $limit);
     }
+
     // ------------------------------------------------------------------------
 
     /**
-     * Find
+     * FinderTrait::withPaging
      *
-     * Find single or many record base on criteria by specific field
+     * @param int|null $page
+     * @param int|null $limit
      *
-     * @param   string      $criteria Criteria value
-     * @param   string|null $field    Table column field name | set to primary key by default
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function withPaging($page = null, $limit = null)
+    {
+        $getPage = $this->input->get('page');
+        $getLimit = $this->input->get('limit');
+
+        $page = empty($page) ? (empty($getPage) ? 1 : $getPage) : $page;
+        $limit = empty($limit) ? (empty($getLimit) ? 10 : $getLimit) : $limit;
+
+        $this->qb->page($page, $limit);
+
+        return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * FinderTrait::find
      *
-     * @return  DataObjects\Result|DataObjects\Result\Row|bool Returns FALSE if failed.
+     * @param mixed       $criteria
+     * @param string|null $field
+     * @param int|null    $limit
+     *
+     * @return bool|mixed|\O2System\Framework\Models\Sql\DataObjects\Result
      */
     public function find($criteria, $field = null, $limit = null)
     {
@@ -110,12 +117,14 @@ trait FinderTrait
         }
 
         $field = isset($field) ? $field : $this->primaryKey;
+        if (strpos($field, '.') === false) {
+            $field = $this->table . '.' . $field;
+        }
 
-        $result = $this->qb
+        if ($result = $this->qb
             ->from($this->table)
-            ->getWhere([$field => $criteria], $limit);
-
-        if ($result instanceof Result) {
+            ->where($field, $criteria)
+            ->get($limit)) {
             if ($result->count() > 0) {
                 $this->result = new DataObjects\Result($result, $this);
                 $this->result->setInfo($result->getInfo());
@@ -130,55 +139,29 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
-     * Find In
+     * FinderTrait::findWhere
      *
-     * Find many records within criteria on specific field
+     * @param array    $conditions
+     * @param int|null $limit
      *
-     * @param   array  $inCriteria List of criteria
-     * @param   string $field      Table column field name | set to primary key by default
-     *
-     * @return  DataObjects\Result|bool Returns FALSE if failed.
-     */
-    public function findIn(array $inCriteria, $field = null)
-    {
-        $field = isset($field) ? $field : $this->primaryKey;
-
-        $result = $this->qb
-            ->from($this->table)
-            ->whereIn($field, $inCriteria)
-            ->get();
-
-        if ($result->count() > 0) {
-            $this->result = new DataObjects\Result($result, $this);
-            $this->result->setInfo($result->getInfo());
-
-            return $this->result;
-        }
-
-        return false;
-    }
-    // ------------------------------------------------------------------------
-
-    /**
-     * Find By
-     *
-     * Find single record based on certain conditions
-     *
-     * @param   array $conditions List of conditions with criteria
-     *
-     * @access  protected
-     * @return  DataObjects\Result|bool Returns FALSE if failed.
+     * @return bool|mixed|\O2System\Framework\Models\Sql\DataObjects\Result
      */
     public function findWhere(array $conditions, $limit = null)
     {
-        $result = $this->qb
-            ->from($this->table)
-            ->getWhere($conditions, $limit);
+        foreach ($conditions as $field => $criteria) {
+            if (strpos($field, '.') === false) {
+                $field = $this->table . '.' . $field;
+            }
+            $this->qb->where($field, $criteria);
+        }
 
-        if ($result->count() > 0) {
+        if ($result = $this->qb
+            ->from($this->table)
+            ->get($limit)) {
             $this->result = new DataObjects\Result($result, $this);
             $this->result->setInfo($result->getInfo());
 
@@ -191,28 +174,56 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
-     * Find In
+     * FinderTrait::findIn
      *
-     * Find many records not within criteria on specific field
+     * @param array       $inCriteria
+     * @param string|null $field
      *
-     * @param   array  $notInCriteria List of criteria
-     * @param   string $field         Table column field name | set to primary key by default
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function findIn(array $inCriteria, $field = null)
+    {
+        $field = isset($field) ? $field : $this->primaryKey;
+        $field = $this->table . '.' . $field;
+
+        if ($result = $this->qb
+            ->from($this->table)
+            ->whereIn($field, $inCriteria)
+            ->get()) {
+            $this->result = new DataObjects\Result($result, $this);
+            $this->result->setInfo($result->getInfo());
+
+            return $this->result;
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * FinderTrait::findNotIn
      *
-     * @return  DataObjects\Result|bool Returns FALSE if failed.
+     * @param array       $notInCriteria
+     * @param string|null $field
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
     public function findNotIn(array $notInCriteria, $field = null)
     {
         $field = isset($field) ? $field : $this->primaryKey;
+        if (strpos($field, '.') === false) {
+            $field = $this->table . '.' . $field;
+        }
 
-        $result = $this->qb
+        if ($result = $this->qb
             ->from($this->table)
             ->whereNotIn($field, $notInCriteria)
-            ->get();
-
-        if ($result->count() > 0) {
+            ->get()) {
             $this->result = new DataObjects\Result($result, $this);
             $this->result->setInfo($result->getInfo());
 

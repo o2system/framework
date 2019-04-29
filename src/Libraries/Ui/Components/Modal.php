@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,10 +26,17 @@ use O2System\Framework\Libraries\Ui\Element;
 class Modal extends Element
 {
     /**
+     * Modal::$dialog
+     *
      * @var Dialog
      */
     public $dialog;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modal::__construct
+     */
     public function __construct()
     {
         parent::__construct('div', 'modal');
@@ -41,6 +48,17 @@ class Modal extends Element
         $this->dialog = $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modal::setTitle
+     *
+     * @param string $text
+     * @param string $tagName
+     * @param array  $attributes
+     *
+     * @return static
+     */
     public function setTitle($text, $tagName = 'h5', array $attributes = [])
     {
         $this->dialog->content->header->tagName = $tagName;

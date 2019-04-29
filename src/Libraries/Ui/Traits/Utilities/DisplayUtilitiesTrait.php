@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,6 +21,13 @@ namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
  */
 trait DisplayUtilitiesTrait
 {
+    /**
+     * DisplayUtilitiesTrait::displayNone
+     *
+     * @param string|null $size
+     *
+     * @return static
+     */
     public function displayNone($size = null)
     {
         if (empty($size)) {
@@ -32,6 +39,15 @@ trait DisplayUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * DisplayUtilitiesTrait::displayInline
+     *
+     * @param string|null $size
+     *
+     * @return static
+     */
     public function displayInline($size = null)
     {
         if (empty($size)) {
@@ -43,6 +59,15 @@ trait DisplayUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * DisplayUtilitiesTrait::displayInlineBlock
+     *
+     * @param string|null $size
+     *
+     * @return static
+     */
     public function displayInlineBlock($size = null)
     {
         if (empty($size)) {
@@ -54,6 +79,15 @@ trait DisplayUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * DisplayUtilitiesTrait::displayBlock
+     *
+     * @param string|null $size
+     *
+     * @return static
+     */
     public function displayBlock($size = null)
     {
         if (empty($size)) {
@@ -65,6 +99,15 @@ trait DisplayUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * DisplayUtilitiesTrait::displayTable
+     *
+     * @param string|null $size
+     *
+     * @return static
+     */
     public function displayTable($size = null)
     {
         if (empty($size)) {
@@ -76,6 +119,15 @@ trait DisplayUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * DisplayUtilitiesTrait::displayTableCell
+     *
+     * @param string|null $size
+     *
+     * @return static
+     */
     public function displayTableCell($size = null)
     {
         if (empty($size)) {
@@ -87,6 +139,15 @@ trait DisplayUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * DisplayUtilitiesTrait::displayFlex
+     *
+     * @param string|null $size
+     *
+     * @return static
+     */
     public function displayFlex($size = null)
     {
         if (empty($size)) {
@@ -98,6 +159,15 @@ trait DisplayUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * DisplayUtilitiesTrait::displayInlineFlex
+     *
+     * @param string|null $size
+     *
+     * @return static
+     */
     public function displayInlineFlex($size = null)
     {
         if (empty($size)) {
@@ -109,6 +179,13 @@ trait DisplayUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * DisplayUtilitiesTrait::displayPrintBlock
+     *
+     * @return static
+     */
     public function displayPrintBlock()
     {
         $this->attributes->addAttributeClass('d-print-block');
@@ -116,6 +193,13 @@ trait DisplayUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * DisplayUtilitiesTrait::displayPrintInline
+     *
+     * @return static
+     */
     public function displayPrintInline()
     {
         $this->attributes->addAttributeClass('d-print-inline');
@@ -123,6 +207,13 @@ trait DisplayUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * DisplayUtilitiesTrait::displayPrintInlineBlock
+     *
+     * @return static
+     */
     public function displayPrintInlineBlock()
     {
         $this->attributes->addAttributeClass('d-print-inline-block');
@@ -130,6 +221,13 @@ trait DisplayUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * DisplayUtilitiesTrait::displayPrintNone
+     *
+     * @return static
+     */
     public function displayPrintNone()
     {
         $this->attributes->addAttributeClass('d-print-none');

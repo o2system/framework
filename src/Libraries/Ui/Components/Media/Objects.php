@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -32,9 +32,25 @@ class Objects extends Element
     use HeadingSetterTrait;
     use ParagraphSetterTrait;
 
+    /**
+     * Objects::$body
+     *
+     * @var \O2System\Framework\Libraries\Ui\Element
+     */
     public $body;
+
+    /**
+     * Objects::$alignment
+     *
+     * @var string
+     */
     public $alignment;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Objects::__construct
+     */
     public function __construct()
     {
         parent::__construct('div');
@@ -44,6 +60,13 @@ class Objects extends Element
         $this->body->attributes->addAttributeClass('media-body');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Objects::alignTop
+     *
+     * @return static
+     */
     public function alignTop()
     {
         $this->alignment = 'TOP';
@@ -51,6 +74,13 @@ class Objects extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Object::alignMiddle
+     *
+     * @return static
+     */
     public function alignMiddle()
     {
         $this->alignment = 'MIDDLE';
@@ -58,6 +88,13 @@ class Objects extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Object::alignBottom
+     *
+     * @return static
+     */
     public function alignBottom()
     {
         $this->alignment = 'BOTTOM';
@@ -65,6 +102,15 @@ class Objects extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Objects::createNestedObject
+     *
+     * @param mixed $list
+     *
+     * @return Objects
+     */
     public function createNestedObject($list = null)
     {
         $node = new Objects();
@@ -89,6 +135,13 @@ class Objects extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Objects::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();

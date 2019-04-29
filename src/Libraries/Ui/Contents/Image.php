@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,6 +24,12 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Image extends Element
 {
+    /**
+     * Image::__construct
+     *
+     * @param string|null $src
+     * @param string|null $alt
+     */
     public function __construct($src = null, $alt = null)
     {
         parent::__construct('img');
@@ -37,6 +43,15 @@ class Image extends Element
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Image::setSrc
+     *
+     * @param string $src
+     *
+     * @return static
+     */
     public function setSrc($src)
     {
         if (strpos($src, 'holder.js') !== false) {
@@ -57,6 +72,15 @@ class Image extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Image::setAlt
+     *
+     * @param string $text
+     *
+     * @return static
+     */
     public function setAlt($text)
     {
         $this->attributes->addAttribute('alt', trim($text));
@@ -64,6 +88,15 @@ class Image extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Image::setWidth
+     *
+     * @param int $number
+     *
+     * @return static
+     */
     public function setWidth($number)
     {
         $this->attributes->addAttribute('width', (int)$number);
@@ -71,6 +104,13 @@ class Image extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Image::fluid
+     *
+     * @return static
+     */
     public function fluid()
     {
         $this->attributes->addAttributeClass('img-fluid');
@@ -78,6 +118,13 @@ class Image extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Image::responsive
+     *
+     * @return static
+     */
     public function responsive()
     {
         $this->attributes->addAttributeClass('img-responsive');
@@ -85,6 +132,15 @@ class Image extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Image::setHeight
+     *
+     * @param int $number
+     *
+     * @return static
+     */
     public function setHeight($number)
     {
         $this->attributes->addAttribute('height', (int)$number);
@@ -92,6 +148,13 @@ class Image extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Image::thumbnailShape
+     *
+     * @return static
+     */
     public function thumbnailShape()
     {
         $this->removeShape();
@@ -100,11 +163,27 @@ class Image extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Image::removeShape
+     *
+     * @return static
+     */
     protected function removeShape()
     {
         $this->attributes->removeAttributeClass(['img-thumbnail', 'img-rounded', 'img-circle']);
+
+        return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Image::roundedShape
+     *
+     * @return static
+     */
     public function roundedShape()
     {
         $this->removeShape();
@@ -113,6 +192,13 @@ class Image extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Image::circleShape
+     *
+     * @return static
+     */
     public function circleShape()
     {
         $this->removeShape();

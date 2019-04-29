@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,7 +26,7 @@ if ( ! function_exists('tag')) {
      * @param string|null $contents
      * @param array       $attributes
      *
-     * return string
+     * @return string
      */
     function tag($tagName, $contents = null, array $attributes = [])
     {
@@ -249,7 +249,7 @@ if ( ! function_exists('img')) {
      * img
      *
      * @param string $src
-     * @param string $attributes
+     * @param array  $attributes
      *
      * @return string
      */
@@ -350,7 +350,7 @@ if ( ! function_exists('parse_attributes')) {
 
 if ( ! function_exists('remove_tags')) {
     /**
-     * Remove Tag
+     * remove_tags
      *
      * Remove the tags but keep the content.
      * Note this function always assumed no two tags start the same way (e.g. <tag> and <tags>)
@@ -386,7 +386,7 @@ if ( ! function_exists('remove_tags')) {
 
 if ( ! function_exists('extract_tag')) {
     /**
-     * Extract Tag
+     * extract_tag
      *
      * Extract content inside tag.
      *

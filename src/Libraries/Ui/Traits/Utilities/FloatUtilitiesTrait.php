@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,6 +21,13 @@ namespace O2System\Framework\Libraries\Ui\Traits\Utilities;
  */
 trait FloatUtilitiesTrait
 {
+    /**
+     * FloatUtilitiesTrait::floatLeft
+     *
+     * @param string|null $size
+     *
+     * @return static
+     */
     public function floatLeft($size = null)
     {
         if (empty($size)) {
@@ -32,6 +39,15 @@ trait FloatUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * FloatUtilitiesTrait::floatRight
+     *
+     * @param string|null $size
+     *
+     * @return static
+     */
     public function floatRight($size = null)
     {
         if (empty($size)) {
@@ -43,6 +59,15 @@ trait FloatUtilitiesTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * FloatUtilitiesTrait::floatNone
+     *
+     * @param string|null $size
+     *
+     * @return static
+     */
     public function floatNone($size = null)
     {
         if (empty($size)) {

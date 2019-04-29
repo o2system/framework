@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,8 +24,23 @@ use O2System\Framework\Libraries\Ui\Contents\Heading;
  */
 trait HeadingSetterTrait
 {
+    /**
+     * HeadingSetterTrait
+     *
+     * @var Heading
+     */
     public $heading;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * HeadingSetterTrait::setHeading
+     *
+     * @param string $text
+     * @param int    $level
+     *
+     * @return static
+     */
     public function setHeading($text, $level = 3)
     {
         $this->heading = new Heading($text, $level);

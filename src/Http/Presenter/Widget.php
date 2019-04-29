@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,8 +15,8 @@ namespace O2System\Framework\Http\Presenter;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\Structural\Composite\RenderableInterface;
-use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\Patterns\Structural\Composite\RenderableInterface;
+use O2System\Spl\Patterns\Structural\Repository\AbstractRepository;
 use O2System\Spl\Info\SplClassInfo;
 
 /**
@@ -26,12 +26,23 @@ use O2System\Spl\Info\SplClassInfo;
  */
 class Widget extends AbstractRepository implements RenderableInterface
 {
+    public function __construct()
+    {
+    }
+
+    /**
+     * Widget::getClassInfo
+     *
+     * @return \O2System\Spl\Info\SplClassInfo
+     */
     public function getClassInfo()
     {
         $classInfo = new SplClassInfo($this);
 
         return $classInfo;
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * Widget::__toString
@@ -42,6 +53,8 @@ class Widget extends AbstractRepository implements RenderableInterface
     {
         return $this->render();
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * Widget::render

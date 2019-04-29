@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -121,6 +121,8 @@ class Model
         $this->fetchSubModels();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
      * AbstractModel::fetchSubModels
      *
@@ -128,6 +130,7 @@ class Model
      * @final   this method cannot be overwritten.
      *
      * @return void
+     * @throws \ReflectionException
      */
     final protected function fetchSubModels()
     {
@@ -185,8 +188,8 @@ class Model
     {
         $get[ $property ] = false;
 
-        if (o2system()->hasService($property)) {
-            $get[ $property ] = o2system()->getService($property);
+        if (services()->has($property)) {
+            $get[ $property ] = services()->get($property);
         } elseif (array_key_exists($property, $this->validSubModels)) {
             $get[ $property ] = $this->loadSubModel($property);
         } elseif (o2system()->__isset($property)) {

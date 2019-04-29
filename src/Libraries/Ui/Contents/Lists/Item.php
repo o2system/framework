@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -32,6 +32,8 @@ class Item extends Element implements ContextualInterface
     use HeadingSetterTrait;
     use ParagraphSetterTrait;
 
+    // ------------------------------------------------------------------------
+
     /**
      * Item::__construct
      *
@@ -52,11 +54,21 @@ class Item extends Element implements ContextualInterface
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Item::active
+     */
     public function active()
     {
         $this->attributes->addAttributeClass('active');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Item::disabled
+     */
     public function disabled()
     {
         $this->attributes->addAttributeClass('disabled');
@@ -66,6 +78,13 @@ class Item extends Element implements ContextualInterface
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Item::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,6 +28,14 @@ class Badge extends Element implements ContextualInterface
 {
     use ContextualClassSetterTrait;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Badge::__construct
+     *
+     * @param string|null   $textContent
+     * @param string        $contextualClass
+     */
     public function __construct($textContent = null, $contextualClass = 'default')
     {
         parent::__construct('span');
@@ -40,6 +48,15 @@ class Badge extends Element implements ContextualInterface
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Badge::setTextContent
+     *
+     * @param string $textContent
+     *
+     * @return static
+     */
     public function setTextContent($textContent)
     {
         $this->entity->setEntityName('badge-' . $textContent);

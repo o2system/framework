@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,6 +11,14 @@
 // ------------------------------------------------------------------------
 
 if ( ! function_exists('base_url')) {
+    /**
+     * base_url
+     *
+     * @param null $segments
+     * @param null $query
+     *
+     * @return string
+     */
     function base_url($segments = null, $query = null)
     {
         $uri = (new \O2System\Kernel\Http\Message\Uri())
@@ -37,11 +45,21 @@ if ( ! function_exists('base_url')) {
     }
 }
 
+// ------------------------------------------------------------------------
+
 if ( ! function_exists('domain_url')) {
-    function domain_url($segments = null, $query = null)
+    /**
+     * domain_url
+     *
+     * @param null $segments
+     * @param null $query
+     * @param null $subdomain
+     *
+     * @return string
+     */
+    function domain_url($segments = null, $query = null, $subdomain = null)
     {
         $uri = (new \O2System\Kernel\Http\Message\Uri())
-            ->withSubDomain(null)
             ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
             ->withQuery('');
 
@@ -51,6 +69,10 @@ if ( ! function_exists('domain_url')) {
                         $uriConfig[ 'base' ]);
                 $uri = new \O2System\Kernel\Http\Message\Uri($base);
             }
+        }
+
+        if (isset($subdomain)) {
+            $uri = $uri->withSubDomain($subdomain);
         }
 
         if (isset($segments)) {
@@ -68,7 +90,14 @@ if ( ! function_exists('domain_url')) {
 // ------------------------------------------------------------------------
 
 if ( ! function_exists('current_url')) {
-
+    /**
+     * current_url
+     *
+     * @param null $segments
+     * @param null $query
+     *
+     * @return string
+     */
     function current_url($segments = null, $query = null)
     {
         $uri = new \O2System\Kernel\Http\Message\Uri();
@@ -84,6 +113,22 @@ if ( ! function_exists('current_url')) {
         return $uri->__toString();
     }
 }
+
+if ( ! function_exists('public_url')) {
+    /**
+     * public_url
+     *
+     * @param string $path Uri path.
+     *
+     * @return string
+     */
+    function public_url($path)
+    {
+        return path_to_url($path);
+    }
+}
+
+// ------------------------------------------------------------------------
 
 if ( ! function_exists('assets_url')) {
     /**
@@ -103,7 +148,7 @@ if ( ! function_exists('assets_url')) {
 
 if ( ! function_exists('storage_url')) {
     /**
-     * assets_url
+     * storage_url
      *
      * @param string $path Uri path.
      *
@@ -139,7 +184,7 @@ if ( ! function_exists('images_url')) {
 
 if ( ! function_exists('prepare_url')) {
     /**
-     * Prep URL
+     * prepare_url
      *
      * Simply adds the http:// part if no scheme is included
      *
@@ -179,7 +224,7 @@ if ( ! function_exists('prepare_url')) {
 
 if ( ! function_exists('redirect_url')) {
     /**
-     * Header Redirect
+     * redirect_url
      *
      * Header redirect in two flavors
      * For very fine grained control over headers, you could use the Browser
@@ -194,6 +239,10 @@ if ( ! function_exists('redirect_url')) {
      */
     function redirect_url($uri = '', $method = 'auto', $code = null)
     {
+        if (is_array($uri)) {
+            $uri = implode('/', $uri);
+        }
+
         if (strpos($uri, 'http') === false) {
             $uri = base_url($uri);
         }

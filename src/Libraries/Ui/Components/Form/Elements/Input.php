@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,6 +28,13 @@ class Input extends Element
 {
     use SizingSetterTrait;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Input::__construct
+     *
+     * @param array $attributes
+     */
     public function __construct(array $attributes = [])
     {
         parent::__construct('input');
@@ -49,6 +56,13 @@ class Input extends Element
         $this->setSizingClassPrefix('form-control');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Input::autofocus
+     *
+     * @return static
+     */
     public function autofocus()
     {
         $this->attributes->addAttribute('autofocus', 'autofocus');
@@ -56,6 +70,13 @@ class Input extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Input::disabled
+     *
+     * @return static
+     */
     public function disabled()
     {
         $this->attributes->addAttribute('disabled', 'disabled');
@@ -63,6 +84,13 @@ class Input extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Input::readOnly
+     *
+     * @return static
+     */
     public function readOnly()
     {
         $this->attributes->addAttribute('readonly', 'readonly');

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,7 +22,7 @@ use O2System\Kernel\Cli\Writers\Format;
  *
  * Command line interface (cli) application commands container class.
  *
- * @package O2System\Kernel\Cli
+ * @package O2System\Framework\Cli
  */
 class App extends \O2System\Kernel\Cli\App
 {

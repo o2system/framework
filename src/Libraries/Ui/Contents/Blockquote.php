@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -27,8 +27,21 @@ class Blockquote extends Element
 {
     use ParagraphSetterTrait;
 
+    /**
+     * Blockquote::$author
+     *
+     * @var Element
+     */
     public $author;
+
+    /**
+     * Blockquote::$source
+     *
+     * @var Element
+     */
     public $source;
+
+    // ------------------------------------------------------------------------
 
     /**
      * Blockquote::__construct
@@ -50,6 +63,16 @@ class Blockquote extends Element
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Blockquote::setAuthor
+     *
+     * @param string      $name
+     * @param string|null $href
+     *
+     * @return static
+     */
     public function setAuthor($name, $href = null)
     {
         $this->author = new Element('small', 'author');
@@ -63,6 +86,16 @@ class Blockquote extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Blockquote::setSource
+     *
+     * @param string      $name
+     * @param string|null $href
+     *
+     * @return static
+     */
     public function setSource($name, $href = null)
     {
         $this->source = new Element('cite', 'source');
@@ -76,6 +109,13 @@ class Blockquote extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Blockquote::render
+     *
+     * @return string
+     */
     public function render()
     {
         if ($this->paragraph instanceof Element) {

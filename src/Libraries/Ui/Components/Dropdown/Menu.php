@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,12 +25,25 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Menu extends Element
 {
+    /**
+     * Menu::__construct
+     */
     public function __construct()
     {
         parent::__construct('div', 'menu');
         $this->attributes->addAttributeClass('dropdown-menu');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Menu::createHeader
+     *
+     * @param string $text
+     * @param string $tagName
+     *
+     * @return Element
+     */
     public function createHeader($text, $tagName = 'h6')
     {
         $header = new Element($tagName);
@@ -42,6 +55,16 @@ class Menu extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Menu::createItem
+     *
+     * @param string|null $label
+     * @param string|null $href
+     *
+     * @return Link
+     */
     public function createItem($label = null, $href = null)
     {
         $link = new Link($label, $href);
@@ -52,6 +75,13 @@ class Menu extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Menu::createDivider
+     *
+     * @return Element
+     */
     public function createDivider()
     {
         $element = new Element('div');

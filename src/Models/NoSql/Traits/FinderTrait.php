@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,14 +25,12 @@ use O2System\Database\DataObjects;
 trait FinderTrait
 {
     /**
-     * Find
+     * FinderTrait::all
      *
      * Find single or many record base on criteria by specific field
      *
-     * @param   string      $criteria Criteria value
-     * @param   string|null $field    Table column field name | set to primary key by default
+     * @param array|null $fields
      *
-     * @access  protected
      * @return  DataObjects\Result|bool Returns FALSE if failed.
      */
     public function all($fields = null)
@@ -51,10 +49,11 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
-     * Find
+     * FinderTrait::find
      *
      * Find single or many record base on criteria by specific field
      *
@@ -87,10 +86,11 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
-     * Find In
+     * FinderTrait::findIn
      *
      * Find many records within criteria on specific field
      *
@@ -116,10 +116,11 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
-     * Find By
+     * FinderTrait::findWhere
      *
      * Find single record based on certain conditions
      *
@@ -146,10 +147,11 @@ trait FinderTrait
 
         return false;
     }
+
     // ------------------------------------------------------------------------
 
     /**
-     * Find In
+     * FinderTrait::findNotIn
      *
      * Find many records not within criteria on specific field
      *

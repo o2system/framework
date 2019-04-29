@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -119,6 +119,32 @@ if ( ! defined('PATH_STORAGE')) {
 
 /*
  *---------------------------------------------------------------
+ * RESOURCES PATH
+ *---------------------------------------------------------------
+ *
+ * RealPath to writable resources folder.
+ *
+ * WITH TRAILING SLASH!
+ */
+if ( ! defined('PATH_RESOURCES')) {
+    define('PATH_RESOURCES', PATH_ROOT . DIR_RESOURCES . DIRECTORY_SEPARATOR);
+}
+
+/*
+ *---------------------------------------------------------------
+ * DATABASE PATH
+ *---------------------------------------------------------------
+ *
+ * RealPath to writable database folder.
+ *
+ * WITH TRAILING SLASH!
+ */
+if ( ! defined('PATH_DATABASE')) {
+    define('PATH_DATABASE', PATH_ROOT . DIR_DATABASE . DIRECTORY_SEPARATOR);
+}
+
+/*
+ *---------------------------------------------------------------
  * FRAMEWORK CONSTANTS
  *---------------------------------------------------------------
  */
@@ -139,146 +165,148 @@ require __DIR__ . '/Helpers/Framework.php';
 class Framework extends Kernel
 {
     /**
-     * Framework Database Connection Pools
+     * Framework::$config
      *
-     * @var Database\Connections
+     * Framework Container Config
+     *
+     * @var Framework\Containers\Config
      */
-    private $database;
+    public $config;
 
     /**
+     * Framework::$globals
+     *
+     * Framework Container Globals
+     *
+     * @var Framework\Containers\Globals
+     */
+    public $globals;
+
+    /**
+     * Framework::$environment
+     *
+     * Framework Container Environment
+     *
+     * @var Framework\Containers\Environment
+     */
+    public $environment;
+
+    /**
+     * Framework::$models
+     *
      * Framework Container Models
      *
      * @var Framework\Containers\Models
      */
-    private $models;
+    public $models;
 
     /**
+     * Framework::$modules
+     *
      * Framework Container Modules
      *
      * @var Framework\Containers\Modules
      */
-    private $modules;
+    public $modules;
 
     // ------------------------------------------------------------------------
 
     /**
      * Framework::__construct
-     *
-     * @return Framework
      */
     protected function __construct()
     {
         parent::__construct();
 
+        if (profiler() !== false) {
+            profiler()->watch('Starting O2System Framework');
+        }
+
         // Add App Views Folder
         output()->addFilePath(PATH_APP);
 
-        profiler()->watch('INSTANTIATE_HOOKS_SERVICE');
-        $hooks = new Framework\Services\Hooks();
+        if (profiler() !== false) {
+            profiler()->watch('Starting Framework Services');
+        }
 
-        profiler()->watch('CALL_HOOKS_PRE_SYSTEM');
-        $hooks->callEvent(Framework\Services\Hooks::PRE_SYSTEM);
+        $services = [
+            'Services\Hooks'    => 'hooks',
+            'Services\Shutdown' => 'shutdown',
+            'Services\Logger'   => 'logger',
+            'Services\Loader'   => 'loader',
+        ];
 
-        profiler()->watch('SYSTEM_START');
+        foreach ($services as $className => $classOffset) {
+            $this->services->load($className, $classOffset);
+        }
+
+        // Instantiate Config Container
+        if (profiler() !== false) {
+            profiler()->watch('Starting Config Container');
+        }
+
+        $this->config = new Framework\Containers\Config();
 
         // Instantiate Globals Container
-        profiler()->watch('INSTANTIATE_GLOBALS_CONTAINER');
-        $this->addService(new Kernel\Containers\Globals(), 'globals');
+        if (profiler() !== false) {
+            profiler()->watch('Starting Globals Container');
+        }
+        $this->globals = new Framework\Containers\Globals();
 
         // Instantiate Environment Container
-        profiler()->watch('INSTANTIATE_ENVIRONMENT_CONTAINER');
-        $this->addService(new Kernel\Containers\Environment(), 'environment');
-
-        profiler()->watch('INSTANTIATE_SYSTEM_SERVICES');
-
-        foreach (['Loader', 'Config', 'Logger'] as $serviceClassName) {
-            if (class_exists('App\Kernel\Services\\' . $serviceClassName)) {
-                $this->addService(new Kernel\Datastructures\Service('App\Kernel\Services\\' . $serviceClassName));
-            } elseif (class_exists('O2System\Framework\Services\\' . $serviceClassName)) {
-                $this->addService(
-                    new Kernel\Datastructures\Service('O2System\Framework\Services\\' . $serviceClassName)
-                );
-            }
+        if (profiler() !== false) {
+            profiler()->watch('Starting Environment Container');
         }
-
-        $this->addService($hooks);
-
-        if ($config = config()->loadFile('database', true)) {
-            if ( ! empty($config[ 'default' ][ 'hostname' ]) AND ! empty($config[ 'default' ][ 'username' ])) {
-
-                // Instantiate Database Connection Pools
-                profiler()->watch('INSTANTIATE_DATABASE_CONNECTION_POOLS');
-
-                $this->database = new Database\Connections(
-                    new Database\Datastructures\Config(
-                        $config->getArrayCopy()
-                    )
-                );
-            }
-        }
+        $this->environment = new Framework\Containers\Environment();
 
         // Instantiate Models Container
-        profiler()->watch('INSTANTIATE_MODELS_CONTAINER');
-        $this->models = new Framework\Containers\Models();
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Framework::__isset
-     *
-     * @param $property
-     *
-     * @return bool
-     */
-    public function __isset($property)
-    {
-        return (bool)isset($this->{$property});
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Framework::__get
-     *
-     * @param $property
-     *
-     * @return mixed
-     */
-    public function &__get($property)
-    {
-        if (isset($this->{$property})) {
-            return $this->{$property};
+        if (profiler() !== false) {
+            profiler()->watch('Starting Models Container');
         }
 
-        return $this->getService($property, true);
+        $this->models = new Framework\Containers\Models();
+
+        // Instantiate Modules Container
+        if (profiler() !== false) {
+            profiler()->watch('Starting Modules Container');
+        }
+        $this->modules = new Framework\Containers\Modules();
+
+        if (config()->loadFile('cache') === true) {
+            // Instantiate Cache Service
+            if (profiler() !== false) {
+                profiler()->watch('Starting Cache Service');
+            }
+
+            $this->services->add(new Framework\Services\Cache(config('cache', true)), 'cache');
+
+            // Language Service Load Registry
+            if (profiler() !== false) {
+                profiler()->watch('Loading Language Registry');
+            }
+
+            language()->loadRegistry();
+
+            // Modules Service Load Registry
+            if (profiler() !== false) {
+                profiler()->watch('Loading Modules Registry');
+            }
+            $this->modules->loadRegistry();
+        }
+
+        if (profiler() !== false) {
+            profiler()->watch('Starting O2System Framework Hooks Pre System');
+        }
+        hooks()->callEvent(Framework\Services\Hooks::PRE_SYSTEM);
     }
 
     // ------------------------------------------------------------------------
 
     /**
      * Framework::__reconstruct
-     *
      */
     protected function __reconstruct()
     {
-        // Instantiate Modules Container
-        profiler()->watch('INSTANTIATE_MODULES_CONTAINER');
-        $this->modules = new Framework\Containers\Modules();
-
-        // Instantiate Cache Service
-        profiler()->watch('INSTANTIATE_CACHE_SERVICE');
-        $cache = new Framework\Services\Cache(config('cache', true));
-        $this->addService($cache, 'cache');
-
-        // Modules Service Load Datastructures
-        profiler()->watch('MODULES_SERVICE_LOAD_REGISTRIES');
-        modules()->loadRegistry();
-
-        // Languages Service Load Datastructures
-        profiler()->watch('LANGUAGES_SERVICE_LOAD_REGISTRIES');
-        language()->loadRegistry();
-
         // Modules default app
         if (null !== ($defaultApp = config('app'))) {
             if (false !== ($defaultModule = modules()->getApp($defaultApp))) {
@@ -296,7 +324,9 @@ class Framework extends Kernel
             }
         }
 
-        profiler()->watch('CALL_HOOKS_POST_SYSTEM');
+        if (profiler() !== false) {
+            profiler()->watch('Calling Hooks Service: Post System');
+        }
         hooks()->callEvent(Framework\Services\Hooks::POST_SYSTEM);
 
         if (is_cli()) {
@@ -312,34 +342,61 @@ class Framework extends Kernel
      * Framework::cliHandler
      *
      * @return void
+     * @throws \ReflectionException
      */
     private function cliHandler()
     {
         // Instantiate CLI Router Service
-        profiler()->watch('INSTANTIATE_CLI_ROUTER_SERVICE');
-        $this->addService('O2System\Framework\Cli\Router');
+        $this->services->load(Kernel\Cli\Router::class);
 
-        profiler()->watch('CLI_ROUTER_SERVICE_PARSE_REQUEST');
+        if (profiler() !== false) {
+            profiler()->watch('Parse Router Request');
+        }
         router()->parseRequest();
 
         if ($commander = router()->getCommander()) {
-            if ($commander instanceof Kernel\Cli\Router\Datastructures\Commander) {
+            if ($commander instanceof Kernel\Cli\Router\DataStructures\Commander) {
                 // Autoload Language
                 language()->loadFile($commander->getParameter());
                 language()->loadFile($commander->getRequestMethod());
                 language()->loadFile($commander->getParameter() . '/' . $commander->getRequestMethod());
 
+                $modules = $this->modules->getArrayCopy();
+
+                // Run Module Autoloader
+                foreach ($modules as $module) {
+                    if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
+                        continue;
+                    }
+                    $module->loadModel();
+                }
+
                 // Autoload Model
                 $modelClassName = str_replace('Commanders', 'Models', $commander->getName());
 
                 if (class_exists($modelClassName)) {
-                    models()->register('commander', new $modelClassName());
+                    $this->models->load($modelClassName, 'commander');
                 }
 
-                profiler()->watch('INSTANTIATE_REQUESTED_COMMANDER');
+                // Initialize Controller
+                if (profiler() !== false) {
+                    profiler()->watch('Calling Hooks Service: Pre Commander');
+                }
+                hooks()->callEvent(Framework\Services\Hooks::PRE_COMMANDER);
+
+                if (profiler() !== false) {
+                    profiler()->watch('Instantiating Requested Commander: ' . $commander->getClass());
+                }
                 $requestCommander = $commander->getInstance();
 
-                profiler()->watch('EXECUTE_REQUESTED_COMMANDER');
+                if (profiler() !== false) {
+                    profiler()->watch('Calling Hooks Service: Post Commander');
+                }
+                hooks()->callEvent(Framework\Services\Hooks::POST_COMMANDER);
+
+                if (profiler() !== false) {
+                    profiler()->watch('Execute Requested Commander: ' . $commander->getClass());
+                }
                 $requestCommander->execute();
 
                 exit(EXIT_SUCCESS);
@@ -353,196 +410,195 @@ class Framework extends Kernel
      * Framework::httpHandler
      *
      * @return void
+     * @throws \ReflectionException
      */
     private function httpHandler()
     {
-        if (config('session', true)->enabled === true) {
+        if (config()->loadFile('view') === true) {
+            // Instantiate Http UserAgent Service
+            $this->services->load(Framework\Http\UserAgent::class, 'userAgent');
+
+            // Instantiate Http View Service
+            $this->services->load(Framework\Http\Parser::class);
+
+            // Instantiate Http View Service
+            $this->services->load(Framework\Http\View::class);
+
+            // Instantiate Http Presenter Service
+            $this->services->load(Framework\Http\Presenter::class);
+        }
+
+        // Instantiate Http Router Service
+        $this->services->load(Framework\Http\Router::class);
+
+        if (profiler() !== false) {
+            profiler()->watch('Parse Router Request');
+        }
+        router()->parseRequest();
+
+        if (config()->loadFile('session') === true) {
 
             // Instantiate Session Service
-            profiler()->watch('INSTANTIATE_SESSION_SERVICE');
-
             $session = new Session(config('session', true));
-            $session->setLogger($this->getService('logger'));
+            $session->setLogger($this->services->get('logger'));
 
             if ( ! $session->isStarted()) {
                 $session->start();
             }
 
-            $this->addService($session);
+            $this->services->add($session, 'session');
+
+            if ($session->has('language') and $this->services->has('language')) {
+                language()->setDefault($session->get('language'));
+            } else {
+                $session->set('language', language()->getDefault());
+            }
+
+            if (config('security')->protection[ 'csrf' ] === true) {
+                $csrfProtection = new Security\Protections\Csrf();
+                $this->services->add($csrfProtection, 'csrfProtection');
+            }
+
+            if (config('security')->protection[ 'xss' ] === true) {
+                $xssProtection = new Security\Protections\Xss();
+                $this->services->add($xssProtection, 'xssProtection');
+            }
         }
-
-        if (config('view', true)->enabled === true) {
-            // Instantiate Http View Service
-            profiler()->watch('INSTANTIATE_HTTP_PARSER_SERVICE');
-            $this->addService('O2System\Framework\Http\Parser');
-
-            // Instantiate Http View Service
-            profiler()->watch('INSTANTIATE_HTTP_VIEW_SERVICE');
-            $this->addService('O2System\Framework\Http\View');
-        }
-
-        if (config('presenter', true)->enabled === true) {
-            // Instantiate Http Presenter Service
-            profiler()->watch('INSTANTIATE_HTTP_PRESENTER_SERVICE');
-            $this->addService('O2System\Framework\Http\Presenter');
-            presenter()->initialize();
-        }
-
-        $this->addService('O2System\Framework\Http\Message\ServerRequest');
 
         // Instantiate Http Middleware Service
-        profiler()->watch('INSTANTIATE_HTTP_MIDDLEWARE_SERVICE');
-        $this->addService('O2System\Framework\Http\Middleware');
+        $this->services->load(Framework\Http\Middleware::class);
 
-        // Instantiate Http Router Service
-        profiler()->watch('INSTANTIATE_HTTP_ROUTER_SERVICE');
-        $this->addService('O2System\Framework\Http\Router');
-
-        profiler()->watch('HTTP_ROUTER_SERVICE_PARSE_REQUEST');
-        router()->parseRequest();
-
-        profiler()->watch('HTTP_RUN_MIDDLEWARE_SERVICE');
+        if (profiler() !== false) {
+            profiler()->watch('Running Middleware Service: Pre Controller');
+        }
         middleware()->run();
 
-        if (false !== ($controller = $this->getService('controller'))) {
-            if ($controller instanceof Kernel\Http\Router\Datastructures\Controller) {
+        if ($this->services->has('controller')) {
+            $controller = $this->services->get('controller');
 
-                $controllerParameter = dash($controller->getParameter());
-                $controllerRequestMethod = dash($controller->getRequestMethod());
+            $controllerParameter = dash($controller->getParameter());
+            $controllerRequestMethod = dash($controller->getRequestMethod());
 
-                // Autoload Language
+            $modules = $this->modules->getArrayCopy();
+            
+            // Run Module Autoloader
+            foreach ($modules as $module) {
+                if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
+                    continue;
+                }
+
+                // Autoload Module Language
+                if ($this->services->has('language')) {
+                    language()->loadFile($module->getParameter());
+                }
+
+                // Autoload Module Model
+                $module->loadModel();
+
+                // Add View Resource Directory
+                if($this->services->has('view')) {
+                    view()->addFilePath($module->getResourcesDir());
+                    presenter()->assets->pushFilePath($module->getResourcesDir());
+                }
+            }
+            
+            if ($this->services->has('view')) {
+                presenter()->initialize();
+            }
+
+            // Autoload Language
+            if ($this->services->has('language')) {
                 language()->loadFile($controller->getParameter());
                 language()->loadFile($controller->getRequestMethod());
                 language()->loadFile($controller->getParameter() . '/' . $controller->getRequestMethod());
+            }
 
-                // Autoload Model
-                foreach (modules() as $module) {
-                    if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
-                        continue;
+            // Autoload Model
+            $modelClassName = str_replace(['Controllers', 'Presenters'], 'Models', $controller->getName());
+
+            if (class_exists($modelClassName)) {
+                $this->models->load($modelClassName, 'controller');
+            }
+
+            if ($this->services->has('view')) {
+                // Autoload Presenter
+                $presenterClassName = str_replace('Controllers', 'Presenters', $controller->getName());
+
+                if (class_exists($presenterClassName)) {
+                    $presenterClassObject = new $presenterClassName();
+                    if ($presenterClassObject instanceof Framework\Http\Presenter) {
+                        $this->services->add($presenterClassObject, 'presenter');
                     }
-                    $module->loadModel();
                 }
+            }
 
-                // Load App Module Models
-                $app = modules()->first();
-                $app->loadModel();
+            // Initialize Controller
+            if (profiler() !== false) {
+                profiler()->watch('Calling Hooks Service: Pre Controller');
+            }
 
-                // Load Current Module Models
-                $module = modules()->current();
-                $module->loadModel();
+            hooks()->callEvent(Framework\Services\Hooks::PRE_CONTROLLER);
 
-                // Autoload Model
-                $modelClassName = str_replace(['Controllers', 'Presenters'], 'Models', $controller->getName());
+            if (profiler() !== false) {
+                profiler()->watch('Instantiating Requested Controller: ' . $controller->getClass());
+            }
+            $requestController = $controller->getInstance();
 
-                if (class_exists($modelClassName)) {
-                    models()->register('controller', new $modelClassName());
+            if (method_exists($requestController, '__reconstruct')) {
+                $requestController->__reconstruct();
+            }
+
+            if (profiler() !== false) {
+                profiler()->watch('Calling Hooks Service: Post Controller');
+            }
+            hooks()->callEvent(Framework\Services\Hooks::POST_CONTROLLER);
+
+            if (profiler() !== false) {
+                profiler()->watch('Calling Middleware Service: Post Controller');
+            }
+            middleware()->run();
+
+            $requestMethod = $controller->getRequestMethod();
+            $requestMethodArgs = $controller->getRequestMethodArgs();
+
+            // Call the requested controller method
+            if (profiler() !== false) {
+                profiler()->watch('Execute Requested Controller Method');
+            }
+
+            ob_start();
+            $requestController->__call($requestMethod, $requestMethodArgs);
+            $requestControllerOutput = ob_get_contents();
+            ob_end_clean();
+
+            if (is_numeric($requestControllerOutput)) {
+                output()->sendError($requestControllerOutput);
+            } elseif (is_bool($requestControllerOutput)) {
+                if ($requestControllerOutput === true) {
+                    output()->sendError(200);
+                } elseif ($requestControllerOutput === false) {
+                    output()->sendError(204);
                 }
-
-                // Autoload Assets
-                if (config('presenter', true)->enabled === true) {
-                    $controllerAssets = [];
-                    $controllerAssetsDirs = [];
-
-                    // Load App Module Assets
-                    $controllerAssets[] = $app->getParameter();
-                    $controllerAssetsDirs[] = $app->getParameter();
-
-                    // Load Current Module Assets
-                    $controllerAssets[] = $module->getParameter();
-                    $controllerAssetsDirs[] = $module->getParameter();
-
-                    $controllerAssets = array_reverse($controllerAssets);
-
-                    $controllerAssets[] = $controllerParameter;
-                    $controllerAssetsDirs[] = $controllerParameter;
-
-                    $controllerAssets[] = $controllerRequestMethod;
-
-                    foreach ($controllerAssetsDirs as $controllerAssetsDir) {
-                        $controllerAssets[] = $controllerAssetsDir . '/' . $controllerParameter;
-                        $controllerAssets[] = $controllerAssetsDir . '/' . $controllerRequestMethod;
-                        $controllerAssets[] = $controllerAssetsDir . '/' . $controllerParameter . '/' . $controllerRequestMethod;
-                    }
-
-                    // Autoload Presenter
-                    $presenterClassName = str_replace('Controllers', 'Presenters', $controller->getName());
-
-                    if (class_exists($presenterClassName)) {
-                        $presenterClassObject = new $presenterClassName();
-                        if ($presenterClassObject instanceof Framework\Http\Presenter) {
-                            $this->addService(new $presenterClassName(), 'presenter');
-                        }
-                    }
-
-                    // Re-Initialize Presenter
-                    presenter()->initialize()->assets->loadFiles(
-                        [
-                            'css' => $controllerAssets,
-                            'js'  => $controllerAssets,
-                        ]
-                    );
-                }
-
-                // Initialize Controller
-                profiler()->watch('CALL_HOOKS_PRE_CONTROLLER');
-                hooks()->callEvent(Framework\Services\Hooks::PRE_CONTROLLER);
-
-                profiler()->watch('INSTANTIATE_REQUESTED_CONTROLLER');
-                $requestController = $controller->getInstance();
-
-                if (method_exists($requestController, '__reconstruct')) {
-                    $requestController->__reconstruct();
-                } elseif (method_exists($requestController, 'initialize')) {
-                    $requestController->initialize();
-                }
-
-                profiler()->watch('HTTP_RUN_CONTROLLER_MIDDLEWARE_SERVICE');
-                middleware()->run();
-
-                $this->addService($requestController, 'controller');
-
-                profiler()->watch('CALL_HOOKS_POST_CONTROLLER');
-                hooks()->callEvent(Framework\Services\Hooks::POST_CONTROLLER);
-
-                $requestMethod = $controller->getRequestMethod();
-                $requestMethodArgs = $controller->getRequestMethodArgs();
-
-                // Call the requested controller method
-                profiler()->watch('CALL_REQUESTED_CONTROLLER_METHOD');
-                ob_start();
-                $requestControllerOutput = $requestController->__call($requestMethod, $requestMethodArgs);
-
-                profiler()->watch('END_REQUESTED_CONTROLLER_METHOD');
-
+            } elseif (is_array($requestControllerOutput) or is_object($requestControllerOutput)) {
+                output()->sendPayload($requestControllerOutput);
+            } elseif ($requestController instanceof Framework\Http\Controllers\Restful) {
                 if (empty($requestControllerOutput)) {
-                    $requestControllerOutput = ob_get_contents();
-                    ob_end_clean();
-                } elseif (is_bool($requestControllerOutput)) {
-                    if ($requestController instanceof Framework\Http\Controllers\Restful) {
-                        $requestController->sendError($requestControllerOutput);
+                    $requestController->sendError(204);
+                } elseif (is_string($requestControllerOutput)) {
+                    if (is_json($requestControllerOutput)) {
+                        output()->setContentType('application/json');
                     } else {
-                        if ($requestControllerOutput === true) {
-                            output()->sendError(200);
-                            exit(EXIT_SUCCESS);
-                        } elseif ($requestControllerOutput === false) {
-                            output()->sendError(204);
-                            exit(EXIT_ERROR);
-                        }
+                        output()->setContentType('text/plain');
                     }
-                } elseif (is_array($requestControllerOutput) || is_object($requestControllerOutput)) {
-                    if ($requestController instanceof Framework\Http\Controllers\Restful) {
-                        $requestController->sendPayload($requestControllerOutput);
-                    } else {
-                        output()->send($requestControllerOutput);
-                    }
-                } elseif (is_numeric($requestControllerOutput)) {
-                    output()->sendError($requestControllerOutput);
-                }
 
-                if (empty($requestControllerOutput) || $requestControllerOutput === '') {
-                    if ($requestController instanceof Framework\Http\Controllers\Restful) {
-                        $requestController->sendError(204);
-                    } elseif (config('presenter', true)->enabled === true) {
+                    echo $requestControllerOutput;
+                }
+            } elseif (is_string($requestControllerOutput)) {
+                if (is_json($requestControllerOutput)) {
+                    output()->setContentType('application/json');
+                    echo $requestControllerOutput;
+                } elseif ($this->services->has('view')) {
+                    if (empty($requestControllerOutput)) {
                         $filenames = [
                             $controllerRequestMethod,
                             $controllerParameter . DIRECTORY_SEPARATOR . $controllerRequestMethod,
@@ -552,45 +608,42 @@ class Framework extends Kernel
                             array_unshift($filenames, $controllerParameter);
                         }
 
-                        profiler()->watch('VIEW_RENDER_START');
-
                         foreach ($filenames as $filename) {
-                            if (view()->getFilePath($filename)) {
-                                view()->load($filename);
+                            if (false !== ($filePath = view()->getFilePath($filename))) {
+                                view()->load($filePath);
+                                break;
                             }
                         }
-
-                        if (presenter()->partials->offsetExists('content')) {
-                            view()->render();
-                            profiler()->watch('VIEW_RENDER_END');
-                            exit(EXIT_SUCCESS);
-                        }
-                    }
-
-                    // Send default error 204 - No Content
-                    output()->sendError(204);
-                } elseif (is_string($requestControllerOutput)) {
-                    if (is_json($requestControllerOutput)) {
-                        output()->setContentType('application/json');
-                        output()->send($requestControllerOutput);
-                    } elseif (is_serialized($requestControllerOutput)) {
-                        output()->send($requestControllerOutput);
-                    } elseif (config('presenter', true)->enabled === true) {
-                        presenter()->partials->offsetSet('content', $requestControllerOutput);
-
-                        profiler()->watch('VIEW_RENDER_END');
-                        view()->render();
                     } else {
-                        output()->send($requestControllerOutput);
+                        presenter()->partials->offsetSet('content', $requestControllerOutput);
                     }
-                    exit(EXIT_SUCCESS);
+
+                    if (presenter()->partials->offsetExists('content')) {
+                        if(is_ajax()) {
+                            echo presenter()->partials->content;
+                        } else {
+                            $htmlOutput = view()->render();
+
+                            if (empty($htmlOutput)) {
+                                output()->sendError(204);
+                            } else {
+                                output()->setContentType('text/html');
+                                output()->send($htmlOutput);
+                            }
+                        }
+                    } else {
+                        output()->sendError(204);
+                    }
+                } elseif (empty($requestControllerOutput) or $requestControllerOutput === '') {
+                    output()->sendError(204);
+                } else {
+                    output()->setContentType('text/plain');
+                    output()->send($requestControllerOutput);
                 }
             }
+        } else {
+            // Show Error (404) Page Not Found
+            output()->sendError(404);
         }
-
-        middleware()->run();
-
-        // Show Error (404) Page Not Found
-        output()->sendError(404);
     }
 }

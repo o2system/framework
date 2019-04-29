@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,6 +22,9 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Toolbar extends Element
 {
+    /**
+     * Toolbar::__construct
+     */
     public function __construct()
     {
         parent::__construct('div');
@@ -30,6 +33,13 @@ class Toolbar extends Element
         $this->attributes->addAttribute('role', 'toolbar');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Toolbar::createButtonGroup
+     *
+     * @return Group
+     */
     public function createButtonGroup()
     {
         $node = new Group();
@@ -38,6 +48,15 @@ class Toolbar extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Toolbar::createDropdownButtonGroup
+     *
+     * @param string|Dropdown $label
+     *
+     * @return Dropdown
+     */
     public function createDropdownButtonGroup($label)
     {
         if ($label instanceof Dropdown) {
@@ -51,6 +70,8 @@ class Toolbar extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
      * Toolbar::createInputGroup
      *
@@ -62,6 +83,5 @@ class Toolbar extends Element
         $this->childNodes->push($node);
 
         return $this->childNodes->last();
-
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,16 +25,23 @@ use O2System\Framework\Libraries\Ui\Components;
  */
 class Form extends Components\Form
 {
+    /**
+     * Form::__construct
+     */
     public function __construct()
     {
         parent::__construct();
         $this->attributes->addAttributeClass(['form-inline', 'my-2', 'my-lg-0']);
     }
 
+    // ------------------------------------------------------------------------
+
     /**
+     * Form::createInput
+     *
      * @param array $attributes
      *
-     * @return \O2System\Framework\Libraries\Ui\Components\Form\Elements\Input
+     * @return Components\Form\Elements\Input
      */
     public function createInput(array $attributes = [])
     {
@@ -59,6 +66,16 @@ class Form extends Components\Form
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * From::createButton
+     *
+     * @param string $label
+     * @param array  $attributes
+     *
+     * @return Components\Form\Elements\Button
+     */
     public function createButton($label, array $attributes = [])
     {
         $button = new Components\Form\Elements\Button($label);

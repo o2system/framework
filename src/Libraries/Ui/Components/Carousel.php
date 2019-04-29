@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -27,10 +27,34 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Carousel extends Element
 {
+    /**
+     * Carousel::$indicators
+     *
+     * @var \O2System\Framework\Libraries\Ui\Components\Carousel\Indicators
+     */
     public $indicators;
+
+    /**
+     * Carousel::$control
+     *
+     * @var \O2System\Framework\Libraries\Ui\Components\Carousel\Control
+     */
     public $control;
+
+    /**
+     * Carousel::$slides
+     *
+     * @var \O2System\Framework\Libraries\Ui\Components\Carousel\Slides
+     */
     public $slides;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Carousel::__construct
+     *
+     * @param string|null $id
+     */
     public function __construct($id = null)
     {
         parent::__construct('div', 'carousel');

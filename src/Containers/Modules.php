@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,19 +16,18 @@ namespace O2System\Framework\Containers;
 // ------------------------------------------------------------------------
 
 use O2System\Cache\Item;
-use O2System\Framework\Datastructures;
+use O2System\Framework\Containers\Modules\DataStructures;
 use O2System\Framework\Services\Hooks;
 use O2System\Kernel\Cli\Writers\Format;
 use O2System\Kernel\Http\Router\Addresses;
-use O2System\Psr\Cache\CacheItemPoolInterface;
-use O2System\Spl\Containers\Datastructures\SplServiceRegistry;
-use O2System\Spl\Datastructures\SplArrayStack;
+use Psr\Cache\CacheItemPoolInterface;
+use O2System\Spl\DataStructures\SplArrayStack;
 use O2System\Spl\Info\SplNamespaceInfo;
 
 /**
  * Class Modules
  *
- * @package O2System\Kernel
+ * @package O2System\Framework\Containers
  */
 class Modules extends SplArrayStack
 {
@@ -55,6 +54,13 @@ class Modules extends SplArrayStack
      */
     private $registry = [];
 
+    /**
+     * Modules::loaded
+     *
+     * @var array
+     */
+    private $loaded = [];
+
     // ------------------------------------------------------------------------
 
     /**
@@ -62,69 +68,73 @@ class Modules extends SplArrayStack
      */
     public function __construct()
     {
-        parent::__construct(
-            [
-                (new Datastructures\Module(PATH_KERNEL))
-                    ->setType('KERNEL')
-                    ->setNamespace('O2System\Kernel\\'),
-                (new Datastructures\Module(PATH_FRAMEWORK))
-                    ->setType('FRAMEWORK')
-                    ->setNamespace('O2System\Framework\\'),
-                (new Datastructures\Module(PATH_APP))
-                    ->setType('APP')
-                    ->setNamespace('App'),
-            ]
-        );
+        parent::__construct();
+
+        // Autoload Main Modularity: Kernel, Framework and App
+        $kernel = (new DataStructures\Module(PATH_KERNEL))
+            ->setType('KERNEL')
+            ->setNamespace('O2System\Kernel\\');
+
+        $this->autoload($kernel);
+        parent::push($kernel);
+
+        $framework = (new DataStructures\Module(PATH_FRAMEWORK))
+            ->setType('FRAMEWORK')
+            ->setNamespace('O2System\Framework\\');
+
+        $this->autoload($framework);
+        parent::push($framework);
+
+        $app = (new DataStructures\Module(PATH_APP))
+            ->setType('APP')
+            ->setNamespace('App\\');
+
+        $this->autoload($app);
+        parent::push($app);
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Modules::push
+     * Modules::autoload
      *
-     * Replacement of SplArrayStack push method.
-     *
-     * @param mixed $module
+     * @param \O2System\Framework\Containers\Modules\DataStructures\Module $module
      */
-    public function push($module)
+    private function autoload(DataStructures\Module $module)
     {
-        if (loader()->getNamespaceDirs($module->getNamespace())) {
+        if ( ! in_array($module->getRealPath(), $this->loaded)) {
+            // Register to loaded property
+            $this->loaded[] = $module->getRealPath();
 
+            // Register Framework\Services\Loader Namespace
+            loader()->addNamespace($module->getNamespace(), $module->getRealPath());
+
+            $this->autoloadHelpers($module);
+
+            if ( ! in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
+
+                // Autoload Module Language
+                language()
+                    ->addFilePath($module->getRealPath())
+                    ->loadFile(dash($module->getParameter()));
+
+                // Autoload Module Config
+                $this->autoloadConfig($module);
+
+                // Autoload Module Addresses
+                $this->autoloadAddresses($module);
+
+                // Autoload Module Hooks Closures
+                $this->autoloadHooks($module);
+
+                // Autoload Module Models
+                $this->autoloadModels($module);
+
+                // Autoload Services Models
+                $this->autoloadServices($module);
+            }
         }
 
-        // Register Framework\Services\Loader Namespace
-        loader()->addNamespace($module->getNamespace(), $module->getRealPath());
-
-        // Autoload Module Helpers
-        $this->autoloadHelpers($module);
-
-        if ( ! in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
-
-            // Add Public Dir
-            loader()->addPublicDir($module->getPublicDir());
-
-            // Autoload Module Language
-            language()
-                ->addFilePath($module->getRealPath())
-                ->loadFile($module->getParameter());
-
-            // Autoload Module Config
-            $this->autoloadConfig($module);
-
-            // Autoload Module Addresses
-            $this->autoloadAddresses($module);
-
-            // Autoload Module Hooks Closures
-            $this->autoloadHooks($module);
-
-            // Autoload Module Models
-            $this->autoloadModels($module);
-
-            // Autoload Services Models
-            $this->autoloadServices($module);
-        }
-
-        parent::push($module);
     }
 
     // ------------------------------------------------------------------------
@@ -134,10 +144,12 @@ class Modules extends SplArrayStack
      *
      * Autoload modules helpers.
      *
-     * @param \O2System\Framework\Datastructures\Module $module
+     * @param \O2System\Framework\Containers\Modules\DataStructures\Module $module
      */
-    private function autoloadHelpers(Datastructures\Module $module)
+    private function autoloadHelpers(DataStructures\Module $module)
     {
+        loader()->loadHelper(studlycase($module->getParameter()));
+
         if (is_file(
             $filePath = $module->getRealPath() . 'Config' . DIRECTORY_SEPARATOR . ucfirst(
                     strtolower(ENVIRONMENT)
@@ -160,9 +172,9 @@ class Modules extends SplArrayStack
      *
      * Autoload modules config.
      *
-     * @param \O2System\Framework\Datastructures\Module $module
+     * @param \O2System\Framework\Containers\Modules\DataStructures\Module $module
      */
-    private function autoloadConfig(Datastructures\Module $module)
+    private function autoloadConfig(DataStructures\Module $module)
     {
         if (is_file(
             $filePath = $module->getRealPath() . 'Config' . DIRECTORY_SEPARATOR . ucfirst(
@@ -198,9 +210,9 @@ class Modules extends SplArrayStack
      *
      * Autoload modules routes.
      *
-     * @param \O2System\Framework\Datastructures\Module $module
+     * @param \O2System\Framework\Containers\Modules\DataStructures\Module $module
      */
-    private function autoloadAddresses(Datastructures\Module $module)
+    private function autoloadAddresses(DataStructures\Module $module)
     {
         // Routes is not available on cli
         if (is_cli()) {
@@ -231,9 +243,9 @@ class Modules extends SplArrayStack
      *
      * Autoload modules hooks.
      *
-     * @param \O2System\Framework\Datastructures\Module $module
+     * @param \O2System\Framework\Containers\Modules\DataStructures\Module $module
      */
-    private function autoloadHooks(Datastructures\Module $module)
+    private function autoloadHooks(DataStructures\Module $module)
     {
         if (is_file(
             $filePath = $module->getRealPath() . 'Config' . DIRECTORY_SEPARATOR . ucfirst(
@@ -272,9 +284,9 @@ class Modules extends SplArrayStack
      *
      * Autoload modules models.
      *
-     * @param \O2System\Framework\Datastructures\Module $module
+     * @param \O2System\Framework\Containers\Modules\DataStructures\Module $module
      */
-    private function autoloadModels(Datastructures\Module $module)
+    private function autoloadModels(DataStructures\Module $module)
     {
         if (is_file(
             $filePath = $module->getRealPath() . 'Config' . DIRECTORY_SEPARATOR . ucfirst(
@@ -288,15 +300,10 @@ class Modules extends SplArrayStack
 
         if (isset($models) AND is_array($models)) {
             foreach ($models as $offset => $model) {
-                if (class_exists($model)) {
-                    $service = new SplServiceRegistry($model);
-
-                    if ($service->isSubclassOf('O2System\Framework\Models\Sql\Model') ||
-                        $service->isSubclassOf('O2System\Framework\Models\NoSql\Model') ||
-                        $service->isSubclassOf('O2System\Framework\Models\Files\Model')
-                    ) {
-                        models()->attach($offset, $service);
-                    }
+                if (is_string($model)) {
+                    models()->load($model, $offset);
+                } elseif (is_object($model)) {
+                    models()->add($model);
                 }
             }
 
@@ -311,9 +318,9 @@ class Modules extends SplArrayStack
      *
      * Autoload modules services.
      *
-     * @param \O2System\Framework\Datastructures\Module $module
+     * @param \O2System\Framework\Containers\Modules\DataStructures\Module $module
      */
-    private function autoloadServices(Datastructures\Module $module)
+    private function autoloadServices(DataStructures\Module $module)
     {
         if (is_file(
             $filePath = $module->getRealPath() . 'Config' . DIRECTORY_SEPARATOR . ucfirst(
@@ -328,15 +335,31 @@ class Modules extends SplArrayStack
         if (isset($services) AND is_array($services)) {
             foreach ($services as $offset => $service) {
                 if (is_string($service)) {
-                    if ( ! class_exists($service)) {
-                        continue;
-                    }
+                    services()->load($service, $offset);
+                } elseif (is_object($service)) {
+                    services()->add($service);
                 }
-
-                o2system()->addService($service, $offset);
             }
 
             unset($services);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::push
+     *
+     * Replacement of SplArrayStack push method.
+     *
+     * @param mixed $module
+     */
+    public function push($module)
+    {
+        if ( ! in_array($module->getNamespace(), ['O2System\Kernel\\', 'O2System\Framework\\', 'App\\'])) {
+            $this->autoload($module);
+
+            parent::push($module);
         }
     }
 
@@ -348,30 +371,32 @@ class Modules extends SplArrayStack
      * Load modules registry
      *
      * @return void
-     * @throws \O2System\Psr\Cache\InvalidArgumentException
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function loadRegistry()
     {
-        $cacheItemPool = cache()->getItemPool('default');
+        if (empty($this->registry)) {
+            $cacheItemPool = cache()->getItemPool('default');
 
-        if (cache()->hasItemPool('registry')) {
-            $cacheItemPool = cache()->getItemPool('registry');
-        }
+            if (cache()->hasItemPool('registry')) {
+                $cacheItemPool = cache()->getItemPool('registry');
+            }
 
-        if ($cacheItemPool instanceof CacheItemPoolInterface) {
-            if ($cacheItemPool->hasItem('o2modules')) {
-                if ($registry = $cacheItemPool->getItem('o2modules')->get()) {
-                    $this->registry = $registry;
+            if ($cacheItemPool instanceof CacheItemPoolInterface) {
+                if ($cacheItemPool->hasItem('o2modules')) {
+                    if ($registry = $cacheItemPool->getItem('o2modules')->get()) {
+                        $this->registry = $registry;
+                    } else {
+                        $this->registry = $this->fetchRegistry();
+                        $cacheItemPool->save(new Item('o2modules', $this->registry, false));
+                    }
                 } else {
                     $this->registry = $this->fetchRegistry();
                     $cacheItemPool->save(new Item('o2modules', $this->registry, false));
                 }
             } else {
                 $this->registry = $this->fetchRegistry();
-                $cacheItemPool->save(new Item('o2modules', $this->registry, false));
             }
-        } else {
-            $this->registry = $this->fetchRegistry();
         }
     }
 
@@ -386,23 +411,22 @@ class Modules extends SplArrayStack
      */
     public function fetchRegistry()
     {
-        $datastructures = [];
+        $registry = [];
         $directory = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator(PATH_APP),
             \RecursiveIteratorIterator::SELF_FIRST
         );
 
-        $propertiesIterator = new \RegexIterator($directory, '/^.+\.jsprop/i', \RecursiveRegexIterator::GET_MATCH);
+        $packagesIterator = new \RegexIterator($directory, '/^.+\.json/i', \RecursiveRegexIterator::GET_MATCH);
 
-        foreach ($propertiesIterator as $propertiesFiles) {
-            foreach ($propertiesFiles as $propertiesFile) {
+        foreach ($packagesIterator as $packageJsonFiles) {
+            foreach ($packageJsonFiles as $packageJsonFile) {
+                $packageJsonFile = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $packageJsonFile);
+                $packageJsonFileInfo = pathinfo($packageJsonFile);
 
-                $propertiesFile = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $propertiesFile);
-                $propertiesFileInfo = pathinfo($propertiesFile);
-
-                if ($propertiesFileInfo[ 'filename' ] === 'widget' or
-                    $propertiesFileInfo[ 'filename' ] === 'language' or
-                    strpos($propertiesFile, '.svn') !== false // subversion properties file conflict.
+                if ($packageJsonFileInfo[ 'filename' ] === 'widget' or
+                    $packageJsonFileInfo[ 'filename' ] === 'language' or
+                    strpos($packageJsonFile, '.svn') !== false // subversion properties file conflict.
                 ) {
                     continue;
                 }
@@ -411,12 +435,12 @@ class Modules extends SplArrayStack
                     output()->verbose(
                         (new Format())
                             ->setString(language()->getLine('CLI_REGISTRY_MODULE_VERB_FETCH_MANIFEST_START',
-                                [str_replace(PATH_ROOT, '/', $propertiesFile)]))
+                                [str_replace(PATH_ROOT, '/', $packageJsonFile)]))
                             ->setNewLinesAfter(1)
                     );
                 }
 
-                $propertiesMetadata = json_decode(file_get_contents($propertiesFile), true);
+                $packageJsonMetadata = json_decode(file_get_contents($packageJsonFile), true);
 
                 if (json_last_error() !== JSON_ERROR_NONE and is_cli()) {
                     output()->verbose(
@@ -426,7 +450,17 @@ class Modules extends SplArrayStack
                             ->setIndent(2)
                             ->setNewLinesAfter(1)
                     );
+                } elseif ( ! is_array($packageJsonMetadata)) {
+                    continue;
                 }
+
+                if (strpos($packageJsonFile,
+                        $modularType = ucfirst(plural($packageJsonFileInfo[ 'filename' ])) . DIRECTORY_SEPARATOR) === false) {
+                    $modularType = ucfirst($packageJsonFileInfo[ 'filename' ]) . DIRECTORY_SEPARATOR;
+                }
+
+                $modularType = strtolower(rtrim($modularType, DIRECTORY_SEPARATOR));
+                $this->addType($modularType);
 
                 $moduleSegments = explode(
                     DIRECTORY_SEPARATOR,
@@ -435,40 +469,39 @@ class Modules extends SplArrayStack
                             [
                                 PATH_FRAMEWORK,
                                 PATH_PUBLIC,
+                                PATH_RESOURCES,
                                 PATH_APP,
-                                $propertiesFileInfo[ 'basename' ],
+                                $packageJsonFileInfo[ 'basename' ],
+                                ucfirst($modularType) . DIRECTORY_SEPARATOR,
+                                ucfirst($modularType . 's') . DIRECTORY_SEPARATOR, // manual plural
                             ],
                             '',
-                            $propertiesFile
+                            $packageJsonFile
                         ),
                         DIRECTORY_SEPARATOR
                     )
                 );
 
-                array_shift($moduleSegments);
-
                 $moduleSegments = array_map(function ($string) {
-                    return snakecase($string, '-');
+                    return dash(snakecase($string));
                 }, $moduleSegments);
 
                 $moduleNamespace = prepare_namespace(
                     str_replace(
                         PATH_ROOT,
                         '',
-                        $propertiesFileInfo[ 'dirname' ]
+                        $packageJsonFileInfo[ 'dirname' ]
                     ),
                     false
                 );
 
-                if (isset($propertiesMetadata[ 'namespace' ])) {
-                    $moduleNamespace = $propertiesMetadata[ 'namespace' ];
-                    unset($propertiesMetadata[ 'namespace' ]);
+                if (isset($packageJsonMetadata[ 'namespace' ])) {
+                    $moduleNamespace = $packageJsonMetadata[ 'namespace' ];
+                    unset($packageJsonMetadata[ 'namespace' ]);
                 }
 
-                $modulePluralTypes = $this->addType($propertiesFileInfo[ 'filename' ]);
-
                 $moduleParentSegments = [];
-                if (false !== ($moduleTypeSegmentKey = array_search($modulePluralTypes, $moduleSegments))) {
+                if (false !== ($moduleTypeSegmentKey = array_search($modularType, $moduleSegments))) {
                     $moduleParentSegments = array_slice($moduleSegments, 0, $moduleTypeSegmentKey);
 
                     $moduleParentSegments = array_diff($moduleParentSegments, $this->types);
@@ -478,23 +511,20 @@ class Modules extends SplArrayStack
                 $registryKey = implode('/', $moduleSegments);
 
                 if ($registryKey === '') {
-                    if ($propertiesFileInfo[ 'dirname' ] . DIRECTORY_SEPARATOR !== PATH_APP and $modulePluralTypes === 'apps') {
-                        $registryKey = 'apps/' . snakecase(
-                                pathinfo($propertiesFileInfo[ 'dirname' ], PATHINFO_FILENAME),
-                                '-');
+                    if ($packageJsonFileInfo[ 'dirname' ] . DIRECTORY_SEPARATOR !== PATH_APP and $modularType === 'app') {
+                        $registryKey = dash(snakecase(
+                            pathinfo($packageJsonFileInfo[ 'dirname' ], PATHINFO_FILENAME)));
                     }
-                } else {
-                    $registryKey = 'modules/' . $registryKey;
                 }
 
-                $datastructures[ $registryKey ] = (new Datastructures\Module(
-                    $propertiesFileInfo[ 'dirname' ]
+                $registry[ $registryKey ] = (new DataStructures\Module(
+                    $packageJsonFileInfo[ 'dirname' ]
                 ))
-                    ->setType($propertiesFileInfo[ 'filename' ])
+                    ->setType($packageJsonFileInfo[ 'filename' ])
                     ->setNamespace($moduleNamespace)
                     ->setSegments($moduleSegments)
                     ->setParentSegments($moduleParentSegments)
-                    ->setProperties($propertiesMetadata);
+                    ->setProperties($packageJsonMetadata);
 
                 if (is_cli()) {
                     output()->verbose(
@@ -508,9 +538,9 @@ class Modules extends SplArrayStack
             }
         }
 
-        ksort($datastructures);
+        ksort($registry);
 
-        return $datastructures;
+        return $registry;
     }
 
     // ------------------------------------------------------------------------
@@ -571,6 +601,7 @@ class Modules extends SplArrayStack
      * Update module registry
      *
      * @return void
+     * @throws \Exception
      */
     public function updateRegistry()
     {
@@ -622,7 +653,7 @@ class Modules extends SplArrayStack
      * Flush modules registry.
      *
      * @return void
-     * @throws \O2System\Psr\Cache\InvalidArgumentException
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function flushRegistry()
     {
@@ -644,14 +675,14 @@ class Modules extends SplArrayStack
      *
      * @param string $segment
      *
-     * @return bool|Datastructures\Module
+     * @return bool|DataStructures\Module
      */
     public function getApp($segment)
     {
-        $segment = 'apps/' . dash($segment);
+        $segment = dash($segment);
 
         if ($this->exists($segment)) {
-            if ($this->registry[ $segment ] instanceof Datastructures\Module) {
+            if ($this->registry[ $segment ] instanceof DataStructures\Module) {
                 return $this->registry[ $segment ];
             }
         }
@@ -672,9 +703,20 @@ class Modules extends SplArrayStack
     {
         $segments = is_array($segments) ? implode('/', $segments) : $segments;
 
-        return (bool)array_key_exists($segments, $this->registry);
+        if (is_string($segments)) {
+            return (bool)array_key_exists($segments, $this->registry);
+        }
+
+        return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::first
+     *
+     * @return bool|mixed
+     */
     public function first()
     {
         if (isset($this->registry[ '' ])) {
@@ -693,11 +735,11 @@ class Modules extends SplArrayStack
      *
      * @param string|array $segments
      *
-     * @return bool|Datastructures\Module
+     * @return bool|DataStructures\Module
      */
     public function getModule($segments)
     {
-        $segments = 'modules/' . (is_array($segments) ? implode('/', array_map('dash', $segments)) : $segments);
+        $segments = (is_array($segments) ? implode('/', array_map('dash', $segments)) : $segments);
 
         if ($this->exists($segments)) {
             return $this->registry[ $segments ];
@@ -720,7 +762,7 @@ class Modules extends SplArrayStack
         $namespaces = [];
 
         foreach ($this as $key => $module) {
-            if ($module instanceof Datastructures\Module) {
+            if ($module instanceof DataStructures\Module) {
                 $namespaces[ $key ] = new SplNamespaceInfo($module->getNamespace(), $module->getRealPath());
             }
         }
@@ -735,29 +777,63 @@ class Modules extends SplArrayStack
      *
      * Gets module directories
      *
-     * @param string $dirName
+     * @param string $subDir
      * @param bool   $reverse
      *
      * @return array
      */
-    public function getDirs($dirName, $reverse = false)
+    public function getDirs($subDir, $reverse = false)
     {
         $dirs = [];
-        $dirName = prepare_class_name($dirName);
-        $dirName = str_replace(
+        $subDir = prepare_class_name($subDir);
+        $subDir = str_replace(
             ['\\', '/'],
             DIRECTORY_SEPARATOR,
-            $dirName
+            $subDir
         );
 
         foreach ($this as $module) {
-            if ($module instanceof Datastructures\Module) {
-                if (is_dir($dirPath = $module->getRealPath() . $dirName)) {
+            if ($module instanceof DataStructures\Module) {
+                if (is_dir($dirPath = $module->getRealPath() . $subDir)) {
                     $dirs[] = $dirPath . DIRECTORY_SEPARATOR;
                 }
 
-                if (is_dir($dirPath = $module->getRealPath() . (is_cli() ? 'Cli' : 'Http') . DIRECTORY_SEPARATOR . $dirName)) {
+                if (is_dir($dirPath = $module->getRealPath() . (is_cli() ? 'Cli' : 'Http') . DIRECTORY_SEPARATOR . $subDir)) {
                     $dirs[] = $dirPath . DIRECTORY_SEPARATOR;
+                }
+            }
+        }
+
+        return $reverse === true ? array_reverse($dirs) : $dirs;
+    }
+
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::getResourcesDirs
+     *
+     * Gets module resources directories
+     *
+     * @param string $subDir
+     * @param bool   $reverse
+     *
+     * @return array
+     */
+    public function getResourcesDirs($subDir, $reverse = false)
+    {
+        $dirs = [];
+        $subDir = dash($subDir);
+        $subDir = str_replace(
+            ['\\', '/'],
+            DIRECTORY_SEPARATOR,
+            $subDir
+        );
+
+        foreach ($this as $module) {
+            if ($module instanceof DataStructures\Module) {
+                if (is_dir($dirPath = $module->getResourcesDir($subDir))) {
+                    $dirs[] = $dirPath;
                 }
             }
         }

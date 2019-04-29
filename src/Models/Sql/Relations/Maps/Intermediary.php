@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,158 +16,106 @@ namespace O2System\Framework\Models\Sql\Relations\Maps;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Models\Sql\Model;
+use O2System\Framework\Models\Sql\Relations\Maps\Abstracts\AbstractMap;
 
 /**
- * Class Intermediate
+ * Class Intermediary
  *
- * @package O2System\Framework\Models\Sql\Relations\Maps
+ * @package O2System\Framework\Models\Sql\Intermediarys\Maps
  */
-class Intermediary
+class Intermediary extends AbstractMap
 {
     /**
-     * Relation Model
+     * Intermediary::$intermediaryModel
      *
-     * @var Model
+     * @var \O2System\Framework\Models\Sql\Model
      */
-    public $relationModel;
+    public $intermediaryModel;
 
     /**
-     * Relation Table
+     * Intermediary::$intermediaryTable
      *
      * @var string
      */
-    public $relationTable;
+    public $intermediaryTable;
 
     /**
-     * Relation Primary Key
+     * Intermediary::$intermediaryPrimaryKey
      *
      * @var string
      */
-    public $relationPrimaryKey;
+    public $intermediaryPrimaryKey;
 
     /**
-     * Reference Table
+     * Intermediary::$intermediaryCurrentForeignKey
      *
      * @var string
      */
-    public $referenceTable;
+    public $intermediaryCurrentForeignKey;
 
     /**
-     * Reference Primary Key
+     * Intermediary::$intermediaryReferenceForeignKey
      *
      * @var string
      */
-    public $referencePrimaryKey;
-
-    /**
-     * Pivot Table
-     *
-     * @var string
-     */
-    public $pivotTable;
-
-    /**
-     * Pivot Relation Key
-     *
-     * @var string
-     */
-    public $pivotRelationKey;
-
-    /**
-     * Pivot Reference Key
-     *
-     * @var string
-     */
-    public $pivotReferenceKey;
+    public $intermediaryReferenceForeignKey;
 
     // ------------------------------------------------------------------------
 
     /**
-     * IntermediateMapper constructor.
+     * Intermediary::__construct
      *
-     * @param Model        $relationModel
-     * @param string|Model $referenceModel
-     * @param string|Model $intermediateModel
-     * @param string|null  $pivotTable
-     * @param string|null  $relationForeignKey
-     * @param string|null  $referencePrimaryKey
+     * @param \O2System\Framework\Models\Sql\Model        $currentModel
+     * @param string|\O2System\Framework\Models\Sql\Model $referenceModel
+     * @param string|\O2System\Framework\Models\Sql\Model $intermediaryModel
+     * @param string|null                                 $intermediaryCurrentForeignKey
+     * @param string|null                                 $intermediaryReferenceForeignKey
      */
     public function __construct(
-        Model $relationModel,
+        Model $currentModel,
         $referenceModel,
-        $pivotTable = null,
-        $relationForeignKey = null,
-        $referencePrimaryKey = null
+        $intermediaryModel,
+        $intermediaryCurrentForeignKey = null,
+        $intermediaryReferenceForeignKey = null
     ) {
-        // Map Relation Model
-        $this->mapRelationModel($relationModel);
+        // Mapping  Models
+        $this->mappingCurrentModel($currentModel);
+        $this->mappingReferenceModel($referenceModel);
+        $this->mappingIntermediaryModel($intermediaryModel);
 
-        // Map Reference Model
-        $this->mapReferenceModel($referenceModel);
+        $this->intermediaryCurrentForeignKey = empty($intermediaryCurrentForeignKey)
+            ? 'id_' . $this->currentTable
+            : $intermediaryCurrentForeignKey;
 
-        // Map Intermediate Table
-        $this->pivotTable = $this->relationTable . '_' . $this->referenceTable;
-
-        if (isset($pivotTable)) {
-            $this->pivotTable = $pivotTable;
-        }
-
-        $this->pivotRelationKey = $this->pivotTable . '.' . $this->pivotRelationKey;
-        $this->pivotReferenceKey = $this->pivotTable . '.' . $this->pivotReferenceKey;
+        $this->intermediaryReferenceForeignKey = empty($intermediaryReferenceForeignKey)
+            ? 'id_' . $this->referenceTable
+            : $intermediaryReferenceForeignKey;
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Map Relation Model
+     * Intermediary::mappingIntermediaryModel
      *
-     * @param string|Model $relationModel
-     *
-     * @return void
+     * @param string|\O2System\Framework\Models\Sql\Model $intermediaryModel
      */
-    private function mapRelationModel($relationModel)
+    protected function mappingIntermediaryModel($intermediaryModel)
     {
-        if ($relationModel instanceof Model) {
-            $this->relationModel = $relationModel;
-            $this->relationTable = $this->relationModel->table;
-            $this->relationPrimaryKey = $this->relationModel->primaryKey;
-            $this->pivotRelationKey = $this->relationModel->primaryKey . '_' . $this->relationModel->table;
-        } elseif (class_exists($relationModel)) {
-            $this->relationModel = new $relationModel();
-            $this->relationTable = $this->relationModel->table;
-            $this->relationPrimaryKey = $this->relationModel->table . '.' . $this->relationModel->primaryKey;
-            $this->pivotRelationKey = $this->relationModel->primaryKey . '_' . $this->relationModel->table;
+        if ($intermediaryModel instanceof Model) {
+            $this->intermediaryModel = $intermediaryModel;
+            $this->intermediaryTable = $intermediaryModel->table;
+            $this->intermediaryPrimaryKey = $this->intermediaryModel->primaryKey;
+        } elseif (class_exists($intermediaryModel)) {
+            $this->intermediaryModel = models($intermediaryModel);
+            $this->intermediaryTable = $this->intermediaryModel->table;
+            $this->intermediaryPrimaryKey = $this->intermediaryModel->primaryKey;
         } else {
-            $this->relationTable = $relationModel;
-            $this->relationPrimaryKey = $this->relationTable . '.id';
-            $this->pivotRelationKey = $this->relationTable . '.id_' . $this->relationTable;
+            $this->intermediaryModel = new class extends Model
+            {
+            };
+            $this->intermediaryModel->table = $this->referenceTable = $intermediaryModel;
         }
     }
 
     // ------------------------------------------------------------------------
-
-    /**
-     * Map Relation Model
-     *
-     * @param string|Model $referenceModel
-     *
-     * @return void
-     */
-    private function mapReferenceModel($referenceModel)
-    {
-        if ($referenceModel instanceof Model) {
-            $this->referenceTable = $referenceModel->table;
-            $this->referencePrimaryKey = $referenceModel->primaryKey;
-            $this->pivotReferenceKey = $referenceModel->primaryKey . '_' . $this->referenceTable;
-        } elseif (class_exists($referenceModel)) {
-            $referenceModel = new $referenceModel();
-            $this->referenceTable = $referenceModel->table;
-            $this->referencePrimaryKey = $this->referenceTable . '.' . $referenceModel->primaryKey;
-            $this->pivotReferenceKey = $referenceModel->primaryKey . '_' . $this->referenceTable;
-        } else {
-            $this->referenceTable = $referenceModel;
-            $this->referencePrimaryKey = $this->referenceTable . '.id';
-            $this->pivotReferenceKey = 'id_' . $this->referenceTable;
-        }
-    }
 }

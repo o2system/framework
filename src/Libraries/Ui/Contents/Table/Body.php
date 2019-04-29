@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,11 +24,21 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Body extends Element
 {
+    /**
+     * Body::__construct
+     */
     public function __construct()
     {
         parent::__construct('tbody');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Body::createRow
+     *
+     * @return \O2System\Framework\Libraries\Ui\Contents\Table\Row
+     */
     public function createRow()
     {
         $row = new Row();

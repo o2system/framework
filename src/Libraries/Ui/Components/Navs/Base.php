@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,6 +28,9 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Base extends Unordered
 {
+    /**
+     * Base::__construct
+     */
     public function __construct()
     {
         parent::__construct();
@@ -35,6 +38,16 @@ class Base extends Unordered
         $this->attributes->addAttributeClass('nav');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Base::createLink
+     *
+     * @param string      $label
+     * @param string|null $href
+     *
+     * @return Item
+     */
     public function createLink($label, $href = null)
     {
         $link = new Link($label, $href);
@@ -43,6 +56,15 @@ class Base extends Unordered
         return $this->createList($link);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Base::createList
+     *
+     * @param Item|Element|Dropdown|string $list
+     *
+     * @return Item
+     */
     public function createList($list = null)
     {
         $node = new Item();
@@ -84,6 +106,13 @@ class Base extends Unordered
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Base::fill
+     *
+     * @return static
+     */
     public function fill()
     {
         $this->attributes->addAttributeClass('nav-fill');
@@ -91,6 +120,13 @@ class Base extends Unordered
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Base::vertical
+     *
+     * @return static
+     */
     public function vertical()
     {
         $this->attributes->addAttributeClass('flex-column');

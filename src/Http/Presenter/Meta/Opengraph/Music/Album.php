@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,6 +24,11 @@ use O2System\Framework\Http\Presenter\Meta\Opengraph\Abstracts\AbstractNamespace
  */
 class Album extends AbstractNamespace
 {
+    /**
+     * Album::$namespace
+     *
+     * @var string
+     */
     public $namespace = 'music:album';
 
     // ------------------------------------------------------------------------
@@ -64,6 +69,13 @@ class Album extends AbstractNamespace
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Album::setMusician
+     *
+     * @param \O2System\Framework\Http\Presenter\Meta\Opengraph\Music\Musician $musician
+     *
+     * @return static
+     */
     public function setMusician(Musician $musician)
     {
         $this->merge($musician->getArrayCopy());
@@ -71,6 +83,15 @@ class Album extends AbstractNamespace
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Album::setReleaseDate
+     *
+     * @param string $releaseDate
+     *
+     * @return static
+     */
     public function setReleaseDate($releaseDate)
     {
         $this->setObject('release_date', $releaseDate);

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,8 +25,21 @@ use O2System\Spl\Iterators\ArrayIterator;
  */
 trait LinksCollectorTrait
 {
+    /**
+     * LinksCollectorTrait::$links
+     *
+     * @var ArrayIterator
+     */
     public $links;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * LinksCollectorTrait::createLink
+     *
+     * @param string      $label
+     * @param string|null $href
+     */
     public function createLink($label, $href = null)
     {
         $link = new Link($label, $href);
@@ -38,6 +51,15 @@ trait LinksCollectorTrait
         $this->links->push($link);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * LinksCollectorTrait
+     *
+     * @param \O2System\Framework\Libraries\Ui\Contents\Link $link
+     *
+     * @return static
+     */
     public function addLink(Link $link)
     {
         if ( ! $this->links instanceof ArrayIterator) {

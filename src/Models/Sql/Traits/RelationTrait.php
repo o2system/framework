@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,104 +28,176 @@ use O2System\Framework\Models\Sql\Relations;
 trait RelationTrait
 {
     /**
-     * Belongs To
+     * RelationTrait::belongsTo
      *
      * Belongs To is the inverse of one to one relationship.
      *
      * @param string|Model $referenceModel
      * @param string|null  $foreignKey
-     * @param string|null  $primaryKey
      *
      * @return Row|bool
      */
-    public function belongsTo($referenceModel, $foreignKey = null, $primaryKey = null)
+    protected function belongsTo($referenceModel, $foreignKey = null)
     {
         return (new Relations\BelongsTo(
-            new Relations\Maps\Inverse($this, $referenceModel, $foreignKey, $primaryKey)
+            new Relations\Maps\Inverse($this, $referenceModel, $foreignKey)
         ))->getResult();
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Belongs To Many
+     * RelationTrait::belongsToThrough
+     *
+     * @param string|Model $referenceModel
+     * @param string|Model $intermediaryModel
+     * @param string|null  $intermediaryCurrentForeignKey
+     * @param string|null  $intermediaryReferenceForeignKey
+     *
+     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
+    protected function belongsToThrough(
+        $referenceModel,
+        $intermediaryModel,
+        $intermediaryCurrentForeignKey = null,
+        $intermediaryReferenceForeignKey = null
+    ) {
+        return (new Relations\BelongsToThrough(
+            new Relations\Maps\Intermediary($this, $referenceModel, $intermediaryModel, $intermediaryCurrentForeignKey,
+                $intermediaryReferenceForeignKey)
+        ))->getResult();
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * RelationTrait::belongsToMany
      *
      * Belongs To is the inverse of one to many relationship.
      *
-     * @param string|Model $relationModel String of table name or AbstractModel
+     * @param string|Model $referenceModel String of table name or AbstractModel
      * @param string|null  $foreignKey
-     * @param string|null  $primaryKey
      *
      * @return Row|bool
      */
-    public function belongsToMany($relationModel, $pivotTable = null, $foreignKey = null, $primaryKey = null)
+    protected function belongsToMany($referenceModel, $foreignKey = null)
     {
         return (new Relations\BelongsToMany(
-            new Relations\Maps\Intermediary($this, $relationModel, $pivotTable, $foreignKey, $primaryKey)
+            new Relations\Maps\Inverse($this, $referenceModel, $foreignKey)
         ))->getResult();
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Has One
+     * RelationTrait::belongsToManyThrough
+     *
+     * @param string|Model $referenceModel
+     * @param string|Model $intermediaryModel
+     * @param string|null  $intermediaryCurrentForeignKey
+     * @param string|null  $intermediaryReferenceForeignKey
+     *
+     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
+    protected function belongsToManyThrough(
+        $referenceModel,
+        $intermediaryModel,
+        $intermediaryCurrentForeignKey = null,
+        $intermediaryReferenceForeignKey = null
+    ) {
+        return (new Relations\BelongsToManyThrough(
+            new Relations\Maps\Intermediary($this, $referenceModel, $intermediaryModel, $intermediaryCurrentForeignKey,
+                $intermediaryReferenceForeignKey)
+        ))->getResult();
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * RelationTrait::hasOne
      *
      * Has one is a one to one relationship. The reference model might be associated
      * with one relation model / table.
      *
-     * @param string|Model $relationModel String of table name or AbstractModel
+     * @param string|Model $referenceModel String of table name or AbstractModel
      * @param string|null  $foreignKey
-     * @param string|null  $primaryKey
      *
      * @return Row|bool
      */
-    public function hasOne($relationModel, $foreignKey = null, $primaryKey = null)
+    protected function hasOne($referenceModel, $foreignKey = null)
     {
         return (new Relations\HasOne(
-            new Relations\Maps\Reference($this, $relationModel, $foreignKey, $primaryKey)
+            new Relations\Maps\Reference($this, $referenceModel, $foreignKey)
         ))->getResult();
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Has Many
+     * RelationTrait::hasOneThrough
+     *
+     * @param string|Model $referenceModel
+     * @param string|Model $intermediaryModel
+     * @param string|null  $intermediaryCurrentForeignKey
+     * @param string|null  $intermediaryReferenceForeignKey
+     * @param string|null  $primaryKey
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    protected function hasOneThrough(
+        $referenceModel,
+        $intermediaryModel,
+        $intermediaryCurrentForeignKey = null,
+        $intermediaryReferenceForeignKey = null
+    ) {
+        return (new Relations\HasOneThrough(
+            new Relations\Maps\Intermediary($this, $referenceModel, $intermediaryModel, $intermediaryCurrentForeignKey,
+                $intermediaryReferenceForeignKey)
+        ))->getResult();
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * RelationTrait::hasMany
      *
      * Has Many is a one to many relationship, is used to define relationships where a single
      * reference model owns any amount of others relation model.
      *
-     * @param string|Model $relationModel String of table name or AbstractModel
+     * @param string|Model $referenceModel String of table name or AbstractModel
      * @param string|null  $foreignKey
-     * @param string|null  $primaryKey
      *
      * @return Result|bool
      */
-    public function hasMany($relationModel, $foreignKey = null, $primaryKey = null)
+    protected function hasMany($referenceModel, $foreignKey = null)
     {
         return (new Relations\HasMany(
-            new Relations\Maps\Reference($this, $relationModel, $foreignKey, $primaryKey)
+            new Relations\Maps\Reference($this, $referenceModel, $foreignKey)
         ))->getResult();
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Has Many Through
+     * RelationTrait::hasManyThrough
      *
-     * Has Many Through provides a convenient short-cut for accessing distant relations via
-     * an intermediate relation model.
-     *
-     * @param string|Model $relationModel
-     * @param string|Model $pivotTable
-     * @param string|null  $foreignKey
+     * @param string|Model $referenceModel
+     * @param string|Model $intermediaryModel
+     * @param string|null  $intermediaryCurrentForeignKey
+     * @param string|null  $intermediaryReferenceForeignKey
      * @param string|null  $primaryKey
      *
-     * @return Result|bool
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function hasManyThrough($relationModel, $referenceModel, $pivotForeignKey = null, $relationForeignKey = null)
-    {
+    protected function hasManyThrough(
+        $referenceModel,
+        $intermediaryModel,
+        $intermediaryCurrentForeignKey = null,
+        $intermediaryReferenceForeignKey = null
+    ) {
         return (new Relations\HasManyThrough(
-            new Relations\Maps\Through($this, $pivotForeignKey, $relationModel, $relationForeignKey, $referenceModel)
+            new Relations\Maps\Intermediary($this, $referenceModel, $intermediaryModel, $intermediaryCurrentForeignKey,
+                $intermediaryReferenceForeignKey)
         ))->getResult();
     }
 }

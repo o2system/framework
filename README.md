@@ -1,3 +1,11 @@
+[![O2System Framework](http://o2system.id/assets/img/logo/logo-white-200px.png)](http://o2system.id/assets/img/logo/logo-white-200px.png)
+
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/o2system/framework/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/o2system/framework/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/o2system/framework/badges/build.png?b=master)](https://scrutinizer-ci.com/g/o2system/framework/build-status/master)
+[![Latest Stable Version](https://poser.pugx.org/o2system/framework/v/stable)](https://packagist.org/packages/o2system/framework)
+[![Total Downloads](https://poser.pugx.org/o2system/framework/downloads)](https://packagist.org/packages/o2system/framework)
+[![License](https://poser.pugx.org/o2system/framework/license)](https://packagist.org/packages/o2system/framework)
+
 # O2System Framework
 Open Source PHP Modular HMVC-MVM-P Framework. The new generation of PHP Framework.
 
@@ -43,13 +51,13 @@ composer require o2system/framework
 Documentation is available on this repository [wiki](https://github.com/o2system/framework/wiki) or visit this repository [github page](https://o2system.github.io/framework).
 
 ### Ideas and Suggestions
-Please kindly mail us at [o2system.framework@gmail.com](mailto:o2system.framework@gmail.com])
+Please kindly mail us at [contact@o2system.id](mailto:contact@o2system.id])
 
 ### Bugs and Issues
 Please kindly submit your [issues at Github](http://github.com/o2system/framework/issues) so we can track all the issues along development and send a [pull request](http://github.com/o2system/framework/pulls) to this repository.
 
 ### System Requirements
-- PHP 5.6+
+- PHP 7.2+
 - [Composer](https://getcomposer.org)
 - [O2System Kernel](https://github.com/o2system/kernel)
 - [O2System Filesystem](https://github.com/o2system/filesystem)
@@ -61,10 +69,3 @@ Please kindly submit your [issues at Github](http://github.com/o2system/framewor
 - [O2System Security](https://github.com/o2system/security)
 - [O2System Curl](https://github.com/o2system/curl)
 - [O2System Email](https://github.com/o2system/email)
-
-### Credits
-|Role|Name|
-|----|----|
-|Founder and Lead Projects|[Steeven Andrian Salim](http://steevenz.com)|
-|Documentation|[Steeven Andrian Salim](http://steevenz.com)
-|Github Pages Designer| [Teguh Rianto](http://teguhrianto.tk)

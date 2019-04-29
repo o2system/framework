@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -60,6 +60,20 @@ class Restful extends Controller
      * @type bool
      */
     protected $accessControlAllowCredentials = true;
+
+    /**
+     * Access-Control-Method
+     *
+     * @var string
+     */
+    protected $accessControlMethod = 'GET';
+
+    /**
+     * Access-Control-Params
+     *
+     * @var array
+     */
+    protected $accessControlParams = [];
 
     /**
      * Access-Control-Allow-Methods
@@ -122,17 +136,29 @@ class Restful extends Controller
      */
     protected $accessControlMaxAge = 86400;
 
-    // ------------------------------------------------------------------------
-
+    /**
+     * Restful::$ajaxOnly
+     *
+     * @var bool
+     */
     protected $ajaxOnly = false;
+
+    /**
+     * Restful::$model
+     *
+     * @var \O2System\Framework\Models\Sql\Model|\O2System\Framework\Models\NoSql\Model|\O2System\Framework\Models\Files\Model
+     */
+    public $model;
+
+    // ------------------------------------------------------------------------
 
     /**
      * Restful::__construct
      */
     public function __construct()
     {
-        if (o2system()->hasService('presenter')) {
-            presenter()->theme->set(false);
+        if (services()->has('presenter')) {
+            presenter()->setTheme(false);
         }
 
         if (is_ajax()) {
@@ -201,6 +227,22 @@ class Restful extends Controller
 
         if (input()->server('REQUEST_METHOD') === 'OPTIONS') {
             exit(EXIT_SUCCESS);
+        } elseif ( ! in_array(input()->server('REQUEST_METHOD'), $this->accessControlAllowMethods)) {
+            $this->sendError(405);
+        } elseif (count($this->accessControlParams)) {
+            if ($this->accessControlMethod === 'GET') {
+                if (empty($_GET)) {
+                    $this->sendError(400);
+                }
+            } elseif ($this->accessControlMethod === 'POST') {
+                if (empty($_POST)) {
+                    $this->sendError(400);
+                }
+            } elseif (in_array($this->accessControlMethod, ['GETPOST', 'POSTGET'])) {
+                if (empty($_REQUEST)) {
+                    $this->sendError(400);
+                }
+            }
         }
     }
 
@@ -242,6 +284,8 @@ class Restful extends Controller
      *
      * @param mixed $data        The payload data to-be send.
      * @param bool  $longPooling Long pooling flag mode.
+     *
+     * @throws \Exception
      */
     public function sendPayload($data, $longPooling = false)
     {

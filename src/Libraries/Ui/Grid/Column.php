@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,6 +26,13 @@ class Column extends Element
 {
     use SizingSetterTrait;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Column::__construct
+     *
+     * @param array $attributes
+     */
     public function __construct(array $attributes = [])
     {
         parent::__construct('div');
@@ -43,6 +50,13 @@ class Column extends Element
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Column::render
+     *
+     * @return string
+     */
     public function render()
     {
         if ($this->attributes->hasAttribute('class') === false) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@ namespace O2System\Framework\Cli\Commanders;
 
 // ------------------------------------------------------------------------
 
-use O2System\Kernel\Cli\Commander;
+use O2System\Framework\Cli\Commander;
 use O2System\Kernel\Cli\Writers\Format;
 use O2System\Kernel\Cli\Writers\Table;
 
@@ -68,6 +68,15 @@ class Registry extends Commander
         ],
     ];
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Registry::optionUpdate
+     *
+     * @param string|null $type
+     *
+     * @throws \Exception
+     */
     public function optionUpdate($type = null)
     {
         if (in_array($type, ['modules', 'languages'])) {
@@ -88,6 +97,15 @@ class Registry extends Commander
         exit(EXIT_SUCCESS);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Registry::optionFlush
+     *
+     * @param string|null $type
+     *
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
     public function optionFlush($type = null)
     {
         if (in_array($type, ['modules', 'languages'])) {
@@ -109,6 +127,11 @@ class Registry extends Commander
         exit(EXIT_SUCCESS);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Registry::optionInfo
+     */
     public function optionInfo()
     {
         $table = new Table();
@@ -137,6 +160,13 @@ class Registry extends Commander
         exit(EXIT_SUCCESS);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Registry::optionMetadata
+     *
+     * @param string $type
+     */
     public function optionMetadata($type)
     {
         if (in_array($type, ['modules', 'languages'])) {

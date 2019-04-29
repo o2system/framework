@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,6 +18,7 @@ namespace O2System\Framework\Libraries\Ui\Contents\Lists\Abstracts;
 use O2System\Framework\Libraries\Ui\Contents\Link;
 use O2System\Framework\Libraries\Ui\Contents\Lists\Item;
 use O2System\Framework\Libraries\Ui\Element;
+use O2System\Kernel\Http\Message\Uri;
 
 /**
  * Class AbstractList
@@ -26,8 +27,20 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 abstract class AbstractList extends Element
 {
+    /**
+     * AbstractList::$inline
+     *
+     * @var bool
+     */
     public $inline = false;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractList::unstyled
+     *
+     * @return static
+     */
     public function unstyled()
     {
         $this->attributes->removeAttributeClass('list-*');
@@ -36,6 +49,15 @@ abstract class AbstractList extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractList::inline
+     *
+     * @param bool $inline
+     *
+     * @return static
+     */
     public function inline($inline = true)
     {
         $this->inline = (bool)$inline;
@@ -43,6 +65,15 @@ abstract class AbstractList extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractList::createLists
+     *
+     * @param array $lists
+     *
+     * @return static
+     */
     public function createLists(array $lists)
     {
         if (count($lists)) {
@@ -54,6 +85,15 @@ abstract class AbstractList extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractList
+     *
+     * @param Item|Element|int|string|null $list
+     *
+     * @return Item
+     */
     public function createList($list = null)
     {
         $node = new Item();
@@ -79,13 +119,48 @@ abstract class AbstractList extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractList::pushChildNode
+     *
+     * @param \O2System\Framework\Libraries\Ui\Element $node
+     */
     protected function pushChildNode(Element $node)
     {
         if ($node->hasChildNodes()) {
             if ($node->childNodes->first() instanceof Link) {
-                if ($node->childNodes->first()->getAttributeHref() === current_url()) {
-                    $node->attributes->addAttributeClass('active');
-                    $node->childNodes->first()->attributes->addAttributeClass('active');
+
+                $parseUrl = parse_url($node->childNodes->first()->getAttributeHref());
+                $parseUrlQuery = [];
+
+                if (isset($parseUrl[ 'query' ])) {
+                    parse_str($parseUrl[ 'query' ], $parseUrlQuery);
+                }
+
+                if (isset($parseUrlQuery[ 'page' ])) {
+                    if (input()->get('page') === $parseUrlQuery[ 'page' ]) {
+                        $node->attributes->addAttributeClass('active');
+                        $node->childNodes->first()->attributes->addAttributeClass('active');
+                    }
+                } else {
+                    $hrefUriSegments = [];
+
+                    if (isset($parseUrl[ 'path' ])) {
+                        $hrefUriSegments = (new Uri\Segments($parseUrl[ 'path' ]))->getParts();
+                    }
+
+                    $currentUriSegments = server_request()->getUri()->getSegments()->getParts();
+
+                    $matchSegments = array_slice($currentUriSegments, 0, count($hrefUriSegments));
+
+                    $stringHrefSegments = implode('/', $hrefUriSegments);
+                    $stringMatchSegments = implode('/', $matchSegments);
+
+                    if ($stringHrefSegments === $stringMatchSegments) {
+                        $node->attributes->addAttributeClass('active');
+                        $node->childNodes->first()->attributes->addAttributeClass('active');
+                    }
                 }
             }
         }
@@ -93,6 +168,13 @@ abstract class AbstractList extends Element
         $this->childNodes->push($node);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * AbstractList::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();
@@ -106,7 +188,6 @@ abstract class AbstractList extends Element
                 if ($this->inline) {
                     $childNode->attributes->addAttributeClass('list-inline-item');
                 }
-
                 $output[] = $childNode;
             }
         }

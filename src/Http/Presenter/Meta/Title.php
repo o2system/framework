@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@ namespace O2System\Framework\Http\Presenter\Meta;
 
 // ------------------------------------------------------------------------
 
-use O2System\Spl\Datastructures\SplArrayQueue;
+use O2System\Spl\DataStructures\SplArrayQueue;
 
 /**
  * Class Title
@@ -33,27 +33,60 @@ class Title extends SplArrayQueue
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Title::append
+     *
+     * @param string $header
+     *
+     * @return static
+     */
     public function append($header)
     {
         $this[] = $header;
+
+        return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Title::replace
+     *
+     * @param string $header
+     *
+     * @return static
+     */
     public function replace($header)
     {
         foreach ($this as $index => $string) {
             $this->dequeue();
         }
 
-        $this->prepend($header);
+        return $this->prepend($header);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Title::prepend
+     *
+     * @param string $header
+     *
+     * @return static
+     */
     public function prepend($header)
     {
         $this->add(0, $header);
+
+        return $this;
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * Set Separator
+     * Title::setSeparator
+     *
+     * Sets title separator.
      *
      * @param string $separator
      *
@@ -69,9 +102,11 @@ class Title extends SplArrayQueue
     // ------------------------------------------------------------------------
 
     /**
+     * Title::__toString
+     *
      * Magic Method __toString
      *
-     * Convert this class into string
+     * Convert this class into a string
      *
      * @return string
      */

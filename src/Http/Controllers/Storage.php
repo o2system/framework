@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,23 +26,48 @@ use O2System\Spl\Info\SplFileInfo;
  */
 class Storage extends Controller
 {
-    public $storagePath;
+    /**
+     * Storage::$directoryPath
+     *
+     * @var string
+     */
+    public $directoryPath;
+
+    /**
+     * Storage::$speedLimit
+     *
+     * @var int
+     */
     public $speedLimit = 1024;
+
+    /**
+     * Storage::$resumeable
+     *
+     * @var bool
+     */
     public $resumeable = true;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Storage::__construct
+     */
     public function __construct()
     {
-        $this->storagePath = PATH_STORAGE;
+        $this->directoryPath = PATH_STORAGE;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Storage::route
+     */
     public function route()
     {
+        $segments = server_request()->getUri()->getSegments()->getParts();
+        array_shift($segments);
+
         $download = false;
-        if (func_get_arg(0) === 'index') {
-            $segments = func_get_arg(1);
-        } else {
-            $segments = array_merge([func_get_arg(0)], func_get_arg(1));
-        }
 
         if (false !== ($key = array_search('download', $segments))) {
             $download = true;
@@ -51,7 +76,7 @@ class Storage extends Controller
         }
 
         if (count($segments)) {
-            $filePath = $this->storagePath . implode(DIRECTORY_SEPARATOR, $segments);
+            $filePath = $this->directoryPath . implode(DIRECTORY_SEPARATOR, $segments);
             if (is_file($filePath)) {
                 if ($download) {
                     $downloader = new Downloader($filePath);

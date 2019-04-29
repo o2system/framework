@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,11 +25,24 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Paragraph extends Element
 {
+    /**
+     * Paragraph::__construct
+     */
     public function __construct()
     {
         parent::__construct('p');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Paragraph::createLink
+     *
+     * @param string      $label
+     * @param string|null $href
+     *
+     * @return Link
+     */
     public function createLink($label, $href = null)
     {
         if ( ! $this->attributes->hasAttributeClass('lead')) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -38,6 +38,9 @@ class Body extends Element
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Body::__construct
+     */
     public function __construct()
     {
         parent::__construct('div', 'card-body');
@@ -46,6 +49,11 @@ class Body extends Element
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Body::createRow
+     *
+     * @return Row
+     */
     public function createRow()
     {
         $row = new Row();
@@ -113,6 +121,15 @@ class Body extends Element
         return $this->childNodes->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Body::createPrice
+     *
+     * @param string|int  $price
+     * @param int|null    $discount
+     * @param string|null $validUntil
+     */
     public function createPrice($price, $discount = null, $validUntil = null)
     {
 
@@ -120,6 +137,11 @@ class Body extends Element
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Body::render
+     *
+     * @return string
+     */
     public function render()
     {
         if ($this->title instanceof Element) {

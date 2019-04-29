@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,6 +17,8 @@ namespace O2System\Framework\Models\Sql;
 
 use O2System\Framework\Models\Sql\DataObjects\Result\Row;
 use O2System\Framework\Models\Sql\Traits\FinderTrait;
+use O2System\Framework\Models\Sql\Traits\ModifierTrait;
+use O2System\Framework\Models\Sql\Traits\RecordTrait;
 
 /**
  * Class Model
@@ -26,6 +28,8 @@ use O2System\Framework\Models\Sql\Traits\FinderTrait;
 class Model
 {
     use FinderTrait;
+    use ModifierTrait;
+    use RecordTrait;
 
     /**
      * AbstractModel::$db
@@ -129,6 +133,7 @@ class Model
      * @final   this method cannot be overwritten.
      *
      * @return void
+     * @throws \ReflectionException
      */
     final protected function fetchSubModels()
     {
@@ -143,7 +148,8 @@ class Model
         // Get model class directory name
         $dirName = dirname($filePath) . DIRECTORY_SEPARATOR;
 
-        if ($filename === 'Model') {
+        // Get sub models or siblings models
+        if ($filename === 'Model' || $filename === modules()->top()->getDirName()) {
             $subModelsDirName = dirname($dirName) . DIRECTORY_SEPARATOR . 'Models' . DIRECTORY_SEPARATOR;
 
             if (is_dir($subModelsDirName)) {
@@ -157,6 +163,9 @@ class Model
             loader()->addNamespace($reflection->name, $subModelPath);
 
             foreach (glob($subModelPath . '*.php') as $filepath) {
+                if ($filepath === $filePath) {
+                    continue;
+                }
                 $this->validSubModels[ camelcase(pathinfo($filepath, PATHINFO_FILENAME)) ] = $filepath;
             }
         }
@@ -166,15 +175,14 @@ class Model
 
     final public static function __callStatic($method, array $arguments = [])
     {
-        static $modelInstance;
-
-        if (empty($modelInstance)) {
-            $modelClassName = get_called_class();
-            $modelInstance = new $modelClassName();
-        }
-
-        if (method_exists($modelInstance, $method)) {
-            return call_user_func_array([&$modelInstance, $method], $arguments);
+        if (false !== ($modelInstance = models(get_called_class()))) {
+            if (method_exists($modelInstance, $method)) {
+                return call_user_func_array([&$modelInstance, $method], $arguments);
+            } elseif (method_exists($modelInstance->db, $method)) {
+                return call_user_func_array([&$modelInstance->db, $method], $arguments);
+            } elseif (method_exists($modelInstance->qb, $method)) {
+                return call_user_func_array([&$modelInstance->qb, $method], $arguments);
+            }
         }
 
         return false;
@@ -182,11 +190,7 @@ class Model
 
     final public function __call($method, array $arguments = [])
     {
-        if (method_exists($this, $method)) {
-            return call_user_func_array([&$this, $method], $arguments);
-        }
-
-        return false;
+        return static::__callStatic($method, $arguments);
     }
 
     // ------------------------------------------------------------------------
@@ -200,9 +204,9 @@ class Model
         }
 
         if (empty($get[ $property ])) {
-            if (o2system()->hasService($property)) {
-                return o2system()->getService($property);
-            } elseif (array_key_exists($property, $this->validSubModels)) {
+            if (services()->has($property)) {
+                return services()->get($property);
+            } elseif ($this->hasSubModel($property)) {
                 return $this->loadSubModel($property);
             } elseif (o2system()->__isset($property)) {
                 return o2system()->__get($property);
@@ -214,17 +218,40 @@ class Model
 
     // ------------------------------------------------------------------------
 
+    final protected function hasSubModel($model)
+    {
+        if (array_key_exists($model, $this->validSubModels)) {
+            return (bool)is_file($this->validSubModels[ $model ]);
+        }
+
+        return false;
+    }
+
     final protected function loadSubModel($model)
     {
-        if (is_file($this->validSubModels[ $model ])) {
-            $className = '\\' . get_called_class() . '\\' . ucfirst($model);
-            $className = str_replace('\Base\\Model', '\Models', $className);
+        if ($this->hasSubModel($model)) {
+            $classNames = [
+                '\\' . get_called_class() . '\\' . ucfirst($model),
+                '\\' . get_namespace(get_called_class()) . ucfirst($model),
+            ];
 
-            if (class_exists($className)) {
-                $this->{$model} = new $className();
+            foreach ($classNames as $className) {
+                if (class_exists($className)) {
+                    $this->{$model} = models($className);
+                    break;
+                }
             }
         }
 
-        return $this->{$model};
+        if (property_exists($this, $model)) {
+            return $this->{$model};
+        }
+
+        return false;
+    }
+
+    final protected function getSubModel($model)
+    {
+        return $this->loadSubModel($model);
     }
 }

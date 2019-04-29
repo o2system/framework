@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,6 +15,7 @@ namespace O2System\Framework\Libraries\Ui\Components;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Libraries\Ui\Contents\Link;
 use O2System\Framework\Libraries\Ui\Element;
 use O2System\Framework\Libraries\Ui\Interfaces\ContextualInterface;
 use O2System\Framework\Libraries\Ui\Traits\Setters\ContextualClassSetterTrait;
@@ -30,8 +31,21 @@ class Alert extends Element implements ContextualInterface
     use ContextualClassSetterTrait;
     use HeadingSetterTrait;
 
+    /**
+     * Alert::$dismissible
+     *
+     * @var bool
+     */
     protected $dismissible = false;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Alert::__construct
+     *
+     * @param string|null   $textContent
+     * @param string        $contextualClass
+     */
     public function __construct($textContent = null, $contextualClass = 'default')
     {
         parent::__construct('div');
@@ -46,6 +60,15 @@ class Alert extends Element implements ContextualInterface
         $this->setContextualClassSuffix($contextualClass);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Alert::setText
+     *
+     * @param string $text
+     *
+     * @return static
+     */
     public function setText($text)
     {
         $this->entity->setEntityName($text);
@@ -54,6 +77,13 @@ class Alert extends Element implements ContextualInterface
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Alert::dismissible
+     *
+     * @return static
+     */
     public function dismissible()
     {
         $this->dismissible = true;
@@ -61,6 +91,13 @@ class Alert extends Element implements ContextualInterface
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Alert::render
+     *
+     * @return string
+     */
     public function render()
     {
         if ($this->dismissible) {

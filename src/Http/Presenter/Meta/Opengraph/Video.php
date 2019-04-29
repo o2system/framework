@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -29,10 +29,22 @@ class Video extends AbstractNamespace
     use UrlTrait;
     use AuthorTrait;
 
+    /**
+     * Video::$namespace
+     *
+     * @var string
+     */
     public $namespace = 'video';
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Video::setMime
+     *
+     * @param string $mime
+     *
+     * @return static
+     */
     public function setMime($mime)
     {
         $this->setObject('type', $mime);
@@ -42,16 +54,33 @@ class Video extends AbstractNamespace
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Video::setSize
+     *
+     * @param int $width
+     * @param int $height
+     *
+     * @return static
+     */
     public function setSize($width, $height)
     {
         if (is_numeric($width) AND is_numeric($height)) {
             $this->setObject('width', $width);
             $this->setObject('height', $height);
         }
+
+        return $this;
     }
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Video::setDuration
+     *
+     * @param int $duration
+     *
+     * @return static
+     */
     public function setDuration($duration)
     {
         if (is_int($duration)) {
@@ -63,6 +92,13 @@ class Video extends AbstractNamespace
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Video::setReleaseDate
+     *
+     * @param string $date
+     *
+     * @return static
+     */
     public function setReleaseDate($date)
     {
         $this->setObject('release_date', $date);

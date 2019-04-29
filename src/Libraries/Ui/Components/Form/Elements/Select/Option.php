@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,6 +24,11 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Option extends Element
 {
+    /**
+     * Option::__construct
+     *
+     * @param array $attributes
+     */
     public function __construct($attributes = [])
     {
         parent::__construct('option');
@@ -35,6 +40,13 @@ class Option extends Element
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Option::disabled
+     *
+     * @return static
+     */
     public function disabled()
     {
         $this->attributes->addAttribute('disabled', 'disabled');
@@ -42,6 +54,13 @@ class Option extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Option::selected
+     *
+     * @return static
+     */
     public function selected()
     {
         $this->attributes->addAttribute('selected', 'selected');

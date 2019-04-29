@@ -1,23 +1,36 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: steevenz
- * Date: 05/04/18
- * Time: 08.03
+ * This file is part of the O2System Framework package.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author         Steeve Andrian Salim
+ * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 
 namespace O2System\Framework\Libraries;
 
 
-use O2System\Email\Datastructures\Config;
+use O2System\Email\DataStructures\Config;
 use O2System\Email\Message;
 use O2System\Email\Spool;
 use O2System\Spl\Traits\Collectors\ConfigCollectorTrait;
+use O2System\Spl\Traits\Collectors\ErrorCollectorTrait;
 
+/**
+ * Class Email
+ * @package O2System\Framework\Libraries
+ */
 class Email extends Message
 {
     use ConfigCollectorTrait;
+    use ErrorCollectorTrait;
 
+    /**
+     * Email::__construct
+     */
     public function __construct()
     {
         if ($config = config()->loadFile('email', true)) {
@@ -25,6 +38,15 @@ class Email extends Message
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Email::subject
+     *
+     * @param string $subject
+     *
+     * @return Message
+     */
     public function subject($subject)
     {
         $subject = language()->getLine($subject);
@@ -32,6 +54,16 @@ class Email extends Message
         return parent::subject($subject);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Email::with
+     *
+     * @param mixed $vars
+     * @param mixed $value
+     *
+     * @return static
+     */
     public function with($vars, $value = null)
     {
         view()->with($vars, $value);
@@ -39,6 +71,16 @@ class Email extends Message
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Email::template
+     *
+     * @param string $filename
+     * @param array $vars
+     *
+     * @return static
+     */
     public function template($filename, array $vars = [])
     {
         if ($view = view()->load($filename, $vars, true)) {
@@ -48,10 +90,23 @@ class Email extends Message
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Email::send
+     *
+     * @return bool
+     */
     public function send()
     {
         $spool = new Spool(new Config($this->config));
 
-        return (bool)$spool->send($this);
+        if ($spool->send($this)) {
+            return true;
+        }
+
+        $this->setErrors($spool->getErrors());
+
+        return false;
     }
 }

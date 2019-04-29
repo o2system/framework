@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@ namespace O2System\Framework\Libraries;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Cart
@@ -46,20 +46,37 @@ class Cart extends AbstractRepository
     public function add(array $item)
     {
         $item = array_merge([
-            'id'      => null,
-            'sku'     => null,
-            'qty'     => 1,
-            'price'   => 0,
-            'name'    => null,
-            'options' => [],
+            'id'       => null,
+            'sku'      => null,
+            'quantity' => 1,
+            'price'    => 0,
+            'discount' => 0,
+            'name'     => null,
+            'options'  => [],
         ], $item);
 
         // set sku
         $sku = empty($item[ 'sku' ]) ? $item[ 'id' ] : $item[ 'sku' ];
 
         // set sub-total
-        $item[ 'subTotal' ][ 'price' ] = $item[ 'price' ] * $item[ 'qty' ];
-        $item[ 'subTotal' ][ 'weight' ] = $item[ 'weight' ] * $item[ 'qty' ];
+        $item[ 'subTotal' ][ 'price' ] = $item[ 'price' ] * $item[ 'quantity' ];
+        $item[ 'subTotal' ][ 'discount' ] = 0;
+
+        if (is_numeric($item[ 'discount' ])) {
+            $item[ 'subTotal' ][ 'discount' ] = $item[ 'subTotal' ][ 'price' ] - $item[ 'discount' ];
+        } elseif (is_string($item[ 'discount' ]) && strpos($item[ 'discount' ], '+') !== false) {
+            $discounts = explode('+', $item[ 'discount' ]);
+            if (count($discounts)) {
+                $item[ 'subTotal' ][ 'discount' ] = $item[ 'subTotal' ][ 'price' ] * (intval(reset($discounts)) / 100);
+                foreach (array_slice($discounts, 1) as $discount) {
+                    $item[ 'subTotal' ][ 'discount' ] += $item[ 'subTotal' ][ 'discount' ] * (intval($discount) / 100);
+                }
+            }
+        } elseif (is_string($item[ 'discount' ]) && strpos($item[ 'discount' ], '%') !== false) {
+            $item[ 'subTotal' ][ 'discount' ] = $item[ 'subTotal' ][ 'price' ] * (intval($item[ 'discount' ]) / 100);
+        }
+
+        $item[ 'subTotal' ][ 'weight' ] = $item[ 'weight' ] * $item[ 'quantity' ];
 
         $this->storage[ $sku ] = $item;
     }
@@ -80,8 +97,8 @@ class Cart extends AbstractRepository
             $item = array_merge($this->offsetGet($sku), $item);
 
             // update sub-total
-            $item[ 'subTotal' ][ 'price' ] = $item[ 'price' ] * $item[ 'qty' ];
-            $item[ 'subTotal' ][ 'weight' ] = $item[ 'weight' ] * $item[ 'qty' ];
+            $item[ 'subTotal' ][ 'price' ] = $item[ 'price' ] * $item[ 'quantity' ];
+            $item[ 'subTotal' ][ 'weight' ] = $item[ 'weight' ] * $item[ 'quantity' ];
 
             $this->storage[ $sku ] = $item;
 
@@ -135,10 +152,14 @@ class Cart extends AbstractRepository
         return $totalPrice;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Card::destroy
+     */
     public function destroy()
     {
         unset($_SESSION[ 'o2system' ][ 'cart' ]);
         parent::destroy();
-
     }
 }

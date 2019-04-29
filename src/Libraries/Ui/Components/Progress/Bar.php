@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,13 +28,51 @@ class Bar extends Element implements ContextualInterface
 {
     use ContextualClassSetterTrait;
 
+    /**
+     * Bar::$label
+     *
+     * @var \O2System\Framework\Libraries\Ui\Element
+     */
     protected $label;
+
+    /**
+     * Bar::$now
+     *
+     * @var int
+     */
     protected $now = 0;
+
+    /**
+     * Bar::$min
+     *
+     * @var int
+     */
     protected $min = 0;
+
+    /**
+     * Bar::$max
+     *
+     * @var int
+     */
     protected $max = 100;
 
+    /**
+     * Bar::$withLabel
+     *
+     * @var bool
+     */
     protected $withLabel = false;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Bar::__construct
+     *
+     * @param int    $now
+     * @param int    $min
+     * @param int    $max
+     * @param string $contextualClass
+     */
     public function __construct($now = 0, $min = 0, $max = 100, $contextualClass = 'primary')
     {
         parent::__construct('div');
@@ -53,6 +91,15 @@ class Bar extends Element implements ContextualInterface
         $this->setMax($max);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Bar::setNow
+     *
+     * @param int $number
+     *
+     * @return static
+     */
     public function setNow($number)
     {
         $this->now = (int)$number;
@@ -70,6 +117,15 @@ class Bar extends Element implements ContextualInterface
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Bar::setMin
+     *
+     * @param int $number
+     *
+     * @return static
+     */
     public function setMin($number)
     {
         $this->min = (int)$number;
@@ -78,6 +134,15 @@ class Bar extends Element implements ContextualInterface
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Bar::setMax
+     *
+     * @param int $number
+     *
+     * @return static
+     */
     public function setMax($number)
     {
         $this->max = (int)$number;
@@ -86,6 +151,13 @@ class Bar extends Element implements ContextualInterface
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Bar::withLabel
+     *
+     * @return static
+     */
     public function withLabel()
     {
         $this->withLabel = true;
@@ -93,6 +165,13 @@ class Bar extends Element implements ContextualInterface
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Bar::striped
+     *
+     * @return static
+     */
     public function striped()
     {
         $this->attributes->addAttributeClass('progress-bar-striped');
@@ -100,6 +179,13 @@ class Bar extends Element implements ContextualInterface
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Bar::animate
+     *
+     * @return static
+     */
     public function animate()
     {
         $this->attributes->addAttributeClass('active');
@@ -107,6 +193,13 @@ class Bar extends Element implements ContextualInterface
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Bar::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();

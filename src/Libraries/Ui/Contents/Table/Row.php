@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,6 +28,14 @@ class Row extends Element implements ContextualInterface
 {
     use ContextualClassSetterTrait;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::__construct
+     *
+     * @param array         $attributes
+     * @param string|null   $contextualClass
+     */
     public function __construct(array $attributes = [], $contextualClass = null)
     {
         parent::__construct('tr');
@@ -49,6 +57,16 @@ class Row extends Element implements ContextualInterface
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::createColumns
+     *
+     * @param array  $columns
+     * @param string $tagName
+     *
+     * @return static
+     */
     public function createColumns(array $columns, $tagName = 'td')
     {
         foreach ($columns as $column) {
@@ -70,6 +88,15 @@ class Row extends Element implements ContextualInterface
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::createColumn
+     *
+     * @param string $tagName
+     *
+     * @return Element
+     */
     public function createColumn($tagName = 'td')
     {
         $column = new Element($tagName);

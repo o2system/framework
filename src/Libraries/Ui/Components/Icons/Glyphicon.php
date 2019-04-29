@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,6 +24,11 @@ use O2System\Framework\Libraries\Ui\Components\Icons\Abstracts\AbstractIcon;
  */
 class Glyphicon extends AbstractIcon
 {
+    /**
+     * Glyphicon::__construct
+     *
+     * @param string|null $iconName
+     */
     public function __construct($iconName = null)
     {
         $this->iconPrefixClass = 'glyphicon';

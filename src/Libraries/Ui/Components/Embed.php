@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,13 +24,48 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Embed extends Element
 {
+    /**
+     * Embed::RATIO_21BY9
+     *
+     * @var string
+     */
     const RATIO_21BY9 = '21by9';
+
+    /**
+     * Embed::RATIO_16BY9
+     *
+     * @var string
+     */
     const RATIO_16BY9 = '16by9';
+
+    /**
+     * Embed::RATIO_4BY3
+     *
+     * @var string
+     */
     const RATIO_4BY3 = '4by3';
+
+    /**
+     * Embed::RATIO_1BY1
+     *
+     * @var string
+     */
     const RATIO_1BY1 = '1by1';
 
+    /**
+     * Embed::$media
+     *
+     * @var \O2System\Framework\Libraries\Ui\Element
+     */
     public $media;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Embed::__construct
+     *
+     * @param string $aspectRatio
+     */
     public function __construct($aspectRatio = self::RATIO_16BY9)
     {
         parent::__construct('div');
@@ -41,6 +76,15 @@ class Embed extends Element
         $this->media->attributes->addAttribute('allowfullscreen', 'allowfullscreen');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Embed::setMedia
+     *
+     * @param string $src
+     *
+     * @return static
+     */
     public function setMedia($src)
     {
         $src = str_replace(
@@ -66,6 +110,13 @@ class Embed extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Embed::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();

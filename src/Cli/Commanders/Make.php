@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@ namespace O2System\Framework\Cli\Commanders;
 
 // ------------------------------------------------------------------------
 
-use O2System\Kernel\Cli\Commander;
+use O2System\Framework\Cli\Commander;
 
 /**
  * Class Make
@@ -87,6 +87,15 @@ class Make extends Commander
      */
     protected $optionFilename;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Make::optionPath
+     *
+     * @param string $path
+     *
+     * @return static
+     */
     public function optionPath($path)
     {
         $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
@@ -98,31 +107,46 @@ class Make extends Commander
         }
 
         $this->optionPath = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+        return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Make::optionFilename
+     *
+     * @param string $name
+     */
     public function optionFilename($name)
     {
         $name = str_replace('.php', '', $name);
         $this->optionFilename = prepare_filename($name) . '.php';
 
-        $this->optionPath = empty($this->optionPath) ? modules()->current()->getRealPath() : $this->optionPath;
+        $this->optionPath = empty($this->optionPath) ? modules()->top()->getRealPath() : $this->optionPath;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Make::optionName
+     *
+     * @param string $name
+     */
     public function optionName($name)
     {
         $this->optionFilename($name);
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Make::optionNamespace
+     *
+     * @param string $namespace
+     */
     public function optionNamespace($namespace)
     {
         $this->namespace = $namespace;
-    }
-
-    public function getPhpTemplateFile($filename)
-    {
-        $directories = [
-            PATH_FRAMEWORK . 'Config' . DIRECTORY_SEPARATOR . 'PhpTemplateFiles',
-        ];
-
     }
 }

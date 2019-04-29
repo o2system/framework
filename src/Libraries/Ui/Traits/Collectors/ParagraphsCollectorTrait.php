@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,8 +25,20 @@ use O2System\Spl\Iterators\ArrayIterator;
  */
 trait ParagraphsCollectorTrait
 {
+    /**
+     * ParagraphsCollectorTrait::$paragraphs
+     *
+     * @var ArrayIterator
+     */
     public $paragraphs;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * ParagraphsCollectorTrait
+     *
+     * @return bool
+     */
     public function hasParagraphs()
     {
         if ($this->paragraphs instanceof ArrayIterator) {
@@ -38,6 +50,15 @@ trait ParagraphsCollectorTrait
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * ParagraphsCollectorTrait::createParagraph
+     *
+     * @param string $text
+     *
+     * @return Paragraph
+     */
     public function createParagraph($text)
     {
         $paragraph = new Paragraph();
@@ -52,6 +73,15 @@ trait ParagraphsCollectorTrait
         return $this->paragraphs->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * ParagraphsCollectorTrait::addParagraph
+     *
+     * @param \O2System\Framework\Libraries\Ui\Contents\Paragraph $paragraph
+     *
+     * @return static
+     */
     public function addParagraph(Paragraph $paragraph)
     {
         $paragraph->tagName = 'p';
@@ -62,6 +92,6 @@ trait ParagraphsCollectorTrait
 
         $this->paragraphs->push($paragraph);
 
-        return $this->paragraphs->last();
+        return $this;
     }
 }

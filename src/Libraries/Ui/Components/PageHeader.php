@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,9 +24,28 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class PageHeader extends Element
 {
+    /**
+     * PageHeader::$header
+     *
+     * @var Element
+     */
     public $header;
+
+    /**
+     * PageHeader::$subText
+     *
+     * @var Element
+     */
     public $subText;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * PageHeader::__construct
+     *
+     * @param string|null $header
+     * @param string|null $subText
+     */
     public function __construct($header = null, $subText = null)
     {
         parent::__construct('div');
@@ -41,6 +60,16 @@ class PageHeader extends Element
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * PageHeader::setHeader
+     *
+     * @param string $text
+     * @param string $tagName
+     *
+     * @return static
+     */
     public function setHeader($text, $tagName = 'h1')
     {
         $this->header = new Element($tagName);
@@ -50,6 +79,15 @@ class PageHeader extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * PageHeader::setSubText
+     *
+     * @param string $text
+     *
+     * @return static
+     */
     public function setSubText($text)
     {
         $this->subText = new Element('small');
@@ -59,6 +97,13 @@ class PageHeader extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * PageHeader::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();

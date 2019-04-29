@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -31,14 +31,16 @@ class SignOn implements RequestHandlerInterface
      * Handles a request and produces a response
      *
      * May call other collaborating code to generate the response.
+     *
+     * @param \O2System\Psr\Http\Message\ServerRequestInterface $request
      */
     public function handle(ServerRequestInterface $request)
     {
-        if (null !== ($ssid = input()->get('ssid')) && o2system()->hasService('user')) {
-            if (o2system()->getService('user')->validate($ssid)) {
+        if (null !== ($ssid = input()->get('ssid')) && services()->has('user')) {
+            if (services()->get('user')->validate($ssid)) {
                 set_cookie('ssid', $ssid);
 
-                echo o2system()->getService('user')->getIframeScript();
+                echo services()->get('user')->getIframeScript();
                 exit(EXIT_SUCCESS);
             }
         }

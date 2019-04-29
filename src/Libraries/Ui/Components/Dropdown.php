@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,12 +25,41 @@ use O2System\Framework\Libraries\Ui\Element;
  */
 class Dropdown extends Element
 {
+    /**
+     * Dropdown::$toggle
+     *
+     * @var \O2System\Framework\Libraries\Ui\Components\Button
+     */
     public $toggle;
+
+    /**
+     * Dropdown::$toggleButton
+     *
+     * @var \O2System\Framework\Libraries\Ui\Components\Button
+     */
     public $toggleButton;
+
+    /**
+     * Dropdown::$menu
+     *
+     * @var \O2System\Framework\Libraries\Ui\Components\Dropdown\Menu
+     */
     public $menu;
 
+    /**
+     * Dropdown::$splitMenu
+     *
+     * @var bool
+     */
     protected $splitMenu = false;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Dropdown::__construct
+     *
+     * @param string|null $label
+     */
     public function __construct($label = null)
     {
         parent::__construct('div');
@@ -40,6 +69,15 @@ class Dropdown extends Element
         $this->menu = new Menu();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Dropdown::setToggle
+     *
+     * @param string|Button $label
+     *
+     * @return static
+     */
     public function setToggle($label)
     {
         if ($label instanceof Button) {
@@ -57,6 +95,15 @@ class Dropdown extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Dropdown::setAlignment
+     *
+     * @param string $alignment
+     *
+     * @return static
+     */
     public function setAlignment($alignment)
     {
         $this->attributes->addAttributeClass('dropdown-menu-' . $alignment);
@@ -64,6 +111,13 @@ class Dropdown extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Dropdown::dropup
+     *
+     * @return static
+     */
     public function dropup()
     {
         $this->attributes->removeAttributeClass('dropdown');
@@ -72,6 +126,13 @@ class Dropdown extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Dropdown::splitMenu
+     *
+     * @return static
+     */
     public function splitMenu()
     {
         $this->attributes->removeAttributeClass('dropdown');
@@ -101,7 +162,13 @@ class Dropdown extends Element
         return $this;
     }
 
+    // ------------------------------------------------------------------------
 
+    /**
+     * Dropdown::render
+     *
+     * @return string
+     */
     public function render()
     {
         $output[] = $this->open();

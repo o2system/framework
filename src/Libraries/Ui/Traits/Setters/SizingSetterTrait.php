@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,11 +22,20 @@ namespace O2System\Framework\Libraries\Ui\Traits\Setters;
  */
 trait SizingSetterTrait
 {
-
+    /**
+     * SizingSetterTrait::$sizingClassPrefix
+     *
+     * @var string|null
+     */
     protected $sizingClassPrefix = null;
 
     // ------------------------------------------------------------------------
 
+    /**
+     * SizingSetterTrait::extraLargeSize
+     *
+     * @return static
+     */
     public function extraLargeSize()
     {
         $this->setsizingClassSuffix('xl');
@@ -36,6 +45,13 @@ trait SizingSetterTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * SizingSetterTrait::setSizingClassSuffix
+     *
+     * @param string $suffix
+     *
+     * @return static
+     */
     public function setSizingClassSuffix($suffix)
     {
         $this->attributes->addAttributeClass($this->sizingClassPrefix . '-' . $suffix);
@@ -43,6 +59,13 @@ trait SizingSetterTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * SizingSetterTrait::largeSize
+     *
+     * @return static
+     */
     public function largeSize()
     {
         $this->setsizingClassSuffix('lg');
@@ -50,6 +73,13 @@ trait SizingSetterTrait
         return $this;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * SizingSetterTrait::mediumSize
+     *
+     * @return static
+     */
     public function mediumSize()
     {
         $this->setsizingClassSuffix('m');
@@ -59,6 +89,11 @@ trait SizingSetterTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * SizingSetterTrait::smallSize
+     *
+     * @return static
+     */
     public function smallSize()
     {
         $this->setsizingClassSuffix('sm');
@@ -68,6 +103,11 @@ trait SizingSetterTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * SizingSetterTrait::extraSmallSize
+     *
+     * @return static
+     */
     public function extraSmallSize()
     {
         $this->setsizingClassSuffix('xs');
@@ -77,6 +117,13 @@ trait SizingSetterTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * SizingSetterTrait::setSizingClassPrefix
+     *
+     * @param string $prefix
+     *
+     * @return static
+     */
     protected function setSizingClassPrefix($prefix)
     {
         $this->sizingClassPrefix = $prefix;

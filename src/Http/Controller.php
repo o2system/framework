@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,6 +22,15 @@ namespace O2System\Framework\Http;
  */
 class Controller extends \O2System\Kernel\Http\Controller
 {
+    /**
+     * Controller::__get
+     *
+     * Magic method __get.
+     *
+     * @param string $property
+     *
+     * @return mixed
+     */
     public function &__get($property)
     {
         $get[ $property ] = false;
@@ -31,12 +40,14 @@ class Controller extends \O2System\Kernel\Http\Controller
             $property = 'loader';
         }
 
-        if (o2system()->hasService($property)) {
-            return o2system()->getService($property);
+        if (services()->has($property)) {
+            $get[ $property ] = services()->get($property);
         } elseif (o2system()->__isset($property)) {
-            return o2system()->__get($property);
+            $get[ $property ] = o2system()->__get($property);
         } elseif ($property === 'model') {
-            return models('controller');
+            $get[ $property ] = models('controller');
+        } elseif ($property === 'services' || $property === 'libraries') {
+            $get[ $property ] = services();
         }
 
         return $get[ $property ];

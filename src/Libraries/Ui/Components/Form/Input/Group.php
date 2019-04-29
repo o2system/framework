@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -30,9 +30,25 @@ class Group extends Element
 {
     use SizingSetterTrait;
 
+    /**
+     * Group::$input
+     *
+     * @var Form\Elements\Input
+     */
     public $input;
+
+    /**
+     * Group::$addOns
+     *
+     * @var \O2System\Html\Element\Nodes
+     */
     public $addOns;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Group::__construct
+     */
     public function __construct()
     {
         parent::__construct('div');
@@ -46,6 +62,15 @@ class Group extends Element
         $this->addOns = new Nodes();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Group::createInput
+     *
+     * @param array $attributes
+     *
+     * @return \O2System\Framework\Libraries\Ui\Components\Form\Elements\Input
+     */
     public function createInput(array $attributes = [])
     {
         $field = new Form\Elements\Input();
@@ -67,6 +92,17 @@ class Group extends Element
         return $this->input = $field;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Group::createSelect
+     *
+     * @param array         $options
+     * @param string|null   $selected
+     * @param array         $attributes
+     *
+     * @return \O2System\Framework\Libraries\Ui\Components\Form\Elements\Select
+     */
     public function createSelect(array $options = [], $selected = null, array $attributes = [])
     {
         $field = new Form\Elements\Select();
@@ -92,6 +128,16 @@ class Group extends Element
         return $this->input = $field;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Group::createAddon
+     *
+     * @param Element|string|null $node
+     * @param int  $position
+     *
+     * @return mixed
+     */
     public function createAddon($node = null, $position = Group\AddOn::ADDON_LEFT)
     {
         $addOn = new Group\AddOn($position);
@@ -109,6 +155,13 @@ class Group extends Element
         return $this->addOns->last();
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Group::render
+     *
+     * @return string
+     */
     public function render()
     {
         $addOnsLeft = [];

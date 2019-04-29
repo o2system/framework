@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the O2System PHP Framework package.
+ * This file is part of the O2System Framework package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@ namespace O2System\Framework\Http\Presenter;
 // ------------------------------------------------------------------------
 
 use O2System\Html\Element;
-use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Meta
@@ -25,14 +25,30 @@ use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
  */
 class Meta extends AbstractRepository
 {
+    /**
+     * Meta::$title
+     *
+     * @var \O2System\Framework\Http\Presenter\Meta\Title
+     */
     public $title;
+
+    /**
+     * Meta::$opengraph
+     *
+     * @var \O2System\Framework\Http\Presenter\Meta\Opengraph
+     */
     public $opengraph;
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Meta::__construct
+     */
     public function __construct()
     {
         $this->title = new Meta\Title();
 
-        if (false !== ($config = config()->loadFile('presenter', true))) {
+        if (false !== ($config = config('view')->presenter)) {
             if (false !== ($config->offsetGet('socialGraph'))) {
                 $this->opengraph = new Meta\Opengraph();
                 $this->opengraph->setTitle($this->title);
@@ -41,17 +57,19 @@ class Meta extends AbstractRepository
             }
         }
 
-        $this->offsetSet('viewport', [
-            'width'         => 'device-width',
-            'initial-scale' => 1,
-            'shrink-to-fit' => 'no',
-        ]);
-
         $this->offsetSet('language', language()->getDefault());
         $this->offsetSet('generator', FRAMEWORK_NAME . ' v' . FRAMEWORK_VERSION);
         $this->offsetSet('url', current_url());
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Meta::store
+     *
+     * @param string $offset
+     * @param mixed  $value
+     */
     public function store($offset, $value)
     {
         $element = new Element('meta');
@@ -85,6 +103,15 @@ class Meta extends AbstractRepository
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Meta::__toString
+     *
+     * Converts this meta object into a string.
+     *
+     * @return string
+     */
     public function __toString()
     {
         $output = '';
