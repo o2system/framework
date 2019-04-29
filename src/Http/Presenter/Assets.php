@@ -14,6 +14,7 @@
 namespace O2System\Framework\Http\Presenter;
 
 // ------------------------------------------------------------------------
+use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
 
 use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
 

@@ -23,6 +23,7 @@ namespace O2System;
  * Different environments will require different levels of error reporting.
  * By default development will show errors but testing and live will hide them.
  */
+
 switch (strtoupper(ENVIRONMENT)) {
     case 'DEVELOPMENT':
         error_reporting(-1);
@@ -387,6 +388,7 @@ class Framework extends Kernel
                 if (profiler() !== false) {
                     profiler()->watch('Instantiating Requested Commander: ' . $commander->getClass());
                 }
+                
                 $requestCommander = $commander->getInstance();
 
                 if (profiler() !== false) {
