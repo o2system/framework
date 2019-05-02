@@ -27,6 +27,15 @@ use O2System\Spl\Info\SplFileInfo;
 class Resources extends Controller
 {
     /**
+     * Resources::$inherited
+     *
+     * Controller inherited flag.
+     *
+     * @var bool
+     */
+    static public $inherited = true;
+
+    /**
      * Resources::$directoryPath
      *
      * @var string

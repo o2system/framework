@@ -23,6 +23,17 @@ use O2System\Framework\Http\Controller;
 class Offline extends Controller
 {
     /**
+     * Offline::$inherited
+     *
+     * Controller inherited flag.
+     *
+     * @var bool
+     */
+    static public $inherited = true;
+
+    // ------------------------------------------------------------------------
+
+    /**
      * Offline::index
      */
     public function index()

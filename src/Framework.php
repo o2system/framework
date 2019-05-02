@@ -244,7 +244,6 @@ class Framework extends Kernel
         if (profiler() !== false) {
             profiler()->watch('Starting Config Container');
         }
-
         $this->config = new Framework\Containers\Config();
 
         // Instantiate Globals Container
@@ -263,7 +262,6 @@ class Framework extends Kernel
         if (profiler() !== false) {
             profiler()->watch('Starting Models Container');
         }
-
         $this->models = new Framework\Containers\Models();
 
         // Instantiate Modules Container

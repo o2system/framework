@@ -27,6 +27,15 @@ use O2System\Image\Manipulation;
 class Images extends Controller
 {
     /**
+     * Images::$inherited
+     *
+     * Controller inherited flag.
+     *
+     * @var bool
+     */
+    static public $inherited = true;
+
+    /**
      * Images::$storagePath
      *
      * @var string

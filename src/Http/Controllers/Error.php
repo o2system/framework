@@ -25,6 +25,17 @@ use O2System\Framework\Http\Controller;
 class Error extends Controller
 {
     /**
+     * Error::$inherited
+     *
+     * Controller inherited flag.
+     *
+     * @var bool
+     */
+    static public $inherited = true;
+
+    // ------------------------------------------------------------------------
+
+    /**
      * Error::index
      *
      * @param int $code

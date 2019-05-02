@@ -24,6 +24,17 @@ use O2System\Framework\Http\Controller;
 class Manifest extends Controller
 {
     /**
+     * Manifest::$inherited
+     *
+     * Controller inherited flag.
+     *
+     * @var bool
+     */
+    static public $inherited = true;
+
+    // ------------------------------------------------------------------------
+
+    /**
      * Manifest::index
      */
     public function index()
