@@ -219,11 +219,14 @@ class Router extends KernelRouter
                      */
                     if (class_exists($controllerClassName = $controllerNamespace . implode('\\',
                             array_map('studlycase', $uriRoutedSegments)))) {
-                        $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
-                        $this->setController(new KernelControllerDataStructure($controllerClassName),
-                            $uriSegments);
 
-                        break;
+                        if($controllerClassName::$inherited) {
+                            $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
+                            $this->setController(new KernelControllerDataStructure($controllerClassName),
+                                $uriSegments);
+
+                            break;
+                        }
                     }
 
                     /**

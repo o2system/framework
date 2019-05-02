@@ -23,6 +23,15 @@ namespace O2System\Framework\Http;
 class Controller extends \O2System\Kernel\Http\Controller
 {
     /**
+     * Controller::$inherited
+     *
+     * Controller inherited flag.
+     *
+     * @var bool
+     */
+    static public $inherited = false;
+
+    /**
      * Controller::__get
      *
      * Magic method __get.

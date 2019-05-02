@@ -104,7 +104,12 @@ class Images extends Controller
     public function route()
     {
         $segments = server_request()->getUri()->getSegments()->getParts();
-        array_shift($segments);
+
+        if (false !== ($key = array_search('images', $segments))) {
+            $segments = array_slice($segments, $key);
+        } else {
+            array_shift($segments);
+        }
 
         $this->imageFilePath = $this->imageNotFoundFilename;
 
