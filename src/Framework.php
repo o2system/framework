@@ -219,6 +219,14 @@ class Framework extends Kernel
         parent::__construct();
 
         if (profiler() !== false) {
+            profiler()->watch('Starting O2System Framework Hooks Pre System');
+        }
+
+        $this->services->load(Framework\Services\Hooks::class, 'hooks');
+
+        hooks()->callEvent(Framework\Services\Hooks::PRE_SYSTEM);
+
+        if (profiler() !== false) {
             profiler()->watch('Starting O2System Framework');
         }
 
@@ -230,7 +238,6 @@ class Framework extends Kernel
         }
 
         $services = [
-            'Services\Hooks'    => 'hooks',
             'Services\Shutdown' => 'shutdown',
             'Services\Logger'   => 'logger',
             'Services\Loader'   => 'loader',
@@ -291,11 +298,6 @@ class Framework extends Kernel
             }
             $this->modules->loadRegistry();
         }
-
-        if (profiler() !== false) {
-            profiler()->watch('Starting O2System Framework Hooks Pre System');
-        }
-        hooks()->callEvent(Framework\Services\Hooks::PRE_SYSTEM);
     }
 
     // ------------------------------------------------------------------------

@@ -15,12 +15,14 @@ namespace O2System\Framework\Services;
 
 // ------------------------------------------------------------------------
 
+use O2System\Spl\Containers\SplClosureContainer;
+
 /**
  * Class Hooks
  *
  * @package O2System\Framework
  */
-class Hooks
+class Hooks extends SplClosureContainer
 {
     /**
      * Hooks::PRE_SYSTEM
@@ -64,13 +66,6 @@ class Hooks
      */
     const POST_COMMANDER = 'POST_COMMANDER';
 
-    /**
-     * Hooks Closures
-     *
-     * @var array
-     */
-    private $closures = [];
-
     // ------------------------------------------------------------------------
 
     /**
@@ -92,10 +87,10 @@ class Hooks
             foreach ($hooks as $event => $closures) {
                 if (is_array($closures)) {
                     foreach ($closures as $closure) {
-                        $this->addClosure($closure, $event);
+                        $this->attach($event, $closure);
                     }
                 } elseif ($closures instanceof \Closure) {
-                    $this->addClosure($closures, $event);
+                    $this->attach($event, $closures);
                 }
             }
 
@@ -106,24 +101,24 @@ class Hooks
     // ------------------------------------------------------------------------
 
     /**
-     * Hooks::addClosure
+     * SplClosureContainer::attach
      *
+     * Adds an closure object in the registry.
+     *
+     * @param string   $offset
      * @param \Closure $closure
-     * @param string   $event
      */
-    public function addClosure(\Closure $closure, $event)
+    public function attach($offset, \Closure $closure)
     {
-        $event = strtoupper($event);
-
-        if (in_array($event, [
-            'PRE_SYSTEM',
-            'POST_SYSTEM',
-            'PRE_CONTROLLER',
-            'PRE_COMMANDER',
-            'POST_CONTROLLER',
-            'POST_COMMANDER',
+        if (in_array(strtoupper($offset), [
+            self::PRE_SYSTEM,
+            self::POST_SYSTEM,
+            self::PRE_CONTROLLER,
+            self::PRE_COMMANDER,
+            self::POST_CONTROLLER,
+            self::POST_COMMANDER,
         ])) {
-            $this->closures[ $event ][] = $closure;
+            $this->closures[ $offset ][ spl_object_hash($closure) ] = $closure;
         }
     }
 
