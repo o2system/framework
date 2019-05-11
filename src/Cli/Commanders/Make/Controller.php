@@ -41,7 +41,7 @@ class Controller extends Make
      */
     public function execute()
     {
-        parent::execute();
+        $this->__callOptions();
 
         if (empty($this->optionFilename)) {
             output()->write(

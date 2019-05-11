@@ -203,7 +203,7 @@ class Maintenance extends Commander
             $_GET[ 'message' ] = language()->getLine(strtoupper('CLI_MAINTENANCE_MESSAGE'));
         }
 
-        parent::execute();
+        $this->__callOptions();
 
         if ($this->optionSwitch === 'ON') {
             if (cache()->hasItem('maintenance')) {
