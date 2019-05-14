@@ -46,16 +46,14 @@ class Error extends Controller
 
         $viewFilePath = 'error-code';
 
-        if (is_dir(modules()->top()->getDir('Views/errors'))) {
-            $viewFilePath = 'errors/' . $viewFilePath;
-        }
+        if (presenter()->theme) {
+            if (presenter()->theme->hasLayout('error-code')) {
+                presenter()->theme->setLayout('error-code');
+            }
 
-        if (presenter()->theme->use === true) {
-            presenter()->theme->setLayout('error');
-
-            if (false !== ($layout = presenter()->theme->active->getLayout())) {
+            if (false !== ($layout = presenter()->theme->getLayout())) {
                 if ($layout->getFilename() === 'theme') {
-                    presenter()->theme->set(false);
+                    presenter()->setTheme(false);
                 }
             }
         }

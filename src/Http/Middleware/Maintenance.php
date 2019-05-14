@@ -38,9 +38,7 @@ class Maintenance implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request)
     {
         if (cache()->hasItem('maintenance')) {
-            $maintenanceInfo = cache()->getItem('maintenance')->get();
-            echo view()->load('maintenance', $maintenanceInfo, true);
-            exit(EXIT_SUCCESS);
+            (new \O2System\Framework\Http\Controllers\Maintenance())->index();
         }
     }
 }

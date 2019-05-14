@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Controllers;
@@ -17,13 +18,14 @@ namespace O2System\Framework\Http\Controllers;
 use O2System\Framework\Http\Controller;
 
 /**
- * Class Offline
+ * Class Maintenance
+ *
  * @package O2System\Framework\Http\Controllers
  */
-class Offline extends Controller
+class Maintenance extends Controller
 {
     /**
-     * Offline::$inherited
+     * Maintenance::$inherited
      *
      * Controller inherited flag.
      *
@@ -34,13 +36,15 @@ class Offline extends Controller
     // ------------------------------------------------------------------------
 
     /**
-     * Offline::index
+     * Maintenance::index
+     *
+     * @param int $code
      */
     public function index()
     {
         if (presenter()->theme) {
-            if (presenter()->theme->hasLayout('offline')) {
-                presenter()->theme->setLayout('offline');
+            if (presenter()->theme->hasLayout('maintenance')) {
+                presenter()->theme->setLayout('maintenance');
             }
 
             if (false !== ($layout = presenter()->theme->getLayout())) {
@@ -50,9 +54,9 @@ class Offline extends Controller
             }
         }
 
-        view('offline', [
-            'title' => language('OFFLINE_TITLE'),
-            'message' => language('OFFLINE_MESSAGE')
-        ]);
+        if (cache()->hasItem('maintenance')) {
+            $maintenanceInfo = cache()->getItem('maintenance')->get();
+            view()->load('maintenance', $maintenanceInfo);
+        }
     }
 }
