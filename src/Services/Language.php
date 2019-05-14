@@ -92,9 +92,22 @@ class Language extends \O2System\Kernel\Services\Language
     public function fetchRegistry()
     {
         $registry = [];
-        $directory = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator(PATH_ROOT)
-        );
+
+        $directory = new \RecursiveIteratorIterator(new \RecursiveCallbackFilterIterator(
+            new \RecursiveDirectoryIterator(PATH_ROOT,
+                \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS),
+            function ($current, $key, $iterator) {
+                if ($current->isDir()) {
+                    // exclude build directory
+                    if (in_array($current->getFilename(), [
+                        'node_modules'
+                    ])) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }));
 
         $packagesIterator = new \RegexIterator($directory, '/^.+\.json$/i', \RecursiveRegexIterator::GET_MATCH);
 
@@ -102,6 +115,8 @@ class Language extends \O2System\Kernel\Services\Language
             foreach ($packageJsonFiles as $packageJsonFile) {
                 $packageJsonFile = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $packageJsonFile);
                 $packageJsonFileInfo = pathinfo($packageJsonFile);
+
+                $files[] = $packageJsonFileInfo;
 
                 if ($packageJsonFileInfo[ 'filename' ] === 'language') {
                     if (is_cli()) {

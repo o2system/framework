@@ -185,7 +185,17 @@ abstract class AbstractPosition
                 $mapMetadata = [
                     'version'        => $fileVersion,
                     'sources'        => [
-                        $filePath,
+                        str_replace([
+                            PATH_ROOT,
+                            '\\',
+                            '/',
+                            DIRECTORY_SEPARATOR
+                        ], [
+                            '',
+                            '/',
+                            '/',
+                            '/'
+                        ], $filePath),
                     ],
                     'names'          => [],
                     'mappings'       => [],

@@ -29,6 +29,13 @@ use O2System\Spl\Exceptions\RuntimeException;
 class User extends \O2System\Security\Authentication\User
 {
     /**
+     * User::$app
+     *
+     * @var string
+     */
+    protected $app = 'app';
+
+    /**
      * User::__construct
      *
      * @throws \O2System\Spl\Exceptions\RuntimeException
@@ -44,6 +51,24 @@ class User extends \O2System\Security\Authentication\User
         if ( ! models('users')) {
             throw new RuntimeException('ACL_E_UNDEFINED_USERS_MODEL');
         }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * User::setApp
+     *
+     * @param string $app
+     *
+     * @return static
+     */
+    public function setApp($app)
+    {
+        if($app = modules()->getApp($app)) {
+            $this->app = $app;
+        }
+
+        return $this;
     }
 
     // ------------------------------------------------------------------------
@@ -113,7 +138,9 @@ class User extends \O2System\Security\Authentication\User
             $column = 'msisdn';
         }
 
-        if ($user = models('users')->findWhere([$column => $username], 1)) {
+        if ($user = models('users')->findWhere([
+            $column => $username
+        ], 1)) {
             return $user;
         }
 
@@ -211,48 +238,6 @@ class User extends \O2System\Security\Authentication\User
             $this->login($account);
 
             return true;
-        }
-
-        return false;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * User::authorize
-     *
-     * @param \O2System\Framework\Http\Message\ServerRequest $request
-     *
-     * @return bool
-     */
-    public function authorize(ServerRequest $request)
-    {
-        if (isset($GLOBALS[ 'account' ][ 'role' ])) {
-            $uriSegments = $request->getUri()->getSegments()->getString();
-            $role = $GLOBALS[ 'account' ][ 'role' ];
-            if (in_array($role->code, ['DEVELOPER', 'ADMINISTRATOR'])) {
-                globals()->store('authority', new Authority([
-                    'permission' => 'GRANTED',
-                    'privileges' => '11111111',
-                ]));
-
-                return true;
-            } elseif ($role->authorities instanceof Authorities) {
-                if ($role->authorities->exists($uriSegments)) {
-                    $authority = $role->authorities->getAuthority($uriSegments);
-
-                    globals()->store('authority', $authority);
-
-                    return $authority->getPermission();
-                }
-
-                globals()->store('authority', new Authority([
-                    'permission' => 'DENIED',
-                    'privileges' => '00000000',
-                ]));
-
-                return false;
-            }
         }
 
         return false;

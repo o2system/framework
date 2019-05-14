@@ -56,9 +56,9 @@ trait HierarchicalTrait
 
         if ($childs = $this->qb
             ->table($this->table)
-            ->select('id')
+            ->select($this->primaryKey)
             ->where($this->parentKey, $idParent)
-            ->orderBy('id')
+            ->orderBy($this->primaryKey)
             ->get()) {
 
             $right = $left + 1;
@@ -68,7 +68,7 @@ trait HierarchicalTrait
                 if ($i == 0) {
                     $this->qb
                         ->from($this->table)
-                        ->where('id', $child->id)
+                        ->where($this->primaryKey, $child->id)
                         ->update($update = [
                             'record_left'  => $left,
                             'record_right' => $right,
@@ -77,7 +77,7 @@ trait HierarchicalTrait
                 } else {
                     $this->qb
                         ->from($this->table)
-                        ->where('id', $child->id)
+                        ->where($this->primaryKey, $child->{$this->primaryKey})
                         ->update($update = [
                             'record_left'  => $left = $right + 1,
                             'record_right' => $right = $left + 1,
@@ -85,22 +85,22 @@ trait HierarchicalTrait
                         ]);
                 }
 
-                $update[ 'id' ] = $child->id;
+                $update[ $this->primaryKey ] = $child->{$this->primaryKey};
 
                 if ($this->qb
                     ->table($this->table)
-                    ->select('id')
-                    ->where($this->parentKey, $child->id)
-                    ->orderBy('id')
+                    ->select($this->primaryKey)
+                    ->where($this->parentKey, $child->{$this->primaryKey})
+                    ->orderBy($this->primaryKey)
                     ->get()) {
-                    $right = $this->rebuildTree($child->id, $right, $depth + 1);
+                    $right = $this->rebuildTree($child->{$this->primaryKey}, $right, $depth + 1);
                     $this->qb
                         ->from($this->table)
-                        ->where('id', $child->id)
+                        ->where($this->primaryKey, $child->{$this->primaryKey})
                         ->update($update = [
                             'record_right' => $right,
                         ]);
-                    $update[ 'id' ] = $child->id;
+                    $update[ $this->primaryKey ] = $child->{$this->primaryKey};
                 }
 
                 $i++;
@@ -128,7 +128,7 @@ trait HierarchicalTrait
             ->from($this->table . ' AS node')
             ->whereBetween('node.record_left', [$this->table . '.record_left', $this->table . '.record_right'])
             ->where([
-                'node.id' => $id,
+                'node.' . $this->primaryKey => $id,
             ])
             ->orderBy($this->table . '.record_left', $ordering)
             ->get()) {
@@ -169,7 +169,7 @@ trait HierarchicalTrait
     /**
      * HierarchicalTrait::getNumOfParent
      *
-     * @param int  $idParent
+     * @param int $idParent
      *
      * @return int
      */
@@ -177,8 +177,8 @@ trait HierarchicalTrait
     {
         if ($parents = $this->qb
             ->table($this->table)
-            ->select('id')
-            ->where('id', $id)
+            ->select($this->primaryKey)
+            ->where($this->primaryKey, $id)
             ->get()) {
             return $parents->count();
         }
@@ -209,13 +209,13 @@ trait HierarchicalTrait
     /**
      * HierarchicalTrait::getNumOfParents
      *
-     * @param int  $id
+     * @param int $id
      *
      * @return int
      */
     public function getNumOfParents($id)
     {
-        if($parents = $this->getParents($id)) {
+        if ($parents = $this->getParents($id)) {
             return $parents->count();
         }
 
@@ -258,7 +258,7 @@ trait HierarchicalTrait
             ->from($this->table . ' AS node')
             ->whereBetween('node.record_left', [$this->table . '.record_left', $this->table . '.record_right'])
             ->where([
-                $this->table . '.id' => $id,
+                $this->table . '.' . $this->primaryKey => $id,
             ])
             ->get()) {
             if ($childs->count()) {
@@ -281,7 +281,7 @@ trait HierarchicalTrait
      */
     public function getNumOfChilds($idParent, $direct = true)
     {
-        if($childs = $this->getChilds($idParent)) {
+        if ($childs = $this->getChilds($idParent)) {
             return $childs->count();
         }
 

@@ -70,9 +70,11 @@ trait ModifierTrait
     public function insertOrUpdate(array $sets)
     {
         if ($result = $this->qb->from($this->table)->getWhere($sets)) {
-            return $this->update($sets);
-        } else {
-            return $this->insert($sets);
+            if ($result->count() == 1) {
+                return $this->update($sets);
+            } else {
+                return $this->insert($sets);
+            }
         }
 
         return false;

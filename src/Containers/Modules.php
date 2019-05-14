@@ -20,9 +20,9 @@ use O2System\Framework\Containers\Modules\DataStructures;
 use O2System\Framework\Services\Hooks;
 use O2System\Kernel\Cli\Writers\Format;
 use O2System\Kernel\Http\Router\Addresses;
-use Psr\Cache\CacheItemPoolInterface;
 use O2System\Spl\DataStructures\SplArrayStack;
 use O2System\Spl\Info\SplNamespaceInfo;
+use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * Class Modules
@@ -472,8 +472,6 @@ class Modules extends SplArrayStack
                                 PATH_RESOURCES,
                                 PATH_APP,
                                 $packageJsonFileInfo[ 'basename' ],
-                                ucfirst($modularType) . DIRECTORY_SEPARATOR,
-                                ucfirst($modularType . 's') . DIRECTORY_SEPARATOR, // manual plural
                             ],
                             '',
                             $packageJsonFile
@@ -485,6 +483,25 @@ class Modules extends SplArrayStack
                 $moduleSegments = array_map(function ($string) {
                     return dash(snakecase($string));
                 }, $moduleSegments);
+
+                $moduleParentSegments = [];
+
+                foreach ([
+                             'apps',
+                             'modules',
+                             'components',
+                             'plugins',
+                         ] as $moduleType
+                ) {
+                    if (false !== ($segmentKey = array_search($modularType, $moduleSegments))) {
+                        $moduleParentSegments = array_slice($moduleSegments, 0, $segmentKey);
+
+                        unset($moduleSegments[ $segmentKey ]);
+                        break;
+                    }
+                }
+
+                $moduleSegments = array_values($moduleSegments);
 
                 $moduleNamespace = prepare_namespace(
                     str_replace(
@@ -498,14 +515,6 @@ class Modules extends SplArrayStack
                 if (isset($packageJsonMetadata[ 'namespace' ])) {
                     $moduleNamespace = $packageJsonMetadata[ 'namespace' ];
                     unset($packageJsonMetadata[ 'namespace' ]);
-                }
-
-                $moduleParentSegments = [];
-                if (false !== ($moduleTypeSegmentKey = array_search($modularType, $moduleSegments))) {
-                    $moduleParentSegments = array_slice($moduleSegments, 0, $moduleTypeSegmentKey);
-
-                    $moduleParentSegments = array_diff($moduleParentSegments, $this->types);
-                    $moduleSegments = array_diff($moduleSegments, $this->types);
                 }
 
                 $registryKey = implode('/', $moduleSegments);
@@ -538,7 +547,7 @@ class Modules extends SplArrayStack
             }
         }
 
-        ksort($registry);
+        //ksort($registry);
 
         return $registry;
     }

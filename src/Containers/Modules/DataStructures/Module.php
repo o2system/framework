@@ -77,7 +77,6 @@ class Module extends SplDirectoryInfo
     public function __construct($dir)
     {
         parent::__construct($dir);
-
         $this->namespace = prepare_namespace(str_replace(PATH_ROOT, '', $dir), false);
     }
 
@@ -312,9 +311,9 @@ class Module extends SplDirectoryInfo
         $dirPath = str_replace(PATH_APP, '', $this->getRealPath());
         $dirPathParts = explode(DIRECTORY_SEPARATOR, $dirPath);
 
-        if(count($dirPathParts)) {
+        if (count($dirPathParts)) {
             $dirPathParts = array_map('dash', $dirPathParts);
-            $dirResources.= implode(DIRECTORY_SEPARATOR, $dirPathParts);
+            $dirResources .= implode(DIRECTORY_SEPARATOR, $dirPathParts);
         }
 
         if (is_null($subDir)) {
@@ -485,5 +484,43 @@ class Module extends SplDirectoryInfo
         if (class_exists($modelClassName)) {
             models()->load($modelClassName, strtolower($this->type));
         }
+    }
+
+    public function getControllers()
+    {
+        $controllers = [];
+
+        if (is_dir($directory = $this->getDir('Controllers'))) {
+            $namespace = $this->getNamespace() . 'Controllers\\';
+
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($directory, \RecursiveDirectoryIterator::SKIP_DOTS)
+            );
+
+            foreach ($iterator as $file) {
+                if (pathinfo($file, PATHINFO_EXTENSION) == "php") {
+                    $controllerClassName = str_replace([
+                        $directory,
+                        '.php',
+                        '/',
+                        DIRECTORY_SEPARATOR,
+                    ], [
+                        '',
+                        '',
+                        '\\',
+                        '\\',
+                    ], $file->getRealPath());
+
+                    $controller = new Module\Controller($namespace . $controllerClassName);
+
+                    if ( ! empty($controller->name) and ! in_array($controller->getParameter(),
+                            ['login', 'pages', 'setup', 'license'])) {
+                        $controllers[ $controller->getParameter() ] = $controller;
+                    }
+                }
+            }
+        }
+
+        return $controllers;
     }
 }
