@@ -195,9 +195,9 @@ trait HierarchicalTrait
      *
      * @return bool
      */
-    public function hasParent($id, $direct = true)
+    public function hasParent($id)
     {
-        if ($numOfParents = $this->getNumOfParent($idParent, $direct)) {
+        if ($numOfParents = $this->getNumOfParent($idParent)) {
             return (bool)($numOfParents == 0 ? false : true);
         }
 
@@ -245,21 +245,23 @@ trait HierarchicalTrait
     /**
      * HierarchicalTrait::getChilds
      *
-     * @param int    $idParent
+     * @param int    $id
      * @param string $ordering ASC|DESC
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function getChilds($idParent, $ordering = 'ASC')
+    public function getChilds($id, $ordering = 'ASC')
     {
         if ($childs = $this->qb
             ->select($this->table . '.*')
             ->from($this->table)
             ->from($this->table . ' AS node')
-            ->whereBetween('node.record_left', [$this->table . '.record_left', $this->table . '.record_right'])
+            ->whereBetween($this->table . '.record_left', [ 'node.record_left', 'node.record_right'])
             ->where([
-                $this->table . '.' . $this->primaryKey => $id,
+                'node.' . $this->primaryKey => $id,
+                $this->table . '.' . $this->primaryKey . '!=' => $id,
             ])
+            ->orderBy($this->table . '.record_left', $ordering)
             ->get()) {
             if ($childs->count()) {
                 return $childs;
