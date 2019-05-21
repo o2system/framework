@@ -194,6 +194,21 @@ class Presenter extends AbstractRepository
     // ------------------------------------------------------------------------
 
     /**
+     * Presenter::include
+     *
+     * @param string $filename
+     * @param array  $vars
+     *
+     * @return string
+     */
+    public function include($filename, array $vars = [])
+    {
+        return view()->load($filename, $vars, true);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
      * Presenter::getArrayCopy
      *
      * @return array

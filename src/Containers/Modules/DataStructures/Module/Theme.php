@@ -15,6 +15,7 @@ namespace O2System\Framework\Containers\Modules\DataStructures\Module;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\Containers\Modules\DataStructures\Module\Theme\Layout;
 use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Info\SplDirectoryInfo;
 use O2System\Spl\Info\SplFileInfo;
@@ -190,7 +191,7 @@ class Theme extends SplDirectoryInfo
 
     /**
      * Theme::hasLayout
-     * 
+     *
      * @return bool
      */
     public function hasLayout($layout)
@@ -219,7 +220,7 @@ class Theme extends SplDirectoryInfo
             }
         }
 
-        return (bool) $found;
+        return (bool)$found;
     }
 
     // ------------------------------------------------------------------------
@@ -233,29 +234,7 @@ class Theme extends SplDirectoryInfo
      */
     public function setLayout($layout)
     {
-        $extensions = ['.php', '.phtml', '.html', '.tpl'];
-
-        if (isset($this->presets[ 'extensions' ])) {
-            array_unshift($partialsExtensions, $this->presets[ 'extension' ]);
-        } elseif (isset($this->presets[ 'extension' ])) {
-            array_unshift($extensions, $this->presets[ 'extension' ]);
-        }
-
-        foreach ($extensions as $extension) {
-            $extension = trim($extension, '.');
-
-            if ($layout === 'theme') {
-                $layoutFilePath = $this->getRealPath() . 'theme.' . $extension;
-            } else {
-                $layoutFilePath = $this->getRealPath() . 'layouts' . DIRECTORY_SEPARATOR . dash($layout) . DIRECTORY_SEPARATOR . 'layout.' . $extension;
-            }
-
-            if (is_file($layoutFilePath)) {
-                $this->layout = new Theme\Layout($layoutFilePath);
-                //$this->loadLayout();
-                break;
-            }
-        }
+        $this->layout = $this->getLayout($layout);
 
         return $this;
     }
@@ -265,10 +244,39 @@ class Theme extends SplDirectoryInfo
     /**
      * Theme::getLayout
      *
+     * @param string $layout
+     *
      * @return Theme\Layout
      */
-    public function getLayout()
+    public function getLayout($layout = null)
     {
+        if (isset($layout)) {
+            $extensions = ['.php', '.phtml', '.html', '.tpl'];
+
+            if (isset($this->presets[ 'extensions' ])) {
+                array_unshift($partialsExtensions, $this->presets[ 'extension' ]);
+            } elseif (isset($this->presets[ 'extension' ])) {
+                array_unshift($extensions, $this->presets[ 'extension' ]);
+            }
+
+            foreach ($extensions as $extension) {
+                $extension = trim($extension, '.');
+
+                if ($layout === 'theme') {
+                    $layoutFilePath = $this->getRealPath() . 'theme.' . $extension;
+                } else {
+                    $layoutFilePath = $this->getRealPath() . 'layouts' . DIRECTORY_SEPARATOR . dash($layout) . DIRECTORY_SEPARATOR . 'layout.' . $extension;
+                }
+
+                if (is_file($layoutFilePath)) {
+                    return new Theme\Layout($layoutFilePath);
+                    break;
+                }
+            }
+
+            return false;
+        }
+
         return $this->layout;
     }
 
@@ -276,12 +284,47 @@ class Theme extends SplDirectoryInfo
 
     /**
      * Theme::loadLayout
-     *
-     * @return static
      */
     protected function loadLayout()
     {
         if ($this->layout instanceof Theme\Layout) {
+            
+            // load parent theme layout
+            if($this->layout->getFilename() !== 'theme') {
+                $themeLayout = $this->getLayout('theme');
+                
+                // add theme layout public directory
+                loader()->addPublicDir($themeLayout->getPath() . 'assets');
+
+                presenter()->assets->autoload(
+                    [
+                        'css' => ['layout'],
+                        'js'  => ['layout'],
+                    ]
+                );
+
+                $partials = $themeLayout->getPartials()->getArrayCopy();
+
+                foreach ($partials as $offset => $partial) {
+                    if ($partial instanceof SplFileInfo) {
+                        presenter()->partials->addPartial($offset, $partial->getPathName());
+                    }
+                }
+            }
+            
+            $this->loadChildLayout();
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Theme::loadChildLayout
+     */
+    protected function loadChildLayout()
+    {
+        if ($this->layout instanceof Theme\Layout) {
+
             // add theme layout public directory
             loader()->addPublicDir($this->layout->getPath() . 'assets');
 
@@ -300,7 +343,5 @@ class Theme extends SplDirectoryInfo
                 }
             }
         }
-
-        return $this;
     }
 }

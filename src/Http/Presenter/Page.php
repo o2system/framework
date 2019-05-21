@@ -37,6 +37,20 @@ class Page extends AbstractRepository
     public $file;
 
     /**
+     * Page::$uri
+     *
+     * @var Uri
+     */
+    public $uri;
+
+    /**
+     * Page::$breadcrumb
+     *
+     * @var Breadcrumb
+     */
+    public $breadcrumb;
+
+    /**
      * Page Variables
      *
      * @var array
@@ -58,13 +72,11 @@ class Page extends AbstractRepository
     public function __construct()
     {
         // Create Page breadcrumbs
-        $breadcrumb = new Breadcrumb();
-        $breadcrumb->createList(new Link(language()->getLine('HOME'), base_url()));
-        $this->store('breadcrumb', $breadcrumb);
+        $this->breadcrumb = new Breadcrumb();
+        $this->breadcrumb->createList(new Link(language()->getLine('HOME'), base_url()));
 
         // Store Page Uri
-        $uri = new Uri();
-        $this->store('uri', $uri);
+        $this->uri = new Uri();
     }
 
     // ------------------------------------------------------------------------
