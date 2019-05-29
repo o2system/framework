@@ -104,15 +104,15 @@ trait AdjacencyTrait
     /**
      * AdjacencyTrait::getChilds
      *
-     * @param int $idParent
+     * @param int $id
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function getChilds($idParent)
+    public function getChilds($id)
     {
         if ($childs = $this->qb
             ->from($this->table)
-            ->where($this->parentKey, $idParent)
+            ->where($this->parentKey, $id)
             ->get()) {
             if ($childs->count() > 0) {
                 return $childs;
@@ -127,13 +127,13 @@ trait AdjacencyTrait
     /**
      * AdjacencyTrait::getNumChilds
      *
-     * @param int $idParent
+     * @param int $id
      *
      * @return bool
      */
-    public function getNumOfChilds($idParent)
+    public function getNumOfChilds($id)
     {
-        if ($childs = $this->getChilds($idParent)) {
+        if ($childs = $this->getChilds($id)) {
             return $childs->count();
         }
 
@@ -145,13 +145,13 @@ trait AdjacencyTrait
     /**
      * AdjacencyTrait::hasChilds
      *
-     * @param int $idParent
+     * @param int $id
      *
      * @return bool
      */
-    public function hasChilds($idParent)
+    public function hasChilds($id)
     {
-        if ($numOfChilds = $this->getNumOfChilds($idParent)) {
+        if ($numOfChilds = $this->getNumOfChilds($id)) {
             return (bool)($numOfChilds == 0 ? false : true);
         }
 

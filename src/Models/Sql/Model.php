@@ -60,13 +60,49 @@ class Model
     public $table = null;
 
     /**
-     * Model::$fields
+     * Model::$columns
      *
-     * Database table fields.
+     * Database table columns.
      *
      * @var array
      */
-    public $fields = [];
+    public $columns = [];
+
+    /**
+     * Model::$fillableColumns
+     *
+     * Database table fillable columns name.
+     *
+     * @var array
+     */
+    public $fillableColumns = [];
+
+    /**
+     * Model::$hideColumns
+     *
+     * Database table hide columns name.
+     *
+     * @var array
+     */
+    public $hideColumns = [];
+
+    /**
+     * Model::$visibleColumns
+     *
+     * Database table visible columns name.
+     *
+     * @var array
+     */
+    public $visibleColumns = [];
+
+    /**
+     * Model::$appendColumns
+     *
+     * Database table append columns name.
+     *
+     * @var array
+     */
+    public $appendColumns = [];
 
     /**
      * Model::$primaryKey
@@ -80,7 +116,7 @@ class Model
     /**
      * Model::$primaryKeys
      *
-     * Database table primary key fields name.
+     * Database table primary key columns name.
      *
      * @var array
      */
@@ -105,7 +141,7 @@ class Model
     /**
      * Model::$uploadedImageKeys
      *
-     * Database table uploaded image key fields name.
+     * Database table uploaded image key columns name.
      *
      * @var array
      */
@@ -130,7 +166,7 @@ class Model
     /**
      * Model::$uploadedFileKeys
      *
-     * Database table uploaded file key fields name.
+     * Database table uploaded file key columns name.
      *
      * @var array
      */
@@ -249,7 +285,13 @@ class Model
      */
     final public static function __callStatic($method, array $arguments = [])
     {
-        if (false !== ($modelInstance = models(get_called_class()))) {
+        $modelClassName = get_called_class();
+
+        if ( ! models()->has($modelClassName)) {
+            models()->add(new $modelClassName(), $modelClassName);
+        }
+
+        if (false !== ($modelInstance = models($modelClassName))) {
             if (method_exists($modelInstance, $method)) {
                 return call_user_func_array([&$modelInstance, $method], $arguments);
             } elseif (method_exists($modelInstance->db, $method)) {

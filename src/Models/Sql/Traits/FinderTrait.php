@@ -84,7 +84,7 @@ trait FinderTrait
      * @param int|null $page
      * @param int|null $limit
      *
-     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     * @return bool|\O2System\Framework\Models\Sql\Model
      */
     public function withPaging($page = null, $limit = null)
     {

@@ -48,8 +48,27 @@ class Result extends ArrayIterator
             $ormResult = new \SplFixedArray($result->count());
 
             foreach ($result as $key => $row) {
-                if(method_exists($model, 'rebuildRow')) {
+                if (method_exists($model, 'rebuildRow')) {
                     $row = $model->rebuildRow($row);
+                }
+
+                // Visible Columns
+                if (count($model->visibleColumns)) {
+                    $columns = $row->getColumns();
+                    foreach ($columns as $column) {
+                        if ( ! in_array($column, $model->visibleColumns)) {
+                            array_push($model->hideColumns, $column);
+                        }
+                    }
+                }
+
+                // Hide Columns
+                if (count($model->hideColumns)) {
+                    foreach ($model->hideColumns as $column) {
+                        if ($row->offsetExists($column)) {
+                            $row->offsetUnset($column);
+                        }
+                    }
                 }
 
                 $ormResult[ $key ] = new Result\Row($row, $model);
@@ -62,7 +81,7 @@ class Result extends ArrayIterator
     }
 
     // ------------------------------------------------------------------------
-    
+
     /**
      * Result::setInfo
      *
@@ -81,7 +100,7 @@ class Result extends ArrayIterator
 
     /**
      * Result::getInfo
-     * 
+     *
      * @return \O2System\Database\DataObjects\Result\Info
      */
     public function getInfo()
@@ -93,7 +112,7 @@ class Result extends ArrayIterator
 
     /**
      * Result::pagination
-     * 
+     *
      * @return \O2System\Framework\Libraries\Ui\Components\Pagination
      */
     public function pagination()

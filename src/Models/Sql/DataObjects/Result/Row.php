@@ -56,6 +56,13 @@ class Row extends SplArrayObject
             parent::__construct($row);
         }
 
+        // Append Columns
+        if (count($model->appendColumns)) {
+            foreach ($model->appendColumns as $appendColumn) {
+                $this->offsetSet($appendColumn, $this->offsetGet($appendColumn));
+            }
+        }
+
         models($this->model->getClass())->row = $this;
     }
 

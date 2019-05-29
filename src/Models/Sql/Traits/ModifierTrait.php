@@ -36,6 +36,14 @@ trait ModifierTrait
     public function insert(array $sets)
     {
         if (count($sets)) {
+            if (count($this->fillableColumns)) {
+                foreach ($sets as $key => $value) {
+                    if ( ! in_array($key, $this->fillableColumns)) {
+                        unset($sets[ $key ]);
+                    }
+                }
+            }
+
             if (method_exists($this, 'insertRecordSets')) {
                 $this->insertRecordSets($sets);
             }
@@ -315,6 +323,14 @@ trait ModifierTrait
             if (empty($conditions)) {
                 if (isset($sets[ $primaryKey ])) {
                     $conditions = [$primaryKey => $sets[ $primaryKey ]];
+                }
+            }
+
+            if (count($this->fillableColumns)) {
+                foreach ($sets as $key => $value) {
+                    if ( ! in_array($key, $this->fillableColumns)) {
+                        unset($sets[ $key ]);
+                    }
                 }
             }
 

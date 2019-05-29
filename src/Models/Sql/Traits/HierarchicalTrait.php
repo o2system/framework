@@ -8,7 +8,6 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
-
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Traits;
@@ -145,16 +144,16 @@ trait HierarchicalTrait
     /**
      * HierarchicalTrait::getParent
      *
-     * @param int $idParent
+     * @param int $id
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
-    public function getParent($idParent)
+    public function getParent($id)
     {
         if ($parent = $this->qb
             ->select($this->table . '.*')
             ->from($this->table)
-            ->where($this->primaryKey, $idParent)
+            ->where($this->primaryKey, $id)
             ->get(1)) {
             if ($parent->count() == 1) {
                 return $parent->first();
@@ -197,7 +196,7 @@ trait HierarchicalTrait
      */
     public function hasParent($id)
     {
-        if ($numOfParents = $this->getNumOfParent($idParent)) {
+        if ($numOfParents = $this->getNumOfParent($id)) {
             return (bool)($numOfParents == 0 ? false : true);
         }
 
@@ -276,14 +275,13 @@ trait HierarchicalTrait
     /**
      * HierarchicalTrait::getNumOfChilds
      *
-     * @param int  $idParent
-     * @param bool $direct
+     * @param int  $id
      *
      * @return int
      */
-    public function getNumOfChilds($idParent, $direct = true)
+    public function getNumOfChilds($id)
     {
-        if ($childs = $this->getChilds($idParent)) {
+        if ($childs = $this->getChilds($id)) {
             return $childs->count();
         }
 
@@ -295,13 +293,13 @@ trait HierarchicalTrait
     /**
      * HierarchicalTrait::hasChilds
      *
-     * @param int $idParent
+     * @param int $id
      *
      * @return bool
      */
-    public function hasChilds($idParent)
+    public function hasChilds($id)
     {
-        if ($numOfChilds = $this->getNumOfChilds($idParent)) {
+        if ($numOfChilds = $this->getNumOfChilds($id)) {
             return (bool)($numOfChilds == 0 ? false : true);
         }
 

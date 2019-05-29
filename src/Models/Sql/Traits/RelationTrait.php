@@ -8,7 +8,6 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
-
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Traits;
@@ -140,7 +139,6 @@ trait RelationTrait
      * @param string|Model $intermediaryModel
      * @param string|null  $intermediaryCurrentForeignKey
      * @param string|null  $intermediaryReferenceForeignKey
-     * @param string|null  $primaryKey
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
@@ -185,7 +183,6 @@ trait RelationTrait
      * @param string|Model $intermediaryModel
      * @param string|null  $intermediaryCurrentForeignKey
      * @param string|null  $intermediaryReferenceForeignKey
-     * @param string|null  $primaryKey
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
