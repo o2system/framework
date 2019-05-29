@@ -8,7 +8,6 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
-
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql;
@@ -19,6 +18,7 @@ use O2System\Framework\Models\Sql\DataObjects\Result\Row;
 use O2System\Framework\Models\Sql\Traits\FinderTrait;
 use O2System\Framework\Models\Sql\Traits\ModifierTrait;
 use O2System\Framework\Models\Sql\Traits\RecordTrait;
+use O2System\Framework\Models\Sql\Traits\RelationTrait;
 
 /**
  * Class Model
@@ -30,9 +30,10 @@ class Model
     use FinderTrait;
     use ModifierTrait;
     use RecordTrait;
+    use RelationTrait;
 
     /**
-     * AbstractModel::$db
+     * Model::$db
      *
      * Database connection instance.
      *
@@ -41,7 +42,7 @@ class Model
     public $db = null;
 
     /**
-     * AbstractModel::$qb
+     * Model::$qb
      *
      * Database query builder instance.
      *
@@ -50,61 +51,124 @@ class Model
     public $qb = null;
 
     /**
-     * Model Table
+     * Model::$table
      *
-     * @access  public
-     * @type    string
+     * Database table name
+     *
+     * @var string
      */
     public $table = null;
 
     /**
-     * Model Table Columns
+     * Model::$fields
      *
-     * @access  public
-     * @type    array
+     * Database table fields.
+     *
+     * @var array
      */
     public $fields = [];
 
     /**
-     * Model Table Primary Key
+     * Model::$primaryKey
      *
-     * @access  public
-     * @type    string
+     * Database table primary key field name.
+     *
+     * @var string
      */
     public $primaryKey = 'id';
 
     /**
-     * Model Table Primary Keys
+     * Model::$primaryKeys
      *
-     * @access  public
-     * @type    array
+     * Database table primary key fields name.
+     *
+     * @var array
      */
     public $primaryKeys = [];
+
     /**
+     * Model::$uploadedImageFilePath
+     *
+     * Storage uploaded image filePath.
+     */
+    public $uploadedImageFilePath = null;
+
+    /**
+     * Model::$uploadedImageKey
+     *
+     * Database table uploaded image key field name.
+     *
+     * @var string
+     */
+    public $uploadedImageKey = null;
+
+    /**
+     * Model::$uploadedImageKeys
+     *
+     * Database table uploaded image key fields name.
+     *
+     * @var array
+     */
+    public $uploadedImageKeys = [];
+
+    /**
+     * Model::$uploadedFileFilepath
+     *
+     * Storage uploaded file filePath.
+     */
+    public $uploadedFileFilepath = null;
+
+    /**
+     * Model::$uploadedFileKey
+     *
+     * Database table uploaded file key field name.
+     *
+     * @var string
+     */
+    public $uploadedFileKey = null;
+
+    /**
+     * Model::$uploadedFileKeys
+     *
+     * Database table uploaded file key fields name.
+     *
+     * @var array
+     */
+    public $uploadedFileKeys = [];
+
+    /**
+     * Model::$result
+     *
      * Model Result
      *
      * @var \O2System\Framework\Models\Sql\DataObjects\Result
      */
     public $result;
+
     /**
+     * Model::$row
+     *
      * Model Result Row
      *
      * @var \O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
     public $row;
+
     /**
+     * Model::$validSubModels
+     *
      * List of library valid sub models
      *
-     * @access  protected
-     *
-     * @type    array   driver classes list
+     * @var array
      */
     protected $validSubModels = [];
 
     // ------------------------------------------------------------------------
 
     /**
-     * AbstractModel::__construct
+     * Model::__construct
+     *
+     * @throws \ReflectionException
      */
     public function __construct()
     {
@@ -126,8 +190,10 @@ class Model
         $this->fetchSubModels();
     }
 
+    // ------------------------------------------------------------------------
+
     /**
-     * AbstractModel::fetchSubModels
+     * Model::fetchSubModels
      *
      * @access  protected
      * @final   this method cannot be overwritten.
@@ -173,6 +239,14 @@ class Model
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Model::__callStatic
+     *
+     * @param string $method
+     * @param array  $arguments
+     *
+     * @return bool|mixed
+     */
     final public static function __callStatic($method, array $arguments = [])
     {
         if (false !== ($modelInstance = models(get_called_class()))) {
@@ -188,6 +262,16 @@ class Model
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Model::__call
+     *
+     * @param string $method
+     * @param array  $arguments
+     *
+     * @return bool|mixed
+     */
     final public function __call($method, array $arguments = [])
     {
         return static::__callStatic($method, $arguments);
@@ -195,6 +279,13 @@ class Model
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Model::__get
+     *
+     * @param string $property
+     *
+     * @return bool|mixed|\O2System\Framework\Models\Sql\DataObjects\Result|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
     public function __get($property)
     {
         if ($this->row instanceof Row) {
@@ -214,10 +305,19 @@ class Model
                 return models()->get($property);
             }
         }
+
+        return false;
     }
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Model::hasSubModel
+     *
+     * @param string $model
+     *
+     * @return bool
+     */
     final protected function hasSubModel($model)
     {
         if (array_key_exists($model, $this->validSubModels)) {
@@ -227,6 +327,15 @@ class Model
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Model::loadSubModel
+     *
+     * @param string $model
+     *
+     * @return bool|mixed|\O2System\Framework\Models\Sql\DataObjects\Result|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
     final protected function loadSubModel($model)
     {
         if ($this->hasSubModel($model)) {
@@ -250,6 +359,15 @@ class Model
         return false;
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Model::getSubModel
+     *
+     * @param string $model
+     *
+     * @return bool|mixed|\O2System\Framework\Models\Sql\DataObjects\Result|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
     final protected function getSubModel($model)
     {
         return $this->loadSubModel($model);

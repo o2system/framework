@@ -48,6 +48,10 @@ class Result extends ArrayIterator
             $ormResult = new \SplFixedArray($result->count());
 
             foreach ($result as $key => $row) {
+                if(method_exists($model, 'rebuildRow')) {
+                    $row = $model->rebuildRow($row);
+                }
+
                 $ormResult[ $key ] = new Result\Row($row, $model);
             }
 

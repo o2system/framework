@@ -101,8 +101,71 @@ class Row extends SplArrayObject
 
                 return $result;
             }
+        } elseif (strpos($method, 'Url')) {
+            $key = str_replace('Url', '', $method);
+
+            if ($key === $model->uploadedImageKey) {
+                if (isset($model->uploadedImageFilePath)) {
+                    if (is_file($filePath = $model->uploadedImageFilePath . $this->offsetGet($key))) {
+                        return images_url($filePath);
+                    } elseif (is_file($filePath = PATH_STORAGE . 'images/default/not-found.jpg')) {
+                        return images_url($filePath);
+                    } elseif (is_file($filePath = PATH_STORAGE . 'images/default/not-found.png')) {
+                        return images_url($filePath);
+                    }
+                }
+            } elseif (in_array($key, $model->uploadedImageKeys)) {
+                if (isset($model->uploadedImageFilePath)) {
+                    if (is_file($filePath = $model->uploadedImageFilePath . $this->offsetGet($key))) {
+                        return images_url($filePath);
+                    } elseif (is_file($filePath = PATH_STORAGE . 'images/default/not-found.jpg')) {
+                        return images_url($filePath);
+                    } elseif (is_file($filePath = PATH_STORAGE . 'images/default/not-found.png')) {
+                        return images_url($filePath);
+                    }
+                }
+            } elseif ($key === $model->uploadedFileKey) {
+                if (isset($model->uploadedFileFilepath)) {
+                    return storage_url($model->uploadedFileFilepath . $this->offsetGet($key));
+                }
+            } elseif (in_array($key, $model->uploadedFileKeys)) {
+                if (isset($model->uploadedFileFilepath)) {
+                    return storage_url($model->uploadedFileFilepath . $this->offsetGet($key));
+                }
+            }
         }
 
         return null;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::delete
+     *
+     * @return bool
+     * @throws \O2System\Spl\Exceptions\RuntimeException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function delete()
+    {
+        $model = models($this->model->getClass());
+
+        $primaryKey = isset($model->primaryKey) ? $model->primaryKey : 'id';
+        $id = $this->offsetGet($primaryKey);
+
+        if (method_exists($model, 'beforeDelete')) {
+            $model->beforeDelete();
+        }
+
+        if ($model->qb->table($model->table)->limit(1)->delete([$primaryKey => $id])) {
+            if (method_exists($model, 'afterDelete')) {
+                return $model->afterDelete();
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }
