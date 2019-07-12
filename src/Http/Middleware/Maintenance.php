@@ -34,11 +34,15 @@ class Maintenance implements RequestHandlerInterface
      * May call other collaborating code to generate the response.
      *
      * @param \O2System\Psr\Http\Message\ServerRequestInterface $request
+     *
+     * @throws \Exception
      */
     public function handle(ServerRequestInterface $request)
     {
         if (cache()->hasItem('maintenance')) {
-            (new \O2System\Framework\Http\Controllers\Maintenance())->index();
+            $maintenanceInfo = cache()->getItem('maintenance')->get();
+            echo view()->load('maintenance', $maintenanceInfo, true);
+            exit(EXIT_SUCCESS);
         }
     }
 }

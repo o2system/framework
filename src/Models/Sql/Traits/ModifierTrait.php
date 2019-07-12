@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql\Traits;
@@ -79,7 +80,7 @@ trait ModifierTrait
                                     $errors->createList($error);
                                 }
 
-                                if (function_exists('session')) {
+                                if (services()->has('session')) {
                                     session()->setFlash('danger', $errors);
                                 }
 
@@ -98,7 +99,7 @@ trait ModifierTrait
                                         $errors->createList($error);
                                     }
 
-                                    if (function_exists('session')) {
+                                    if (services()->has('session')) {
                                         session()->setFlash('danger', $errors);
                                     }
 
@@ -120,7 +121,7 @@ trait ModifierTrait
                                     $errors->createList($error);
                                 }
 
-                                if (function_exists('session')) {
+                                if (services()->has('session')) {
                                     session()->setFlash('danger', $errors);
                                 }
 
@@ -139,7 +140,7 @@ trait ModifierTrait
                                         $errors->createList($error);
                                     }
 
-                                    if (function_exists('session')) {
+                                    if (services()->has('session')) {
                                         session()->setFlash('danger', $errors);
                                     }
 
@@ -163,14 +164,19 @@ trait ModifierTrait
                 $label = false;
                 foreach (['name', 'label', 'title', 'code'] as $labelField) {
                     if (isset($sets[ $labelField ])) {
-                        session()->setFlash('success', language('SUCCESS_INSERT_WITH_LABEL', $sets[ $labelField ]));
+                        if(services()->has('session')) {
+                            session()->setFlash('success', language('SUCCESS_INSERT_WITH_LABEL', [$sets[ $labelField ]]));
+                        }
+
                         $label = true;
                         break;
                     }
                 }
 
                 if ($label === false) {
-                    session()->setFlash('success', language('SUCCESS_INSERT'));
+                    if(services()->has('session')) {
+                        session()->setFlash('success', language('SUCCESS_INSERT'));
+                    }
                 }
 
                 return true;
@@ -180,14 +186,19 @@ trait ModifierTrait
         $label = false;
         foreach (['name', 'label', 'title', 'code'] as $labelField) {
             if (isset($sets[ $labelField ])) {
-                session()->setFlash('danger', language('FAILED_INSERT_WITH_LABEL', $sets[ $labelField ]));
+                if(services()->has('session')) {
+                    session()->setFlash('danger', language('FAILED_INSERT_WITH_LABEL', [$sets[ $labelField ]]));
+                }
+
                 $label = true;
                 break;
             }
         }
 
         if ($label === false) {
-            session()->setFlash('danger', language('FAILED_INSERT'));
+            if(services()->has('session')) {
+                session()->setFlash('danger', language('FAILED_INSERT'));
+            }
         }
 
         // Sets Global $_POST Variable
@@ -370,7 +381,7 @@ trait ModifierTrait
                                         $errors->createList($error);
                                     }
 
-                                    if (function_exists('session')) {
+                                    if (services()->has('session')) {
                                         session()->setFlash('danger', $errors);
                                     }
 
@@ -395,7 +406,7 @@ trait ModifierTrait
                                             $errors->createList($error);
                                         }
 
-                                        if (function_exists('session')) {
+                                        if (services()->has('session')) {
                                             session()->setFlash('danger', $errors);
                                         }
 
@@ -423,7 +434,7 @@ trait ModifierTrait
                                         $errors->createList($error);
                                     }
 
-                                    if (function_exists('session')) {
+                                    if (services()->has('session')) {
                                         session()->setFlash('danger', $errors);
                                     }
 
@@ -448,7 +459,7 @@ trait ModifierTrait
                                             $errors->createList($error);
                                         }
 
-                                        if (function_exists('session')) {
+                                        if (services()->has('session')) {
                                             session()->setFlash('danger', $errors);
                                         }
 
@@ -475,14 +486,20 @@ trait ModifierTrait
                     $label = false;
                     foreach (['name', 'label', 'title', 'code'] as $labelField) {
                         if (isset($sets[ $labelField ])) {
-                            session()->setFlash('success', language('SUCCESS_UPDATE_WITH_LABEL', $sets[ $labelField ]));
+                            if(services()->has('session')) {
+                                session()->setFlash('success',
+                                    language('SUCCESS_UPDATE_WITH_LABEL', [$sets[ $labelField ]]));
+                            }
+
                             $label = true;
                             break;
                         }
                     }
 
                     if ($label === false) {
-                        session()->setFlash('success', language('SUCCESS_UPDATE'));
+                        if(services()->has('session')) {
+                            session()->setFlash('success', language('SUCCESS_UPDATE'));
+                        }
                     }
 
                     return true;
@@ -493,14 +510,19 @@ trait ModifierTrait
         $label = false;
         foreach (['name', 'label', 'title', 'code'] as $labelField) {
             if (isset($sets[ $labelField ])) {
-                session()->setFlash('danger', language('FAILED_UPDATE_WITH_LABEL', $sets[ $labelField ]));
+                if(services()->has('session')) {
+                    session()->setFlash('danger', language('FAILED_UPDATE_WITH_LABEL', [$sets[ $labelField ]]));
+                }
+
                 $label = true;
                 break;
             }
         }
 
         if ($label === false) {
-            session()->setFlash('danger', language('FAILED_UPDATE'));
+            if(services()->has('session')) {
+                session()->setFlash('danger', language('FAILED_UPDATE'));
+            }
         }
 
         // Sets Global $_POST Variable

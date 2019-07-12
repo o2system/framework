@@ -203,7 +203,7 @@ if ( ! function_exists('month_name')) {
 }
 // ------------------------------------------------------------------------
 
-if ( ! function_exists('part_time')) {
+if ( ! function_exists('time_meridiem')) {
     /**
      * part_time
      *

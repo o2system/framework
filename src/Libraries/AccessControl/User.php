@@ -15,10 +15,7 @@ namespace O2System\Framework\Libraries\AccessControl;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Message\ServerRequest;
 use O2System\Security\Authentication\User\Account;
-use O2System\Security\Authentication\User\Authorities;
-use O2System\Security\Authentication\User\Authority;
 use O2System\Security\Authentication\User\Role;
 use O2System\Spl\Exceptions\RuntimeException;
 
@@ -64,7 +61,7 @@ class User extends \O2System\Security\Authentication\User
      */
     public function setApp($app)
     {
-        if($app = modules()->getApp($app)) {
+        if ($app = modules()->getApp($app)) {
             $this->app = $app;
         }
 
@@ -139,7 +136,7 @@ class User extends \O2System\Security\Authentication\User
         }
 
         if ($user = models('users')->findWhere([
-            $column => $username
+            $column => $username,
         ], 1)) {
             return $user;
         }
@@ -158,25 +155,32 @@ class User extends \O2System\Security\Authentication\User
     public function loggedIn()
     {
         if (parent::loggedIn()) {
-            $account = new Account($_SESSION[ 'account' ]);
+            if(is_object($_SESSION['account'])) {
+                $account = new Account($_SESSION['account']->getArrayCopy());
+                $username = $account->user->username;
+            } else {
+                $account = new Account();
+                $username = $_SESSION['account']['username'];
+            }
 
-            if ($user = models('users')->findWhere(['username' => $account->username], 1)) {
-                // Store Account Profile
+            if ($user = models('users')->findWhere(['username' => $username], 1)) {
                 if ($profile = $user->profile) {
                     $account->store('profile', $profile);
                 }
 
-                // Store Account Role
-                if ($role = $user->role) {
-                    $account->store('role', new Role([
-                        'label'       => $role->label,
-                        'description' => $role->description,
-                        'code'        => $role->code,
-                        'authorities' => $role->authorities,
-                    ]));
+                if ($employee = $user->employee) {
+                    $account->store('employee', $employee);
                 }
+
+                if ($role = $user->role) {
+                    $user->store('role', $role);
+                }
+
+                $account->store('user', $user);
+
+                session()->set('account', $account);
             }
-            
+
             // Store Globals Account
             globals()->store('account', $account);
 
@@ -238,6 +242,134 @@ class User extends \O2System\Security\Authentication\User
             $this->login($account);
 
             return true;
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * User::hasAccess
+     *
+     * @param array $segments
+     *
+     * @return bool
+     */
+    public function hasAccess(array $segments)
+    {
+        if ($this->loggedIn()) {
+            if ($account = globals()->offsetGet('account')) {
+                if (in_array($account->user->role->id, [1, 2])) {
+                    return true;
+                }
+
+                if ($model = models('modules')) {
+                    if ($segment = $model->segments->find(implode('/', $segments), 'segments')) {
+                        if ($authority = $model->segments->authorities->users->findWhere([
+                            'id_sys_module_segment' => $segment->id,
+                            'id_sys_module_user'    => $account->user->moduleUser->id,
+                        ])) {
+                            if ($authority->first()->permission === 'WRITE') {
+                                return true;
+                            } elseif ($authority->first()->permission === 'GRANTED') {
+                                // Access only granted cannot do modifier access
+                                foreach ([
+                                             'form',
+                                             'add',
+                                             'add-as-new',
+                                             'edit',
+                                             'update',
+                                             'insert',
+                                             'create',
+                                             'delete',
+                                         ] as $segment
+                                ) {
+                                    if (in_array($segment, $segments)) {
+                                        return false;
+                                    }
+                                }
+
+                                return true;
+                            }
+                        }
+
+                        if ($authority = $model->segments->authorities->roles->findWhere([
+                            'id_sys_module_segment' => $segment->id,
+                            'id_sys_module_role'    => $account->user->role->id,
+                        ])) {
+                            if ($authority->first()->permission === 'WRITE') {
+                                return true;
+                            } elseif ($authority->first()->permission === 'GRANTED') {
+                                // Access only granted cannot do modifier access
+                                foreach ([
+                                             'form',
+                                             'add',
+                                             'add-as-new',
+                                             'edit',
+                                             'update',
+                                             'insert',
+                                             'create',
+                                             'delete',
+                                         ] as $segment
+                                ) {
+                                    if (in_array($segment, $segments)) {
+                                        return false;
+                                    }
+                                }
+
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * User::hasWriteAccess
+     *
+     * @return bool
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function hasWriteAccess()
+    {
+        $segments = server_request()->getUri()->getSegments()->getParts();
+
+        if ($this->loggedIn()) {
+            if ($account = globals()->offsetGet('account')) {
+                if (in_array($account->user->role->id, [1, 2])) {
+                    return true;
+                }
+
+                if ($model = models('modules')) {
+
+                    if ($segment = $model->segments->find(implode('/', $segments), 'segments')) {
+                        if ($authority = $model->segments->authorities->users->findWhere([
+                            'id_sys_module_segment' => $segment->id,
+                            'id_sys_module_user'    => $account->user->moduleUser->id,
+                        ])) {
+                            if ($authority->first()->permission === 'WRITE') {
+                                return true;
+                            }
+                        }
+
+                        if ($authority = $model->segments->authorities->roles->findWhere([
+                            'id_sys_module_segment' => $segment->id,
+                            'id_sys_module_role'    => $account->user->role->id,
+                        ])) {
+                            if ($authority->first()->permission === 'WRITE') {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return false;

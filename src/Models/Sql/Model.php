@@ -39,7 +39,7 @@ class Model
      *
      * @var \O2System\Database\Sql\Abstracts\AbstractConnection
      */
-    public $db = null;
+    public $db;
 
     /**
      * Model::$qb
@@ -48,7 +48,7 @@ class Model
      *
      * @var \O2System\Database\Sql\Abstracts\AbstractQueryBuilder
      */
-    public $qb = null;
+    public $qb;
 
     /**
      * Model::$table
