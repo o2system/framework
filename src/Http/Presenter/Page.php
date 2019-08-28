@@ -165,14 +165,14 @@ class Page extends AbstractRepository
                     )
             )) {
                 $properties = file_get_contents($propertiesFilePath);
-                $properties = json_decode($properties, true);
+                $properties = json_decode($properties);
 
-                if (isset($properties[ 'vars' ])) {
-                    $this->vars = $properties[ 'vars' ];
+                if (isset($properties->vars)) {
+                    $this->vars = get_object_vars($properties->vars);
                 }
 
-                if (isset($properties[ 'presets' ])) {
-                    $this->presets = new SplArrayObject($properties[ 'presets' ]);
+                if (isset($properties->presets)) {
+                    $this->presets = new SplArrayObject(get_object_vars($properties->presets));
                 }
             }
         }
