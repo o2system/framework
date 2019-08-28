@@ -127,14 +127,18 @@ class Router extends KernelRouter
 
                     $this->registerModule($module);
                 }
-            } else {
-                if (false !== ($module = modules()->getModule( [$app->getParameter(), reset($uriSegments) ] ))) {
-                    array_shift($uriSegments);
-                    $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                    $uriString = $this->uri->getSegments()->getString();
+            } elseif (false !== ($module = modules()->getModule( [$app->getParameter(), 'modules', reset($uriSegments) ] ))) {
+                array_shift($uriSegments);
+                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
+                $uriString = $this->uri->getSegments()->getString();
 
-                    $this->registerModule($module);
-                }
+                $this->registerModule($module);
+            } elseif (false !== ($module = modules()->getModule( [$app->getParameter(), 'plugins', reset($uriSegments) ] ))) {
+                array_shift($uriSegments);
+                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
+                $uriString = $this->uri->getSegments()->getString();
+
+                $this->registerModule($module);
             }
 
             if($numOfUriSegments = count($uriSegments)) {
