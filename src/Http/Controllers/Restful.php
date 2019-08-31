@@ -501,7 +501,7 @@ class Restful extends Controller
                 if ($get = input()->get()) {
                     if (false !== ($result = $this->model->withPaging()->findWhere($get->getArrayCopy()))) {
                         if ($result->count()) {
-                            $this->sendPayload([
+                            output()->sendPayload([
                                 'draw'            => input()->request('draw'),
                                 'recordsTotal'    => $result->info->num_total,
                                 'recordsFiltered' => $result->info->num_founds,
@@ -532,9 +532,9 @@ class Restful extends Controller
                             }
                         }
 
-                        if (false !== ($result = $this->model->withPaging()->findWhere($conditions))) {
+                        if (false !== ($result = $this->model->findWhere($conditions))) {
                             if ($result->count()) {
-                                $this->sendPayload([
+                                output()->sendPayload([
                                     'draw'            => input()->request('draw'),
                                     'recordsTotal'    => $result->info->num_total,
                                     'recordsFiltered' => $result->info->num_founds,
@@ -551,9 +551,9 @@ class Restful extends Controller
                     $this->sendError(400, 'Get parameters cannot be empty!');
                 }
             } elseif ($get = input()->get()) {
-                if (false !== ($result = $this->model->withPaging()->findWhere($get->getArrayCopy()))) {
+                if (false !== ($result = $this->model->findWhere($get->getArrayCopy()))) {
                     if ($result->count()) {
-                        $this->sendPayload([
+                        output()->sendPayload([
                             'draw'            => input()->request('draw'),
                             'recordsTotal'    => $result->info->num_total,
                             'recordsFiltered' => $result->info->num_founds,
@@ -566,8 +566,8 @@ class Restful extends Controller
                     $this->sendError(204);
                 }
             } else {
-                if (false !== ($result = $this->model->allWithPaging())) {
-                    $this->sendPayload([
+                if (false !== ($result = $this->model->all())) {
+                    output()->sendPayload([
                         'draw'            => input()->request('draw'),
                         'recordsTotal'    => $result->info->num_total,
                         'recordsFiltered' => $result->info->num_founds,
