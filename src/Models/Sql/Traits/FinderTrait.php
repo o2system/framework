@@ -52,7 +52,6 @@ trait FinderTrait
         if ($result = $this->qb->from($this->table)->get()) {
             if ($result->count() > 0) {
                 $this->result = new DataObjects\Result($result, $this);
-                $this->result->setInfo($result->getInfo());
 
                 return $this->result;
             }
@@ -67,13 +66,13 @@ trait FinderTrait
      * FinderTrait::allWithPaging
      *
      * @param array|string|null $fields
-     * @param int|null          $limit
+     * @param int|null          $numPerPage
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function allWithPaging($fields = null, $limit = null)
+    public function allWithPaging($fields = null, $numPerPage = null)
     {
-        return $this->withPaging(null, $limit)->all($fields, $limit);
+        return $this->withPaging(null, $numPerPage)->all($fields, $numPerPage);
     }
 
     // ------------------------------------------------------------------------
@@ -82,21 +81,35 @@ trait FinderTrait
      * FinderTrait::withPaging
      *
      * @param int|null $page
-     * @param int|null $limit
+     * @param int|null $numPerPage
      *
      * @return bool|\O2System\Framework\Models\Sql\Model
      */
-    public function withPaging($page = null, $limit = null)
+    public function withPaging($page = null, $numPerPage = null)
     {
         $getPage = $this->input->get('page');
         $getLimit = $this->input->get('limit');
 
         $page = empty($page) ? (empty($getPage) ? 1 : $getPage) : $page;
-        $limit = empty($limit) ? (empty($getLimit) ? 10 : $getLimit) : $limit;
+        $numPerPage = empty($numPerPage) ? (empty($getLimit) ? 10 : $getLimit) : $numPerPage;
 
-        $this->qb->page($page, $limit);
+        $this->qb->page($page, $numPerPage);
 
         return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * FinderTrait::paginate
+     *
+     * @param int $numPerPage
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function paginate($numPerPage)
+    {
+        return $this->withPaging(null, $numPerPage)->all($numPerPage);
     }
 
     // ------------------------------------------------------------------------
@@ -127,7 +140,6 @@ trait FinderTrait
             ->get($limit)) {
             if ($result->count() > 0) {
                 $this->result = new DataObjects\Result($result, $this);
-                $this->result->setInfo($result->getInfo());
 
                 if ($this->result->count() == 1) {
                     return $this->result->first();
@@ -163,7 +175,6 @@ trait FinderTrait
             ->from($this->table)
             ->get($limit)) {
             $this->result = new DataObjects\Result($result, $this);
-            $this->result->setInfo($result->getInfo());
 
             if ($limit == 1) {
                 return $this->result->first();
@@ -195,7 +206,6 @@ trait FinderTrait
             ->whereIn($field, $inCriteria)
             ->get()) {
             $this->result = new DataObjects\Result($result, $this);
-            $this->result->setInfo($result->getInfo());
 
             return $this->result;
         }
@@ -225,7 +235,6 @@ trait FinderTrait
             ->whereNotIn($field, $notInCriteria)
             ->get()) {
             $this->result = new DataObjects\Result($result, $this);
-            $this->result->setInfo($result->getInfo());
 
             return $this->result;
         }

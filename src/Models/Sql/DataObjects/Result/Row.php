@@ -34,17 +34,25 @@ class Row extends SplArrayObject
      */
     private $model;
 
+    /**
+     * Row::$record
+     *
+     * @var \O2System\Database\DataObjects\Result\Row\Record
+     */
+    private $record;
+
     // ------------------------------------------------------------------------
 
     /**
      * Row::__construct
      *
-     * @param Database\DataObjects\Result\Row|array $row
-     * @param Model                                 $model
+     * @param mixed  $row
+     * @param Model  $model
      */
     public function __construct($row, Model &$model)
     {
         $this->model = new SplClassInfo($model);
+        $this->record = $row->getRecord();
 
         if ( ! models()->has($this->model->getClass())) {
             models()->add($model, $this->model->getClass());
@@ -73,12 +81,45 @@ class Row extends SplArrayObject
      *
      * @param string $offset
      *
-     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result|\O2System\Framework\Models\Sql\DataObjects\Result\Row|null
+     * @return mixed
      */
     public function offsetGet($offset)
     {
         if ($this->offsetExists($offset)) {
             return parent::offsetGet($offset);
+        } elseif(strpos($offset, 'record') !== false) {
+            switch ($offset) {
+                case 'record':
+                    return $this->record;
+                    break;
+                case 'record_status':
+                    return $this->record->status;
+                    break;
+                case 'record_left':
+                    return $this->record->left;
+                    break;
+                case 'record_right':
+                    return $this->record->right;
+                    break;
+                case 'record_depth':
+                    return $this->record->depth;
+                    break;
+                case 'record_ordering':
+                    return $this->record->ordering;
+                    break;
+                case 'record_create_user':
+                    return $this->record->create->user;
+                    break;
+                case 'record_create_timestamp':
+                    return $this->record->create->timestamp;
+                    break;
+                case 'record_update_user':
+                    return $this->record->update->user;
+                    break;
+                case 'record_update_timestamp':
+                    return $this->record->update->timestamp;
+                    break;
+            }
         } elseif (null !== ($result = $this->__call($offset))) {
             return $result;
         }
