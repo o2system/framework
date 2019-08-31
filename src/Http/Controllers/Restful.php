@@ -17,7 +17,10 @@ namespace O2System\Framework\Http\Controllers;
 
 use O2System\Cache\Item;
 use O2System\Framework\Http\Controller;
+use O2System\Framework\Models\Sql\Model;
 use O2System\Psr\Http\Header\ResponseFieldInterface;
+use O2System\Security\Filters\Rules;
+use O2System\Spl\Exceptions\Logic\OutOfRangeException;
 
 /**
  * Class Restful
@@ -150,6 +153,27 @@ class Restful extends Controller
      */
     public $model;
 
+    /**
+     * Restful::$params
+     *
+     * @var array
+     */
+    public $params = [];
+
+    /**
+     * Restful::$fillableColumns
+     *
+     * @var array
+     */
+    public $fillableColumns = [];
+
+    /**
+     * Restful::$fillableColumnsWithRules
+     *
+     * @var array
+     */
+    public $fillableColumnsWithRules = [];
+
     // ------------------------------------------------------------------------
 
     /**
@@ -244,6 +268,17 @@ class Restful extends Controller
                 }
             }
         }
+
+        if (empty($this->model)) {
+            $controllerClassName = get_called_class();
+            $modelClassName = str_replace('Controllers', 'Models', $controllerClassName);
+
+            if (class_exists($modelClassName)) {
+                $this->model = new $modelClassName();
+            }
+        } elseif (class_exists($this->model)) {
+            $this->model = new $this->model();
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -253,7 +288,54 @@ class Restful extends Controller
      */
     public function index()
     {
-        output()->sendError(204);
+        if(empty($this->model)) {
+            output()->sendError(204);
+        } else {
+            if ( ! $this->model instanceof Model) {
+                $this->sendError(503, 'Model is not exists!');
+            }
+
+            if (count($this->params)) {
+                if ($get = input()->get()) {
+                    $rules = new Rules($get);
+                    $rules->sets($this->rules);
+
+                    if ( ! $rules->validate()) {
+                        $this->sendError(400, implode(', ', $rules->getErrors()));
+                    }
+                } else {
+                    $this->sendError(400, 'Get parameters cannot be empty!');
+                }
+
+                $conditions = $get->getArrayCopy();
+
+                if (false !== ($result = $this->model->withPaging()->findWhere($conditions))) {
+                    if ($result->count()) {
+                        $this->sendPayload($result);
+                    } else {
+                        $this->sendError(204);
+                    }
+                } else {
+                    $this->sendError(204);
+                }
+            } elseif ($get = input()->get()) {
+                if (false !== ($result = $this->model->withPaging()->findWhere($get->getArrayCopy()))) {
+                    if ($result->count()) {
+                        $this->sendPayload($result);
+                    } else {
+                        $this->sendError(204);
+                    }
+                } else {
+                    $this->sendError(204);
+                }
+            } else {
+                if (false !== ($result = $this->model->allWithPaging())) {
+                    $this->sendPayload($result);
+                } else {
+                    $this->sendError(204);
+                }
+            }
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -351,6 +433,253 @@ class Restful extends Controller
             }
         } else {
             output()->sendError(501);
+        }
+    }
+
+    /**
+     * Controller::create
+     *
+     * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
+     * @throws \O2System\Spl\Exceptions\Logic\OutOfRangeException
+     */
+    public function create()
+    {
+        if ($post = input()->post()) {
+            if (count($this->fillableColumnsWithRules)) {
+                $rules = new Rules($post);
+                $rules->sets($this->fillableColumnsWithRules);
+                if ( ! $rules->validate()) {
+                    $this->sendError(400, $rules->displayErrors(true));
+                }
+            }
+
+            if ( ! $this->model instanceof Model) {
+                $this->sendError(503, 'Model is not ready');
+            }
+
+            $data = [];
+
+            if (count($this->fillableColumnsWithRules)) {
+                foreach ($this->fillableColumnsWithRules as $column) {
+                    if ($post->offsetExists($column[ 'field' ])) {
+                        $data[ $column[ 'field' ] ] = $post->offsetGet($column[ 'field' ]);
+                    }
+                }
+            } elseif (count($this->fillableColumns)) {
+                foreach ($this->fillableColumns as $column) {
+                    if ($post->offsetExists($column[ 'field' ])) {
+                        $data[ $column[ 'field' ] ] = $post->offsetGet($column[ 'field' ]);
+                    }
+                }
+            } else {
+                $data = $post->getArrayCopy();
+            }
+
+            if (count($data)) {
+                $data[ 'record_create_timestamp' ] = $data[ 'record_update_timestamp' ] = timestamp();
+                $data[ 'record_create_user' ] = $data[ 'record_update_user' ] = globals()->account->id;
+
+                if ($this->model->insert($data)) {
+                    $data[ 'id' ] = $this->model->db->getLastInsertId();
+                    $this->sendPayload([
+                        'code' => 201,
+                        'Successful insert request',
+                        'data' => $data,
+                    ]);
+                } else {
+                    $this->sendError(501, 'Failed update request');
+                }
+            } else {
+                $this->sendError(400, 'Post parameters cannot be empty!');
+            }
+        } else {
+            $this->sendError(400);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Restful::update
+     *
+     * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
+     * @throws \O2System\Spl\Exceptions\Logic\OutOfRangeException
+     */
+    public function update()
+    {
+        if ($post = input()->post()) {
+            if (count($this->fillableColumnsWithRules)) {
+                $rules = new Rules($post);
+                $rules->sets($this->fillableColumnsWithRules);
+                $rules->add('id', 'ID', 'required', 'ID field cannot be empty!');
+
+                if ( ! $rules->validate()) {
+                    $this->sendError(400, implode(', ', $rules->displayErrors(true)));
+                }
+            }
+
+            if ( ! $this->model instanceof Model) {
+                $this->sendError(503, 'Model is not ready');
+            }
+
+            $data = [];
+
+            if (count($this->fillableColumnsWithRules)) {
+                foreach ($this->fillableColumnsWithRules as $column) {
+                    if ($post->offsetExists($column[ 'field' ])) {
+                        $data[ $column[ 'field' ] ] = $post->offsetGet($column[ 'field' ]);
+                    }
+                }
+            } elseif (count($this->fillableColumns)) {
+                foreach ($this->fillableColumns as $column) {
+                    if ($post->offsetExists($column[ 'field' ])) {
+                        $data[ $column[ 'field' ] ] = $post->offsetGet($column[ 'field' ]);
+                    }
+                }
+            } else {
+                $data = $post->getArrayCopy();
+            }
+
+            if (count($data)) {
+                $data[ 'record_update_timestamp' ] = timestamp();
+                $data[ 'record_update_user' ] = globals()->account->id;
+
+                if ($this->model->update($data)) {
+                    $this->sendError(201, 'Successful update request');
+                } else {
+                    $this->sendError(501, 'Failed update request');
+                }
+            } else {
+                $this->sendError(400, 'Post parameters cannot be empty!');
+            }
+        } else {
+            $this->sendError(400);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Restful::delete
+     *
+     * @throws \O2System\Spl\Exceptions\Logic\OutOfRangeException
+     * @throws \O2System\Spl\Exceptions\RuntimeException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function delete()
+    {
+        if ($post = input()->post()) {
+            $rules = new Rules($post);
+            $rules->add('id', 'ID', 'required', 'ID field cannot be empty!');
+
+            if ( ! $rules->validate()) {
+                $this->sendError(400, implode(', ', $rules->getErrors()));
+            }
+
+            if ( ! $this->model instanceof Model) {
+                $this->sendError(503, 'Model is not ready');
+            }
+
+            if ($this->model->delete($post->id)) {
+                $this->sendError(201, 'Successful delete request');
+            } else {
+                $this->sendError(501, 'Failed delete request');
+            }
+        } else {
+            $this->sendError(400);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Restful::publish
+     *
+     * @throws OutOfRangeException
+     */
+    public function publish()
+    {
+        if ($post = input()->post()) {
+            $rules = new Rules($post);
+            $rules->add('id', 'ID', 'required', 'ID field cannot be empty!');
+
+            if ( ! $rules->validate()) {
+                $this->sendError(400, implode(', ', $rules->getErrors()));
+            }
+
+            if ( ! $this->model instanceof Model) {
+                $this->sendError(503, 'Model is not ready');
+            }
+
+            if ($this->model->publish($post->id)) {
+                $this->sendError(201, 'Successful publish request');
+            } else {
+                $this->sendError(501, 'Failed publish request');
+            }
+        } else {
+            $this->sendError(400);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Restful::unpublish
+     *
+     * @throws OutOfRangeException
+     */
+    public function unpublish()
+    {
+        if ($post = input()->post()) {
+            $rules = new Rules($post);
+            $rules->add('id', 'ID', 'required', 'ID field cannot be empty!');
+
+            if ( ! $rules->validate()) {
+                $this->sendError(400, implode(', ', $rules->getErrors()));
+            }
+
+            if ( ! $this->model instanceof Model) {
+                $this->sendError(503, 'Model is not ready');
+            }
+
+            if ($this->model->unpublish($post->id)) {
+                $this->sendError(201, 'Successful unpublish request');
+            } else {
+                $this->sendError(501, 'Failed unpublish request');
+            }
+        } else {
+            $this->sendError(400);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Controller::archive
+     *
+     * @throws OutOfRangeException
+     */
+    public function archive()
+    {
+        if ($post = input()->post()) {
+            $rules = new Rules($post);
+            $rules->add('id', 'ID', 'required', 'ID field cannot be empty!');
+
+            if ( ! $rules->validate()) {
+                $this->sendError(400, implode(', ', $rules->getErrors()));
+            }
+
+            if ( ! $this->model instanceof Model) {
+                $this->sendError(503, 'Model is not ready');
+            }
+
+            if ($this->model->unpublish($post->id)) {
+                $this->sendError(201, 'Successful archived request');
+            } else {
+                $this->sendError(501, 'Failed archived request');
+            }
+        } else {
+            $this->sendError(400);
         }
     }
 }
