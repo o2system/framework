@@ -8,6 +8,7 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
+
 // ------------------------------------------------------------------------
 
 namespace O2System\Framework\Models\Sql;
@@ -189,6 +190,13 @@ class Model
      * @var \O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
     public $row;
+
+    /**
+     * Result::$rebuildRowCallback
+     *
+     * @var \Closure
+     */
+    protected $rebuildRowCallback;
 
     /**
      * Model::$validSubModels
@@ -413,5 +421,59 @@ class Model
     final protected function getSubModel($model)
     {
         return $this->loadSubModel($model);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Model::setRebuildRowCallback
+     *
+     * @param \Closure $callback
+     */
+    final public function rebuildRowCallback(\Closure $callback)
+    {
+        if(empty($this->rebuildRowCallback)) {
+            $this->rebuildRowCallback = $callback;
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Model::isCallableRebuildRowCallback
+     *
+     * @return void
+     */
+    final public function resetRebuildRowCallback()
+    {
+        $this->rebuildRowCallback = null;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Model::isCallableRebuildRowCallback
+     *
+     * @return bool
+     */
+    final public function isCallableRebuildRowCallback()
+    {
+        return is_callable($this->rebuildRowCallback);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Model::rebuildRow
+     *
+     * @param Row $row
+     *
+     * @return void
+     */
+    public function rebuildRow($row)
+    {
+        if(is_callable($this->rebuildRowCallback)) {
+            call_user_func($this->rebuildRowCallback, $row);
+        }
     }
 }

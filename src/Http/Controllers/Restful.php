@@ -89,8 +89,8 @@ class Restful extends Controller
     protected $accessControlAllowMethods = [
         'GET', // common request
         'POST', // used for create, update request
-        //'PUT', // used for upload files request
-        //'DELETE', // used for delete request
+        'PUT', // used for upload files request
+        'DELETE', // used for delete request
         'OPTIONS', // used for preflight request
     ];
 
@@ -100,7 +100,7 @@ class Restful extends Controller
      * Used for indicates, as part of the response to a preflight request,
      * which header field names can be used during the actual request.
      *
-     * @type int
+     * @type array
      */
     protected $accessControlAllowHeaders = [
         'Origin',
@@ -180,6 +180,13 @@ class Restful extends Controller
      * @var array
      */
     public $fillableColumnsWithRules = [];
+
+    /**
+     * Restful::$dataTableColumns
+     *
+     * @var array
+     */
+    public $dataTableColumns = [];
 
     // ------------------------------------------------------------------------
 
@@ -295,7 +302,7 @@ class Restful extends Controller
      */
     public function index()
     {
-        if(empty($this->model)) {
+        if (empty($this->model)) {
             output()->sendError(204);
         } else {
             if ( ! $this->model instanceof Model) {
@@ -371,101 +378,209 @@ class Restful extends Controller
 
     // ------------------------------------------------------------------------
 
-    public function sendError($code, $message = null)
+    /**
+     * Restful::datatable
+     */
+    public function datatable()
     {
-        if ($this->ajaxOnly === false) {
-            output()->setContentType('application/json');
-        }
+        if (empty($this->model)) {
+            output()->sendError(204);
+        } else {
+            if ( ! $this->model instanceof Model) {
+                $this->sendError(503, 'Model is not exists!');
+            }
 
-        if (is_array($code)) {
-            if (is_numeric(key($code))) {
-                $message = reset($code);
-                $code = key($code);
-            } elseif (isset($code[ 'code' ])) {
-                $code = $code[ 'code' ];
-                $message = $code[ 'message' ];
+            if ( ! $this->model instanceof Model) {
+                $this->sendError(503, 'Model is not exists!');
+            }
+
+            // Start as limit
+            if ($start = input()->request('start')) {
+                $this->model->qb->limit($start);
+            }
+
+            // Length as offset
+            if (($length = input()->request('length')) != -1) {
+                $this->model->qb->offset($length);
+            }
+
+            /**
+             * @example
+             * $dataTableColumns = [
+             *     'first_name',
+             *     'start_date' => [
+             *         'formatter' => function($row) {
+             *              $row->date = date('jS M y', strtotime($row->date));
+             *         }
+             *     ]
+             * ];
+             */
+            if (count($this->dataTableColumns)) {
+                $i = 0;
+                foreach ($this->dataTableColumns as $number => $column) {
+                    if (is_array($column)) {
+                        $field = $number;
+                        $number = $i;
+                    } else {
+                        $field = $column;
+                    }
+
+                    if ($columns = input()->request('columns')) {
+                        if (isset($columns[ $number ])) {
+                            if (isset($columns[ $number ][ 'searchable' ])) {
+                                if ($columns[ $number ][ 'searchable' ] === 'true') {
+                                    if ($search = input()->request('search')) {
+                                        if (isset($search[ 'value' ])) {
+                                            $this->model->qb->orLike($field, $search[ 'value' ]);
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (isset($columns[ $number ][ 'orderable' ])) {
+                                if ($columns[ $number ][ 'orderable' ] === 'true') {
+                                    if ($order = input()->request('order')) {
+                                        if (isset($order[ $number ][ 'dir' ])) {
+                                            $this->model->orderBy($field, strtoupper($order[ $number ][ 'dir' ]));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    $i++;
+                }
+
+                $this->model->rebuildRowCallback(function ($row) {
+                    $row->DT_RowId = 'datatable-row-' . $row->id;
+
+                    foreach ($this->dataTableColumns as $number => $column) {
+                        if (is_array($column)) {
+                            if (isset($column[ 'formatter' ])) {
+                                call_user_func($column[ 'formatter' ], $row);
+                            }
+                        }
+                    }
+                });
+
+            } elseif (count($this->model->visibleColumns)) {
+                // Search value
+                foreach ($this->model->visibleColumns as $number => $field) {
+                    if ($columns = input()->request('columns')) {
+                        if (isset($columns[ $number ])) {
+                            if (isset($columns[ $number ][ 'searchable' ])) {
+                                if ($columns[ $number ][ 'searchable' ] === 'true') {
+                                    if ($search = input()->request('search')) {
+                                        if (isset($search[ 'value' ])) {
+                                            $this->model->qb->orLike($field, $search[ 'value' ]);
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (isset($columns[ $number ][ 'orderable' ])) {
+                                if ($columns[ $number ][ 'orderable' ] === 'true') {
+                                    if ($order = input()->request('order')) {
+                                        if (isset($order[ $number ][ 'dir' ])) {
+                                            $this->model->orderBy($field, strtoupper($order[ $number ][ 'dir' ]));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                $this->model->rebuildRowCallback(function ($row) {
+                    $row->DT_RowId = 'datatable-row-' . $row->id;
+                });
+            }
+
+            if (count($this->params)) {
+                if ($get = input()->get()) {
+                    if (false !== ($result = $this->model->withPaging()->findWhere($get->getArrayCopy()))) {
+                        if ($result->count()) {
+                            $this->sendPayload([
+                                'draw'            => input()->request('draw'),
+                                'recordsTotal'    => $result->info->num_total,
+                                'recordsFiltered' => $result->info->num_founds,
+                                'data'            => $result->toArray(),
+                            ]);
+                        } else {
+                            $this->sendError(204);
+                        }
+                    } else {
+                        $this->sendError(204);
+                    }
+                } else {
+                    $this->sendError(400, 'Get parameters cannot be empty!');
+                }
+            } elseif (count($this->paramsWithRules)) {
+                if ($get = input()->get()) {
+                    $rules = new Rules($get);
+                    $rules->sets($this->paramsWithRules);
+
+                    if ( ! $rules->validate()) {
+                        $this->sendError(400, implode(', ', $rules->displayErrors(true)));
+                    } else {
+                        $conditions = [];
+
+                        foreach ($this->paramsWithRules as $param) {
+                            if ($get->offsetExists($param[ 'field' ])) {
+                                $conditions[ $param[ 'field' ] ] = $get->offsetGet($param[ 'field' ]);
+                            }
+                        }
+
+                        if (false !== ($result = $this->model->withPaging()->findWhere($conditions))) {
+                            if ($result->count()) {
+                                $this->sendPayload([
+                                    'draw'            => input()->request('draw'),
+                                    'recordsTotal'    => $result->info->num_total,
+                                    'recordsFiltered' => $result->info->num_founds,
+                                    'data'            => $result->toArray(),
+                                ]);
+                            } else {
+                                $this->sendError(204);
+                            }
+                        } else {
+                            $this->sendError(204);
+                        }
+                    }
+                } else {
+                    $this->sendError(400, 'Get parameters cannot be empty!');
+                }
+            } elseif ($get = input()->get()) {
+                if (false !== ($result = $this->model->withPaging()->findWhere($get->getArrayCopy()))) {
+                    if ($result->count()) {
+                        $this->sendPayload([
+                            'draw'            => input()->request('draw'),
+                            'recordsTotal'    => $result->info->num_total,
+                            'recordsFiltered' => $result->info->num_founds,
+                            'data'            => $result->toArray(),
+                        ]);
+                    } else {
+                        $this->sendError(204);
+                    }
+                } else {
+                    $this->sendError(204);
+                }
+            } else {
+                if (false !== ($result = $this->model->allWithPaging())) {
+                    $this->sendPayload([
+                        'draw'            => input()->request('draw'),
+                        'recordsTotal'    => $result->info->num_total,
+                        'recordsFiltered' => $result->info->num_founds,
+                        'data'            => $result->toArray(),
+                    ]);
+                } else {
+                    $this->sendError(204);
+                }
             }
         }
-
-        output()->sendError($code, $message);
     }
 
     // ------------------------------------------------------------------------
-
-    /**
-     * Restful::sendPayload
-     *
-     * @param mixed $data        The payload data to-be send.
-     * @param bool  $longPooling Long pooling flag mode.
-     *
-     * @throws \Exception
-     */
-    public function sendPayload($data, $longPooling = false)
-    {
-        if ($longPooling === false) {
-            if ($this->ajaxOnly) {
-                if (is_ajax()) {
-                    output()->send($data);
-                } else {
-                    output()->sendError(403);
-                }
-            } else {
-                output()->send($data);
-            }
-        } elseif (is_ajax()) {
-            /**
-             * Server-side file.
-             * This file is an infinitive loop. Seriously.
-             * It gets the cache created timestamp, checks if this is larger than the timestamp of the
-             * AJAX-submitted timestamp (time of last ajax request), and if so, it sends back a JSON with the data from
-             * data.txt (and a timestamp). If not, it waits for one seconds and then start the next while step.
-             *
-             * Note: This returns a JSON, containing the content of data.txt and the timestamp of the last data.txt change.
-             * This timestamp is used by the client's JavaScript for the next request, so THIS server-side script here only
-             * serves new content after the last file change. Sounds weird, but try it out, you'll get into it really fast!
-             */
-
-            // set php runtime to unlimited
-            set_time_limit(0);
-
-            $longPoolingCacheKey = 'long-pooling-' . session()->get('id');
-            $longPoolingCacheData = null;
-
-            if ( ! cache()->hasItem($longPoolingCacheKey)) {
-                cache()->save(new Item($longPoolingCacheKey, $data));
-            }
-
-            // main loop
-            while (true) {
-                // if ajax request has send a timestamp, then $lastCallTimestamp = timestamp, else $last_call = null
-                $lastCallTimestamp = (int)input()->getPost('last_call_timestamp');
-
-                // PHP caches file data, like requesting the size of a file, by default. clearstatcache() clears that cache
-                clearstatcache();
-
-                if (cache()->hasItem($longPoolingCacheKey)) {
-                    $longPoolingCacheData = cache()->getItem($longPoolingCacheKey);
-                }
-
-                // get timestamp of when file has been changed the last time
-                $longPoolingCacheMetadata = $longPoolingCacheData->getMetadata();
-
-                // if no timestamp delivered via ajax or data.txt has been changed SINCE last ajax timestamp
-                if ($lastCallTimestamp == null || $longPoolingCacheMetadata[ 'ctime' ] > $lastCallTimestamp) {
-                    output()->send([
-                        'timestamp' => $longPoolingCacheMetadata,
-                        'data'      => $data,
-                    ]);
-                } else {
-                    // wait for 1 sec (not very sexy as this blocks the PHP/Apache process, but that's how it goes)
-                    sleep(1);
-                    continue;
-                }
-            }
-        } else {
-            output()->sendError(501);
-        }
-    }
 
     /**
      * Controller::create
@@ -544,15 +659,17 @@ class Restful extends Controller
             if (count($this->fillableColumnsWithRules)) {
                 $rules = new Rules($post);
                 $rules->sets($this->fillableColumnsWithRules);
-                
-                if(count($this->model->primaryKeys)) {
-                    foreach($this->model->primaryKeys as $primaryKey) {
-                        $rules->add($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required', 'this field cannot be empty!');
+
+                if (count($this->model->primaryKeys)) {
+                    foreach ($this->model->primaryKeys as $primaryKey) {
+                        $rules->add($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
+                            'this field cannot be empty!');
                     }
                 } else {
                     $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
                     $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
-                    $rules->add($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required', 'this field cannot be empty!');
+                    $rules->add($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
+                        'this field cannot be empty!');
                 }
 
                 if ( ! $rules->validate()) {
@@ -585,7 +702,6 @@ class Restful extends Controller
             if (count($data)) {
                 $data[ 'record_update_timestamp' ] = timestamp();
                 $data[ 'record_update_user' ] = globals()->account->id;
-
 
 
                 if ($this->model->update($data, $conditions)) {
@@ -699,7 +815,7 @@ class Restful extends Controller
     // ------------------------------------------------------------------------
 
     /**
-     * Controller::archive
+     * Restful::archive
      *
      * @throws OutOfRangeException
      */
@@ -724,6 +840,110 @@ class Restful extends Controller
             }
         } else {
             $this->sendError(400);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Restful::sendError
+     *
+     * @param int         $code
+     * @param string|null $message
+     */
+    public function sendError($code, $message = null)
+    {
+        if ($this->ajaxOnly === false) {
+            output()->setContentType('application/json');
+        }
+
+        if (is_array($code)) {
+            if (is_numeric(key($code))) {
+                $message = reset($code);
+                $code = key($code);
+            } elseif (isset($code[ 'code' ])) {
+                $code = $code[ 'code' ];
+                $message = $code[ 'message' ];
+            }
+        }
+
+        output()->sendError($code, $message);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Restful::sendPayload
+     *
+     * @param mixed $data        The payload data to-be send.
+     * @param bool  $longPooling Long pooling flag mode.
+     *
+     * @throws \Exception
+     */
+    public function sendPayload($data, $longPooling = false)
+    {
+        if ($longPooling === false) {
+            if ($this->ajaxOnly) {
+                if (is_ajax()) {
+                    output()->send($data);
+                } else {
+                    output()->sendError(403);
+                }
+            } else {
+                output()->send($data);
+            }
+        } elseif (is_ajax()) {
+            /**
+             * Server-side file.
+             * This file is an infinitive loop. Seriously.
+             * It gets the cache created timestamp, checks if this is larger than the timestamp of the
+             * AJAX-submitted timestamp (time of last ajax request), and if so, it sends back a JSON with the data from
+             * data.txt (and a timestamp). If not, it waits for one seconds and then start the next while step.
+             *
+             * Note: This returns a JSON, containing the content of data.txt and the timestamp of the last data.txt change.
+             * This timestamp is used by the client's JavaScript for the next request, so THIS server-side script here only
+             * serves new content after the last file change. Sounds weird, but try it out, you'll get into it really fast!
+             */
+
+            // set php runtime to unlimited
+            set_time_limit(0);
+
+            $longPoolingCacheKey = 'long-pooling-' . session()->get('id');
+            $longPoolingCacheData = null;
+
+            if ( ! cache()->hasItem($longPoolingCacheKey)) {
+                cache()->save(new Item($longPoolingCacheKey, $data));
+            }
+
+            // main loop
+            while (true) {
+                // if ajax request has send a timestamp, then $lastCallTimestamp = timestamp, else $last_call = null
+                $lastCallTimestamp = (int)input()->getPost('last_call_timestamp');
+
+                // PHP caches file data, like requesting the size of a file, by default. clearstatcache() clears that cache
+                clearstatcache();
+
+                if (cache()->hasItem($longPoolingCacheKey)) {
+                    $longPoolingCacheData = cache()->getItem($longPoolingCacheKey);
+                }
+
+                // get timestamp of when file has been changed the last time
+                $longPoolingCacheMetadata = $longPoolingCacheData->getMetadata();
+
+                // if no timestamp delivered via ajax or data.txt has been changed SINCE last ajax timestamp
+                if ($lastCallTimestamp == null || $longPoolingCacheMetadata[ 'ctime' ] > $lastCallTimestamp) {
+                    output()->send([
+                        'timestamp' => $longPoolingCacheMetadata,
+                        'data'      => $data,
+                    ]);
+                } else {
+                    // wait for 1 sec (not very sexy as this blocks the PHP/Apache process, but that's how it goes)
+                    sleep(1);
+                    continue;
+                }
+            }
+        } else {
+            output()->sendError(501);
         }
     }
 }

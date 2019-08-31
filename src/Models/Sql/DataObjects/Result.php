@@ -57,8 +57,9 @@ class Result extends \O2System\Database\DataObjects\Result
             models()->add($model, $this->model->getClass());
         }
 
-        $this->info = $result->getInfo();
         parent::__construct($result->toArray());
+
+        $this->info = $result->getInfo();
     }
 
     // ------------------------------------------------------------------------
@@ -72,11 +73,6 @@ class Result extends \O2System\Database\DataObjects\Result
     public function offsetSet($offset, $row)
     {
         $model = models($this->model->getClass());
-
-        if (method_exists($model, 'rebuildRow')) {
-            $row = $model->rebuildRow($row);
-        }
-
         $hideColumns = [];
 
         // Visible Columns
@@ -94,7 +90,12 @@ class Result extends \O2System\Database\DataObjects\Result
             $row->offsetUnset($column);
         }
 
-        parent::offsetSet($offset, new Result\Row($row, $model));
+        $row = new Result\Row($row, $model);
+
+        // Final rebuild row columns
+        $model->rebuildRow($row);
+
+        parent::offsetSet($offset, $row);
     }
 
     // ------------------------------------------------------------------------
