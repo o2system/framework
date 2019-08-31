@@ -161,6 +161,13 @@ class Restful extends Controller
     public $params = [];
 
     /**
+     * Restful::$paramsWithRules
+     *
+     * @var array
+     */
+    public $paramsWithRules = [];
+
+    /**
      * Restful::$fillableColumns
      *
      * @var array
@@ -295,28 +302,52 @@ class Restful extends Controller
                 $this->sendError(503, 'Model is not exists!');
             }
 
+            if ( ! $this->model instanceof Model) {
+                $this->sendError(503, 'Model is not exists!');
+            }
+
             if (count($this->params)) {
                 if ($get = input()->get()) {
-                    $rules = new Rules($get);
-                    $rules->sets($this->rules);
-
-                    if ( ! $rules->validate()) {
-                        $this->sendError(400, implode(', ', $rules->getErrors()));
-                    }
-                } else {
-                    $this->sendError(400, 'Get parameters cannot be empty!');
-                }
-
-                $conditions = $get->getArrayCopy();
-
-                if (false !== ($result = $this->model->withPaging()->findWhere($conditions))) {
-                    if ($result->count()) {
-                        $this->sendPayload($result);
+                    if (false !== ($result = $this->model->withPaging()->findWhere($get->getArrayCopy()))) {
+                        if ($result->count()) {
+                            $this->sendPayload($result);
+                        } else {
+                            $this->sendError(204);
+                        }
                     } else {
                         $this->sendError(204);
                     }
                 } else {
-                    $this->sendError(204);
+                    $this->sendError(400, 'Get parameters cannot be empty!');
+                }
+            } elseif (count($this->paramsWithRules)) {
+                if ($get = input()->get()) {
+                    $rules = new Rules($get);
+                    $rules->sets($this->paramsWithRules);
+
+                    if ( ! $rules->validate()) {
+                        $this->sendError(400, implode(', ', $rules->displayErrors(true)));
+                    } else {
+                        $conditions = [];
+
+                        foreach ($this->paramsWithRules as $param) {
+                            if ($get->offsetExists($param[ 'field' ])) {
+                                $conditions[ $param[ 'field' ] ] = $get->offsetGet($param[ 'field' ]);
+                            }
+                        }
+
+                        if (false !== ($result = $this->model->withPaging()->findWhere($conditions))) {
+                            if ($result->count()) {
+                                $this->sendPayload($result);
+                            } else {
+                                $this->sendError(204);
+                            }
+                        } else {
+                            $this->sendError(204);
+                        }
+                    }
+                } else {
+                    $this->sendError(400, 'Get parameters cannot be empty!');
                 }
             } elseif ($get = input()->get()) {
                 if (false !== ($result = $this->model->withPaging()->findWhere($get->getArrayCopy()))) {
@@ -508,10 +539,21 @@ class Restful extends Controller
     public function update()
     {
         if ($post = input()->post()) {
+            $conditions = [];
+
             if (count($this->fillableColumnsWithRules)) {
                 $rules = new Rules($post);
                 $rules->sets($this->fillableColumnsWithRules);
-                $rules->add('id', 'ID', 'required', 'ID field cannot be empty!');
+                
+                if(count($this->model->primaryKeys)) {
+                    foreach($this->model->primaryKeys as $primaryKey) {
+                        $rules->add($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required', 'this field cannot be empty!');
+                    }
+                } else {
+                    $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
+                    $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                    $rules->add($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required', 'this field cannot be empty!');
+                }
 
                 if ( ! $rules->validate()) {
                     $this->sendError(400, implode(', ', $rules->displayErrors(true)));
@@ -544,7 +586,9 @@ class Restful extends Controller
                 $data[ 'record_update_timestamp' ] = timestamp();
                 $data[ 'record_update_user' ] = globals()->account->id;
 
-                if ($this->model->update($data)) {
+
+
+                if ($this->model->update($data, $conditions)) {
                     $this->sendError(201, 'Successful update request');
                 } else {
                     $this->sendError(501, 'Failed update request');
