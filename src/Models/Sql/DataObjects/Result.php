@@ -17,6 +17,7 @@ namespace O2System\Framework\Models\Sql\DataObjects;
 
 use O2System\Database\DataObjects\Result\Info;
 use O2System\Framework\Libraries\Ui\Components\Pagination;
+use O2System\Framework\Models\Sql\DataObjects\Result\Row;
 use O2System\Framework\Models\Sql\Model;
 use O2System\Spl\Info\SplClassInfo;
 
@@ -72,28 +73,9 @@ class Result extends \O2System\Database\DataObjects\Result
      */
     public function offsetSet($offset, $row)
     {
-        $model = models($this->model->getClass());
-        $hideColumns = [];
-
-        // Visible Columns
-        if (count($model->visibleColumns)) {
-            $hideColumns = array_diff($row->getColumns(), $model->visibleColumns);
+        if($model = models($this->model->getClass())) {
+            $row = new Result\Row($row, $model);
         }
-
-        // Hide Columns
-        if (count($model->hideColumns)) {
-            $hideColumns = array_merge($model->hideColumns);
-        }
-
-        // Unset Columns
-        foreach ($hideColumns as $column) {
-            $row->offsetUnset($column);
-        }
-
-        $row = new Result\Row($row, $model);
-
-        // Final rebuild row columns
-        $model->rebuildRow($row);
 
         parent::offsetSet($offset, $row);
     }

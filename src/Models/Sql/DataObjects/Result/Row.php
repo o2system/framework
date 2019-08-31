@@ -54,8 +54,19 @@ class Row extends SplArrayObject
         $this->model = new SplClassInfo($model);
         $this->record = $row->getRecord();
 
-        if ( ! models()->has($this->model->getClass())) {
-            models()->add($model, $this->model->getClass());
+        $hideColumns = [];
+
+        // Visible Columns
+        if (count($model->visibleColumns)) {
+            $hideColumns = array_diff($row->getColumns(), $model->visibleColumns);
+        }
+
+        // Final rebuild row columns
+        $model->rebuildRow($row);
+
+        // Hide Columns
+        if (count($model->hideColumns)) {
+            $hideColumns = array_merge($model->hideColumns);
         }
 
         if ($row instanceof Database\DataObjects\Result\Row) {
@@ -69,6 +80,11 @@ class Row extends SplArrayObject
             foreach ($model->appendColumns as $appendColumn) {
                 $this->offsetSet($appendColumn, $this->offsetGet($appendColumn));
             }
+        }
+
+        // Unset Columns
+        foreach ($hideColumns as $column) {
+            $this->offsetUnset($column);
         }
 
         models($this->model->getClass())->row = $this;

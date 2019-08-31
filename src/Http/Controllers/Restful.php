@@ -394,188 +394,70 @@ class Restful extends Controller
                 $this->sendError(503, 'Model is not exists!');
             }
 
-            // Start as limit
-            if ($start = input()->request('start')) {
-                $this->model->qb->limit($start);
-            }
+            $hasAction = false;
+            if($request = input()->request()) {
+                // Start as limit
+                $this->model->qb->limit($request['start']);
 
-            // Length as offset
-            if (($length = input()->request('length')) != -1) {
-                $this->model->qb->offset($length);
-            }
+                // Length as offset
+                $this->model->qb->offset($request['length']);
 
-            /**
-             * @example
-             * $dataTableColumns = [
-             *     'first_name',
-             *     'start_date' => [
-             *         'formatter' => function($row) {
-             *              $row->date = date('jS M y', strtotime($row->date));
-             *         }
-             *     ]
-             * ];
-             */
-            if (count($this->dataTableColumns)) {
-                $i = 0;
-                foreach ($this->dataTableColumns as $number => $column) {
-                    if (is_array($column)) {
-                        $field = $number;
-                        $number = $i;
-                    } else {
-                        $field = $column;
-                    }
-
-                    if ($columns = input()->request('columns')) {
-                        if (isset($columns[ $number ])) {
-                            if (isset($columns[ $number ][ 'searchable' ])) {
-                                if ($columns[ $number ][ 'searchable' ] === 'true') {
-                                    if ($search = input()->request('search')) {
-                                        if (isset($search[ 'value' ])) {
-                                            $this->model->qb->orLike($field, $search[ 'value' ]);
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (isset($columns[ $number ][ 'orderable' ])) {
-                                if ($columns[ $number ][ 'orderable' ] === 'true') {
-                                    if ($order = input()->request('order')) {
-                                        if (isset($order[ $number ][ 'dir' ])) {
-                                            $this->model->orderBy($field, strtoupper($order[ $number ][ 'dir' ]));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    $i++;
-                }
-
-                $this->model->rebuildRowCallback(function ($row) {
-                    $row->DT_RowId = 'datatable-row-' . $row->id;
-
-                    foreach ($this->dataTableColumns as $number => $column) {
-                        if (is_array($column)) {
-                            if (isset($column[ 'formatter' ])) {
-                                call_user_func($column[ 'formatter' ], $row);
-                            }
-                        }
-                    }
-                });
-
-            } elseif (count($this->model->visibleColumns)) {
-                // Search value
-                foreach ($this->model->visibleColumns as $number => $field) {
-                    if ($columns = input()->request('columns')) {
-                        if (isset($columns[ $number ])) {
-                            if (isset($columns[ $number ][ 'searchable' ])) {
-                                if ($columns[ $number ][ 'searchable' ] === 'true') {
-                                    if ($search = input()->request('search')) {
-                                        if (isset($search[ 'value' ])) {
-                                            $this->model->qb->orLike($field, $search[ 'value' ]);
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (isset($columns[ $number ][ 'orderable' ])) {
-                                if ($columns[ $number ][ 'orderable' ] === 'true') {
-                                    if ($order = input()->request('order')) {
-                                        if (isset($order[ $number ][ 'dir' ])) {
-                                            $this->model->orderBy($field, strtoupper($order[ $number ][ 'dir' ]));
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                // Set ordering
+                if( ! empty($request['order'])) {
+                    foreach($request['order'] as $dt => $order) {
+                        $field = $request['columns'][$order['column']]['data'];
+                        $this->model->qb->orderBy($field, strtoupper($order['dir']));
                     }
                 }
 
-                $this->model->rebuildRowCallback(function ($row) {
-                    $row->DT_RowId = 'datatable-row-' . $row->id;
-                });
-            }
+                $this->model->visibleColumns = [];
 
-            if (count($this->params)) {
-                if ($get = input()->get()) {
-                    if (false !== ($result = $this->model->withPaging()->findWhere($get->getArrayCopy()))) {
-                        if ($result->count()) {
-                            output()->sendPayload([
-                                'draw'            => input()->request('draw'),
-                                'recordsTotal'    => $result->info->num_total,
-                                'recordsFiltered' => $result->info->num_founds,
-                                'data'            => $result->toArray(),
-                            ]);
-                        } else {
-                            $this->sendError(204);
-                        }
-                    } else {
-                        $this->sendError(204);
+                foreach($request['columns'] as $dt => $column) {
+                    if($column['data'] === 'action') {
+                        $this->model->appendColumns[] = 'action';
+
+                        continue;
                     }
-                } else {
-                    $this->sendError(400, 'Get parameters cannot be empty!');
-                }
-            } elseif (count($this->paramsWithRules)) {
-                if ($get = input()->get()) {
-                    $rules = new Rules($get);
-                    $rules->sets($this->paramsWithRules);
 
-                    if ( ! $rules->validate()) {
-                        $this->sendError(400, implode(', ', $rules->displayErrors(true)));
-                    } else {
-                        $conditions = [];
+                    if($column['searchable']) {
+                        if($dt == 0) {
+                            if( ! empty($column['search']['value']) ) {
+                                $this->model->qb->like($column['data'], $column['search']['value']);
 
-                        foreach ($this->paramsWithRules as $param) {
-                            if ($get->offsetExists($param[ 'field' ])) {
-                                $conditions[ $param[ 'field' ] ] = $get->offsetGet($param[ 'field' ]);
-                            }
-                        }
-
-                        if (false !== ($result = $this->model->findWhere($conditions))) {
-                            if ($result->count()) {
-                                output()->sendPayload([
-                                    'draw'            => input()->request('draw'),
-                                    'recordsTotal'    => $result->info->num_total,
-                                    'recordsFiltered' => $result->info->num_founds,
-                                    'data'            => $result->toArray(),
-                                ]);
-                            } else {
-                                $this->sendError(204);
+                                if( ! empty($request['search']['value'])) {
+                                    $this->model->qb->orLike($column['data'], $request['search']['value']);
+                                }
+                            } elseif( ! empty($request['search']['value'])) {
+                                $this->model->qb->like($column['data'], $request['search']['value']);
                             }
                         } else {
-                            $this->sendError(204);
+                            if( ! empty($column['search']['value']) ) {
+                                $this->model->qb->orLike($column[ 'data' ], $column[ 'search' ][ 'value' ]);
+                            }
+
+                            if( ! empty($request['search']['value'])) {
+                                $this->model->qb->orLike($column['data'], $request['search']['value']);
+                            }
                         }
                     }
-                } else {
-                    $this->sendError(400, 'Get parameters cannot be empty!');
+
+                    $this->model->visibleColumns[] = $column['data'];
                 }
-            } elseif ($get = input()->get()) {
-                if (false !== ($result = $this->model->findWhere($get->getArrayCopy()))) {
-                    if ($result->count()) {
-                        output()->sendPayload([
-                            'draw'            => input()->request('draw'),
-                            'recordsTotal'    => $result->info->num_total,
-                            'recordsFiltered' => $result->info->num_founds,
-                            'data'            => $result->toArray(),
-                        ]);
-                    } else {
-                        $this->sendError(204);
-                    }
-                } else {
-                    $this->sendError(204);
-                }
+            }
+
+            $this->model->rebuildRowCallback(function ($row) {
+                $row->DT_RowId = 'datatable-row-' . $row->id;
+            });
+
+            if (false !== ($result = $this->model->all())) {
+                output()->sendPayload([
+                    'draw'            => input()->request('draw'),
+                    'recordsTotal'    => $result->info->num_total,
+                    'recordsFiltered' => $result->info->num_founds,
+                    'data'            => $result->toArray(),
+                ]);
             } else {
-                if (false !== ($result = $this->model->all())) {
-                    output()->sendPayload([
-                        'draw'            => input()->request('draw'),
-                        'recordsTotal'    => $result->info->num_total,
-                        'recordsFiltered' => $result->info->num_founds,
-                        'data'            => $result->toArray(),
-                    ]);
-                } else {
-                    $this->sendError(204);
-                }
+                $this->sendError(204);
             }
         }
     }
