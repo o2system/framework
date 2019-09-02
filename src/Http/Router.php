@@ -32,49 +32,21 @@ use O2System\Spl\Info\SplFileInfo;
 class Router extends KernelRouter
 {
     /**
-     * Router::parseRequest
+     * Router::handle
      *
      * @param KernelMessageUri|null $uri
      *
      * @return bool
+     * @throws \O2System\Spl\Exceptions\RuntimeException
      * @throws \ReflectionException
      */
-    public function parseRequest(KernelMessageUri $uri = null)
+    public function handle(KernelMessageUri $uri = null)
     {
         $this->uri = is_null($uri) ? new KernelMessageUri() : $uri;
-        $uriSegments = $this->uri->getSegments()->getParts();
-        $uriString = $this->uri->getSegments()->getString();
 
-        if ($this->uri->getSegments()->getTotalParts()) {
-            if (strpos(end($uriSegments), '.json') !== false) {
-                output()->setContentType('application/json');
-                $endSegment = str_replace('.json', '', end($uriSegments));
-                array_pop($uriSegments);
-                array_push($uriSegments, $endSegment);
-                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                $uriString = $this->uri->getSegments()->getString();
-            } elseif (strpos(end($uriSegments), '.xml') !== false) {
-                output()->setContentType('application/xml');
-                $endSegment = str_replace('.xml', '', end($uriSegments));
-                array_pop($uriSegments);
-                array_push($uriSegments, $endSegment);
-                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                $uriString = $this->uri->getSegments()->getString();
-            } elseif (strpos(end($uriSegments), '.js') !== false) {
-                output()->setContentType('application/x-javascript');
-                $endSegment = str_replace('.js', '', end($uriSegments));
-                array_pop($uriSegments);
-                array_push($uriSegments, $endSegment);
-                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                $uriString = $this->uri->getSegments()->getString();
-            } elseif (strpos(end($uriSegments), '.css') !== false) {
-                output()->setContentType('text/css');
-                $endSegment = str_replace('.css', '', end($uriSegments));
-                array_pop($uriSegments);
-                array_push($uriSegments, $endSegment);
-                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                $uriString = $this->uri->getSegments()->getString();
-            }
+        // Handle Extension Request
+        if ($this->uri->segments->count()) {
+            $this->handleExtensionRequest();
         } else {
             $uriPath = urldecode(
                 parse_url($_SERVER[ 'REQUEST_URI' ], PHP_URL_PATH)
@@ -84,12 +56,15 @@ class Router extends KernelRouter
             $uriPath = end($uriPathParts);
 
             if ($uriPath !== '/') {
-                $uriString = $uriPath;
-                $uriSegments = array_filter(explode('/', $uriString));
+                $uriString = $uriPath; // tobe removed
+                $uriSegments = array_filter(explode('/', $uriString)); // tobe removed
 
-                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                $uriString = $this->uri->getSegments()->getString();
+                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments(
+                    array_filter(explode('/', $uriString)))
+                );
             }
+
+            unset($uriPathParts, $uriPath);
         }
 
         // Load app addresses config
@@ -99,10 +74,10 @@ class Router extends KernelRouter
             // Domain routing
             if (null !== ($domain = $this->addresses->getDomain())) {
                 if (is_array($domain)) {
-                    $uriSegments = array_merge($domain, $uriSegments);
-                    $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                    $uriString = $this->uri->getSegments()->getString();
-                    $domain = reset($uriSegments);
+                    $this->uri->segments->exchangeArray(
+                        array_merge($domain, $this->uri->segments->getArrayCopy())
+                    );
+                    $domain = $this->uri->segments->first();
                 }
 
                 if (false !== ($app = modules()->getApp($domain))) {
@@ -117,93 +92,54 @@ class Router extends KernelRouter
             }
         }
 
-        // Module routing
-        if ($numOfUriSegments = count($uriSegments)) {
+        // App and Module routing
+        if ($numOfUriSegments = $this->uri->segments->count()) {
             if (empty($app)) {
-                if (false !== ($module = modules()->getModule( reset($uriSegments) ))) {
-                    //array_shift($uriSegments);
-                    $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                    $uriString = $this->uri->getSegments()->getString();
-
+                if (false !== ($module = modules()->getModule($this->uri->segments->first()))) {
                     $this->registerModule($module);
-                }
-            } elseif (false !== ($module = modules()->getModule( [$app->getParameter(), 'modules', reset($uriSegments) ] ))) {
-                array_shift($uriSegments);
-                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                $uriString = $this->uri->getSegments()->getString();
 
-                $this->registerModule($module);
-            } elseif (false !== ($module = modules()->getModule( [$app->getParameter(), 'plugins', reset($uriSegments) ] ))) {
-                array_shift($uriSegments);
-                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                $uriString = $this->uri->getSegments()->getString();
-
-                $this->registerModule($module);
-            }
-
-            if($numOfUriSegments = count($uriSegments)) {
-                for ($i = 0; $i <= $numOfUriSegments; $i++) {
-                    $uriRoutedSegments = array_diff($uriSegments,
-                        array_slice($uriSegments, ($numOfUriSegments - $i)));
-
-                    if (false !== ($module = modules()->getModule($uriRoutedSegments))) {
-                        $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
-                        $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                        $uriString = $this->uri->getSegments()->getString();
-
-                        $this->registerModule($module);
-
-                        break;
+                    if ($module->getType() === 'APP') {
+                        $this->uri->segments->shift();
+                        $this->handleAppRequest($module);
+                    } else {
+                        $this->handleSegmentsRequest();
                     }
                 }
+            } else {
+                $this->handleAppRequest($app);
             }
         }
 
         // Try to translate from uri string
-        if (false !== ($action = $this->addresses->getTranslation($uriString))) {
+        if (false !== ($action = $this->addresses->getTranslation($this->uri->segments->__toString()))) {
             if ( ! $action->isValidHttpMethod(input()->server('REQUEST_METHOD')) && ! $action->isAnyHttpMethod()) {
                 output()->sendError(405);
             } else {
                 // Checks if action closure is an array
                 if (is_array($closureSegments = $action->getClosure())) {
-                    // Closure App Routing
-                    if (false !== ($app = modules()->getModule(reset($closureSegments)))) {
-                        array_shift($closureSegments);
-                        $this->registerModule($app);
-                    }
+                    $this->uri->segments->exchangeArray($closureSegments);
 
-                    // Closure Module routing
-                    if ($numOfClosureSegments = count($closureSegments)) {
-                        for ($i = 0; $i <= $numOfClosureSegments; $i++) {
-                            $closureRoutedSegments = array_diff($closureSegments,
-                                array_slice($closureSegments, ($numOfClosureSegments - $i)));
+                    if (false !== ($module = modules()->getModule($this->uri->segments->first()))) {
+                        $this->registerModule($module);
 
-                            if ( ! empty($app)) {
-                                if (reset($closureSegments) !== $app->getParameter()) {
-                                    array_unshift($closureRoutedSegments, $app->getParameter());
-                                }
-                            }
-
-                            if (false !== ($module = modules()->getModule($closureRoutedSegments))) {
-                                $uriSegments = array_diff($closureSegments, $closureRoutedSegments);
-                                $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($closureSegments));
-                                $uriString = $this->uri->getSegments()->getString();
-
-                                $this->registerModule($module);
-
-                                break;
-                            }
+                        if ($module->getType() === 'APP') {
+                            $this->uri->segments->shift();
+                            $this->handleAppRequest($module);
+                        } else {
+                            $this->handleSegmentsRequest();
                         }
+                    } else {
+                        $this->handleSegmentsRequest();
                     }
                 } else {
-                    if (false !== ($parseSegments = $action->getParseUriString($uriString))) {
+                    if (false !== ($parseSegments = $action->getParseUriString($this->uri->segments->__toString()))) {
                         $uriSegments = $parseSegments;
                     } else {
                         $uriSegments = [];
                     }
 
                     $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                    $uriString = $this->uri->getSegments()->getString();
+                    $uriString = $this->uri->segments->__toString();
 
                     $this->parseAction($action, $uriSegments);
                     if ( ! empty(services()->has('controller'))) {
@@ -214,7 +150,10 @@ class Router extends KernelRouter
         }
 
         // Try to get route from controller & page
-        if ($numOfUriSegments = count($uriSegments)) {
+        if ($numOfUriSegments = $this->uri->segments->count()) {
+            $uriSegments = $this->uri->segments->getArrayCopy();
+            $uriString = $this->uri->segments->__toString();
+
             for ($i = 0; $i <= $numOfUriSegments; $i++) {
                 $uriRoutedSegments = array_slice($uriSegments, 0, ($numOfUriSegments - $i));
                 $modules = modules()->getArrayCopy();
@@ -232,7 +171,7 @@ class Router extends KernelRouter
                     if (class_exists($controllerClassName = $controllerNamespace . implode('\\',
                             array_map('studlycase', $uriRoutedSegments)))) {
 
-                        if($controllerClassName::$inherited) {
+                        if ($controllerClassName::$inherited) {
                             $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
                             $this->setController(new KernelControllerDataStructure($controllerClassName),
                                 $uriSegments);
@@ -248,8 +187,8 @@ class Router extends KernelRouter
                     /**
                      * Try to find requested page
                      */
-                    if (false !== ($pagesDir = $module->getResourcesDir('pages', true))) {
-                        if($controllerClassName = $this->getPagesControllerClassName()) {
+                    if (false !== ($pagesDir = $module->getResourcesDir('pages'))) {
+                        if ($controllerClassName = $this->getPagesControllerClassName()) {
 
                             /**
                              * Try to find from database
@@ -278,7 +217,7 @@ class Router extends KernelRouter
                              * Try to find from page file
                              */
 
-                            foreach(['.phtml', '.vue'] as $pageExtension) {
+                            foreach (['.phtml', '.vue'] as $pageExtension) {
                                 $pageFilePath = $pagesDir . implode(DIRECTORY_SEPARATOR,
                                         array_map('dash', $uriRoutedSegments)) . $pageExtension;
 
@@ -286,15 +225,16 @@ class Router extends KernelRouter
                                     presenter()->page->setFile($pageFilePath);
                                     break;
                                 } else {
-                                    $pageFilePath = str_replace($pageExtension, DIRECTORY_SEPARATOR . 'index' . $pageExtension, $pageFilePath);
-                                    if(is_file($pageFilePath)) {
+                                    $pageFilePath = str_replace($pageExtension,
+                                        DIRECTORY_SEPARATOR . 'index' . $pageExtension, $pageFilePath);
+                                    if (is_file($pageFilePath)) {
                                         presenter()->page->setFile($pageFilePath);
                                         break;
                                     }
                                 }
                             }
 
-                            if(presenter()->page->file instanceof SplFileInfo) {
+                            if (presenter()->page->file instanceof SplFileInfo) {
                                 $this->setController(
                                     (new KernelControllerDataStructure($controllerClassName))
                                         ->setRequestMethod('index')
@@ -317,13 +257,103 @@ class Router extends KernelRouter
 
         if (class_exists($controllerClassName = modules()->top()->getDefaultControllerClassName())) {
             $this->setController(new KernelControllerDataStructure($controllerClassName),
-                $uriSegments);
+                $this->uri->segments->getArrayCopy());
 
             return true;
         }
 
         // Let's the framework do the rest when there is no controller found
         // the framework will redirect to PAGE 404
+    }
+
+    // ------------------------------------------------------------------------
+
+    protected function handleExtensionRequest()
+    {
+        $lastSegment = $this->uri->segments->last();
+
+        if (strpos($lastSegment, '.json') !== false) {
+            output()->setContentType('application/json');
+            $lastSegment = str_replace('.json', '', $lastSegment);
+            $this->uri->segments->pop();
+            $this->uri->segments->push($lastSegment);
+        } elseif (strpos($lastSegment, '.xml') !== false) {
+            output()->setContentType('application/xml');
+            $lastSegment = str_replace('.xml', '', $lastSegment);
+            $this->uri->segments->pop();
+            $this->uri->segments->push($lastSegment);
+        } elseif (strpos($lastSegment, '.js') !== false) {
+            output()->setContentType('application/x-javascript');
+            $lastSegment = str_replace('.js', '', $lastSegment);
+            $this->uri->segments->pop();
+            $this->uri->segments->push($lastSegment);
+        } elseif (strpos($lastSegment, '.css') !== false) {
+            output()->setContentType('text/css');
+            $lastSegment = str_replace('.css', '', $lastSegment);
+            $this->uri->segments->pop();
+            $this->uri->segments->push($lastSegment);
+        }
+    }
+
+    /**
+     * Router::handleAppRequest
+     *
+     * @param \O2System\Framework\Containers\Modules\DataStructures\Module $app
+     */
+    public function handleAppRequest(FrameworkModuleDataStructure $app)
+    {
+        // Find App module
+        foreach(['modules', 'plugins'] as $additionalSegment) {
+            if (false !== ($module = modules()->getModule([
+                    $app->getParameter(),
+                    $additionalSegment,
+                    $this->uri->segments->first(),
+                ]))) {
+                $this->uri->segments->shift();
+
+                $this->registerModule($module);
+                $this->handleSegmentsRequest();
+                break;
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Router::handleModuleRequest
+     */
+    public function handleSegmentsRequest()
+    {
+        $module = modules()->getActiveModule();
+
+        if ($numOfUriSegments = $this->uri->segments->count()) {
+            $uriSegments = $this->uri->segments->getArrayCopy();
+
+            for ($i = 0; $i <= $numOfUriSegments; $i++) {
+                $uriRoutedSegments = array_diff($uriSegments,
+                    array_slice($uriSegments, ($numOfUriSegments - $i)));
+
+                if(count($uriRoutedSegments)) {
+                    if($module instanceof FrameworkModuleDataStructure) {
+                        $moduleSegments = $module->getSegments();
+
+                        if(count($moduleSegments)) {
+                            $uriRoutedSegments = array_merge($moduleSegments, $uriRoutedSegments);
+                        }
+                    }
+
+                    if (false !== ($module = modules()->getModule($uriRoutedSegments))) {
+                        $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
+                        $this->uri->segments->exchangeArray($uriSegments);
+
+                        $this->registerModule($module);
+                        $this->handleSegmentsRequest();
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -337,19 +367,19 @@ class Router extends KernelRouter
     {
         $modules = modules()->getArrayCopy();
 
-        foreach($modules as $module) {
+        foreach ($modules as $module) {
             $controllerClassName = $module->getNamespace() . 'Controllers\Pages';
             if ($module->getNamespace() === 'O2System\Framework\\') {
                 $controllerClassName = 'O2System\Framework\Http\Controllers\Pages';
             }
 
-            if(class_exists($controllerClassName)) {
+            if (class_exists($controllerClassName)) {
                 return $controllerClassName;
                 break;
             }
         }
 
-        if(class_exists('O2System\Framework\Http\Controllers\Pages')) {
+        if (class_exists('O2System\Framework\Http\Controllers\Pages')) {
             return 'O2System\Framework\Http\Controllers\Pages';
         }
 
@@ -457,7 +487,7 @@ class Router extends KernelRouter
             $this->uri = (new KernelMessageUri())
                 ->withSegments(new KernelMessageUriSegments(''))
                 ->withQuery('');
-            $this->parseRequest($this->uri->addSegments($closure));
+            $this->handle($this->uri->addSegments($closure));
         } else {
             if (class_exists($closure)) {
                 $this->setController(

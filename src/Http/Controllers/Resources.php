@@ -73,7 +73,7 @@ class Resources extends Controller
      */
     public function route()
     {
-        $segments = server_request()->getUri()->getSegments()->getParts();
+        $segments = server_request()->getUri()->segments->getArrayCopy();
         array_shift($segments);
 
         $download = false;

@@ -39,7 +39,7 @@ class Cache implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request)
     {
         // Try to get from cache
-        $cacheKey = 'o2output_' . underscore(server_request()->getUri()->getSegments()->getString());
+        $cacheKey = 'o2output_' . underscore(server_request()->getUri()->segments->__toString());
 
         $cacheHandle = cache()->getItemPool('default');
 

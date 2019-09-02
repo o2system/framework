@@ -17,7 +17,6 @@ namespace O2System\Framework\Models\Sql\DataObjects;
 
 use O2System\Database\DataObjects\Result\Info;
 use O2System\Framework\Libraries\Ui\Components\Pagination;
-use O2System\Framework\Models\Sql\DataObjects\Result\Row;
 use O2System\Framework\Models\Sql\Model;
 use O2System\Spl\Info\SplClassInfo;
 

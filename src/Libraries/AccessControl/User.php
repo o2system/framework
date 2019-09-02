@@ -339,7 +339,7 @@ class User extends \O2System\Security\Authentication\User
      */
     public function hasWriteAccess()
     {
-        $segments = server_request()->getUri()->getSegments()->getParts();
+        $segments = server_request()->getUri()->segments->getArrayCopy();
 
         if ($this->loggedIn()) {
             if ($account = globals()->offsetGet('account')) {

@@ -23,6 +23,9 @@ namespace O2System;
  * Different environments will require different levels of error reporting.
  * By default development will show errors but testing and live will hide them.
  */
+
+use O2System\Kernel\Http\Message\Uri;
+
 switch (strtoupper(ENVIRONMENT)) {
     case 'DEVELOPMENT':
         error_reporting(-1);
@@ -352,7 +355,7 @@ class Framework extends Kernel
         if (profiler() !== false) {
             profiler()->watch('Parse Router Request');
         }
-        router()->parseRequest();
+        router()->handle();
 
         if ($commander = router()->getCommander()) {
             if ($commander instanceof Kernel\Cli\Router\DataStructures\Commander) {
@@ -434,7 +437,7 @@ class Framework extends Kernel
         if (profiler() !== false) {
             profiler()->watch('Parse Router Request');
         }
-        router()->parseRequest();
+        router()->handle(new Uri());
 
         if (config()->loadFile('session') === true) {
 

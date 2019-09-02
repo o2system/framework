@@ -147,10 +147,10 @@ abstract class AbstractList extends Element
                     $hrefUriSegments = [];
 
                     if (isset($parseUrl[ 'path' ])) {
-                        $hrefUriSegments = (new Uri\Segments($parseUrl[ 'path' ]))->getParts();
+                        $hrefUriSegments = (new Uri\Segments($parseUrl[ 'path' ]))->getArrayCopy();
                     }
 
-                    $currentUriSegments = server_request()->getUri()->getSegments()->getParts();
+                    $currentUriSegments = server_request()->getUri()->segments->getArrayCopy();
 
                     $matchSegments = array_slice($currentUriSegments, 0, count($hrefUriSegments));
 

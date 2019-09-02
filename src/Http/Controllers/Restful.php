@@ -535,12 +535,14 @@ class Restful extends Controller
      */
     public function update()
     {
+
         if ($post = input()->post()) {
             $conditions = [];
 
             if (count($this->fillableColumnsWithRules)) {
                 $rules = new Rules($post);
                 $rules->sets($this->fillableColumnsWithRules);
+
 
                 if (count($this->model->primaryKeys)) {
                     foreach ($this->model->primaryKeys as $primaryKey) {
@@ -715,7 +717,7 @@ class Restful extends Controller
                 $this->sendError(503, 'Model is not ready');
             }
 
-            if ($this->model->unpublish($post->id)) {
+            if ($this->model->archive($post->id)) {
                 $this->sendError(201, 'Successful archived request');
             } else {
                 $this->sendError(501, 'Failed archived request');
