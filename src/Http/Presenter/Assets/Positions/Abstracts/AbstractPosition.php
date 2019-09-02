@@ -169,7 +169,7 @@ abstract class AbstractPosition
 
         $fileContent = file_get_contents($filePath);
         $fileVersion = $this->getVersion($fileContent);
-        
+
         if (is_file($mapFilePath = $publicFilePath . '.map')) {
             $mapMetadata = json_decode(file_get_contents($mapFilePath), true);
             // if the file version is changed delete it first
@@ -189,12 +189,12 @@ abstract class AbstractPosition
                             PATH_ROOT,
                             '\\',
                             '/',
-                            DIRECTORY_SEPARATOR
+                            DIRECTORY_SEPARATOR,
                         ], [
                             '',
                             '/',
                             '/',
-                            '/'
+                            '/',
                         ], $filePath),
                     ],
                     'names'          => [],
@@ -205,7 +205,7 @@ abstract class AbstractPosition
                     ],
                     'sourceRoot'     => '',
                 ];
-                
+
                 if ( ! is_dir($publicFileDir)) {
                     @mkdir($publicFileDir, 0777, true);
                 }
@@ -381,8 +381,13 @@ abstract class AbstractPosition
     protected function getFilePath($filename, $subDir = null)
     {
         $directories = presenter()->assets->getFilePaths();
-        
+
         foreach ($directories as $directory) {
+            if (strpos($filename, 'app') !== false) {
+                if ($app = modules()->getActiveApp()) {
+                    $directory = $app->getResourcesDir();
+                }
+            }
 
             /**
              * Try with sub directory

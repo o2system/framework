@@ -277,15 +277,20 @@ class Router extends KernelRouter
                             /**
                              * Try to find from page file
                              */
-                            $pageFilePath = $pagesDir . implode(DIRECTORY_SEPARATOR,
-                                    array_map('dash', $uriRoutedSegments)) . '.phtml';
 
-                            if (is_file($pageFilePath)) {
-                                presenter()->page->setFile($pageFilePath);
-                            } else {
-                                $pageFilePath = str_replace('.phtml', DIRECTORY_SEPARATOR . 'index.phtml', $pageFilePath);
-                                if(is_file($pageFilePath)) {
+                            foreach(['.phtml', '.vue'] as $pageExtension) {
+                                $pageFilePath = $pagesDir . implode(DIRECTORY_SEPARATOR,
+                                        array_map('dash', $uriRoutedSegments)) . $pageExtension;
+
+                                if (is_file($pageFilePath)) {
                                     presenter()->page->setFile($pageFilePath);
+                                    break;
+                                } else {
+                                    $pageFilePath = str_replace($pageExtension, DIRECTORY_SEPARATOR . 'index' . $pageExtension, $pageFilePath);
+                                    if(is_file($pageFilePath)) {
+                                        presenter()->page->setFile($pageFilePath);
+                                        break;
+                                    }
                                 }
                             }
 
