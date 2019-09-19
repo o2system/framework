@@ -235,9 +235,9 @@ trait ModifierTrait
             if ($result = $this->qb->from($this->table)->getWhere($conditions)) {
                 if ($result->count() > 0) {
                     return $this->update($sets, $conditions);
+                } else {
+                    return $this->insert($sets);
                 }
-            } else {
-                return $this->insert($sets);
             }
         }
 
