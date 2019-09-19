@@ -268,6 +268,9 @@ class Router extends KernelRouter
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Router::handleExtensionRequest
+     */
     protected function handleExtensionRequest()
     {
         $lastSegment = $this->uri->segments->last();
@@ -294,6 +297,8 @@ class Router extends KernelRouter
             $this->uri->segments->push($lastSegment);
         }
     }
+    
+    // ------------------------------------------------------------------------
 
     /**
      * Router::handleAppRequest
@@ -302,13 +307,16 @@ class Router extends KernelRouter
      */
     public function handleAppRequest(FrameworkModuleDataStructure $app)
     {
-        // Find App module
-        foreach(['modules', 'plugins'] as $additionalSegment) {
-            if (false !== ($module = modules()->getModule([
-                    $app->getParameter(),
-                    $additionalSegment,
-                    $this->uri->segments->first(),
-                ]))) {
+        foreach(['','modules', 'plugins'] as $additionalSegment) {
+            $segments = [ $this->uri->segments->first() ];
+            
+            if( ! empty($additionalSegment)) {
+                array_unshift($segments, $additionalSegment);
+            } 
+
+            array_unshift($segments, $app->getParameter());
+
+            if (false !== ($module = modules()->getModule($segments))) {
                 $this->uri->segments->shift();
 
                 $this->registerModule($module);
