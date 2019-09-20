@@ -60,7 +60,7 @@ class Router extends KernelRouter
                 $uriSegments = array_filter(explode('/', $uriString)); // tobe removed
 
                 $this->uri = $this->uri->withSegments(new KernelMessageUriSegments(
-                    array_filter(explode('/', $uriString)))
+                        array_filter(explode('/', $uriString)))
                 );
             }
 
@@ -297,7 +297,7 @@ class Router extends KernelRouter
             $this->uri->segments->push($lastSegment);
         }
     }
-    
+
     // ------------------------------------------------------------------------
 
     /**
@@ -309,10 +309,10 @@ class Router extends KernelRouter
     {
         foreach(['','modules', 'plugins'] as $additionalSegment) {
             $segments = [ $this->uri->segments->first() ];
-            
+
             if( ! empty($additionalSegment)) {
                 array_unshift($segments, $additionalSegment);
-            } 
+            }
 
             array_unshift($segments, $app->getParameter());
 

@@ -34,6 +34,15 @@ class Model
     use RelationTrait;
 
     /**
+     * Model::$group
+     *
+     * Database connection group.
+     *
+     * @var string
+     */
+    public $group = 'default';
+
+    /**
      * Model::$db
      *
      * Database connection instance.
@@ -218,7 +227,7 @@ class Model
     {
         // Set database connection
         if (method_exists(database(), 'loadConnection')) {
-            if ($this->db = database()->loadConnection('default')) {
+            if ($this->db = database()->loadConnection($this->group)) {
                 $this->qb = $this->db->getQueryBuilder();
             }
         }

@@ -345,6 +345,7 @@ class Framework extends Kernel
      * Framework::cliHandler
      *
      * @return void
+     * @throws \O2System\Spl\Exceptions\RuntimeException
      * @throws \ReflectionException
      */
     private function cliHandler()
@@ -400,7 +401,8 @@ class Framework extends Kernel
                 if (profiler() !== false) {
                     profiler()->watch('Execute Requested Commander: ' . $commander->getClass());
                 }
-                $requestCommander->execute();
+
+                $requestCommander->__call($commander->getRequestMethod());
 
                 exit(EXIT_SUCCESS);
             }
@@ -545,6 +547,7 @@ class Framework extends Kernel
             if (profiler() !== false) {
                 profiler()->watch('Instantiating Requested Controller: ' . $controller->getClass());
             }
+
             $requestController = $controller->getInstance();
 
             if (method_exists($requestController, '__reconstruct')) {

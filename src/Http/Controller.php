@@ -61,4 +61,17 @@ class Controller extends \O2System\Kernel\Http\Controller
 
         return $get[ $property ];
     }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Controller::view
+     *
+     * @param string $file
+     * @param array  $vars
+     */
+    protected function view($file, array $vars = [])
+    {
+        view($file, $vars);
+    }
 }

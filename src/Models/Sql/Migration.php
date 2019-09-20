@@ -18,10 +18,19 @@ namespace O2System\Framework\Models\Sql;
  * Class Migration
  * @package O2System\Framework\Models\Sql
  */
-class Migration
+abstract class Migration
 {
     /**
-     * Model::$db
+     * Migration::$group
+     *
+     * Database connection group.
+     *
+     * @var string
+     */
+    public $group = 'default';
+
+    /**
+     * Migration::$db
      *
      * Database connection instance.
      *
@@ -30,7 +39,7 @@ class Migration
     public $db;
 
     /**
-     * Model::$qb
+     * Migration::$qb
      *
      * Database query builder instance.
      *
@@ -41,7 +50,7 @@ class Migration
     // ------------------------------------------------------------------------
 
     /**
-     * Model::$forge
+     * Migration::$forge
      *
      * Database forge instance.
      *
@@ -58,7 +67,7 @@ class Migration
     {
         // Set database connection
         if (method_exists(database(), 'loadConnection')) {
-            if ($this->db = database()->loadConnection('default')) {
+            if ($this->db = database()->loadConnection($this->group)) {
                 $this->qb = $this->db->getQueryBuilder();
                 $this->forge = $this->db->getForge();
             }
@@ -87,4 +96,22 @@ class Migration
 
         return false;
     }
+
+    //--------------------------------------------------------------------
+
+    /**
+     * Migration::up
+     *
+     * Perform a migration step.
+     */
+    abstract public function up();
+
+    //--------------------------------------------------------------------
+
+    /**
+     * Migration::down
+     *
+     * Revert a migration step.
+     */
+    abstract public function down();
 }
