@@ -306,7 +306,10 @@ class View implements RenderableInterface
             $viewsDirectories = array_unique($viewsDirectories);
             $viewsDirectories = array_reverse($viewsDirectories);
 
-            $controllerSubDir = services('controller')->getParameter() . DIRECTORY_SEPARATOR;
+            $controllerSubDir = null;
+            if($controller = services('controller')) {
+                $controllerSubDir = services('controller')->getParameter() . DIRECTORY_SEPARATOR;
+            }
 
             foreach ($viewsDirectories as $viewsDirectory) {
                 $filename = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $filename);

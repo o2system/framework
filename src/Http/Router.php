@@ -181,6 +181,8 @@ class Router extends KernelRouter
                             $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
                             $this->setController(new KernelControllerDataStructure($controllerClassName),
                                 $uriSegments);
+
+                            break;
                         }
                     }
 
@@ -216,7 +218,6 @@ class Router extends KernelRouter
                             /**
                              * Try to find from page file
                              */
-
                             foreach (['.phtml', '.vue'] as $pageExtension) {
                                 $pageFilePath = $pagesDir . implode(DIRECTORY_SEPARATOR,
                                         array_map('dash', $uriRoutedSegments)) . $pageExtension;
@@ -268,9 +269,6 @@ class Router extends KernelRouter
 
     // ------------------------------------------------------------------------
 
-    /**
-     * Router::handleExtensionRequest
-     */
     protected function handleExtensionRequest()
     {
         $lastSegment = $this->uri->segments->last();
@@ -298,8 +296,6 @@ class Router extends KernelRouter
         }
     }
 
-    // ------------------------------------------------------------------------
-
     /**
      * Router::handleAppRequest
      *
@@ -307,16 +303,13 @@ class Router extends KernelRouter
      */
     public function handleAppRequest(FrameworkModuleDataStructure $app)
     {
-        foreach(['','modules', 'plugins'] as $additionalSegment) {
-            $segments = [ $this->uri->segments->first() ];
-
-            if( ! empty($additionalSegment)) {
-                array_unshift($segments, $additionalSegment);
-            }
-
-            array_unshift($segments, $app->getParameter());
-
-            if (false !== ($module = modules()->getModule($segments))) {
+        // Find App module
+        foreach(['modules', 'plugins'] as $additionalSegment) {
+            if (false !== ($module = modules()->getModule([
+                    $app->getParameter(),
+                    $additionalSegment,
+                    $this->uri->segments->first(),
+                ]))) {
                 $this->uri->segments->shift();
 
                 $this->registerModule($module);
@@ -509,18 +502,20 @@ class Router extends KernelRouter
                         ->setRequestMethod($matches[ 3 ]),
                     $uriSegments
                 );
-            } elseif (presenter()->theme->use === true) {
-                if ( ! presenter()->partials->offsetExists('content') && $closure !== '') {
-                    presenter()->partials->offsetSet('content', $closure);
-                }
+            } elseif ($theme = presenter()->theme) {
+                if($theme->use === true) {
+                    if ( ! presenter()->partials->offsetExists('content') && $closure !== '') {
+                        presenter()->partials->offsetSet('content', $closure);
+                    }
 
-                if (presenter()->partials->offsetExists('content')) {
-                    profiler()->watch('VIEW_SERVICE_RENDER');
-                    view()->render();
-                    exit(EXIT_SUCCESS);
-                } else {
-                    output()->sendError(204);
-                    exit(EXIT_ERROR);
+                    if (presenter()->partials->offsetExists('content')) {
+                        profiler()->watch('VIEW_SERVICE_RENDER');
+                        view()->render();
+                        exit(EXIT_SUCCESS);
+                    } else {
+                        output()->sendError(204);
+                        exit(EXIT_ERROR);
+                    }
                 }
             } elseif (is_string($closure) && $closure !== '') {
                 if (is_json($closure)) {
