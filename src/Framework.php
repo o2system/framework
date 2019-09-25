@@ -382,7 +382,7 @@ class Framework extends Kernel
                     $this->models->load($modelClassName, 'commander');
                 }
 
-                // Initialize Controller
+                // Initialize Commander
                 if (profiler() !== false) {
                     profiler()->watch('Calling Hooks Service: Pre Commander');
                 }

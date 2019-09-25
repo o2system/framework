@@ -304,12 +304,21 @@ class Router extends KernelRouter
     public function handleAppRequest(FrameworkModuleDataStructure $app)
     {
         // Find App module
-        foreach(['modules', 'plugins'] as $additionalSegment) {
-            if (false !== ($module = modules()->getModule([
+        foreach([null,'modules', 'plugins'] as $additionalSegment) {
+            if(empty($additionalSegment)) {
+                $segments = [
+                    $app->getParameter(),
+                    $this->uri->segments->first(),
+                ];
+            } else {
+                $segments = [
                     $app->getParameter(),
                     $additionalSegment,
                     $this->uri->segments->first(),
-                ]))) {
+                ];
+            }
+
+            if (false !== ($module = modules()->getModule($segments))) {
                 $this->uri->segments->shift();
 
                 $this->registerModule($module);
