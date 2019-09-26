@@ -59,10 +59,11 @@ if ( ! function_exists('domain_url')) {
      */
     function domain_url($segments = null, $query = null, $subdomain = null)
     {
-        $uri = (new \O2System\Kernel\Http\Message\Uri())
+         $uri = (new \O2System\Kernel\Http\Message\Uri())
+            ->withSubDomain(null)
             ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
             ->withQuery('');
-
+        
         if ($uriConfig = config()->offsetGet('uri')) {
             if ( ! empty($uriConfig[ 'base' ])) {
                 $base = (is_https() ? 'https' : 'http') . '://' . str_replace(['http://', 'https://'], '',
