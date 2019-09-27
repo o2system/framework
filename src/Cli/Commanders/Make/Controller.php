@@ -38,6 +38,8 @@ class Controller extends Make
 
     /**
      * Controller::execute
+     *
+     * @throws \ReflectionException
      */
     public function execute()
     {

@@ -100,7 +100,7 @@ class Migration extends Make
             exit(EXIT_ERROR);
         }
 
-        $className = studlycase($this->optionFilename);
+        $className = studlycase(pathinfo($this->optionFilename, PATHINFO_FILENAME));
 
         if(empty($this->optionFileVersion)) {
             $filename = date('YmdHis') . '_' . underscore($this->optionFilename);

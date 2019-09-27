@@ -415,6 +415,7 @@ class Framework extends Kernel
      * Framework::httpHandler
      *
      * @return void
+     * @throws \O2System\Spl\Exceptions\RuntimeException
      * @throws \ReflectionException
      */
     private function httpHandler()

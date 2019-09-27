@@ -10,8 +10,6 @@
  */
 // ------------------------------------------------------------------------
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'Framework.php';
-
 /**
  * O2System Spl Autoload
  *

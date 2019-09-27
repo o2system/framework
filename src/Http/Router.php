@@ -56,11 +56,8 @@ class Router extends KernelRouter
             $uriPath = end($uriPathParts);
 
             if ($uriPath !== '/') {
-                $uriString = $uriPath; // tobe removed
-                $uriSegments = array_filter(explode('/', $uriString)); // tobe removed
-
                 $this->uri = $this->uri->withSegments(new KernelMessageUriSegments(
-                        array_filter(explode('/', $uriString)))
+                        array_filter(explode('/', $uriPath)))
                 );
             }
 
@@ -269,6 +266,9 @@ class Router extends KernelRouter
 
     // ------------------------------------------------------------------------
 
+    /**
+     * Router::handleExtensionRequest
+     */
     protected function handleExtensionRequest()
     {
         $lastSegment = $this->uri->segments->last();
@@ -295,6 +295,8 @@ class Router extends KernelRouter
             $this->uri->segments->push($lastSegment);
         }
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * Router::handleAppRequest
@@ -471,6 +473,7 @@ class Router extends KernelRouter
      * @param KernelActionDataStructure $action
      * @param array                     $uriSegments
      *
+     * @throws \O2System\Spl\Exceptions\RuntimeException
      * @throws \ReflectionException
      */
     protected function parseAction(KernelActionDataStructure $action, array $uriSegments = [])
