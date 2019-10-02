@@ -11,7 +11,7 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Libraries\AccessControl;
+namespace O2System\Framework\Services;
 
 // ------------------------------------------------------------------------
 
@@ -20,10 +20,10 @@ use O2System\Security\Authentication\User\Role;
 use O2System\Spl\Exceptions\RuntimeException;
 
 /**
- * Class User
- * @package O2System\Framework\Libraries\AccessControl
+ * Class AccessControl
+ * @package O2System\Framework\Services
  */
-class User extends \O2System\Security\Authentication\User
+class AccessControl extends \O2System\Security\Authentication\User
 {
     /**
      * User::$app
@@ -170,6 +170,10 @@ class User extends \O2System\Security\Authentication\User
 
                 if ($employee = $user->employee) {
                     $account->store('employee', $employee);
+                }
+
+                if ($member = $user->member) {
+                    $account->store('member', $member);
                 }
 
                 if ($role = $user->role) {

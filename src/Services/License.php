@@ -11,14 +11,14 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Libraries;
+namespace O2System\Framework\Services;
 
 // ------------------------------------------------------------------------
 
 /**
  * Class License
  *
- * @package O2System\Framework\Libraries
+ * @package O2System\Framework\Services
  */
 class License
 {

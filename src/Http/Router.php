@@ -102,6 +102,15 @@ class Router extends KernelRouter
                         $this->handleSegmentsRequest();
                     }
                 }
+            } elseif (false !== ($module = modules()->getModule($this->uri->segments->first()))) {
+                $this->registerModule($module);
+
+                if ($module->getType() === 'APP') {
+                    $this->uri->segments->shift();
+                    $this->handleAppRequest($module);
+                } else {
+                    $this->handleSegmentsRequest();
+                }
             } else {
                 $this->handleAppRequest($app);
             }
