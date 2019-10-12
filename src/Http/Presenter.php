@@ -16,7 +16,7 @@ namespace O2System\Framework\Http;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Containers\Modules\DataStructures\Module\Theme;
-use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\Patterns\Structural\Repository\AbstractRepository;
 use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Traits\Collectors\ConfigCollectorTrait;
 
@@ -128,6 +128,10 @@ class Presenter extends AbstractRepository
      */
     public function setTheme($theme)
     {
+        if($this->theme instanceof Theme) {
+            $this->assets->removeFilePath($this->theme->getRealPath());
+        }
+
         if (is_bool($theme)) {
             $this->theme = false;
         } elseif(($moduleTheme = modules()->top()->getTheme($theme, true)) instanceof Theme) {
@@ -185,6 +189,21 @@ class Presenter extends AbstractRepository
         } else {
             parent::store($offset, $value);
         }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Presenter::include
+     *
+     * @param string $filename
+     * @param array  $vars
+     *
+     * @return string
+     */
+    public function include($filename, array $vars = [])
+    {
+        return view()->load($filename, $vars, true);
     }
 
     // ------------------------------------------------------------------------

@@ -18,8 +18,8 @@ namespace O2System\Framework\Http;
 use O2System\Psr\Http\Message\ServerRequestInterface;
 use O2System\Psr\Http\Server\MiddlewareInterface;
 use O2System\Psr\Http\Server\RequestHandlerInterface;
-use O2System\Psr\Patterns\Structural\Provider\AbstractProvider;
-use O2System\Psr\Patterns\Structural\Provider\ValidationInterface;
+use O2System\Spl\Patterns\Structural\Provider\AbstractProvider;
+use O2System\Spl\Patterns\Structural\Provider\ValidationInterface;
 
 /**
  * Class Middleware

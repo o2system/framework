@@ -15,8 +15,8 @@ namespace O2System\Framework\Http\Presenter;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\Structural\Composite\RenderableInterface;
-use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\Patterns\Structural\Composite\RenderableInterface;
+use O2System\Spl\Patterns\Structural\Repository\AbstractRepository;
 use O2System\Spl\Info\SplClassInfo;
 
 /**

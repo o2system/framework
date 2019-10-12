@@ -38,10 +38,12 @@ class Controller extends Make
 
     /**
      * Controller::execute
+     *
+     * @throws \ReflectionException
      */
     public function execute()
     {
-        parent::execute();
+        $this->__callOptions();
 
         if (empty($this->optionFilename)) {
             output()->write(

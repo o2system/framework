@@ -11,16 +11,16 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Libraries;
+namespace O2System\Framework\Http\Presenter\Assets\Collections;
 
 // ------------------------------------------------------------------------
 
 /**
- * Class License
+ * Class Styles
  *
- * @package O2System\Framework\Libraries
+ * @package O2System\Framework\Http\Presenter\Assets\Collections
  */
-class License
+class Styles extends Abstracts\AbstractCollection
 {
 
 }

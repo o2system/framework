@@ -15,14 +15,14 @@ namespace O2System\Framework\Http;
 
 // ------------------------------------------------------------------------
 
-use O2System\Parser\Drivers;
+use O2System\Parser\Compiler;
 
 /**
  * Class Parser
  *
  * @package O2System\Framework\Http
  */
-class Parser extends Drivers
+class Parser extends Compiler
 {
     /**
      * Parser::__construct

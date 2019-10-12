@@ -15,8 +15,8 @@ namespace O2System\Framework\Containers;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Container\ContainerExceptionInterface;
-use O2System\Psr\Container\ContainerInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 use O2System\Psr\NotFoundExceptionInterface;
 use Traversable;
 

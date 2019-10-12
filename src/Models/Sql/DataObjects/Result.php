@@ -18,21 +18,28 @@ namespace O2System\Framework\Models\Sql\DataObjects;
 use O2System\Database\DataObjects\Result\Info;
 use O2System\Framework\Libraries\Ui\Components\Pagination;
 use O2System\Framework\Models\Sql\Model;
-use O2System\Spl\Iterators\ArrayIterator;
+use O2System\Spl\Info\SplClassInfo;
 
 /**
  * Class Result
  *
  * @package O2System\Database\DataStructures
  */
-class Result extends ArrayIterator
+class Result extends \O2System\Database\DataObjects\Result
 {
+    /**
+     * Result::$model
+     *
+     * @var Model
+     */
+    protected $model;
+
     /**
      * Result::$info
      *
      * @var Info
      */
-    public $info;
+    protected $info;
 
     // ------------------------------------------------------------------------
 
@@ -44,57 +51,44 @@ class Result extends ArrayIterator
      */
     public function __construct(\O2System\Database\DataObjects\Result $result, Model &$model)
     {
-        if ($result->count() > 0) {
-            $ormResult = new \SplFixedArray($result->count());
+        $this->model = new SplClassInfo($model);
 
-            foreach ($result as $key => $row) {
-                $ormResult[ $key ] = new Result\Row($row, $model);
-            }
-
-            parent::__construct($ormResult->toArray());
-
-            unset($ormResult);
+        if ( ! models()->has($this->model->getClass())) {
+            models()->add($model, $this->model->getClass());
         }
-    }
 
-    // ------------------------------------------------------------------------
-    
-    /**
-     * Result::setInfo
-     *
-     * @param \O2System\Database\DataObjects\Result\Info $info
-     *
-     * @return static
-     */
-    public function setInfo(Info $info)
-    {
-        $this->info = $info;
+        parent::__construct($result->toArray());
 
-        return $this;
+        $this->info = $result->getInfo();
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Result::getInfo
-     * 
-     * @return \O2System\Database\DataObjects\Result\Info
+     * Result::offsetSet
+     *
+     * @param mixed $offset
+     * @param mixed $row
      */
-    public function getInfo()
+    public function offsetSet($offset, $row)
     {
-        return $this->info;
+        if($model = models($this->model->getClass())) {
+            $row = new Result\Row($row, $model);
+        }
+
+        parent::offsetSet($offset, $row);
     }
 
     // ------------------------------------------------------------------------
 
     /**
      * Result::pagination
-     * 
+     *
      * @return \O2System\Framework\Libraries\Ui\Components\Pagination
      */
     public function pagination()
     {
-        $rows = $this->info->getTotal()->rows;
+        $rows = $this->info->num_rows;
         $rows = empty($rows) ? 0 : $rows;
 
         $limit = input()->get('limit');

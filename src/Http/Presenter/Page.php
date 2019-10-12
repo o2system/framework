@@ -18,7 +18,7 @@ namespace O2System\Framework\Http\Presenter;
 use O2System\Framework\Libraries\Ui\Components\Breadcrumb;
 use O2System\Framework\Libraries\Ui\Contents\Link;
 use O2System\Kernel\Http\Message\Uri;
-use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\Patterns\Structural\Repository\AbstractRepository;
 use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Info\SplFileInfo;
 
@@ -35,6 +35,20 @@ class Page extends AbstractRepository
      * @var \O2System\Spl\Info\SplFileInfo
      */
     public $file;
+
+    /**
+     * Page::$uri
+     *
+     * @var Uri
+     */
+    public $uri;
+
+    /**
+     * Page::$breadcrumb
+     *
+     * @var Breadcrumb
+     */
+    public $breadcrumb;
 
     /**
      * Page Variables
@@ -58,13 +72,11 @@ class Page extends AbstractRepository
     public function __construct()
     {
         // Create Page breadcrumbs
-        $breadcrumb = new Breadcrumb();
-        $breadcrumb->createList(new Link(language()->getLine('HOME'), base_url()));
-        $this->store('breadcrumb', $breadcrumb);
+        $this->breadcrumb = new Breadcrumb();
+        $this->breadcrumb->createList(new Link(language()->getLine('HOME'), base_url()));
 
         // Store Page Uri
-        $uri = new Uri();
-        $this->store('uri', $uri);
+        $this->uri = new Uri();
     }
 
     // ------------------------------------------------------------------------
@@ -153,14 +165,14 @@ class Page extends AbstractRepository
                     )
             )) {
                 $properties = file_get_contents($propertiesFilePath);
-                $properties = json_decode($properties, true);
+                $properties = json_decode($properties);
 
-                if (isset($properties[ 'vars' ])) {
-                    $this->vars = $properties[ 'vars' ];
+                if (isset($properties->vars)) {
+                    $this->vars = get_object_vars($properties->vars);
                 }
 
-                if (isset($properties[ 'presets' ])) {
-                    $this->presets = new SplArrayObject($properties[ 'presets' ]);
+                if (isset($properties->presets)) {
+                    $this->presets = new SplArrayObject(get_object_vars($properties->presets));
                 }
             }
         }

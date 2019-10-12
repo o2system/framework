@@ -526,6 +526,7 @@ class Restful extends Controller
                         'data' => $data,
                     ]);
                 } else {
+
                     $this->sendError(501, 'Failed update request');
                 }
             } else {

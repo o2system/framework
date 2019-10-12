@@ -15,7 +15,7 @@ namespace O2System\Framework\DataStructures;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Metadata

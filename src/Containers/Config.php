@@ -16,6 +16,7 @@ namespace O2System\Framework\Containers;
 // ------------------------------------------------------------------------
 
 use O2System\Spl\DataStructures\SplArrayObject;
+use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
 
 /**
  * Class Config
@@ -24,6 +25,29 @@ use O2System\Spl\DataStructures\SplArrayObject;
  */
 class Config extends Environment
 {
+    use FilePathCollectorTrait;
+
+    /**
+     * Config::$loaded
+     *
+     * @var array
+     */
+    protected $loaded = [];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Config::__construct
+     */
+    public function __construct()
+    {
+        $this->setFileDirName('Config');
+        $this->addFilePath(PATH_FRAMEWORK);
+        $this->addFilePath(PATH_APP);
+    }
+
+    // ------------------------------------------------------------------------
+
     /**
      * Config::loadFile
      *
@@ -40,28 +64,23 @@ class Config extends Environment
         $configFile = str_replace($basename, $filename, $offset);
         $offset = camelcase($basename);
 
-        $configDirs = [
-            PATH_FRAMEWORK . 'Config' . DIRECTORY_SEPARATOR,
-            PATH_APP . 'Config' . DIRECTORY_SEPARATOR,
-        ];
-
-        if(null !== o2system()->modules) {
-            $configDirs = modules()->getDirs('Config', true);
-        }
-
-        foreach ($configDirs as $configDir) {
+        foreach ($this->filePaths as $configFilePath) {
             if (is_file(
-                $filePath = $configDir . ucfirst(
+                $filePath = $configFilePath . ucfirst(
                         strtolower(ENVIRONMENT)
                     ) . DIRECTORY_SEPARATOR . $configFile . '.php'
             )) {
                 include($filePath);
-            } elseif (is_file($filePath = $configDir . DIRECTORY_SEPARATOR . $configFile . '.php')) {
+            } elseif (is_file($filePath = $configFilePath . DIRECTORY_SEPARATOR . $configFile . '.php')) {
                 include($filePath);
             }
         }
 
         if (isset($$offset)) {
+            if ( ! in_array($offset, $this->loaded)) {
+                array_push($this->loaded, $offset);
+            }
+
             $this->addItem($offset, $$offset);
 
             unset($$offset);
@@ -128,5 +147,19 @@ class Config extends Environment
     public function setItem($offset, $value)
     {
         $this->offsetSet($offset, $value);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Config::reload
+     */
+    public function reload()
+    {
+        if(count($this->loaded)) {
+            foreach($this->loaded as $filename) {
+                $this->loadFile($filename);
+            }
+        }
     }
 }

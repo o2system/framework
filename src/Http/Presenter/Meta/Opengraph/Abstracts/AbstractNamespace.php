@@ -16,7 +16,7 @@ namespace O2System\Framework\Http\Presenter\Meta\Opengraph\Abstracts;
 // ------------------------------------------------------------------------
 
 use O2System\Html\Element;
-use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class AbstractNamespace

@@ -23,6 +23,15 @@ namespace O2System\Framework\Http;
 class Controller extends \O2System\Kernel\Http\Controller
 {
     /**
+     * Controller::$inherited
+     *
+     * Controller inherited flag.
+     *
+     * @var bool
+     */
+    static public $inherited = false;
+
+    /**
      * Controller::__get
      *
      * Magic method __get.
@@ -51,5 +60,18 @@ class Controller extends \O2System\Kernel\Http\Controller
         }
 
         return $get[ $property ];
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Controller::view
+     *
+     * @param string $file
+     * @param array  $vars
+     */
+    protected function view($file, array $vars = [])
+    {
+        view($file, $vars);
     }
 }

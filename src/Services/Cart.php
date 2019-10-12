@@ -11,16 +11,16 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Libraries;
+namespace O2System\Framework\Services;
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Cart
  *
- * @package O2System\Framework\Libraries
+ * @package O2System\Framework\Services
  */
 class Cart extends AbstractRepository
 {

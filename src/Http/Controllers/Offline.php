@@ -23,27 +23,34 @@ use O2System\Framework\Http\Controller;
 class Offline extends Controller
 {
     /**
+     * Offline::$inherited
+     *
+     * Controller inherited flag.
+     *
+     * @var bool
+     */
+    static public $inherited = true;
+
+    // ------------------------------------------------------------------------
+
+    /**
      * Offline::index
      */
     public function index()
     {
-        $viewFilePath = 'offline';
+        if (presenter()->theme) {
+            if (presenter()->theme->hasLayout('offline')) {
+                presenter()->theme->setLayout('offline');
+            }
 
-        if (is_dir(modules()->top()->getDir('Views/errors'))) {
-            $viewFilePath = 'errors/' . $viewFilePath;
-        }
-
-        if (presenter()->theme->use === true) {
-            presenter()->theme->setLayout('offline');
-
-            if (false !== ($layout = presenter()->theme->active->getLayout())) {
+            if (false !== ($layout = presenter()->theme->getLayout())) {
                 if ($layout->getFilename() === 'theme') {
-                    presenter()->theme->set(false);
+                    presenter()->setTheme(false);
                 }
             }
         }
 
-        view($viewFilePath, [
+        view('offline', [
             'title' => language('OFFLINE_TITLE'),
             'message' => language('OFFLINE_MESSAGE')
         ]);

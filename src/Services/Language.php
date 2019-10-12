@@ -18,7 +18,7 @@ namespace O2System\Framework\Services;
 use O2System\Cache\Item;
 use O2System\Framework\DataStructures;
 use O2System\Kernel\Cli\Writers\Format;
-use O2System\Psr\Cache\CacheItemPoolInterface;
+use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * Class Language
@@ -56,7 +56,7 @@ class Language extends \O2System\Kernel\Services\Language
      * Load language registry.
      *
      * @return void
-     * @throws \O2System\Psr\Cache\InvalidArgumentException
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function loadRegistry()
     {
@@ -92,9 +92,22 @@ class Language extends \O2System\Kernel\Services\Language
     public function fetchRegistry()
     {
         $registry = [];
-        $directory = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator(PATH_ROOT)
-        );
+
+        $directory = new \RecursiveIteratorIterator(new \RecursiveCallbackFilterIterator(
+            new \RecursiveDirectoryIterator(PATH_ROOT,
+                \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS),
+            function ($current, $key, $iterator) {
+                if ($current->isDir()) {
+                    // exclude build directory
+                    if (in_array($current->getFilename(), [
+                        'node_modules'
+                    ])) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }));
 
         $packagesIterator = new \RegexIterator($directory, '/^.+\.json$/i', \RecursiveRegexIterator::GET_MATCH);
 
@@ -102,6 +115,8 @@ class Language extends \O2System\Kernel\Services\Language
             foreach ($packageJsonFiles as $packageJsonFile) {
                 $packageJsonFile = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $packageJsonFile);
                 $packageJsonFileInfo = pathinfo($packageJsonFile);
+
+                $files[] = $packageJsonFileInfo;
 
                 if ($packageJsonFileInfo[ 'filename' ] === 'language') {
                     if (is_cli()) {
@@ -267,7 +282,7 @@ class Language extends \O2System\Kernel\Services\Language
      * Flush language registry.
      *
      * @return void
-     * @throws \O2System\Psr\Cache\InvalidArgumentException
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function flushRegistry()
     {

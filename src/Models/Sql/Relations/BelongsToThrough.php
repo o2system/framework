@@ -53,6 +53,6 @@ class BelongsToThrough extends Sql\Relations\Abstracts\AbstractRelation
             }
         }
 
-        return false;
+        return new Sql\DataObjects\Result\Row();
     }
 }

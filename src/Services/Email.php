@@ -10,7 +10,7 @@
  */
 
 
-namespace O2System\Framework\Libraries;
+namespace O2System\Framework\Services;
 
 
 use O2System\Email\DataStructures\Config;
@@ -21,7 +21,7 @@ use O2System\Spl\Traits\Collectors\ErrorCollectorTrait;
 
 /**
  * Class Email
- * @package O2System\Framework\Libraries
+ * @package O2System\Framework\Services
  */
 class Email extends Message
 {

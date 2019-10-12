@@ -18,9 +18,9 @@ namespace O2System\Framework\Services;
 use O2System\Cache\Abstracts\AbstractItemPool;
 use O2System\Cache\Adapters;
 use O2System\Cache\Item;
-use O2System\Psr\Cache\CacheItemInterface;
-use O2System\Psr\Cache\CacheItemPoolInterface;
-use O2System\Psr\SimpleCache\CacheInterface;
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
+use Psr\SimpleCache\CacheInterface;
 use O2System\Spl\Iterators\ArrayIterator;
 
 /**
@@ -171,7 +171,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
      *
      * @return bool True if the item was successfully removed. False if there was an error.
      *
-     * @throws \O2System\Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      *   MUST be thrown if the $key string is not a legal value.
      */
     public function delete($key)
@@ -214,7 +214,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
      * @return iterable A list of key => value pairs. Cache keys that do not exist or are stale will have $default as
      *                  value.
      *
-     * @throws \O2System\Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      *   MUST be thrown if $keys is neither an array nor a Traversable,
      *   or if any of the $keys are not a legal value.
      */
@@ -243,7 +243,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
      *
      * @return mixed The value of the item from the cache, or $default in case of cache miss.
      *
-     * @throws \O2System\Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      * @throws \Exception
      *   MUST be thrown if the $key string is not a legal value.
      */
@@ -328,7 +328,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
      *
      * @return bool True on success and false on failure.
      *
-     * @throws \O2System\Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      *   MUST be thrown if $values is neither an array nor a Traversable,
      *   or if any of the $values are not a legal value.
      */
@@ -360,7 +360,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
      *
      * @return bool True on success and false on failure.
      *
-     * @throws \O2System\Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      * @throws \Exception
      *   MUST be thrown if the $key string is not a legal value.
      */
@@ -398,7 +398,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
      *
      * @return bool True if the items were successfully removed. False if there was an error.
      *
-     * @throws \O2System\Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      *   MUST be thrown if $keys is neither an array nor a Traversable,
      *   or if any of the $keys are not a legal value.
      */
@@ -445,7 +445,7 @@ class Cache extends Adapters implements CacheItemPoolInterface, CacheInterface
      *
      * @return bool
      *
-     * @throws \O2System\Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      *   MUST be thrown if the $key string is not a legal value.
      */
     public function has($key)

@@ -117,7 +117,7 @@ class Serve extends Commander
             $_GET[ 'port' ] = 8000;
         }
 
-        parent::execute();
+        $this->__callOptions();
 
         output()->write(
             (new Format())

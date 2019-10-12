@@ -19,7 +19,7 @@ use O2System\Framework\Containers\Modules\DataStructures\Module\Theme;
 use O2System\Framework\Http\Presenter\Meta;
 use O2System\Gear\Toolbar;
 use O2System\Html;
-use O2System\Psr\Patterns\Structural\Composite\RenderableInterface;
+use O2System\Spl\Patterns\Structural\Composite\RenderableInterface;
 use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Exceptions\ErrorException;
 use O2System\Spl\Traits\Collectors\FileExtensionCollectorTrait;
@@ -306,7 +306,10 @@ class View implements RenderableInterface
             $viewsDirectories = array_unique($viewsDirectories);
             $viewsDirectories = array_reverse($viewsDirectories);
 
-            $controllerSubDir = services('controller')->getParameter() . DIRECTORY_SEPARATOR;
+            $controllerSubDir = null;
+            if($controller = services('controller')) {
+                $controllerSubDir = services('controller')->getParameter() . DIRECTORY_SEPARATOR;
+            }
 
             foreach ($viewsDirectories as $viewsDirectory) {
                 $filename = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $filename);
@@ -354,6 +357,19 @@ class View implements RenderableInterface
      */
     public function render(array $options = [])
     {
+        if(input()->server('CONTENT_TYPE') == 'application/json' or input()->server('CONTENT_TYPE') == 'application/xml') {
+            $result = presenter()->getArrayCopy();
+            $removes = ['meta', 'page', 'assets', 'partials', 'widgets', 'theme', 'config', 'language', 'presenter', 'session', 'input'];
+
+            foreach($removes as $key) {
+                unset($result[$key]);
+            }
+
+            output()->send($result);
+
+            exit(EXIT_SUCCESS);
+        }
+
         if (profiler() !== false) {
             profiler()->watch('Starting View Rendering');
         }

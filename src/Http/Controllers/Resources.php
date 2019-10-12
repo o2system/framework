@@ -27,6 +27,15 @@ use O2System\Spl\Info\SplFileInfo;
 class Resources extends Controller
 {
     /**
+     * Resources::$inherited
+     *
+     * Controller inherited flag.
+     *
+     * @var bool
+     */
+    static public $inherited = true;
+
+    /**
      * Resources::$directoryPath
      *
      * @var string
@@ -64,7 +73,7 @@ class Resources extends Controller
      */
     public function route()
     {
-        $segments = server_request()->getUri()->getSegments()->getParts();
+        $segments = server_request()->getUri()->segments->getArrayCopy();
         array_shift($segments);
 
         $download = false;

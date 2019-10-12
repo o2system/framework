@@ -15,7 +15,7 @@ namespace O2System\Framework\Containers\Modules\DataStructures\Module\Theme\Layo
 
 // ------------------------------------------------------------------------
 
-use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\Patterns\Structural\Repository\AbstractRepository;
 use O2System\Spl\Info\SplFileInfo;
 
 /**

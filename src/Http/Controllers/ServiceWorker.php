@@ -24,6 +24,17 @@ use O2System\Framework\Http\Controller;
 class ServiceWorker extends Controller
 {
     /**
+     * ServiceWorker::$inherited
+     *
+     * Controller inherited flag.
+     *
+     * @var bool
+     */
+    static public $inherited = true;
+
+    // ------------------------------------------------------------------------
+
+    /**
      * ServiceWorker::index
      */
     public function index()

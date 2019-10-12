@@ -20,9 +20,9 @@ use O2System\Framework\Containers\Modules\DataStructures;
 use O2System\Framework\Services\Hooks;
 use O2System\Kernel\Cli\Writers\Format;
 use O2System\Kernel\Http\Router\Addresses;
-use O2System\Psr\Cache\CacheItemPoolInterface;
 use O2System\Spl\DataStructures\SplArrayStack;
 use O2System\Spl\Info\SplNamespaceInfo;
+use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * Class Modules
@@ -61,6 +61,20 @@ class Modules extends SplArrayStack
      */
     private $loaded = [];
 
+    /**
+     * Modules::$activeApp
+     *
+     * @var \O2System\Framework\Containers\Modules\DataStructures\Module
+     */
+    private $activeApp;
+
+    /**
+     * Modules::$activeModule
+     *
+     * @var \O2System\Framework\Containers\Modules\DataStructures\Module
+     */
+    private $activeModule;
+
     // ------------------------------------------------------------------------
 
     /**
@@ -88,6 +102,7 @@ class Modules extends SplArrayStack
         $app = (new DataStructures\Module(PATH_APP))
             ->setType('APP')
             ->setNamespace('App\\');
+        $this->activeApp = $app;
 
         $this->autoload($app);
         parent::push($app);
@@ -357,9 +372,17 @@ class Modules extends SplArrayStack
     public function push($module)
     {
         if ( ! in_array($module->getNamespace(), ['O2System\Kernel\\', 'O2System\Framework\\', 'App\\'])) {
-            $this->autoload($module);
+            if($module instanceof DataStructures\Module) {
+                $this->autoload($module);
 
-            parent::push($module);
+                parent::push($module);
+
+                if($module->getType() === 'APP') {
+                    $this->setActiveApp($module);
+                } elseif(in_array($module->getType(), ['MODULE', 'COMPONENT'])) {
+                    $this->setActiveModule($module);
+                }
+            }
         }
     }
 
@@ -371,7 +394,7 @@ class Modules extends SplArrayStack
      * Load modules registry
      *
      * @return void
-     * @throws \O2System\Psr\Cache\InvalidArgumentException
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function loadRegistry()
     {
@@ -472,8 +495,6 @@ class Modules extends SplArrayStack
                                 PATH_RESOURCES,
                                 PATH_APP,
                                 $packageJsonFileInfo[ 'basename' ],
-                                ucfirst($modularType) . DIRECTORY_SEPARATOR,
-                                ucfirst($modularType . 's') . DIRECTORY_SEPARATOR, // manual plural
                             ],
                             '',
                             $packageJsonFile
@@ -485,6 +506,25 @@ class Modules extends SplArrayStack
                 $moduleSegments = array_map(function ($string) {
                     return dash(snakecase($string));
                 }, $moduleSegments);
+
+                $moduleParentSegments = [];
+
+                foreach ([
+                             'apps',
+                             'modules',
+                             'components',
+                             'plugins',
+                         ] as $moduleType
+                ) {
+                    if (false !== ($segmentKey = array_search($modularType, $moduleSegments))) {
+                        $moduleParentSegments = array_slice($moduleSegments, 0, $segmentKey);
+
+                        unset($moduleSegments[ $segmentKey ]);
+                        break;
+                    }
+                }
+
+                $moduleSegments = array_values($moduleSegments);
 
                 $moduleNamespace = prepare_namespace(
                     str_replace(
@@ -498,14 +538,6 @@ class Modules extends SplArrayStack
                 if (isset($packageJsonMetadata[ 'namespace' ])) {
                     $moduleNamespace = $packageJsonMetadata[ 'namespace' ];
                     unset($packageJsonMetadata[ 'namespace' ]);
-                }
-
-                $moduleParentSegments = [];
-                if (false !== ($moduleTypeSegmentKey = array_search($modularType, $moduleSegments))) {
-                    $moduleParentSegments = array_slice($moduleSegments, 0, $moduleTypeSegmentKey);
-
-                    $moduleParentSegments = array_diff($moduleParentSegments, $this->types);
-                    $moduleSegments = array_diff($moduleSegments, $this->types);
                 }
 
                 $registryKey = implode('/', $moduleSegments);
@@ -538,7 +570,7 @@ class Modules extends SplArrayStack
             }
         }
 
-        ksort($registry);
+        //ksort($registry);
 
         return $registry;
     }
@@ -653,7 +685,7 @@ class Modules extends SplArrayStack
      * Flush modules registry.
      *
      * @return void
-     * @throws \O2System\Psr\Cache\InvalidArgumentException
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function flushRegistry()
     {
@@ -807,7 +839,6 @@ class Modules extends SplArrayStack
         return $reverse === true ? array_reverse($dirs) : $dirs;
     }
 
-
     // ------------------------------------------------------------------------
 
     /**
@@ -839,5 +870,61 @@ class Modules extends SplArrayStack
         }
 
         return $reverse === true ? array_reverse($dirs) : $dirs;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::setActiveApp
+     *
+     * @param \O2System\Framework\Containers\Modules\DataStructures\Module $app
+     *
+     * @return static
+     */
+    public function setActiveApp(DataStructures\Module $app)
+    {
+        $this->activeApp = $app;
+
+        return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::setActiveApp
+     *
+     * @return \O2System\Framework\Containers\Modules\DataStructures\Module
+     */
+    public function getActiveApp()
+    {
+        return $this->activeApp;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::setActiveModule
+     *
+     * @param \O2System\Framework\Containers\Modules\DataStructures\Module $module
+     *
+     * @return static
+     */
+    public function setActiveModule(DataStructures\Module $module)
+    {
+        $this->activeModule = $module;
+
+        return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Modules::setActiveModule
+     *
+     * @return \O2System\Framework\Containers\Modules\DataStructures\Module
+     */
+    public function getActiveModule()
+    {
+        return $this->activeModule;
     }
 }

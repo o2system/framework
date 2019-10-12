@@ -27,6 +27,15 @@ use O2System\Image\Manipulation;
 class Images extends Controller
 {
     /**
+     * Images::$inherited
+     *
+     * Controller inherited flag.
+     *
+     * @var bool
+     */
+    static public $inherited = true;
+
+    /**
      * Images::$storagePath
      *
      * @var string
@@ -103,8 +112,13 @@ class Images extends Controller
      */
     public function route()
     {
-        $segments = server_request()->getUri()->getSegments()->getParts();
-        array_shift($segments);
+        $segments = server_request()->getUri()->segments->getArrayCopy();
+
+        if (false !== ($key = array_search('images', $segments))) {
+            $segments = array_slice($segments, $key);
+        } else {
+            array_shift($segments);
+        }
 
         $this->imageFilePath = $this->imageNotFoundFilename;
 

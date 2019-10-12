@@ -93,8 +93,6 @@ class Make extends Commander
      * Make::optionPath
      *
      * @param string $path
-     *
-     * @return static
      */
     public function optionPath($path)
     {
@@ -107,8 +105,6 @@ class Make extends Commander
         }
 
         $this->optionPath = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-
-        return $this;
     }
 
     // ------------------------------------------------------------------------
@@ -148,5 +144,20 @@ class Make extends Commander
     public function optionNamespace($namespace)
     {
         $this->namespace = $namespace;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Make::getPhpTemplateFile
+     *
+     * @param string $filename
+     */
+    public function getPhpTemplateFile($filename)
+    {
+        $directories = [
+            PATH_FRAMEWORK . 'Config' . DIRECTORY_SEPARATOR . 'PhpTemplateFiles',
+        ];
+
     }
 }

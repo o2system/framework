@@ -18,7 +18,7 @@ namespace O2System\Framework\Models\Files;
 use O2System\Filesystem\Files\JsonFile;
 use O2System\Filesystem\Files\XmlFile;
 use O2System\Framework\Models\Files\Traits\FinderTrait;
-use O2System\Psr\Patterns\Structural\Repository\AbstractRepository;
+use O2System\Spl\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Model

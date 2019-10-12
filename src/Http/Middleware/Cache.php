@@ -34,12 +34,12 @@ class Cache implements RequestHandlerInterface
      *
      * @param \O2System\Psr\Http\Message\ServerRequestInterface $request
      *
-     * @throws \O2System\Psr\Cache\InvalidArgumentException
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function handle(ServerRequestInterface $request)
     {
         // Try to get from cache
-        $cacheKey = 'o2output_' . underscore(server_request()->getUri()->getSegments()->getString());
+        $cacheKey = 'o2output_' . underscore(server_request()->getUri()->segments->__toString());
 
         $cacheHandle = cache()->getItemPool('default');
 
@@ -47,7 +47,7 @@ class Cache implements RequestHandlerInterface
             $cacheHandle = cache()->getItemPool('output');
         }
 
-        if ($cacheHandle instanceof \O2System\Psr\Cache\CacheItemPoolInterface) {
+        if ($cacheHandle instanceof \Psr\Cache\CacheItemPoolInterface) {
             if ($cacheHandle->hasItem($cacheKey)) {
                 output()
                     ->setContentType('text/html')

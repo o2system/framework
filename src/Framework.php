@@ -23,6 +23,9 @@ namespace O2System;
  * Different environments will require different levels of error reporting.
  * By default development will show errors but testing and live will hide them.
  */
+
+use O2System\Kernel\Http\Message\Uri;
+
 switch (strtoupper(ENVIRONMENT)) {
     case 'DEVELOPMENT':
         error_reporting(-1);
@@ -130,6 +133,18 @@ if ( ! defined('PATH_RESOURCES')) {
     define('PATH_RESOURCES', PATH_ROOT . DIR_RESOURCES . DIRECTORY_SEPARATOR);
 }
 
+/*
+ *---------------------------------------------------------------
+ * DATABASE PATH
+ *---------------------------------------------------------------
+ *
+ * RealPath to writable database folder.
+ *
+ * WITH TRAILING SLASH!
+ */
+if ( ! defined('PATH_DATABASE')) {
+    define('PATH_DATABASE', PATH_ROOT . DIR_DATABASE . DIRECTORY_SEPARATOR);
+}
 
 /*
  *---------------------------------------------------------------
@@ -207,6 +222,14 @@ class Framework extends Kernel
         parent::__construct();
 
         if (profiler() !== false) {
+            profiler()->watch('Starting O2System Framework Hooks Pre System');
+        }
+
+        $this->services->load(Framework\Services\Hooks::class, 'hooks');
+
+        hooks()->callEvent(Framework\Services\Hooks::PRE_SYSTEM);
+
+        if (profiler() !== false) {
             profiler()->watch('Starting O2System Framework');
         }
 
@@ -218,7 +241,6 @@ class Framework extends Kernel
         }
 
         $services = [
-            'Services\Hooks'    => 'hooks',
             'Services\Shutdown' => 'shutdown',
             'Services\Logger'   => 'logger',
             'Services\Loader'   => 'loader',
@@ -232,7 +254,6 @@ class Framework extends Kernel
         if (profiler() !== false) {
             profiler()->watch('Starting Config Container');
         }
-
         $this->config = new Framework\Containers\Config();
 
         // Instantiate Globals Container
@@ -251,7 +272,6 @@ class Framework extends Kernel
         if (profiler() !== false) {
             profiler()->watch('Starting Models Container');
         }
-
         $this->models = new Framework\Containers\Models();
 
         // Instantiate Modules Container
@@ -281,11 +301,6 @@ class Framework extends Kernel
             }
             $this->modules->loadRegistry();
         }
-
-        if (profiler() !== false) {
-            profiler()->watch('Starting O2System Framework Hooks Pre System');
-        }
-        hooks()->callEvent(Framework\Services\Hooks::PRE_SYSTEM);
     }
 
     // ------------------------------------------------------------------------
@@ -330,6 +345,7 @@ class Framework extends Kernel
      * Framework::cliHandler
      *
      * @return void
+     * @throws \O2System\Spl\Exceptions\RuntimeException
      * @throws \ReflectionException
      */
     private function cliHandler()
@@ -340,7 +356,7 @@ class Framework extends Kernel
         if (profiler() !== false) {
             profiler()->watch('Parse Router Request');
         }
-        router()->parseRequest();
+        router()->handle();
 
         if ($commander = router()->getCommander()) {
             if ($commander instanceof Kernel\Cli\Router\DataStructures\Commander) {
@@ -366,7 +382,7 @@ class Framework extends Kernel
                     $this->models->load($modelClassName, 'commander');
                 }
 
-                // Initialize Controller
+                // Initialize Commander
                 if (profiler() !== false) {
                     profiler()->watch('Calling Hooks Service: Pre Commander');
                 }
@@ -385,7 +401,8 @@ class Framework extends Kernel
                 if (profiler() !== false) {
                     profiler()->watch('Execute Requested Commander: ' . $commander->getClass());
                 }
-                $requestCommander->execute();
+
+                $requestCommander->__call($commander->getRequestMethod());
 
                 exit(EXIT_SUCCESS);
             }
@@ -398,10 +415,33 @@ class Framework extends Kernel
      * Framework::httpHandler
      *
      * @return void
+     * @throws \O2System\Spl\Exceptions\RuntimeException
      * @throws \ReflectionException
      */
     private function httpHandler()
     {
+        if (config()->loadFile('view') === true) {
+            // Instantiate Http UserAgent Service
+            $this->services->load(Framework\Http\UserAgent::class, 'userAgent');
+
+            // Instantiate Http View Service
+            $this->services->load(Framework\Http\Parser::class);
+
+            // Instantiate Http View Service
+            $this->services->load(Framework\Http\View::class);
+
+            // Instantiate Http Presenter Service
+            $this->services->load(Framework\Http\Presenter::class);
+        }
+
+        // Instantiate Http Router Service
+        $this->services->load(Framework\Http\Router::class);
+
+        if (profiler() !== false) {
+            profiler()->watch('Parse Router Request');
+        }
+        router()->handle(new Uri());
+
         if (config()->loadFile('session') === true) {
 
             // Instantiate Session Service
@@ -431,30 +471,8 @@ class Framework extends Kernel
             }
         }
 
-        if (config()->loadFile('view') === true) {
-            // Instantiate Http UserAgent Service
-            $this->services->load(Framework\Http\UserAgent::class, 'userAgent');
-
-            // Instantiate Http View Service
-            $this->services->load(Framework\Http\Parser::class);
-
-            // Instantiate Http View Service
-            $this->services->load(Framework\Http\View::class);
-
-            // Instantiate Http Presenter Service
-            $this->services->load(Framework\Http\Presenter::class);
-        }
-
         // Instantiate Http Middleware Service
         $this->services->load(Framework\Http\Middleware::class);
-
-        // Instantiate Http Router Service
-        $this->services->load(Framework\Http\Router::class);
-
-        if (profiler() !== false) {
-            profiler()->watch('Parse Router Request');
-        }
-        router()->parseRequest();
 
         if (profiler() !== false) {
             profiler()->watch('Running Middleware Service: Pre Controller');
@@ -530,6 +548,7 @@ class Framework extends Kernel
             if (profiler() !== false) {
                 profiler()->watch('Instantiating Requested Controller: ' . $controller->getClass());
             }
+
             $requestController = $controller->getInstance();
 
             if (method_exists($requestController, '__reconstruct')) {
