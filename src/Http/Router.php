@@ -49,7 +49,7 @@ class Router extends KernelRouter
             $this->handleExtensionRequest();
         } else {
             $uriPath = urldecode(
-                parse_url($_SERVER[ 'REQUEST_URI' ], PHP_URL_PATH)
+                parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
             );
 
             $uriPathParts = explode('public/', $uriPath);
@@ -102,6 +102,8 @@ class Router extends KernelRouter
                         $this->handleSegmentsRequest();
                     }
                 }
+            } elseif ($app instanceof FrameworkModuleDataStructure) {
+                $this->handleAppRequest($app);
             } elseif (false !== ($module = modules()->getModule($this->uri->segments->first()))) {
                 $this->registerModule($module);
 
@@ -111,45 +113,55 @@ class Router extends KernelRouter
                 } else {
                     $this->handleSegmentsRequest();
                 }
-            } else {
-                $this->handleAppRequest($app);
             }
         }
 
-        // Try to translate from uri string
-        if (false !== ($action = $this->addresses->getTranslation($this->uri->segments->__toString()))) {
-            if ( ! $action->isValidHttpMethod(input()->server('REQUEST_METHOD')) && ! $action->isAnyHttpMethod()) {
-                output()->sendError(405);
-            } else {
-                // Checks if action closure is an array
-                if (is_array($closureSegments = $action->getClosure())) {
-                    $this->uri->segments->exchangeArray($closureSegments);
+        if (!in_array($this->uri->segments->first(), [
+            'error',
+            'images',
+            'maintenance',
+            'manifest',
+            'offline',
+            'pages',
+            'resources',
+            'service-worker',
+            'storage'
+        ])) {
+            // Try to translate from uri string
+            if (false !== ($action = $this->addresses->getTranslation($this->uri->segments->__toString()))) {
+                if (!$action->isValidHttpMethod(input()->server('REQUEST_METHOD')) && !$action->isAnyHttpMethod()) {
+                    output()->sendError(405);
+                } else {
+                    // Checks if action closure is an array
+                    if (is_array($closureSegments = $action->getClosure())) {
+                        $this->uri->segments->exchangeArray($closureSegments);
 
-                    if (false !== ($module = modules()->getModule($this->uri->segments->first()))) {
-                        $this->registerModule($module);
+                        if (false !== ($module = modules()->getModule($this->uri->segments->first()))) {
+                            $this->registerModule($module);
 
-                        if ($module->getType() === 'APP') {
-                            $this->uri->segments->shift();
-                            $this->handleAppRequest($module);
+                            if ($module->getType() === 'APP') {
+                                $this->uri->segments->shift();
+                                $this->handleAppRequest($module);
+                            } else {
+                                $this->handleSegmentsRequest();
+                            }
                         } else {
                             $this->handleSegmentsRequest();
                         }
                     } else {
-                        $this->handleSegmentsRequest();
-                    }
-                } else {
-                    if (false !== ($parseSegments = $action->getParseUriString($this->uri->segments->__toString()))) {
-                        $uriSegments = $parseSegments;
-                    } else {
-                        $uriSegments = [];
-                    }
+                        if (false !== ($parseSegments = $action->getParseUriString($this->uri->segments->__toString()))) {
+                            $uriSegments = $parseSegments;
+                        } else {
+                            $uriSegments = [];
+                        }
 
-                    $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
-                    $uriString = $this->uri->segments->__toString();
+                        $this->uri = $this->uri->withSegments(new KernelMessageUriSegments($uriSegments));
+                        $uriString = $this->uri->segments->__toString();
 
-                    $this->parseAction($action, $uriSegments);
-                    if ( ! empty(services()->has('controller'))) {
-                        return true;
+                        $this->parseAction($action, $uriSegments);
+                        if (!empty(services()->has('controller'))) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -284,11 +296,15 @@ class Router extends KernelRouter
 
         if (strpos($lastSegment, '.json') !== false) {
             output()->setContentType('application/json');
+            $_SERVER['CONTENT_TYPE'] = 'application/json';
+
             $lastSegment = str_replace('.json', '', $lastSegment);
             $this->uri->segments->pop();
             $this->uri->segments->push($lastSegment);
         } elseif (strpos($lastSegment, '.xml') !== false) {
             output()->setContentType('application/xml');
+            $_SERVER['CONTENT_TYPE'] = 'application/xml';
+
             $lastSegment = str_replace('.xml', '', $lastSegment);
             $this->uri->segments->pop();
             $this->uri->segments->push($lastSegment);
@@ -315,8 +331,8 @@ class Router extends KernelRouter
     public function handleAppRequest(FrameworkModuleDataStructure $app)
     {
         // Find App module
-        foreach([null,'modules', 'plugins'] as $additionalSegment) {
-            if(empty($additionalSegment)) {
+        foreach ([null, 'modules', 'plugins'] as $additionalSegment) {
+            if (empty($additionalSegment)) {
                 $segments = [
                     $app->getParameter(),
                     $this->uri->segments->first(),
@@ -355,11 +371,11 @@ class Router extends KernelRouter
                 $uriRoutedSegments = array_diff($uriSegments,
                     array_slice($uriSegments, ($numOfUriSegments - $i)));
 
-                if(count($uriRoutedSegments)) {
-                    if($module instanceof FrameworkModuleDataStructure) {
+                if (count($uriRoutedSegments)) {
+                    if ($module instanceof FrameworkModuleDataStructure) {
                         $moduleSegments = $module->getSegments();
 
-                        if(count($moduleSegments)) {
+                        if (count($moduleSegments)) {
                             $uriRoutedSegments = array_merge($moduleSegments, $uriRoutedSegments);
                         }
                     }
@@ -444,7 +460,7 @@ class Router extends KernelRouter
                 $reconfig = true;
             }
 
-            if ( ! $reconfig) {
+            if (!$reconfig) {
                 $controllerNamespace = $module->getNamespace() . 'Controllers\\';
                 $controllerClassName = $controllerNamespace . studlycase($module->getParameter());
 
@@ -480,7 +496,7 @@ class Router extends KernelRouter
      * Router::parseAction
      *
      * @param KernelActionDataStructure $action
-     * @param array                     $uriSegments
+     * @param array $uriSegments
      *
      * @throws \O2System\Spl\Exceptions\RuntimeException
      * @throws \ReflectionException
@@ -519,13 +535,13 @@ class Router extends KernelRouter
                 );
             } elseif (preg_match("/([a-zA-Z0-9\\\]+)(@)([a-zA-Z0-9\\\]+)/", $closure, $matches)) {
                 $this->setController(
-                    (new KernelControllerDataStructure($matches[ 1 ]))
-                        ->setRequestMethod($matches[ 3 ]),
+                    (new KernelControllerDataStructure($matches[1]))
+                        ->setRequestMethod($matches[3]),
                     $uriSegments
                 );
             } elseif ($theme = presenter()->theme) {
-                if($theme->use === true) {
-                    if ( ! presenter()->partials->offsetExists('content') && $closure !== '') {
+                if ($theme->use === true) {
+                    if (!presenter()->partials->offsetExists('content') && $closure !== '') {
                         presenter()->partials->offsetSet('content', $closure);
                     }
 
