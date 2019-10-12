@@ -313,9 +313,21 @@ class Restful extends Controller
                 $this->sendError(503, 'Model is not exists!');
             }
 
+            if($page =  input()->get('page')) {
+                $this->model->withPaging($page);
+                unset($_GET['page']);
+            }
+
+            if($limit =  input()->get('limit')) {
+                $this->model->qb->limit($limit);
+                unset($_GET['limit']);
+            } else {
+                $limit = null;
+            }
+
             if (count($this->params)) {
                 if ($get = input()->get()) {
-                    if (false !== ($result = $this->model->withPaging()->findWhere($get->getArrayCopy()))) {
+                    if (false !== ($result = $this->model->findWhere($get->getArrayCopy(), $limit))) {
                         if ($result->count()) {
                             $this->sendPayload($result);
                         } else {
@@ -343,7 +355,7 @@ class Restful extends Controller
                             }
                         }
 
-                        if (false !== ($result = $this->model->withPaging()->findWhere($conditions))) {
+                        if (false !== ($result = $this->model->findWhere($conditions, $limit))) {
                             if ($result->count()) {
                                 $this->sendPayload($result);
                             } else {
@@ -357,7 +369,7 @@ class Restful extends Controller
                     $this->sendError(400, 'Get parameters cannot be empty!');
                 }
             } elseif ($get = input()->get()) {
-                if (false !== ($result = $this->model->withPaging()->findWhere($get->getArrayCopy()))) {
+                if (false !== ($result = $this->model->findWhere($get->getArrayCopy(), $limit))) {
                     if ($result->count()) {
                         $this->sendPayload($result);
                     } else {
@@ -367,7 +379,7 @@ class Restful extends Controller
                     $this->sendError(204);
                 }
             } else {
-                if (false !== ($result = $this->model->allWithPaging())) {
+                if (false !== ($result = $this->model->all())) {
                     $this->sendPayload($result);
                 } else {
                     $this->sendError(204);
@@ -485,22 +497,21 @@ class Restful extends Controller
                 $this->sendError(503, 'Model is not ready');
             }
 
-            $data = [];
-
+            $data = $post->getArrayCopy();
             if (count($this->fillableColumnsWithRules)) {
                 foreach ($this->fillableColumnsWithRules as $column) {
                     if ($post->offsetExists($column[ 'field' ])) {
                         $data[ $column[ 'field' ] ] = $post->offsetGet($column[ 'field' ]);
                     }
                 }
-            } elseif (count($this->fillableColumns)) {
-                foreach ($this->fillableColumns as $column) {
-                    if ($post->offsetExists($column[ 'field' ])) {
-                        $data[ $column[ 'field' ] ] = $post->offsetGet($column[ 'field' ]);
+            }
+
+            if(count($this->fillableColumns)) {
+                foreach ($this->fillableColumns as $field) {
+                    if ($post->offsetExists($field)) {
+                        $data[ $field ] = $post->offsetGet($field);
                     }
                 }
-            } else {
-                $data = $post->getArrayCopy();
             }
 
             if (count($data)) {
@@ -515,6 +526,7 @@ class Restful extends Controller
                         'data' => $data,
                     ]);
                 } else {
+
                     $this->sendError(501, 'Failed update request');
                 }
             } else {
@@ -565,22 +577,21 @@ class Restful extends Controller
                 $this->sendError(503, 'Model is not ready');
             }
 
-            $data = [];
-
+            $data = $post->getArrayCopy();
             if (count($this->fillableColumnsWithRules)) {
                 foreach ($this->fillableColumnsWithRules as $column) {
                     if ($post->offsetExists($column[ 'field' ])) {
                         $data[ $column[ 'field' ] ] = $post->offsetGet($column[ 'field' ]);
                     }
                 }
-            } elseif (count($this->fillableColumns)) {
-                foreach ($this->fillableColumns as $column) {
-                    if ($post->offsetExists($column[ 'field' ])) {
-                        $data[ $column[ 'field' ] ] = $post->offsetGet($column[ 'field' ]);
+            }
+
+            if(count($this->fillableColumns)) {
+                foreach ($this->fillableColumns as $field) {
+                    if ($post->offsetExists($field)) {
+                        $data[ $field ] = $post->offsetGet($field);
                     }
                 }
-            } else {
-                $data = $post->getArrayCopy();
             }
 
             if (count($data)) {
