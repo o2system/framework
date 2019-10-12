@@ -357,6 +357,19 @@ class View implements RenderableInterface
      */
     public function render(array $options = [])
     {
+        if(input()->server('CONTENT_TYPE') == 'application/json' or input()->server('CONTENT_TYPE') == 'application/xml') {
+            $result = presenter()->getArrayCopy();
+            $removes = ['meta', 'page', 'assets', 'partials', 'widgets', 'theme', 'config', 'language', 'presenter', 'session', 'input'];
+
+            foreach($removes as $key) {
+                unset($result[$key]);
+            }
+
+            output()->send($result);
+
+            exit(EXIT_SUCCESS);
+        }
+
         if (profiler() !== false) {
             profiler()->watch('Starting View Rendering');
         }

@@ -300,4 +300,16 @@ class Options extends Model
 
         return $languages;
     }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Options::languages
+     *
+     * @return array
+     */
+    public function timezones()
+    {
+        return timezone_identifiers_list();
+    }
 }

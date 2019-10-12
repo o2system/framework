@@ -52,12 +52,10 @@ trait FinderTrait
         if ($result = $this->qb->from($this->table)->get()) {
             if ($result->count() > 0) {
                 $this->result = new DataObjects\Result($result, $this);
-
-                return $this->result;
             }
         }
 
-        return false;
+        return $this->result;
     }
 
     // ------------------------------------------------------------------------
@@ -144,12 +142,10 @@ trait FinderTrait
                 if ($this->result->count() == 1) {
                     return $this->result->first();
                 }
-
-                return $this->result;
             }
         }
 
-        return false;
+        return $this->result;
     }
 
     // ------------------------------------------------------------------------
@@ -179,11 +175,9 @@ trait FinderTrait
             if ($limit == 1) {
                 return $this->result->first();
             }
-
-            return $this->result;
         }
 
-        return false;
+        return $this->result;
     }
 
     // ------------------------------------------------------------------------
@@ -206,11 +200,9 @@ trait FinderTrait
             ->whereIn($field, $inCriteria)
             ->get()) {
             $this->result = new DataObjects\Result($result, $this);
-
-            return $this->result;
         }
 
-        return false;
+        return $this->result;
     }
 
     // ------------------------------------------------------------------------
@@ -235,10 +227,8 @@ trait FinderTrait
             ->whereNotIn($field, $notInCriteria)
             ->get()) {
             $this->result = new DataObjects\Result($result, $this);
-
-            return $this->result;
         }
 
-        return false;
+        return $this->result;
     }
 }

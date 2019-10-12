@@ -40,6 +40,6 @@ class BelongsTo extends Abstracts\AbstractRelation
             }
         }
 
-        return false;
+        return new Sql\DataObjects\Result\Row();
     }
 }

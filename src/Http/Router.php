@@ -284,11 +284,15 @@ class Router extends KernelRouter
 
         if (strpos($lastSegment, '.json') !== false) {
             output()->setContentType('application/json');
+            $_SERVER['CONTENT_TYPE'] = 'application/json';
+
             $lastSegment = str_replace('.json', '', $lastSegment);
             $this->uri->segments->pop();
             $this->uri->segments->push($lastSegment);
         } elseif (strpos($lastSegment, '.xml') !== false) {
             output()->setContentType('application/xml');
+            $_SERVER['CONTENT_TYPE'] = 'application/xml';
+
             $lastSegment = str_replace('.xml', '', $lastSegment);
             $this->uri->segments->pop();
             $this->uri->segments->push($lastSegment);

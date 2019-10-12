@@ -15,6 +15,7 @@ namespace O2System\Framework\Models\Sql\Relations;
 
 // ------------------------------------------------------------------------
 
+use O2System\Database\DataObjects\Result;
 use O2System\Framework\Models\Sql;
 
 /**
@@ -27,7 +28,7 @@ class BelongsToManyThrough extends Sql\Relations\Abstracts\AbstractRelation
     /**
      * BelongsToManyThrough::getResult
      * 
-     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     * @return array|bool|Result
      */
     public function getResult()
     {
@@ -53,6 +54,6 @@ class BelongsToManyThrough extends Sql\Relations\Abstracts\AbstractRelation
             }
         }
 
-        return false;
+        return new Result([]);
     }
 }
