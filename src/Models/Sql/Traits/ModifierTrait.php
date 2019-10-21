@@ -14,6 +14,8 @@
 namespace O2System\Framework\Models\Sql\Traits;
 
 // ------------------------------------------------------------------------
+
+use O2System\Framework\Http\Controllers\Pages;
 use O2System\Framework\Libraries\Ui\Contents\Lists\Unordered;
 use O2System\Framework\Models\Sql\DataObjects\Result;
 use O2System\Framework\Models\Sql\DataObjects\Result\Row;
@@ -26,6 +28,29 @@ use O2System\Image\Uploader;
  */
 trait ModifierTrait
 {
+    /**
+     * ModifierTrait::$enabledFlashMessage
+     *
+     * @var bool
+     */
+    protected $flashMessage = false;
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::flashMessage
+     *
+     * @return static
+     */
+    public function flashMessage($enabled)
+    {
+        $this->flashMessage = (bool) $enabled;
+
+        return $this;
+    }
+
+    // ------------------------------------------------------------------------
+
     /**
      * ModifierTrait::insert
      *
@@ -51,6 +76,8 @@ trait ModifierTrait
 
             if (method_exists($this, 'beforeInsert')) {
                 $this->beforeInsert($sets);
+            } elseif (method_exists($this, 'beforeInsertOrUpdate')) {
+                $this->beforeInsertOrUpdate($sets);
             }
 
             if (method_exists($this, 'getRecordOrdering')) {
@@ -80,7 +107,7 @@ trait ModifierTrait
                                     $errors->createList($error);
                                 }
 
-                                if (services()->has('session')) {
+                                if (services()->has('session') and $this->flashMessage) {
                                     session()->setFlash('danger', $errors);
                                 }
 
@@ -99,7 +126,7 @@ trait ModifierTrait
                                         $errors->createList($error);
                                     }
 
-                                    if (services()->has('session')) {
+                                    if (services()->has('session') and $this->flashMessage) {
                                         session()->setFlash('danger', $errors);
                                     }
 
@@ -121,7 +148,7 @@ trait ModifierTrait
                                     $errors->createList($error);
                                 }
 
-                                if (services()->has('session')) {
+                                if (services()->has('session') and $this->flashMessage) {
                                     session()->setFlash('danger', $errors);
                                 }
 
@@ -140,7 +167,7 @@ trait ModifierTrait
                                         $errors->createList($error);
                                     }
 
-                                    if (services()->has('session')) {
+                                    if (services()->has('session') and $this->flashMessage) {
                                         session()->setFlash('danger', $errors);
                                     }
 
@@ -155,6 +182,8 @@ trait ModifierTrait
             if ($this->qb->table($this->table)->insert($sets)) {
                 if (method_exists($this, 'afterInsert')) {
                     $this->afterInsert();
+                } elseif(method_exists($this, 'afterInsertOrUpdate')) {
+                    $this->afterInsertOrUpdate();
                 }
 
                 if (method_exists($this, 'rebuildTree')) {
@@ -164,7 +193,7 @@ trait ModifierTrait
                 $label = false;
                 foreach (['name', 'label', 'title', 'code'] as $labelField) {
                     if (isset($sets[ $labelField ])) {
-                        if(services()->has('session')) {
+                        if(services()->has('session') and $this->flashMessage) {
                             session()->setFlash('success', language('SUCCESS_INSERT_WITH_LABEL', [$sets[ $labelField ]]));
                         }
 
@@ -174,7 +203,7 @@ trait ModifierTrait
                 }
 
                 if ($label === false) {
-                    if(services()->has('session')) {
+                    if(services()->has('session') and $this->flashMessage) {
                         session()->setFlash('success', language('SUCCESS_INSERT'));
                     }
                 }
@@ -186,7 +215,7 @@ trait ModifierTrait
         $label = false;
         foreach (['name', 'label', 'title', 'code'] as $labelField) {
             if (isset($sets[ $labelField ])) {
-                if(services()->has('session')) {
+                if(services()->has('session') and $this->flashMessage) {
                     session()->setFlash('danger', language('FAILED_INSERT_WITH_LABEL', [$sets[ $labelField ]]));
                 }
 
@@ -196,7 +225,7 @@ trait ModifierTrait
         }
 
         if ($label === false) {
-            if(services()->has('session')) {
+            if(services()->has('session') and $this->flashMessage) {
                 session()->setFlash('danger', language('FAILED_INSERT'));
             }
         }
@@ -267,11 +296,15 @@ trait ModifierTrait
 
             if (method_exists($this, 'beforeInsertMany')) {
                 $this->beforeInsertMany($sets);
+            } elseif(method_exists($this, 'beforeInsertOrUpdateMany')) {
+                $this->beforeInsertOrUpdateMany($sets);
             }
 
             if ($this->qb->table($this->table)->insertBatch($sets)) {
                 if (method_exists($this, 'afterInsertMany')) {
                     $this->afterInsertMany();
+                } elseif(method_exists($this, 'afterInsertOrUpdateMany')) {
+                    $this->afterInsertOrUpdateMany($sets);
                 }
 
                 $affectedRows = $this->db->getAffectedRows();
@@ -351,6 +384,8 @@ trait ModifierTrait
 
             if (method_exists($this, 'beforeUpdate')) {
                 $sets = $this->beforeUpdate($sets);
+            } elseif(method_exists($this, 'beforeInsertOrUpdate')) {
+                $sets = $this->beforeInsertOrUpdate($sets);
             }
 
             if (method_exists($this, 'getRecordOrdering')) {
@@ -381,7 +416,7 @@ trait ModifierTrait
                                         $errors->createList($error);
                                     }
 
-                                    if (services()->has('session')) {
+                                    if (services()->has('session') and $this->flashMessage) {
                                         session()->setFlash('danger', $errors);
                                     }
 
@@ -406,7 +441,7 @@ trait ModifierTrait
                                             $errors->createList($error);
                                         }
 
-                                        if (services()->has('session')) {
+                                        if (services()->has('session') and $this->flashMessage) {
                                             session()->setFlash('danger', $errors);
                                         }
 
@@ -434,7 +469,7 @@ trait ModifierTrait
                                         $errors->createList($error);
                                     }
 
-                                    if (services()->has('session')) {
+                                    if (services()->has('session') and $this->flashMessage) {
                                         session()->setFlash('danger', $errors);
                                     }
 
@@ -459,7 +494,7 @@ trait ModifierTrait
                                             $errors->createList($error);
                                         }
 
-                                        if (services()->has('session')) {
+                                        if (services()->has('session') and $this->flashMessage) {
                                             session()->setFlash('danger', $errors);
                                         }
 
@@ -481,12 +516,14 @@ trait ModifierTrait
 
                     if (method_exists($this, 'afterUpdate')) {
                         $this->afterUpdate();
+                    } elseif(method_exists($this, 'afterInsertOrUpdate')) {
+                        $this->afterInsertOrUpdate();
                     }
 
                     $label = false;
                     foreach (['name', 'label', 'title', 'code'] as $labelField) {
                         if (isset($sets[ $labelField ])) {
-                            if(services()->has('session')) {
+                            if(services()->has('session') and $this->flashMessage) {
                                 session()->setFlash('success',
                                     language('SUCCESS_UPDATE_WITH_LABEL', [$sets[ $labelField ]]));
                             }
@@ -497,7 +534,7 @@ trait ModifierTrait
                     }
 
                     if ($label === false) {
-                        if(services()->has('session')) {
+                        if(services()->has('session') and $this->flashMessage) {
                             session()->setFlash('success', language('SUCCESS_UPDATE'));
                         }
                     }
@@ -510,7 +547,7 @@ trait ModifierTrait
         $label = false;
         foreach (['name', 'label', 'title', 'code'] as $labelField) {
             if (isset($sets[ $labelField ])) {
-                if(services()->has('session')) {
+                if(services()->has('session') and $this->flashMessage) {
                     session()->setFlash('danger', language('FAILED_UPDATE_WITH_LABEL', [$sets[ $labelField ]]));
                 }
 
@@ -520,7 +557,7 @@ trait ModifierTrait
         }
 
         if ($label === false) {
-            if(services()->has('session')) {
+            if(services()->has('session') and $this->flashMessage) {
                 session()->setFlash('danger', language('FAILED_UPDATE'));
             }
         }
@@ -568,11 +605,15 @@ trait ModifierTrait
 
         if (method_exists($this, 'beforeUpdateMany')) {
             $this->beforeUpdateMany($sets);
+        } elseif(method_exists($this, 'beforeInsertOrUpdateMany')) {
+            $this->beforeInsertOrUpdateMany();
         }
 
         if ($this->qb->table($this->table)->updateBatch($sets, $primaryKey)) {
             if (method_exists($this, 'afterUpdateMany')) {
                 return $this->afterUpdateMany();
+            } elseif(method_exists($this, 'afterInsertOrUpdateMany')) {
+                return $this->afterInsertOrUpdateMany();
             }
 
             $affectedRows = $this->db->getAffectedRows();
