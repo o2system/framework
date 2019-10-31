@@ -15,7 +15,6 @@ namespace O2System\Framework\Models\Sql\Traits;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Http\Controllers\Pages;
 use O2System\Framework\Libraries\Ui\Contents\Lists\Unordered;
 use O2System\Framework\Models\Sql\DataObjects\Result;
 use O2System\Framework\Models\Sql\DataObjects\Result\Row;
@@ -229,9 +228,6 @@ trait ModifierTrait
                 session()->setFlash('danger', language('FAILED_INSERT'));
             }
         }
-
-        // Sets Global $_POST Variable
-        $_POST = $sets;
 
         return false;
     }

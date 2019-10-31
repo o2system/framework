@@ -61,27 +61,18 @@ if ( ! function_exists('domain_url')) {
     {
         $uri = (new \O2System\Kernel\Http\Message\Uri())
             ->withSubDomain($subdomain)
-            ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
-            ->withQuery('');
+            ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments($segments))
+            ->withQuery($query);
 
         if ($uriConfig = config()->offsetGet('uri')) {
             if ( ! empty($uriConfig[ 'base' ])) {
                 $base = (is_https() ? 'https' : 'http') . '://' . str_replace(['http://', 'https://'], '',
                         $uriConfig[ 'base' ]);
-                $uri = new \O2System\Kernel\Http\Message\Uri($base);
+                $uri = (new \O2System\Kernel\Http\Message\Uri($base))
+                    ->withSubDomain($subdomain)
+                    ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments($segments))
+                    ->withQuery($query);
             }
-        }
-
-        if (isset($subdomain)) {
-            $uri = $uri->withSubDomain($subdomain);
-        }
-
-        if (isset($segments)) {
-            $uri = $uri->addSegments($segments);
-        }
-
-        if (isset($query)) {
-            $uri = $uri->addQuery($query);
         }
 
         return $uri->__toString();

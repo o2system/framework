@@ -49,6 +49,9 @@ class BelongsToManyThrough extends Sql\Relations\Abstracts\AbstractRelation
                     $this->map->intermediaryTable . '.' . $this->map->intermediaryReferenceForeignKey,
                 ]));
 
+            $this->map->intermediaryModel->result = null;
+            $this->map->intermediaryModel->row = null;
+
             if ($result = $this->map->intermediaryModel->find($criteria, $field)) {
                 return $result;
             }

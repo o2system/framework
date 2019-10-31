@@ -15,6 +15,7 @@ namespace O2System\Framework\Http\Message;
 
 // ------------------------------------------------------------------------
 
+use O2System\Framework\DataStructures\Input\Files;
 use O2System\Kernel\Http\Message;
 use O2System\Kernel\Http\Router\DataStructures\Controller;
 
@@ -33,6 +34,23 @@ class ServerRequest extends Message\ServerRequest implements \IteratorAggregate
      * @var string Controller FilePath.
      */
     protected $controller;
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ServerRequest::__construct
+     *
+     * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        
+        $uploadedFiles = new Files();
+        $uploadedFiles->exchangeArray($this->uploadedFiles->getArrayCopy());
+        
+        $this->uploadedFiles = $uploadedFiles;
+    }
 
     // ------------------------------------------------------------------------
 

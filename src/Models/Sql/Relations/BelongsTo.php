@@ -26,7 +26,7 @@ class BelongsTo extends Abstracts\AbstractRelation
 {
     /**
      * BelongsTo::getResult
-     * 
+     *
      * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
     public function getResult()
@@ -35,11 +35,18 @@ class BelongsTo extends Abstracts\AbstractRelation
             $criteria = $this->map->currentModel->row->offsetGet($this->map->currentForeignKey);
             $field = $this->map->referenceTable . '.' . $this->map->referencePrimaryKey;
 
+            $this->map->referenceModel->result = null;
+            $this->map->referenceModel->row = null;
+
             if ($result = $this->map->referenceModel->find($criteria, $field, 1)) {
-                return $result;
+                if($result instanceof Sql\DataObjects\Result\Row) {
+                    return $result;
+                } elseif($result instanceof Sql\DataObjects\Result) {
+                    return $result->first();
+                }
             }
         }
 
-        return new Sql\DataObjects\Result\Row();
+        return false;
     }
 }

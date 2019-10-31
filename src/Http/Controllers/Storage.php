@@ -93,13 +93,54 @@ class Storage extends Controller
                         ->speedLimit($this->speedLimit)
                         ->resumeable($this->resumeable)
                         ->download();
+                } elseif ( ! $fileHandle = @fopen($filePath, 'rb')) {
+                    redirect_url('error/505');
                 } else {
                     $fileInfo = new SplFileInfo($filePath);
-                    header('Content-Disposition: filename=' . $fileInfo->getFilename());
-                    header('Content-Transfer-Encoding: binary');
-                    header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
+                    $fileChunkSize = 1024*1024;
+                    $lengthStart = 0;
+                    $lengthEnd = $fileInfo->getSize();
+
+                    if ($httpRange = input()->server('HTTP_RANGE')) {
+                        if (preg_match('/bytes=\h*(\d+)-(\d*)[\D.*]?/i', $httpRange, $matches)) {
+                            $lengthStart = intval($matches[ 0 ]);
+                            if ( ! empty($matches[ 1 ])) {
+                                $lengthEnd = intval($matches[ 1 ]);
+                            }
+                        }
+                    }
+
+                    if ($lengthStart > 0 || $lengthEnd < $fileInfo->getSize()) {
+                        header('HTTP/1.0 206 Partial Content');
+                    } else {
+                        header('HTTP/1.0 200 OK');
+                    }
+
                     header('Content-Type: ' . $fileInfo->getMime());
-                    echo readfile($filePath);
+                    header('Cache-Control: public, must-revalidate, max-age=0');
+                    header('Pragma: no-cache');
+                    header('Accept-Ranges: bytes');
+                    header('Content-Length:' . ($lengthEnd - $lengthStart));
+                    header("Content-Range: bytes " . $lengthStart-$lengthEnd/$fileInfo->getSize());
+                    header("Content-Disposition: inline; filename=" . $fileInfo->getFilename());
+                    header("Content-Transfer-Encoding: binary\n");
+                    header("Last-Modified: " . gmdate('D, d M Y H:i:s', $fileInfo->getMTime()) . ' GMT');
+                    header('Connection: close');
+
+                    $lengthCurrent = $lengthStart;
+                    fseek($fileHandle, $lengthStart, 0);
+
+                    $buffer = '';
+                    ob_start();
+                    while ( ! feof($fileHandle) && $lengthCurrent < $lengthEnd && (connection_status() == 0)) {
+                        echo fread($fileHandle, min($fileChunkSize, $lengthEnd - $lengthCurrent));
+                        $lengthCurrent += $fileChunkSize;
+                        $buffer.= ob_get_contents();
+
+                        ob_end_flush();
+                    }
+
+                    echo $buffer;
                     exit(EXIT_SUCCESS);
                 }
             } else {

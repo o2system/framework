@@ -139,7 +139,7 @@ trait FinderTrait
             if ($result->count() > 0) {
                 $this->result = new DataObjects\Result($result, $this);
 
-                if ($this->result->count() == 1) {
+                if ($limit == 1 or $this->result->count() == 1) {
                     return $this->result->first();
                 }
             }

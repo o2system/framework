@@ -38,6 +38,9 @@ class BelongsToMany extends Sql\Relations\Abstracts\AbstractRelation
                 $this->map->referenceTable . '.' . $this->map->currentForeignKey => $criteria,
             ];
 
+            $this->map->referenceModel->result = null;
+            $this->map->referenceModel->row = null;
+
             if ($result = $this->map->referenceModel->findWhere($condition)) {
                 return $result;
             }

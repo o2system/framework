@@ -26,7 +26,7 @@ class HasOne extends Sql\Relations\Abstracts\AbstractRelation
 {
     /**
      * HasOne::getResult
-     * 
+     *
      * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
     public function getResult()
@@ -35,11 +35,18 @@ class HasOne extends Sql\Relations\Abstracts\AbstractRelation
             $criteria = $this->map->currentModel->row->offsetGet($this->map->currentPrimaryKey);
             $field = $this->map->referenceTable . '.' . $this->map->referenceForeignKey;
 
+            $this->map->referenceModel->result = null;
+            $this->map->referenceModel->row = null;
+            
             if ($result = $this->map->referenceModel->find($criteria, $field, 1)) {
-                return $result;
+                if($result instanceof Sql\DataObjects\Result\Row) {
+                    return $result;
+                } elseif($result instanceof Sql\DataObjects\Result) {
+                    return $result->first();
+                }
             }
         }
 
-        return new Sql\DataObjects\Result\Row();
+        return false;
     }
 }

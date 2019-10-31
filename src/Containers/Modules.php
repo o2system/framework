@@ -372,14 +372,14 @@ class Modules extends SplArrayStack
     public function push($module)
     {
         if ( ! in_array($module->getNamespace(), ['O2System\Kernel\\', 'O2System\Framework\\', 'App\\'])) {
-            if($module instanceof DataStructures\Module) {
+            if ($module instanceof DataStructures\Module) {
                 $this->autoload($module);
 
                 parent::push($module);
 
-                if($module->getType() === 'APP') {
+                if ($module->getType() === 'APP') {
                     $this->setActiveApp($module);
-                } elseif(in_array($module->getType(), ['MODULE', 'COMPONENT'])) {
+                } elseif (in_array($module->getType(), ['MODULE', 'COMPONENT'])) {
                     $this->setActiveModule($module);
                 }
             }

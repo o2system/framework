@@ -26,7 +26,7 @@ class HasOneThrough extends Sql\Relations\Abstracts\AbstractRelation
 {
     /**
      * HasOneThrough::getResult
-     * 
+     *
      * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
     public function getResult()
@@ -48,11 +48,18 @@ class HasOneThrough extends Sql\Relations\Abstracts\AbstractRelation
                     $this->map->intermediaryTable . '.' . $this->map->intermediaryReferenceForeignKey,
                 ]));
 
+            $this->map->intermediaryModel->result = null;
+            $this->map->intermediaryModel->row = null;
+
             if ($result = $this->map->intermediaryModel->find($criteria, $field, 1)) {
-                return $result;
+                if($result instanceof Sql\DataObjects\Result\Row) {
+                    return $result;
+                } elseif($result instanceof Sql\DataObjects\Result) {
+                    return $result->first();
+                }
             }
         }
 
-        return new Sql\DataObjects\Result\Row();
+        return false;
     }
 }
