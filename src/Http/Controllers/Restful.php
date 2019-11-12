@@ -19,7 +19,6 @@ use O2System\Cache\Item;
 use O2System\Framework\Http\Controller;
 use O2System\Framework\Models\Sql\Model;
 use O2System\Psr\Http\Header\ResponseFieldInterface;
-use O2System\Security\Filters\Rules;
 use O2System\Spl\Exceptions\Logic\OutOfRangeException;
 
 /**
@@ -154,18 +153,39 @@ class Restful extends Controller
     public $model;
 
     /**
-     * Restful::$params
+     * Restful::$getParams
      *
      * @var array
      */
-    public $params = [];
+    public $getParams = [];
 
     /**
-     * Restful::$paramsWithRules
+     * Restful::$getValidationRules
      *
      * @var array
      */
-    public $paramsWithRules = [];
+    public $getValidationRules = [];
+
+    /**
+     * Restful::$getValidationCustomErrors
+     *
+     * @var array
+     */
+    public $getValidationCustomErrors = [];
+
+    /**
+     * Restful::$postValidationRules
+     *
+     * @var array
+     */
+    public $postValidationRules = [];
+
+    /**
+     * Restful::$postValidationCustomErrors
+     *
+     * @var array
+     */
+    public $postValidationCustomErrors = [];
 
     /**
      * Restful::$fillableColumns
@@ -173,13 +193,6 @@ class Restful extends Controller
      * @var array
      */
     public $fillableColumns = [];
-
-    /**
-     * Restful::$fillableColumnsWithRules
-     *
-     * @var array
-     */
-    public $fillableColumnsWithRules = [];
 
     /**
      * Restful::$dataTableColumns
@@ -313,19 +326,19 @@ class Restful extends Controller
                 $this->sendError(503, 'Model is not exists!');
             }
 
-            if($page =  input()->get('page')) {
+            if ($page = input()->get('page')) {
                 $this->model->withPaging($page);
-                unset($_GET['page']);
+                unset($_GET[ 'page' ]);
             }
 
-            if($limit =  input()->get('limit')) {
+            if ($limit = input()->get('limit')) {
                 $this->model->qb->limit($limit);
-                unset($_GET['limit']);
+                unset($_GET[ 'limit' ]);
             } else {
                 $limit = null;
             }
 
-            if (count($this->params)) {
+            if (count($this->getParams)) {
                 if ($get = input()->get()) {
                     if (false !== ($result = $this->model->findWhere($get->getArrayCopy(), $limit))) {
                         if ($result->count()) {
@@ -339,19 +352,18 @@ class Restful extends Controller
                 } else {
                     $this->sendError(400, 'Get parameters cannot be empty!');
                 }
-            } elseif (count($this->paramsWithRules)) {
+            } elseif (count($this->getValidationRules)) {
                 if ($get = input()->get()) {
-                    $rules = new Rules($get);
-                    $rules->sets($this->paramsWithRules);
+                    $get->validation($this->getValidationRules, $this->getValidationCustomErrors);
 
-                    if ( ! $rules->validate()) {
-                        $this->sendError(400, implode(', ', $rules->displayErrors(true)));
+                    if ( ! $get->validate()) {
+                        $this->sendError(400, implode(', ', $post->validator->getErrors()));
                     } else {
                         $conditions = [];
 
-                        foreach ($this->paramsWithRules as $param) {
-                            if ($get->offsetExists($param[ 'field' ])) {
-                                $conditions[ $param[ 'field' ] ] = $get->offsetGet($param[ 'field' ]);
+                        foreach ($this->getValidationRules as $field => $rule) {
+                            if ($get->offsetExists($field)) {
+                                $conditions[ $field ] = $get->offsetGet($field);
                             }
                         }
 
@@ -407,53 +419,53 @@ class Restful extends Controller
             }
 
             $hasAction = false;
-            if($request = input()->request()) {
+            if ($request = input()->request()) {
                 // Start as limit
-                $this->model->qb->limit($request['start']);
+                $this->model->qb->limit($request[ 'start' ]);
 
                 // Length as offset
-                $this->model->qb->offset($request['length']);
+                $this->model->qb->offset($request[ 'length' ]);
 
                 // Set ordering
-                if( ! empty($request['order'])) {
-                    foreach($request['order'] as $dt => $order) {
-                        $field = $request['columns'][$order['column']]['data'];
-                        $this->model->qb->orderBy($field, strtoupper($order['dir']));
+                if ( ! empty($request[ 'order' ])) {
+                    foreach ($request[ 'order' ] as $dt => $order) {
+                        $field = $request[ 'columns' ][ $order[ 'column' ] ][ 'data' ];
+                        $this->model->qb->orderBy($field, strtoupper($order[ 'dir' ]));
                     }
                 }
 
                 $this->model->visibleColumns = [];
 
-                foreach($request['columns'] as $dt => $column) {
-                    if($column['data'] === 'action') {
+                foreach ($request[ 'columns' ] as $dt => $column) {
+                    if ($column[ 'data' ] === 'action') {
                         $this->model->appendColumns[] = 'action';
 
                         continue;
                     }
 
-                    if($column['searchable']) {
-                        if($dt == 0) {
-                            if( ! empty($column['search']['value']) ) {
-                                $this->model->qb->like($column['data'], $column['search']['value']);
+                    if ($column[ 'searchable' ]) {
+                        if ($dt == 0) {
+                            if ( ! empty($column[ 'search' ][ 'value' ])) {
+                                $this->model->qb->like($column[ 'data' ], $column[ 'search' ][ 'value' ]);
 
-                                if( ! empty($request['search']['value'])) {
-                                    $this->model->qb->orLike($column['data'], $request['search']['value']);
+                                if ( ! empty($request[ 'search' ][ 'value' ])) {
+                                    $this->model->qb->orLike($column[ 'data' ], $request[ 'search' ][ 'value' ]);
                                 }
-                            } elseif( ! empty($request['search']['value'])) {
-                                $this->model->qb->like($column['data'], $request['search']['value']);
+                            } elseif ( ! empty($request[ 'search' ][ 'value' ])) {
+                                $this->model->qb->like($column[ 'data' ], $request[ 'search' ][ 'value' ]);
                             }
                         } else {
-                            if( ! empty($column['search']['value']) ) {
+                            if ( ! empty($column[ 'search' ][ 'value' ])) {
                                 $this->model->qb->orLike($column[ 'data' ], $column[ 'search' ][ 'value' ]);
                             }
 
-                            if( ! empty($request['search']['value'])) {
-                                $this->model->qb->orLike($column['data'], $request['search']['value']);
+                            if ( ! empty($request[ 'search' ][ 'value' ])) {
+                                $this->model->qb->orLike($column[ 'data' ], $request[ 'search' ][ 'value' ]);
                             }
                         }
                     }
 
-                    $this->model->visibleColumns[] = $column['data'];
+                    $this->model->visibleColumns[] = $column[ 'data' ];
                 }
             }
 
@@ -485,11 +497,10 @@ class Restful extends Controller
     public function create()
     {
         if ($post = input()->post()) {
-            if (count($this->fillableColumnsWithRules)) {
-                $rules = new Rules($post);
-                $rules->sets($this->fillableColumnsWithRules);
-                if ( ! $rules->validate()) {
-                    $this->sendError(400, $rules->displayErrors(true));
+            if (count($this->postValidationRules)) {
+                $post->validation($this->postValidationRules, $this->postValidationCustomErrors);
+                if ( ! $post->validate()) {
+                    $this->sendError(400, $post->validator->getErrors());
                 }
             }
 
@@ -498,18 +509,18 @@ class Restful extends Controller
             }
 
             $data = $post->getArrayCopy();
-            if (count($this->fillableColumnsWithRules)) {
-                foreach ($this->fillableColumnsWithRules as $column) {
-                    if ($post->offsetExists($column[ 'field' ])) {
-                        $data[ $column[ 'field' ] ] = $post->offsetGet($column[ 'field' ]);
+            if (count($this->postValidationRules)) {
+                foreach ($this->postValidationRules as $field => $rule) {
+                    if ($post->offsetExists($field)) {
+                        $data[ $field ] = $post->offsetGet($field);
                     }
                 }
             }
 
-            if(count($this->fillableColumns)) {
-                foreach ($this->fillableColumns as $field) {
-                    if ($post->offsetExists($field)) {
-                        $data[ $field ] = $post->offsetGet($field);
+            if (count($this->fillableColumns)) {
+                foreach ($this->fillableColumns as $column) {
+                    if ($post->offsetExists($column)) {
+                        $data[ $column ] = $post->offsetGet($column);
                     }
                 }
             }
@@ -547,29 +558,30 @@ class Restful extends Controller
      */
     public function update()
     {
-
         if ($post = input()->post()) {
             $conditions = [];
 
-            if (count($this->fillableColumnsWithRules)) {
-                $rules = new Rules($post);
-                $rules->sets($this->fillableColumnsWithRules);
-
+            if (count($this->postValidationRules)) {
+                $post->validation($this->postValidationRules, $this->postValidationCustomErrors);
 
                 if (count($this->model->primaryKeys)) {
                     foreach ($this->model->primaryKeys as $primaryKey) {
-                        $rules->add($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
-                            'this field cannot be empty!');
+                        $post->validator->addRule($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
+                            [
+                                'required' => 'this field cannot be empty!',
+                            ]);
                     }
                 } else {
                     $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
                     $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
-                    $rules->add($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
-                        'this field cannot be empty!');
+                    $post->validator->addRule($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
+                        [
+                            'required' => 'this field cannot be empty!',
+                        ]);
                 }
 
-                if ( ! $rules->validate()) {
-                    $this->sendError(400, implode(', ', $rules->displayErrors(true)));
+                if ( ! $post->validate()) {
+                    $this->sendError(400, implode(', ', $post->validator->getErrors()));
                 }
             }
 
@@ -578,18 +590,18 @@ class Restful extends Controller
             }
 
             $data = $post->getArrayCopy();
-            if (count($this->fillableColumnsWithRules)) {
-                foreach ($this->fillableColumnsWithRules as $column) {
-                    if ($post->offsetExists($column[ 'field' ])) {
-                        $data[ $column[ 'field' ] ] = $post->offsetGet($column[ 'field' ]);
+            if (count($this->postValidationRules)) {
+                foreach ($this->postValidationRules as $field => $rule) {
+                    if ($post->offsetExists($field)) {
+                        $data[ $field ] = $post->offsetGet($field);
                     }
                 }
             }
 
-            if(count($this->fillableColumns)) {
-                foreach ($this->fillableColumns as $field) {
-                    if ($post->offsetExists($field)) {
-                        $data[ $field ] = $post->offsetGet($field);
+            if (count($this->fillableColumns)) {
+                foreach ($this->fillableColumns as $column) {
+                    if ($post->offsetExists($column)) {
+                        $data[ $column ] = $post->offsetGet($column);
                     }
                 }
             }
@@ -597,7 +609,6 @@ class Restful extends Controller
             if (count($data)) {
                 $data[ 'record_update_timestamp' ] = timestamp();
                 $data[ 'record_update_user' ] = globals()->account->id;
-
 
                 if ($this->model->update($data, $conditions)) {
                     $this->sendError(201, 'Successful update request');
@@ -624,11 +635,13 @@ class Restful extends Controller
     public function delete()
     {
         if ($post = input()->post()) {
-            $rules = new Rules($post);
-            $rules->add('id', 'ID', 'required', 'ID field cannot be empty!');
+            $post->validation($this->postValidationRules, $this->postValidationCustomErrors);
+            $post->validator->addRule('id', 'ID', 'required', [
+                'required' => 'ID field cannot be empty!',
+            ]);
 
-            if ( ! $rules->validate()) {
-                $this->sendError(400, implode(', ', $rules->getErrors()));
+            if ( ! $post->validate()) {
+                $this->sendError(400, implode(', ', $post->validator->getErrors()));
             }
 
             if ( ! $this->model instanceof Model) {
@@ -655,11 +668,12 @@ class Restful extends Controller
     public function publish()
     {
         if ($post = input()->post()) {
-            $rules = new Rules($post);
-            $rules->add('id', 'ID', 'required', 'ID field cannot be empty!');
+            $post->validator->addRule('id', 'ID', 'required', [
+                'required' => 'ID field cannot be empty!',
+            ]);
 
-            if ( ! $rules->validate()) {
-                $this->sendError(400, implode(', ', $rules->getErrors()));
+            if ( ! $post->validate()) {
+                $this->sendError(400, implode(', ', $post->validator->getErrors()));
             }
 
             if ( ! $this->model instanceof Model) {
@@ -686,11 +700,12 @@ class Restful extends Controller
     public function unpublish()
     {
         if ($post = input()->post()) {
-            $rules = new Rules($post);
-            $rules->add('id', 'ID', 'required', 'ID field cannot be empty!');
+            $post->validator->addRule('id', 'ID', 'required', [
+                'required' => 'ID field cannot be empty!',
+            ]);
 
-            if ( ! $rules->validate()) {
-                $this->sendError(400, implode(', ', $rules->getErrors()));
+            if ( ! $post->validate()) {
+                $this->sendError(400, implode(', ', $post->validator->getErrors()));
             }
 
             if ( ! $this->model instanceof Model) {
@@ -717,11 +732,12 @@ class Restful extends Controller
     public function archive()
     {
         if ($post = input()->post()) {
-            $rules = new Rules($post);
-            $rules->add('id', 'ID', 'required', 'ID field cannot be empty!');
+            $post->validator->addRule('id', 'ID', 'required', [
+                'required' => 'ID field cannot be empty!',
+            ]);
 
-            if ( ! $rules->validate()) {
-                $this->sendError(400, implode(', ', $rules->getErrors()));
+            if ( ! $post->validate()) {
+                $this->sendError(400, implode(', ', $post->validator->getErrors()));
             }
 
             if ( ! $this->model instanceof Model) {

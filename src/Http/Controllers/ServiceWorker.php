@@ -39,8 +39,25 @@ class ServiceWorker extends Controller
      */
     public function index()
     {
-        if($javascript = file_get_contents(PATH_PUBLIC . 'assets/sw.js')) {
-            $javascript = str_replace(['{{$theme}}', '{{ $theme }}'], 'default', $javascript);
+        if ($javascript = file_get_contents(PATH_RESOURCES . 'service-worker.js')) {
+            $appName = modules()->getActiveApp()->getParameter();
+            
+            $javascript = str_replace([
+                '{{$appName}}',
+                '{{ $appName }}',
+            ], modules()->getActiveApp()->getParameter(), $javascript);
+
+            if (! presenter()->theme) {
+                $javascript = str_replace([
+                    '{{$themeName}}',
+                    '{{ $themeName }}',
+                ], presenter()->theme->getParameter(), $javascript);
+            } else {
+                $javascript = str_replace([
+                    '{{$themeName}}',
+                    '{{ $themeName }}',
+                ], null, $javascript);
+            }
 
             header("Content-type: application/x-javascript");
             echo $javascript;
