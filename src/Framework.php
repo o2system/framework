@@ -260,13 +260,13 @@ class Framework extends Kernel
         if (profiler() !== false) {
             profiler()->watch('Starting Globals Container');
         }
-        $this->globals = new Framework\Containers\Globals();
+        $this->globals = new Kernel\DataStructures\Input\Globals();
 
         // Instantiate Environment Container
         if (profiler() !== false) {
             profiler()->watch('Starting Environment Container');
         }
-        $this->environment = new Framework\Containers\Environment();
+        $this->environment = new Kernel\DataStructures\Input\Env();
 
         // Instantiate Models Container
         if (profiler() !== false) {

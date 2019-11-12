@@ -15,6 +15,7 @@ namespace O2System\Framework\Containers;
 
 // ------------------------------------------------------------------------
 
+use O2System\Kernel\DataStructures\Input\Env;
 use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
 
@@ -23,7 +24,7 @@ use O2System\Spl\Traits\Collectors\FilePathCollectorTrait;
  *
  * @package O2System\Framework\Containers
  */
-class Config extends Environment
+class Config extends Env
 {
     use FilePathCollectorTrait;
 
