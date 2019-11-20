@@ -15,10 +15,10 @@ namespace O2System\Framework\Models\Sql\Traits;
 
 // ------------------------------------------------------------------------
 
+use O2System\Image\Uploader;
 use O2System\Framework\Libraries\Ui\Contents\Lists\Unordered;
 use O2System\Framework\Models\Sql\DataObjects\Result;
 use O2System\Framework\Models\Sql\DataObjects\Result\Row;
-use O2System\Image\Uploader;
 
 /**
  * Class TraitModifier
@@ -577,51 +577,98 @@ trait ModifierTrait
      */
     public function delete($id)
     {
+        $params = func_get_args();
+
         if (method_exists($this, 'beforeDelete')) {
-            $this->beforeDelete($id);
+            call_user_func_array([&$this, 'beforeDelete'], $params);
         }
 
-        if(($row = $this->find($id)) instanceof Row) {
-            if (isset($this->uploadedImageFilePath)) {
+        if (empty($this->primaryKeys)) {
+            $conditions = [$this->primaryKey => reset($params)];
+        } else {
+            foreach ($this->primaryKeys as $key => $primaryKey) {
+                $conditions[ $primaryKey ] = $params[ $key ];
+            }
+        }
 
-                // Remove Uploaded Image
-                if ($this->uploadedImageKey) {
-                    if (is_file($filePath = $this->uploadedImageFilePath . $row->offsetGet($this->uploadedImageKey))) {
-                        unlink($filePath);
-                    }
-                } elseif (count($this->uploadedImageKeys)) {
-                    foreach ($this->uploadedImageKeys as $uploadedImageKey) {
-                        if (is_file($filePath = $this->uploadedImageFilePath . $row->offsetGet($uploadedImageKey))) {
-                            unlink($filePath);
-                        }
-                    }
+        $affectedRows = 0;
+        if ($result = $this->findWhere($conditions)) {
+            if($result instanceof Result) {
+                foreach($result as $row) {
+                    $this->deleteRow($row);
+                    $affectedRows++;
                 }
+            } elseif($result instanceof Row) {
+                $this->deleteRow($result);
+                $affectedRows++;
+            }
+        }
 
-                // Remove Uploaded File
-                if ($this->uploadedFileFilepath) {
-                    if (is_file($filePath = $this->uploadedFileFilepath . $row->offsetGet($this->uploadedFileKey))) {
+        if ($affectedRows > 0) {
+            if (method_exists($this, 'rebuildTree')) {
+                $this->rebuildTree();
+            }
+
+            if (method_exists($this, 'afterDelete')) {
+                call_user_func_array([&$this, 'afterDelete'], $params);
+            }
+
+            return $affectedRows;
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::deleteRow
+     *
+     * @param \O2System\Framework\Models\Sql\DataObjects\Result\Row $row
+     *
+     * @return bool|mixed
+     */
+    private function deleteRow(Row $row)
+    {
+        if (isset($this->uploadedImageFilePath)) {
+
+            // Remove Uploaded Image
+            if ($this->uploadedImageKey) {
+                if (is_file($filePath = $this->uploadedImageFilePath . $row->offsetGet($this->uploadedImageKey))) {
+                    unlink($filePath);
+                }
+            } elseif (count($this->uploadedImageKeys)) {
+                foreach ($this->uploadedImageKeys as $uploadedImageKey) {
+                    if (is_file($filePath = $this->uploadedImageFilePath . $row->offsetGet($uploadedImageKey))) {
                         unlink($filePath);
-                    }
-                } elseif (count($this->uploadedFileKeys)) {
-                    foreach ($this->uploadedFileKeys as $uploadedFileKey) {
-                        if (is_file($filePath = $this->uploadedFileFilepath . $row->offsetGet($uploadedFileKey))) {
-                            unlink($filePath);
-                        }
                     }
                 }
             }
 
-            if ($model->qb->table($model->table)->limit(1)->delete([$primaryKey => $id])) {
-                if (method_exists($this, 'rebuildTree')) {
-                    $this->rebuildTree();
+            // Remove Uploaded File
+            if ($this->uploadedFileFilepath) {
+                if (is_file($filePath = $this->uploadedFileFilepath . $row->offsetGet($this->uploadedFileKey))) {
+                    unlink($filePath);
                 }
-
-                if (method_exists($model, 'afterDelete')) {
-                    return $model->afterDelete();
+            } elseif (count($this->uploadedFileKeys)) {
+                foreach ($this->uploadedFileKeys as $uploadedFileKey) {
+                    if (is_file($filePath = $this->uploadedFileFilepath . $row->offsetGet($uploadedFileKey))) {
+                        unlink($filePath);
+                    }
                 }
-
-                return true;
             }
+        }
+
+        if (empty($this->primaryKeys)) {
+            $conditions = [$this->primaryKey => $row->offsetGet($this->primaryKey)];
+        } else {
+            foreach ($this->primaryKeys as $key => $primaryKey) {
+                $conditions[ $primaryKey ] = $row->offsetGet($primaryKey);
+            }
+        }
+
+        if ($this->qb->table($this->table)->limit(1)->delete($conditions)) {
+            return true;
         }
 
         return false;
@@ -647,8 +694,14 @@ trait ModifierTrait
 
             $affectedRows = 0;
             if ($result = $this->findWhere($conditions)) {
-                if ($model->qb->table($model->table)->limit(1)->delete($conditions)) {
-                    $affectedRows = $this->db->getAffectedRows();
+                if($result instanceof Result) {
+                    foreach($result as $row) {
+                        $this->deleteRow($row);
+                        $affectedRows++;
+                    }
+                } elseif($result instanceof Row) {
+                    $this->deleteRow($result);
+                    $affectedRows++;
                 }
             }
 
