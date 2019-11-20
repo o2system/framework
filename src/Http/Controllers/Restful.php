@@ -528,57 +528,61 @@ class Restful extends Controller
      */
     public function create()
     {
-        if ($post = input()->post()) {
-            if (count($this->createValidationRules)) {
-                $post->validation($this->createValidationRules, $this->createValidationCustomErrors);
-                if ( ! $post->validate()) {
-                    $this->sendError(400, $post->validator->getErrors());
-                }
-            }
-
+        if (empty($this->model)) {
+            output()->sendError(204);
+        } else {
             if ( ! $this->model instanceof Model) {
                 $this->sendError(503, 'Model is not ready');
             }
 
-            $data = $post->getArrayCopy();
-            if (count($this->createValidationRules)) {
-                foreach ($this->createValidationRules as $field => $rule) {
-                    if ($post->offsetExists($field)) {
-                        $data[ $field ] = $post->offsetGet($field);
+            if ($post = input()->post()) {
+                if (count($this->createValidationRules)) {
+                    $post->validation($this->createValidationRules, $this->createValidationCustomErrors);
+                    if ( ! $post->validate()) {
+                        $this->sendError(400, $post->validator->getErrors());
                     }
                 }
-            }
 
-            if (count($this->fillableColumns)) {
-                foreach ($this->fillableColumns as $column) {
-                    if ($post->offsetExists($column)) {
-                        $data[ $column ] = $post->offsetGet($column);
+                $data = $post->getArrayCopy();
+                if (count($this->createValidationRules)) {
+                    foreach ($this->createValidationRules as $field => $rule) {
+                        if ($post->offsetExists($field)) {
+                            $data[ $field ] = $post->offsetGet($field);
+                        }
                     }
                 }
-            }
 
-            if (count($data)) {
-                $data[ 'record_create_timestamp' ] = $data[ 'record_update_timestamp' ] = timestamp();
-
-                if (isset($GLOBALS[ 'account' ][ 'id' ])) {
-                    $data[ 'record_create_user' ] = $data[ 'record_update_user' ] = globals()->account->id;
+                if (count($this->fillableColumns)) {
+                    foreach ($this->fillableColumns as $column) {
+                        if ($post->offsetExists($column)) {
+                            $data[ $column ] = $post->offsetGet($column);
+                        }
+                    }
                 }
 
-                if ($this->model->insert($data)) {
-                    $data[ 'id' ] = $this->model->db->getLastInsertId();
-                    $this->sendPayload([
-                        'code' => 201,
-                        'Successful insert request',
-                        'data' => $data,
-                    ]);
+                if (count($data)) {
+                    $data[ 'record_create_timestamp' ] = $data[ 'record_update_timestamp' ] = timestamp();
+
+                    if (isset($GLOBALS[ 'account' ][ 'id' ])) {
+                        $data[ 'record_create_user' ] = $data[ 'record_update_user' ] = globals()->account->id;
+                    }
+
+                    if ($this->model->insert($data)) {
+                        $data[ 'id' ] = $this->model->db->getLastInsertId();
+                        $this->sendPayload([
+                            'code' => 201,
+                            'Successful insert request',
+                            'data' => $data,
+                        ]);
+                    } else {
+                        $this->sendError(501, 'Failed update request');
+                    }
                 } else {
-                    $this->sendError(501, 'Failed update request');
+                    $this->sendError(400, 'Post parameters cannot be empty!');
                 }
             } else {
-                $this->sendError(400, 'Post parameters cannot be empty!');
+                $this->sendError(400);
             }
-        } else {
-            $this->sendError(400);
         }
     }
 
@@ -592,69 +596,79 @@ class Restful extends Controller
      */
     public function update()
     {
-        if ($post = input()->post()) {
-            $conditions = [];
-
-            if (count($this->updateValidationRules)) {
-                $post->validation($this->updateValidationRules, $this->updateValidationCustomErrors);
-            } elseif (count($this->model->primaryKeys)) {
-                foreach ($this->model->primaryKeys as $primaryKey) {
-                    $post->validator->addRule($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
-                        [
-                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                        ]);
-                }
-            } else {
-                $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
-                $post->validator->addRule($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
-                    [
-                        'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                    ]);
-            }
-
-            if ( ! $post->validate()) {
-                $this->sendError(400, implode(', ', $post->validator->getErrors()));
-            }
-
+        if (empty($this->model)) {
+            output()->sendError(204);
+        } else {
             if ( ! $this->model instanceof Model) {
                 $this->sendError(503, 'Model is not ready');
             }
 
-            $data = $post->getArrayCopy();
-            if (count($this->updateValidationRules)) {
-                foreach ($this->updateValidationRules as $field => $rule) {
-                    if ($post->offsetExists($field)) {
-                        $data[ $field ] = $post->offsetGet($field);
+            if ($post = input()->post()) {
+                $conditions = [];
+
+                if (empty($this->updateValidationRules)) {
+                    if (empty($this->model->primaryKeys)) {
+                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
+                        $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+
+                        $this->updateValidationRules[ $primaryKey ] = 'required';
+                        $this->updateValidationCustomErrors[ $primaryKey ] = [
+                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
+                        ];
+                    } else {
+                        foreach ($this->model->primaryKeys as $primaryKey) {
+                            $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                            $this->updateValidationRules[ $primaryKey ] = 'required';
+                            $this->updateValidationCustomErrors[ $primaryKey ] = [
+                                'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
+                            ];
+                        }
                     }
                 }
-            }
 
-            if (count($this->fillableColumns)) {
-                foreach ($this->fillableColumns as $column) {
-                    if ($post->offsetExists($column)) {
-                        $data[ $column ] = $post->offsetGet($column);
+                if (count($this->updateValidationRules)) {
+                    $post->validation($this->updateValidationRules, $this->updateValidationCustomErrors);
+                }
+
+                if ( ! $post->validate()) {
+                    $this->sendError(400, implode(', ', $post->validator->getErrors()));
+                }
+
+                $data = $post->getArrayCopy();
+                if (count($this->updateValidationRules)) {
+                    foreach ($this->updateValidationRules as $field => $rule) {
+                        if ($post->offsetExists($field)) {
+                            $data[ $field ] = $post->offsetGet($field);
+                        }
                     }
                 }
-            }
 
-            if (count($data)) {
-                $data[ 'record_update_timestamp' ] = timestamp();
-
-                if (isset($GLOBALS[ 'account' ][ 'id' ])) {
-                    $data[ 'record_update_user' ] = globals()->account->id;
+                if (count($this->fillableColumns)) {
+                    foreach ($this->fillableColumns as $column) {
+                        if ($post->offsetExists($column)) {
+                            $data[ $column ] = $post->offsetGet($column);
+                        }
+                    }
                 }
 
-                if ($this->model->update($data, $conditions)) {
-                    $this->sendError(201, 'Successful update request');
+                if (count($data)) {
+                    $data[ 'record_update_timestamp' ] = timestamp();
+
+                    if (isset($GLOBALS[ 'account' ][ 'id' ])) {
+                        $data[ 'record_update_user' ] = globals()->account->id;
+                    }
+
+                    if ($this->model->update($data, $conditions)) {
+                        $this->sendError(201, 'Successful update request');
+                    } else {
+                        $this->sendError(501, 'Failed update request');
+                    }
                 } else {
-                    $this->sendError(501, 'Failed update request');
+                    $this->sendError(400, 'Post parameters cannot be empty!');
                 }
             } else {
-                $this->sendError(400, 'Post parameters cannot be empty!');
+                $this->sendError(400);
             }
-        } else {
-            $this->sendError(400);
         }
     }
 
@@ -669,102 +683,118 @@ class Restful extends Controller
      */
     public function delete($id = null)
     {
-        if ($post = input()->post()) {
-            if (count($this->actionValidationRules)) {
-                $post->validation($this->actionValidationRules, $this->actionValidationCustomErrors);
-
-            } elseif (count($this->model->primaryKeys)) {
-                foreach ($this->model->primaryKeys as $primaryKey) {
-                    $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
-                    $post->validator->addRule($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
-                        [
-                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                        ]);
-                }
-            } else {
-                $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
-                $post->validator->addRule($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
-                    [
-                        'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                    ]);
-            }
-
-            if ( ! $post->validate()) {
-                $this->sendError(400, implode(', ', $post->validator->getErrors()));
-            }
-
-            if ( ! $this->model instanceof Model) {
-                $this->sendError(503, 'Model is not ready');
-            }
-
-            if ($result = $this->model->findWhere($conditions)) {
-                if($result instanceof Row) {
-                    if ($row->delete()) {
-                        $this->sendError(200);
-                    } else {
-                        $this->sendError(501);
-                    }
-                } elseif($result instanceof Result) {
-                    foreach($result as $row) {
-                        $row->delete();
-                    }
-
-                    $this->sendError(200);
-                }
-            } else {
-                $this->sendError(404, 'Data not found!');
-            }
-        } elseif (input()->server('REQUEST_METHOD') === 'DELETE') {
-            $params = func_get_args();
-            $validator = new Validator();
-
-            if (empty($this->model->primaryKeys)) {
-                $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                $conditions = [$primaryKey => reset($params)];
-
-                $validator->addRule($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
-                    [
-                        'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                    ]);
-            } else {
-                foreach ($this->model->primaryKeys as $key => $field) {
-                    $conditions[ $field ] = $params[ $key ];
-
-                    $validator->addRule($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
-                        [
-                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                        ]);
-                }
-            }
-
-            if ( ! $validator->validate($conditions)) {
-                $this->sendError(400, implode(', ', $validator->getErrors()));
-            }
-
+        if (empty($this->model)) {
+            output()->sendError(204);
+        } else {
             if ( ! $this->model instanceof Model) {
                 $this->sendError(503, 'Model is not ready!');
             }
 
-            if ($result = $this->model->findWhere($conditions)) {
-                if($result instanceof Row) {
-                    if ($row->delete()) {
-                        $this->sendError(200);
-                    } else {
-                        $this->sendError(501);
-                    }
-                } elseif($result instanceof Result) {
-                    foreach($result as $row) {
-                        $row->delete();
-                    }
+            if ($post = input()->post()) {
+                if (empty($this->actionValidationRules)) {
+                    if (empty($this->model->primaryKeys)) {
+                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
+                        $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
 
-                    $this->sendError(200);
+                        $this->actionValidationRules[ $primaryKey ] = 'required';
+                        $this->actionValidationCustomErrors[ $primaryKey ] = [
+                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
+                        ];
+                    } else {
+                        foreach ($this->model->primaryKeys as $primaryKey) {
+                            $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                            $this->actionValidationRules[ $primaryKey ] = 'required';
+                            $this->actionValidationCustomErrors[ $primaryKey ] = [
+                                'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
+                            ];
+                        }
+                    }
+                }
+
+                if (count($this->actionValidationRules)) {
+                    $post->validation($this->actionValidationRules, $this->actionValidationCustomErrors);
+                }
+
+                if ( ! $post->validate()) {
+                    $this->sendError(400, implode(', ', $post->validator->getErrors()));
+                }
+
+                if ( ! $this->model instanceof Model) {
+                    $this->sendError(503, 'Model is not ready');
+                }
+
+                if ($result = $this->model->findWhere($conditions)) {
+                    if ($result instanceof Row) {
+                        if ($row->delete()) {
+                            $this->sendError(200);
+                        } else {
+                            $this->sendError(501);
+                        }
+                    } elseif ($result instanceof Result) {
+                        foreach ($result as $row) {
+                            $row->delete();
+                        }
+
+                        $this->sendError(200);
+                    }
+                } else {
+                    $this->sendError(404, 'Data not found!');
+                }
+            } elseif (input()->server('REQUEST_METHOD') === 'DELETE') {
+                $params = func_get_args();
+                $validator = new Validator();
+
+                if (empty($this->actionValidationRules)) {
+                    if (empty($this->model->primaryKeys)) {
+                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
+                        $conditions = [$primaryKey => reset($params)];
+
+                        $this->actionValidationRules[ $primaryKey ] = 'required';
+                        $this->actionValidationCustomErrors[ $primaryKey ] = [
+                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
+                        ];
+                    } else {
+                        foreach ($this->model->primaryKeys as $key => $primaryKey) {
+                            if (isset($params[ $key ])) {
+                                $conditions[ $primaryKey ] = $params[ $key ];
+                            }
+
+                            $this->actionValidationRules[ $primaryKey ] = 'required';
+                            $this->actionValidationCustomErrors[ $primaryKey ] = [
+                                'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
+                            ];
+                        }
+                    }
+                }
+
+                if (count($this->actionValidationRules)) {
+                    $validator->setRules($this->actionValidationRules, $this->actionValidationCustomErrors);
+                }
+
+                if ( ! $validator->validate($conditions)) {
+                    $this->sendError(400, implode(', ', $validator->getErrors()));
+                }
+
+                if ($result = $this->model->findWhere($conditions)) {
+                    if ($result instanceof Row) {
+                        if ($row->delete()) {
+                            $this->sendError(200);
+                        } else {
+                            $this->sendError(501);
+                        }
+                    } elseif ($result instanceof Result) {
+                        foreach ($result as $row) {
+                            $row->delete();
+                        }
+
+                        $this->sendError(200);
+                    }
+                } else {
+                    $this->sendError(404, 'Data not found!');
                 }
             } else {
-                $this->sendError(404, 'Data not found!');
+                $this->sendError(400);
             }
-        } else {
-            $this->sendError(400);
         }
     }
 
@@ -779,23 +809,28 @@ class Restful extends Controller
     private function updateRecordStatus(array $params, $method)
     {
         if ($post = input()->post()) {
+            if (empty($this->actionValidationRules)) {
+                if (empty($this->model->primaryKeys)) {
+                    $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
+                    $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+
+                    $this->actionValidationRules[ $primaryKey ] = 'required';
+                    $this->actionValidationCustomErrors[ $primaryKey ] = [
+                        'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
+                    ];
+                } else {
+                    foreach ($this->model->primaryKeys as $primaryKey) {
+                        $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                        $this->actionValidationRules[ $primaryKey ] = 'required';
+                        $this->actionValidationCustomErrors[ $primaryKey ] = [
+                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
+                        ];
+                    }
+                }
+            }
+
             if (count($this->actionValidationRules)) {
                 $post->validation($this->actionValidationRules, $this->actionValidationCustomErrors);
-            } elseif (count($this->model->primaryKeys)) {
-                foreach ($this->model->primaryKeys as $primaryKey) {
-                    $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
-                    $post->validator->addRule($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
-                        [
-                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                        ]);
-                }
-            } else {
-                $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
-                $post->validator->addRule($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
-                    [
-                        'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                    ]);
             }
 
             if ( ! $post->validate()) {
@@ -807,14 +842,14 @@ class Restful extends Controller
             }
 
             if ($result = $this->model->findWhere($conditions)) {
-                if($result instanceof Row) {
+                if ($result instanceof Row) {
                     if ($row->{$method}()) {
                         $this->sendError(200);
                     } else {
                         $this->sendError(501);
                     }
-                } elseif($result instanceof Result) {
-                    foreach($result as $row) {
+                } elseif ($result instanceof Result) {
+                    foreach ($result as $row) {
                         $row->{$method}();
                     }
 
@@ -826,23 +861,31 @@ class Restful extends Controller
         } elseif (input()->server('REQUEST_METHOD') === 'PATCH') {
             $validator = new Validator();
 
-            if (empty($this->model->primaryKeys)) {
-                $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                $conditions = [$primaryKey => reset($params)];
+            if (empty($this->actionValidationRules)) {
+                if (empty($this->model->primaryKeys)) {
+                    $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
+                    $conditions = [$primaryKey => reset($params)];
 
-                $validator->addRule($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
-                    [
+                    $this->actionValidationRules[ $primaryKey ] = 'required';
+                    $this->actionValidationCustomErrors[ $primaryKey ] = [
                         'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                    ]);
-            } else {
-                foreach ($this->model->primaryKeys as $key => $field) {
-                    $conditions[ $field ] = $params[ $key ];
+                    ];
+                } else {
+                    foreach ($this->model->primaryKeys as $key => $primaryKey) {
+                        if (isset($params[ $key ])) {
+                            $conditions[ $primaryKey ] = $params[ $key ];
+                        }
 
-                    $validator->addRule($primaryKey, language('LABEL_' . strtoupper($primaryKey)), 'required',
-                        [
+                        $this->actionValidationRules[ $primaryKey ] = 'required';
+                        $this->actionValidationCustomErrors[ $primaryKey ] = [
                             'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                        ]);
+                        ];
+                    }
                 }
+            }
+
+            if (count($this->actionValidationRules)) {
+                $validator->setRules($this->actionValidationRules, $this->actionValidationCustomErrors);
             }
 
             if ( ! $validator->validate($conditions)) {
@@ -854,14 +897,14 @@ class Restful extends Controller
             }
 
             if ($result = $this->model->findWhere($conditions)) {
-                if($result instanceof Row) {
+                if ($result instanceof Row) {
                     if ($row->{$method}()) {
                         $this->sendError(200);
                     } else {
                         $this->sendError(501);
                     }
-                } elseif($result instanceof Result) {
-                    foreach($result as $row) {
+                } elseif ($result instanceof Result) {
+                    foreach ($result as $row) {
                         $row->{$method}();
                     }
 
