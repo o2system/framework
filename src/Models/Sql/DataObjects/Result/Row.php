@@ -215,21 +215,130 @@ class Row extends SplArrayObject
     {
         $model = models($this->model->getClass());
 
-        $primaryKey = isset($model->primaryKey) ? $model->primaryKey : 'id';
-        $id = $this->offsetGet($primaryKey);
+        if(empty($model->primaryKeys)) {
+            $primaryKey = isset($model->primaryKey) ? $model->primaryKey : 'id';
+            $id = $this->offsetGet($primaryKey);
 
-        if (method_exists($model, 'beforeDelete')) {
-            $model->beforeDelete();
-        }
-
-        if ($model->qb->table($model->table)->limit(1)->delete([$primaryKey => $id])) {
-            if (method_exists($model, 'afterDelete')) {
-                return $model->afterDelete();
+            return $model->delete($id);
+        } else {
+            $conditions = [];
+            foreach($model->primaryKeys as $primaryKey) {
+                $conditions[$primaryKey] = $this->offsetGet($primaryKey);
             }
 
-            return true;
+            return $model->deleteBy($conditions);
         }
+    }
 
-        return false;
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::updateRecordStatus
+     *
+     * @param string $method
+     *
+     * @return bool
+     */
+    private function updateRecordStatus($method)
+    {
+        $model = models($this->model->getClass());
+
+        if(empty($model->primaryKeys)) {
+            $primaryKey = isset($model->primaryKey) ? $model->primaryKey : 'id';
+            $id = $this->offsetGet($primaryKey);
+
+            return $model->{$method}($id);
+        } else {
+            $conditions = [];
+            foreach($model->primaryKeys as $primaryKey) {
+                $conditions[$primaryKey] = $this->offsetGet($primaryKey);
+            }
+
+            return $model->$model->{$method . 'By'}($conditions);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::publish
+     *
+     * @return bool
+     * @throws \O2System\Spl\Exceptions\RuntimeException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function publish()
+    {
+        return $this->updateRecordStatus('publish');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::unpublish
+     *
+     * @return bool
+     * @throws \O2System\Spl\Exceptions\RuntimeException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function unpublish()
+    {
+        return $this->updateRecordStatus('unpublish');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::archive
+     *
+     * @return bool
+     * @throws \O2System\Spl\Exceptions\RuntimeException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function archive()
+    {
+        return $this->updateRecordStatus('archive');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::lock
+     *
+     * @return bool
+     * @throws \O2System\Spl\Exceptions\RuntimeException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function lock()
+    {
+        return $this->updateRecordStatus('lock');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::softDelete
+     *
+     * @return bool
+     * @throws \O2System\Spl\Exceptions\RuntimeException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function softDelete()
+    {
+        return $this->updateRecordStatus('softDelete');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::draft
+     *
+     * @return bool
+     * @throws \O2System\Spl\Exceptions\RuntimeException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function draft()
+    {
+        return $this->updateRecordStatus('draft');
     }
 }

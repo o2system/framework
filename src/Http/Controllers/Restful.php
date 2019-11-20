@@ -19,6 +19,7 @@ use O2System\Cache\Item;
 use O2System\Framework\Http\Controller;
 use O2System\Framework\Models\Sql\Model;
 use O2System\Psr\Http\Header\ResponseFieldInterface;
+use O2System\Security\Form\Validator;
 use O2System\Spl\Exceptions\Logic\OutOfRangeException;
 
 /**
@@ -174,18 +175,46 @@ class Restful extends Controller
     public $getValidationCustomErrors = [];
 
     /**
-     * Restful::$postValidationRules
+     * Restful::$createValidationRules
      *
      * @var array
      */
-    public $postValidationRules = [];
+    public $createValidationRules = [];
 
     /**
-     * Restful::$postValidationCustomErrors
+     * Restful::$createValidationCustomErrors
      *
      * @var array
      */
-    public $postValidationCustomErrors = [];
+    public $createValidationCustomErrors = [];
+
+    /**
+     * Restful::$updateValidationRules
+     *
+     * @var array
+     */
+    public $updateValidationRules = [];
+
+    /**
+     * Restful::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [];
+
+    /**
+     * Restful::$actionValidationRules
+     *
+     * @var array
+     */
+    public $actionValidationRules = [];
+
+    /**
+     * Restful::$actionValidationCustomErrors
+     *
+     * @var array
+     */
+    public $actionValidationCustomErrors = [];
 
     /**
      * Restful::$fillableColumns
@@ -357,7 +386,7 @@ class Restful extends Controller
                     $get->validation($this->getValidationRules, $this->getValidationCustomErrors);
 
                     if ( ! $get->validate()) {
-                        $this->sendError(400, implode(', ', $post->validator->getErrors()));
+                        $this->sendError(400, implode(', ', $get->validator->getErrors()));
                     } else {
                         $conditions = [];
 
@@ -497,8 +526,8 @@ class Restful extends Controller
     public function create()
     {
         if ($post = input()->post()) {
-            if (count($this->postValidationRules)) {
-                $post->validation($this->postValidationRules, $this->postValidationCustomErrors);
+            if (count($this->createValidationRules)) {
+                $post->validation($this->createValidationRules, $this->createValidationCustomErrors);
                 if ( ! $post->validate()) {
                     $this->sendError(400, $post->validator->getErrors());
                 }
@@ -509,8 +538,8 @@ class Restful extends Controller
             }
 
             $data = $post->getArrayCopy();
-            if (count($this->postValidationRules)) {
-                foreach ($this->postValidationRules as $field => $rule) {
+            if (count($this->createValidationRules)) {
+                foreach ($this->createValidationRules as $field => $rule) {
                     if ($post->offsetExists($field)) {
                         $data[ $field ] = $post->offsetGet($field);
                     }
@@ -527,7 +556,10 @@ class Restful extends Controller
 
             if (count($data)) {
                 $data[ 'record_create_timestamp' ] = $data[ 'record_update_timestamp' ] = timestamp();
-                $data[ 'record_create_user' ] = $data[ 'record_update_user' ] = globals()->account->id;
+
+                if(isset($GLOBALS['account']['id'])) {
+                    $data[ 'record_create_user' ] = $data[ 'record_update_user' ] = globals()->account->id;
+                }
 
                 if ($this->model->insert($data)) {
                     $data[ 'id' ] = $this->model->db->getLastInsertId();
@@ -537,7 +569,6 @@ class Restful extends Controller
                         'data' => $data,
                     ]);
                 } else {
-
                     $this->sendError(501, 'Failed update request');
                 }
             } else {
@@ -561,8 +592,8 @@ class Restful extends Controller
         if ($post = input()->post()) {
             $conditions = [];
 
-            if (count($this->postValidationRules)) {
-                $post->validation($this->postValidationRules, $this->postValidationCustomErrors);
+            if (count($this->updateValidationRules)) {
+                $post->validation($this->updateValidationRules, $this->updateValidationCustomErrors);
 
                 if (count($this->model->primaryKeys)) {
                     foreach ($this->model->primaryKeys as $primaryKey) {
@@ -590,8 +621,8 @@ class Restful extends Controller
             }
 
             $data = $post->getArrayCopy();
-            if (count($this->postValidationRules)) {
-                foreach ($this->postValidationRules as $field => $rule) {
+            if (count($this->updateValidationRules)) {
+                foreach ($this->updateValidationRules as $field => $rule) {
                     if ($post->offsetExists($field)) {
                         $data[ $field ] = $post->offsetGet($field);
                     }
@@ -608,7 +639,10 @@ class Restful extends Controller
 
             if (count($data)) {
                 $data[ 'record_update_timestamp' ] = timestamp();
-                $data[ 'record_update_user' ] = globals()->account->id;
+
+                if(isset($GLOBALS['account']['id'])) {
+                    $data[ 'record_update_user' ] = globals()->account->id;
+                }
 
                 if ($this->model->update($data, $conditions)) {
                     $this->sendError(201, 'Successful update request');
@@ -632,13 +666,18 @@ class Restful extends Controller
      * @throws \O2System\Spl\Exceptions\RuntimeException
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function delete()
+    public function delete($id = null)
     {
         if ($post = input()->post()) {
-            $post->validation($this->postValidationRules, $this->postValidationCustomErrors);
-            $post->validator->addRule('id', 'ID', 'required', [
-                'required' => 'ID field cannot be empty!',
-            ]);
+            if(count($this->deleteValidationRules)) {
+                $post->validation($this->deleteValidationRules, $this->deleteValidationCustomErrors);
+
+            } else {
+                $post->validator->addRule('id', 'ID', 'required|integer', [
+                    'required' => 'Data ID cannot be empty!',
+                    'integer' => 'Data ID must be an integer'
+                ]);
+            }
 
             if ( ! $post->validate()) {
                 $this->sendError(400, implode(', ', $post->validator->getErrors()));
@@ -648,12 +687,116 @@ class Restful extends Controller
                 $this->sendError(503, 'Model is not ready');
             }
 
-            if ($this->model->delete($post->id)) {
-                $this->sendError(201, 'Successful delete request');
+            if ($row = $this->model->find($id)) {
+                if($row->delete()) {
+                    $this->sendError(200);
+                } else {
+                    $this->sendError(501);
+                }
             } else {
-                $this->sendError(501, 'Failed delete request');
+                $this->sendError(404, 'Data not found!');
             }
-        } else {
+        } elseif(input()->server('REQUEST_METHOD') === 'DELETE'){
+            $validator = new Validator();
+
+            if(count($this->deleteValidationRules)) {
+                $validator->setRules($this->deleteValidationRules, $this->deleteValidationCustomErrors);
+            } else {
+                $validator->addRule('id', 'ID', 'required|integer', [
+                    'required' => 'Data ID cannot be empty!',
+                    'integer' => 'Data ID must be an integer'
+                ]);
+            }
+
+            if ( ! $validator->validate(['id' => $id])) {
+                $this->sendError(400, implode(', ', $validator->getErrors()));
+            }
+
+            if ( ! $this->model instanceof Model) {
+                $this->sendError(503, 'Model is not ready!');
+            }
+
+            if ($row = $this->model->find($id)) {
+                if($row->delete()) {
+                    $this->sendError(200);
+                } else {
+                    $this->sendError(501);
+                }
+            } else {
+                $this->sendError(404, 'Data not found!');
+            }
+        }else {
+            $this->sendError(400);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Restful::updateRecordStatus
+     *
+     * @param string $method
+     */
+    private function updateRecordStatus($id, $method)
+    {
+        if ($post = input()->post()) {
+            if(count($this->actionValidationRules)) {
+                $post->validation($this->actionValidationRules, $this->actionValidationCustomErrors);
+
+            } else {
+                $post->validator->addRule('id', 'ID', 'required|integer', [
+                    'required' => 'Data ID cannot be empty!',
+                    'integer' => 'Data ID must be an integer'
+                ]);
+            }
+
+            if ( ! $post->validate()) {
+                $this->sendError(400, implode(', ', $post->validator->getErrors()));
+            }
+
+            if ( ! $this->model instanceof Model) {
+                $this->sendError(503, 'Model is not ready');
+            }
+
+            if ($row = $this->model->find($id)) {
+                if($row->{$method}()) {
+                    $this->sendError(200);
+                } else {
+                    $this->sendError(501);
+                }
+            } else {
+                $this->sendError(404, 'Data not found!');
+            }
+        } elseif(input()->server('REQUEST_METHOD') === 'PATCH'){
+            $validator = new Validator();
+
+            if(count($this->actionValidationRules)) {
+                $validator->setRules($this->actionValidationRules, $this->actionValidationCustomErrors);
+            } else {
+                $validator->addRule('id', 'ID', 'required|integer', [
+                    'required' => 'Data ID cannot be empty!',
+                    'integer' => 'Data ID must be an integer'
+                ]);
+            }
+
+            if ( ! $validator->validate(['id' => $id])) {
+                $this->sendError(400, implode(', ', $validator->getErrors()));
+            }
+
+            if ( ! $this->model instanceof Model) {
+                $this->sendError(503, 'Model is not ready!');
+            }
+
+            if ($row = $this->model->find($id)) {
+                if($row->{$method}()) {
+                    $this->sendError(200);
+                } else {
+                    $this->sendError(501);
+                }
+            } else {
+                $this->sendError(404, 'Data not found!');
+            }
+        }else {
             $this->sendError(400);
         }
     }
@@ -665,29 +808,9 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function publish()
+    public function publish($id = null)
     {
-        if ($post = input()->post()) {
-            $post->validator->addRule('id', 'ID', 'required', [
-                'required' => 'ID field cannot be empty!',
-            ]);
-
-            if ( ! $post->validate()) {
-                $this->sendError(400, implode(', ', $post->validator->getErrors()));
-            }
-
-            if ( ! $this->model instanceof Model) {
-                $this->sendError(503, 'Model is not ready');
-            }
-
-            if ($this->model->publish($post->id)) {
-                $this->sendError(201, 'Successful publish request');
-            } else {
-                $this->sendError(501, 'Failed publish request');
-            }
-        } else {
-            $this->sendError(400);
-        }
+        $this->updateRecordStatus($id, 'publish');
     }
 
     // ------------------------------------------------------------------------
@@ -697,29 +820,9 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function unpublish()
+    public function unpublish($id = null)
     {
-        if ($post = input()->post()) {
-            $post->validator->addRule('id', 'ID', 'required', [
-                'required' => 'ID field cannot be empty!',
-            ]);
-
-            if ( ! $post->validate()) {
-                $this->sendError(400, implode(', ', $post->validator->getErrors()));
-            }
-
-            if ( ! $this->model instanceof Model) {
-                $this->sendError(503, 'Model is not ready');
-            }
-
-            if ($this->model->unpublish($post->id)) {
-                $this->sendError(201, 'Successful unpublish request');
-            } else {
-                $this->sendError(501, 'Failed unpublish request');
-            }
-        } else {
-            $this->sendError(400);
-        }
+        $this->updateRecordStatus($id, 'unpublish');
     }
 
     // ------------------------------------------------------------------------
@@ -729,29 +832,45 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function archive()
+    public function archive($id = null)
     {
-        if ($post = input()->post()) {
-            $post->validator->addRule('id', 'ID', 'required', [
-                'required' => 'ID field cannot be empty!',
-            ]);
+        $this->updateRecordStatus($id, 'archive');
+    }
 
-            if ( ! $post->validate()) {
-                $this->sendError(400, implode(', ', $post->validator->getErrors()));
-            }
+    // ------------------------------------------------------------------------
 
-            if ( ! $this->model instanceof Model) {
-                $this->sendError(503, 'Model is not ready');
-            }
+    /**
+     * Restful::lock
+     *
+     * @throws OutOfRangeException
+     */
+    public function lock($id = null)
+    {
+        $this->updateRecordStatus($id, 'lock');
+    }
 
-            if ($this->model->archive($post->id)) {
-                $this->sendError(201, 'Successful archived request');
-            } else {
-                $this->sendError(501, 'Failed archived request');
-            }
-        } else {
-            $this->sendError(400);
-        }
+    // ------------------------------------------------------------------------
+
+    /**
+     * Restful::softDelete
+     *
+     * @throws OutOfRangeException
+     */
+    public function softDelete($id = null)
+    {
+        $this->updateRecordStatus($id, 'softDelete');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Restful::draft
+     *
+     * @throws OutOfRangeException
+     */
+    public function draft($id = null)
+    {
+        $this->updateRecordStatus($id, 'draft');
     }
 
     // ------------------------------------------------------------------------

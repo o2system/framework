@@ -163,9 +163,9 @@ trait ModifierTrait
 
             if ($this->qb->table($this->table)->insert($sets)) {
                 if (method_exists($this, 'afterInsert')) {
-                    $this->afterInsert();
+                    $this->afterInsert($sets);
                 } elseif (method_exists($this, 'afterInsertOrUpdate')) {
-                    $this->afterInsertOrUpdate();
+                    $this->afterInsertOrUpdate($sets);
                 }
 
                 if (method_exists($this, 'rebuildTree')) {
@@ -282,7 +282,7 @@ trait ModifierTrait
 
             if ($this->qb->table($this->table)->insertBatch($sets)) {
                 if (method_exists($this, 'afterInsertMany')) {
-                    $this->afterInsertMany();
+                    $this->afterInsertMany($sets);
                 } elseif (method_exists($this, 'afterInsertOrUpdateMany')) {
                     $this->afterInsertOrUpdateMany($sets);
                 }
@@ -454,9 +454,9 @@ trait ModifierTrait
                 if ($this->qb->table($this->table)->update($sets, $conditions)) {
 
                     if (method_exists($this, 'afterUpdate')) {
-                        $this->afterUpdate();
+                        $this->afterUpdate($sets);
                     } elseif (method_exists($this, 'afterInsertOrUpdate')) {
-                        $this->afterInsertOrUpdate();
+                        $this->afterInsertOrUpdate($sets);
                     }
 
                     $label = false;
@@ -542,14 +542,14 @@ trait ModifierTrait
         if (method_exists($this, 'beforeUpdateMany')) {
             $this->beforeUpdateMany($sets);
         } elseif (method_exists($this, 'beforeInsertOrUpdateMany')) {
-            $this->beforeInsertOrUpdateMany();
+            $this->beforeInsertOrUpdateMany($sets);
         }
 
         if ($this->qb->table($this->table)->updateBatch($sets, $primaryKey)) {
             if (method_exists($this, 'afterUpdateMany')) {
-                return $this->afterUpdateMany();
+                return $this->afterUpdateMany($sets);
             } elseif (method_exists($this, 'afterInsertOrUpdateMany')) {
-                return $this->afterInsertOrUpdateMany();
+                return $this->afterInsertOrUpdateMany($sets);
             }
 
             $affectedRows = $this->db->getAffectedRows();
@@ -578,17 +578,10 @@ trait ModifierTrait
     public function delete($id)
     {
         if (method_exists($this, 'beforeDelete')) {
-            $this->beforeDelete();
+            $this->beforeDelete($id);
         }
 
-        if ($id instanceof Row) {
-            $row = $id;
-        } else {
-            $row = $this->find($id);
-        }
-
-        // Delete Files
-        if ($row instanceof Row) {
+        if(($row = $this->find($id)) instanceof Row) {
             if (isset($this->uploadedImageFilePath)) {
 
                 // Remove Uploaded Image
@@ -618,19 +611,17 @@ trait ModifierTrait
                 }
             }
 
-            if ( ! $id instanceof Row) {
-                if ($row->delete()) {
-                    if (method_exists($this, 'afterDelete')) {
-                        $this->afterDelete();
-                    }
-
-                    if (method_exists($this, 'rebuildTree')) {
-                        $this->rebuildTree();
-                    }
+            if ($model->qb->table($model->table)->limit(1)->delete([$primaryKey => $id])) {
+                if (method_exists($this, 'rebuildTree')) {
+                    $this->rebuildTree();
                 }
-            }
 
-            return $row->delete();
+                if (method_exists($model, 'afterDelete')) {
+                    return $model->afterDelete();
+                }
+
+                return true;
+            }
         }
 
         return false;
@@ -651,31 +642,23 @@ trait ModifierTrait
     {
         if (count($conditions)) {
             if (method_exists($this, 'beforeDelete')) {
-                $this->beforeDelete();
+                $this->beforeDelete($conditions);
             }
 
             $affectedRows = 0;
             if ($result = $this->findWhere($conditions)) {
-                if ($result instanceof Result) {
-                    foreach ($result as $row) {
-                        if ($this->delete($row)) {
-                            $affectedRows++;
-                        }
-                    }
-                } elseif ($result instanceof Row) {
-                    if ($this->delete($result)) {
-                        $affectedRows++;
-                    }
+                if ($model->qb->table($model->table)->limit(1)->delete($conditions)) {
+                    $affectedRows = $this->db->getAffectedRows();
                 }
             }
 
             if ($affectedRows > 0) {
-                if (method_exists($this, 'afterDelete')) {
-                    $this->afterDelete();
-                }
-
                 if (method_exists($this, 'rebuildTree')) {
                     $this->rebuildTree();
+                }
+
+                if (method_exists($this, 'afterDelete')) {
+                    $this->afterDelete($conditions);
                 }
 
                 return $affectedRows;
@@ -1244,5 +1227,61 @@ trait ModifierTrait
     public function lockManyBy(array $conditions)
     {
         return $this->updateRecordStatusManyBy('LOCKED', 'lockManyBy', $conditions);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::draft
+     *
+     * @param int $id
+     *
+     * @return bool
+     */
+    public function draft($id)
+    {
+        return $this->updateRecordStatus($id, 'DRAFT', 'draft');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::draftBy
+     *
+     * @param array $conditions
+     *
+     * @return bool
+     */
+    public function draftBy(array $conditions)
+    {
+        return $this->updateRecordStatusBy('DRAFT', 'draftBy', $conditions);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::draftMany
+     *
+     * @param array $ids
+     *
+     * @return bool|int
+     */
+    public function draftMany(array $ids)
+    {
+        return $this->updateRecordStatusMany($ids, 'DRAFT', 'draftMany');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::draftManyBy
+     *
+     * @param array $conditions
+     *
+     * @return bool|int
+     */
+    public function draftManyBy(array $conditions)
+    {
+        return $this->updateRecordStatusManyBy('DRAFT', 'draftManyBy', $conditions);
     }
 }
