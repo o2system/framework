@@ -233,6 +233,13 @@ class Restful extends Controller
      */
     public $dataTableColumns = [];
 
+    /**
+     * Restful::$searchableColumns
+     *
+     * @var array
+     */
+    public $searchableColumns = [];
+
     // ------------------------------------------------------------------------
 
     /**
@@ -368,6 +375,16 @@ class Restful extends Controller
                 unset($_GET[ 'limit' ]);
             } else {
                 $limit = null;
+            }
+
+            if ($search = input()->get('search')) {
+                if ( ! empty($this->searchableColumns)) {
+                    foreach ($this->searchableColumns as $column) {
+                        $this->model->qb->orLike($column, $search);
+                    }
+                }
+
+                unset($_GET[ 'search' ]);
             }
 
             if (count($this->getParams)) {
@@ -570,7 +587,7 @@ class Restful extends Controller
                     if ($this->model->insert($data)) {
                         $data[ 'id' ] = $this->model->db->getLastInsertId();
                         $this->sendPayload([
-                            'code' => 201,
+                            'code' => 200,
                             'Successful insert request',
                             'data' => $data,
                         ]);
@@ -609,7 +626,9 @@ class Restful extends Controller
                 if (empty($this->updateValidationRules)) {
                     if (empty($this->model->primaryKeys)) {
                         $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                        $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                        if ($post->offsetExists($primaryKey)) {
+                            $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                        }
 
                         $this->updateValidationRules[ $primaryKey ] = 'required';
                         $this->updateValidationCustomErrors[ $primaryKey ] = [
@@ -617,11 +636,28 @@ class Restful extends Controller
                         ];
                     } else {
                         foreach ($this->model->primaryKeys as $primaryKey) {
-                            $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                            if ($post->offsetExists($primaryKey)) {
+                                $conditions[ $primaryKey ] = $post->offsetGet($primaryKey);
+                            }
+
                             $this->updateValidationRules[ $primaryKey ] = 'required';
                             $this->updateValidationCustomErrors[ $primaryKey ] = [
                                 'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
                             ];
+                        }
+                    }
+                } else {
+                    if (empty($this->model->primaryKeys)) {
+                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
+
+                        if ($post->offsetExists($primaryKey)) {
+                            $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                        }
+                    } else {
+                        foreach ($this->model->primaryKeys as $primaryKey) {
+                            if ($post->offsetExists($primaryKey)) {
+                                $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                            }
                         }
                     }
                 }
@@ -658,8 +694,12 @@ class Restful extends Controller
                         $data[ 'record_update_user' ] = globals()->account->id;
                     }
 
+                    if (empty($conditions)) {
+                        $this->sendError(501, 'Unavailable primary keys data');
+                    }
+
                     if ($this->model->update($data, $conditions)) {
-                        $this->sendError(201, 'Successful update request');
+                        $this->sendError(200, 'Successful update request');
                     } else {
                         $this->sendError(501, 'Failed update request');
                     }
@@ -694,7 +734,9 @@ class Restful extends Controller
                 if (empty($this->actionValidationRules)) {
                     if (empty($this->model->primaryKeys)) {
                         $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                        $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                        if ($post->offsetExists($primaryKey)) {
+                            $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                        }
 
                         $this->actionValidationRules[ $primaryKey ] = 'required';
                         $this->actionValidationCustomErrors[ $primaryKey ] = [
@@ -709,18 +751,31 @@ class Restful extends Controller
                             ];
                         }
                     }
+                } else {
+                    if (empty($this->model->primaryKeys)) {
+                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
+                        if ($post->offsetExists($primaryKey)) {
+                            $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                        }
+                    } else {
+                        foreach ($this->model->primaryKeys as $primaryKey) {
+                            if ($post->offsetExists($primaryKey)) {
+                                $conditions[ $primaryKey ] = $post->offsetGet($primaryKey);
+                            }
+                        }
+                    }
                 }
 
                 if (count($this->actionValidationRules)) {
                     $post->validation($this->actionValidationRules, $this->actionValidationCustomErrors);
                 }
 
-                if ( ! $post->validate()) {
-                    $this->sendError(400, implode(', ', $post->validator->getErrors()));
+                if (empty($conditions)) {
+                    $this->sendError(501, 'Unavailable primary keys data');
                 }
 
-                if ( ! $this->model instanceof Model) {
-                    $this->sendError(503, 'Model is not ready');
+                if ( ! $post->validate($conditions)) {
+                    $this->sendError(400, implode(', ', $post->validator->getErrors()));
                 }
 
                 if ($result = $this->model->findWhere($conditions)) {
@@ -747,7 +802,9 @@ class Restful extends Controller
                 if (empty($this->actionValidationRules)) {
                     if (empty($this->model->primaryKeys)) {
                         $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                        $conditions = [$primaryKey => reset($params)];
+                        if (count($params)) {
+                            $conditions = [$primaryKey => reset($params)];
+                        }
 
                         $this->actionValidationRules[ $primaryKey ] = 'required';
                         $this->actionValidationCustomErrors[ $primaryKey ] = [
@@ -765,10 +822,27 @@ class Restful extends Controller
                             ];
                         }
                     }
+                } else {
+                    if (empty($this->model->primaryKeys)) {
+                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
+                        if (count($params)) {
+                            $conditions = [$primaryKey => reset($params)];
+                        }
+                    } else {
+                        foreach ($this->model->primaryKeys as $key => $primaryKey) {
+                            if (isset($params[ $key ])) {
+                                $conditions[ $primaryKey ] = $params[ $key ];
+                            }
+                        }
+                    }
                 }
 
                 if (count($this->actionValidationRules)) {
                     $validator->setRules($this->actionValidationRules, $this->actionValidationCustomErrors);
+                }
+
+                if (empty($conditions)) {
+                    $this->sendError(501, 'Unavailable primary keys data');
                 }
 
                 if ( ! $validator->validate($conditions)) {
@@ -812,7 +886,9 @@ class Restful extends Controller
             if (empty($this->actionValidationRules)) {
                 if (empty($this->model->primaryKeys)) {
                     $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                    $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                    if ($post->offsetExists($primaryKey)) {
+                        $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                    }
 
                     $this->actionValidationRules[ $primaryKey ] = 'required';
                     $this->actionValidationCustomErrors[ $primaryKey ] = [
@@ -820,7 +896,10 @@ class Restful extends Controller
                     ];
                 } else {
                     foreach ($this->model->primaryKeys as $primaryKey) {
-                        $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                        if ($post->offsetExists($primaryKey)) {
+                            $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
+                        }
+
                         $this->actionValidationRules[ $primaryKey ] = 'required';
                         $this->actionValidationCustomErrors[ $primaryKey ] = [
                             'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
@@ -833,12 +912,12 @@ class Restful extends Controller
                 $post->validation($this->actionValidationRules, $this->actionValidationCustomErrors);
             }
 
-            if ( ! $post->validate()) {
-                $this->sendError(400, implode(', ', $post->validator->getErrors()));
+            if (empty($conditions)) {
+                $this->sendError(501, 'Unavailable primary keys data');
             }
 
-            if ( ! $this->model instanceof Model) {
-                $this->sendError(503, 'Model is not ready');
+            if ( ! $post->validate($conditions)) {
+                $this->sendError(400, implode(', ', $post->validator->getErrors()));
             }
 
             if ($result = $this->model->findWhere($conditions)) {
@@ -864,7 +943,9 @@ class Restful extends Controller
             if (empty($this->actionValidationRules)) {
                 if (empty($this->model->primaryKeys)) {
                     $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                    $conditions = [$primaryKey => reset($params)];
+                    if (count($params)) {
+                        $conditions = [$primaryKey => reset($params)];
+                    }
 
                     $this->actionValidationRules[ $primaryKey ] = 'required';
                     $this->actionValidationCustomErrors[ $primaryKey ] = [
@@ -882,10 +963,27 @@ class Restful extends Controller
                         ];
                     }
                 }
+            } else {
+                if (empty($this->model->primaryKeys)) {
+                    $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
+                    if (count($params)) {
+                        $conditions = [$primaryKey => reset($params)];
+                    }
+                } else {
+                    foreach ($this->model->primaryKeys as $key => $primaryKey) {
+                        if (isset($params[ $key ])) {
+                            $conditions[ $primaryKey ] = $params[ $key ];
+                        }
+                    }
+                }
             }
 
             if (count($this->actionValidationRules)) {
                 $validator->setRules($this->actionValidationRules, $this->actionValidationCustomErrors);
+            }
+
+            if (empty($conditions)) {
+                $this->sendError(501, 'Unavailable primary keys data');
             }
 
             if ( ! $validator->validate($conditions)) {
