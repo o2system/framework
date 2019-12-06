@@ -21,6 +21,7 @@ use O2System\Framework\Models\Sql\Traits\FinderTrait;
 use O2System\Framework\Models\Sql\Traits\ModifierTrait;
 use O2System\Framework\Models\Sql\Traits\RecordTrait;
 use O2System\Framework\Models\Sql\Traits\RelationTrait;
+use O2System\Spl\Exceptions\RuntimeException;
 
 /**
  * Class Model
@@ -107,6 +108,19 @@ class Model
     public $visibleColumns = [];
 
     /**
+     * Model::$visibleRecordStatus
+     *
+     * @var array
+     */
+    public $visibleRecordStatus = [
+        'PUBLISH',
+        'UNPUBLISH',
+        'DRAFT',
+        'ARCHIVED',
+        'LOCKED'
+    ];
+
+    /**
      * Model::$appendColumns
      *
      * Database table append columns name.
@@ -132,6 +146,13 @@ class Model
      * @var array
      */
     public $primaryKeys = [];
+
+    /**
+     * Model::$metadataForeignKey
+     *
+     * @var string
+     */
+    public $metadataForeignKey;
 
     /**
      * Model::$uploadedImageFilePath
@@ -233,6 +254,10 @@ class Model
             }
         }
 
+        if(empty($this->qb) and empty($this->db)) {
+            throw new RuntimeException('E_DATABASE_CONNECTION_FAILED');
+        }
+
         // Set database table
         if (empty($this->table)) {
             $modelClassName = get_called_class();
@@ -271,7 +296,7 @@ class Model
         $dirName = dirname($filePath) . DIRECTORY_SEPARATOR;
 
         // Get sub models or siblings models
-        if ($filename === 'Model' || $filename === modules()->top()->getDirName()) {
+        if ($filename === 'Model') {
             $subModelsDirName = dirname($dirName) . DIRECTORY_SEPARATOR . 'Models' . DIRECTORY_SEPARATOR;
 
             if (is_dir($subModelsDirName)) {

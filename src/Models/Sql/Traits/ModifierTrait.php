@@ -51,6 +51,190 @@ trait ModifierTrait
     // ------------------------------------------------------------------------
 
     /**
+     * ModifierTrait::imagesFilesProcess
+     *
+     * @param array $sets
+     *
+     * @return bool
+     */
+    protected function imagesFilesProcess(&$sets)
+    {
+        if ($files = input()->files()) {
+            // Stored Images Sets
+            if (isset($this->uploadedImageFilePath)) {
+                $files->setPath($this->uploadedImageFilePath);
+
+                if (isset($this->uploadedImageKey)) {
+                    if ($files->process($this->uploadedImageKey) === false) {
+                        foreach ($files->getErrors() as $code => $error) {
+                            $errors->createList($error);
+                        }
+
+                        if (services()->has('session') and $this->flashMessage) {
+                            session()->setFlash('danger', $errors);
+                        }
+
+                        return false;
+                    }
+
+                    if ($storedImages = $files->offsetGet($this->uploadedImageKey)) {
+                        if (is_array($storedImages)) {
+                            foreach ($storedImages as $storedImage) {
+                                $sets[ $this->uploadedImageKey ][] = $storedImage->getClientFilename();
+                            }
+
+                            if (isset($this->row[ $this->uploadedFileKey ])) {
+                                if (is_array($this->row[ $this->uploadedFileKey ])) {
+                                    foreach ($this->row[ $this->uploadedFileKey ] as $oldImage) {
+                                        if (is_file($this->uploadedImageFilePath . $oldImage)) {
+                                            unlink($this->uploadedImageFilePath . $oldImage);
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            $sets[ $this->uploadedImageKey ] = $storedImages->getClientFilename();
+
+                            if (isset($this->row[ $this->uploadedFileKey ])) {
+                                if (is_file($this->uploadedImageFilePath . $this->row[ $this->uploadedFileKey ])) {
+                                    unlink($this->uploadedImageFilePath . $this->row[ $this->uploadedFileKey ]);
+                                }
+                            }
+                        }
+                    }
+                } elseif (isset($this->uploadedImageKeys)) {
+                    foreach ($this->uploadedImageKeys as $uploadedImageKey) {
+                        if ($files->process($uploadedImageKey) === false) {
+                            foreach ($files->getErrors() as $code => $error) {
+                                $errors->createList($error);
+                            }
+
+                            if (services()->has('session') and $this->flashMessage) {
+                                session()->setFlash('danger', $errors);
+                            }
+
+                            return false;
+                        }
+
+                        if ($storedImages = $files->offsetGet($uploadedImageKey)) {
+                            if (is_array($storedImages)) {
+                                foreach ($storedImages as $storedImage) {
+                                    $sets[ $uploadedImageKey ][] = $storedImage->getClientFilename();
+                                }
+
+                                if (isset($this->row[ $uploadedImageKey ])) {
+                                    if (is_array($this->row[ $uploadedImageKey ])) {
+                                        foreach ($this->row[ $uploadedImageKey ] as $oldImage) {
+                                            if (is_file($this->uploadedImageFilePath . $oldImage)) {
+                                                unlink($this->uploadedImageFilePath . $oldImage);
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                $sets[ $uploadedImageKey ] = $storedImages->getClientFilename();
+
+                                if (isset($this->row[ $uploadedImageKey ])) {
+                                    if (is_file($this->uploadedImageFilePath . $this->row[ $uploadedImageKey ])) {
+                                        unlink($this->uploadedImageFilePath . $this->row[ $uploadedImageKey ]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Stored Files Sets
+            if (isset($this->uploadedFileFilePath)) {
+                $files->setPath($this->uploadedFileFilePath);
+
+                if (isset($this->uploadedFileKey)) {
+                    if ($files->process($this->uploadedFileKey) === false) {
+                        foreach ($files->getErrors() as $code => $error) {
+                            $errors->createList($error);
+                        }
+
+                        if (services()->has('session') and $this->flashMessage) {
+                            session()->setFlash('danger', $errors);
+                        }
+
+                        return false;
+                    }
+
+                    if ($storedFiles = $files->offsetGet($this->uploadedFileKey)) {
+                        if (is_array($storedFiles)) {
+                            foreach ($storedFiles as $storedFile) {
+                                $sets[ $this->uploadedFileKey ][] = $storedFile->getClientFilename();
+                            }
+
+                            if (isset($this->row[ $this->uploadedFileKey ])) {
+                                if (is_array($this->row[ $this->uploadedFileKey ])) {
+                                    foreach ($this->row[ $this->uploadedFileKey ] as $oldFile) {
+                                        if (is_file($this->uploadedFileFilePath . $oldFile)) {
+                                            unlink($this->uploadedFileFilePath . $oldFile);
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            $sets[ $this->uploadedFileKey ] = $storedFiles->getClientFilename();
+
+                            if (isset($this->row[ $this->uploadedFileKey ])) {
+                                if (is_file($this->uploadedFileFilePath . $this->row[ $this->uploadedFileKey ])) {
+                                    unlink($this->uploadedFileFilePath . $this->row[ $this->uploadedFileKey ]);
+                                }
+                            }
+                        }
+                    }
+                } elseif (isset($this->uploadedFileKeys)) {
+                    foreach ($this->uploadedFileKeys as $uploadedFileKey) {
+                        if ($files->process($uploadedFileKey) === false) {
+                            foreach ($files->getErrors() as $code => $error) {
+                                $errors->createList($error);
+                            }
+
+                            if (services()->has('session') and $this->flashMessage) {
+                                session()->setFlash('danger', $errors);
+                            }
+
+                            return false;
+                        }
+
+                        if ($storedFiles = $files->offsetGet($uploadedFileKey)) {
+                            if (is_array($storedFiles)) {
+                                foreach ($storedFiles as $storedFile) {
+                                    $sets[ $uploadedFileKey ][] = $storedFile->getClientFilename();
+                                }
+
+                                if (isset($this->row[ $uploadedFileKey ])) {
+                                    if (is_array($this->row[ $uploadedFileKey ])) {
+                                        foreach ($this->row[ $uploadedFileKey ] as $oldFile) {
+                                            if (is_file($this->uploadedFileFilePath . $oldFile)) {
+                                                unlink($this->uploadedFileFilePath . $oldFile);
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                $sets[ $uploadedFileKey ] = $storedFiles->getClientFilename();
+
+                                if (isset($this->row[ $uploadedFileKey ])) {
+                                    if (is_file($this->uploadedFileFilePath . $this->row[ $uploadedFileKey ])) {
+                                        unlink($this->uploadedFileFilePath . $this->row[ $uploadedFileKey ]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
      * ModifierTrait::insert
      *
      * @param array $sets
@@ -66,6 +250,13 @@ trait ModifierTrait
                     if ( ! in_array($key, $this->fillableColumns)) {
                         unset($sets[ $key ]);
                     }
+                }
+            }
+
+            if (property_exists($this, 'hasMetadata')) {
+                if (isset($sets[ 'metadata' ])) {
+                    $setsMetadata = $sets[ 'metadata' ];
+                    unset($sets[ 'metadata' ]);
                 }
             }
 
@@ -85,83 +276,21 @@ trait ModifierTrait
                 }
             }
 
-            if (isset($this->uploadedImageFilePath)) {
-                if ($files = input()->files()) {
-                    $files->setPath($this->uploadedFileFilepath);
-
-                    if ($files->process() === false) {
-                        foreach ($files->getErrors() as $code => $error) {
-                            $errors->createList($error);
-                        }
-
-                        if (services()->has('session') and $this->flashMessage) {
-                            session()->setFlash('danger', $errors);
-                        }
-
-                        return false;
-                    }
-
-                    // Stored Images Sets
-                    if (isset($this->uploadedImageKey)) {
-                        $sets[ $this->uploadedImageKey ] = $files->offsetGet($this->uploadedImageKey);
-
-                        if ($storedFiles = $files->offsetGet($this->uploadedImageKey)) {
-                            if (is_array($storedFiles)) {
-                                foreach ($storedFiles as $storedFile) {
-                                    $sets[ $this->uploadedImageKey ][] = $storedFile->getClientFilename();
-                                }
-                            } else {
-                                $sets[ $this->uploadedImageKey ] = $storedFile->getClientFilename();
-                            }
-                        }
-                    } elseif (isset($this->uploadedImageKeys)) {
-                        foreach ($this->uploadedImageKeys as $uploadedImageKey) {
-                            $sets[ $uploadedImageKey ] = $files->offsetGet($uploadedImageKey);
-
-                            if ($storedFiles = $files->offsetGet($uploadedImageKey)) {
-                                if (is_array($storedFiles)) {
-                                    foreach ($storedFiles as $storedFile) {
-                                        $sets[ $uploadedImageKey ][] = $storedFile->getClientFilename();
-                                    }
-                                } else {
-                                    $sets[ $uploadedImageKey ] = $storedFile->getClientFilename();
-                                }
-                            }
-                        }
-                    }
-
-                    // Stored Files Sets
-                    if (isset($this->uploadedFileKey)) {
-                        $sets[ $this->uploadedFileKey ] = $files->offsetGet($this->uploadedFileKey);
-
-                        if ($storedFiles = $files->offsetGet($this->uploadedFileKey)) {
-                            if (is_array($storedFiles)) {
-                                foreach ($storedFiles as $storedFile) {
-                                    $sets[ $this->uploadedFileKey ][] = $storedFile->getClientFilename();
-                                }
-                            } else {
-                                $sets[ $this->uploadedFileKey ] = $storedFile->getClientFilename();
-                            }
-                        }
-                    } elseif (isset($this->uploadedFileKeys)) {
-                        foreach ($this->uploadedFileKeys as $uploadedFileKey) {
-                            $sets[ $uploadedFileKey ] = $files->offsetGet($uploadedFileKey);
-
-                            if ($storedFiles = $files->offsetGet($uploadedFileKey)) {
-                                if (is_array($storedFiles)) {
-                                    foreach ($storedFiles as $storedFile) {
-                                        $sets[ $uploadedFileKey ][] = $storedFile->getClientFilename();
-                                    }
-                                } else {
-                                    $sets[ $uploadedFileKey ] = $storedFile->getClientFilename();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            // Process Images and Files
+            $this->imagesFilesProcess($sets);
 
             if ($this->qb->table($this->table)->insert($sets)) {
+                if (isset($setsMetadata) and isset($this->metadataForeignKey)) {
+                    ${$this->metadataForeignKey} = $this->db->getLastInsertId();
+                    foreach ($setsMetadata as $field => $value) {
+                        models(get_called_class() . '\\Metadata')->insertOrUpdate([
+                            $this->metadataForeignKey => ${$this->metadataForeignKey},
+                            'name'                    => $field,
+                            'content'                 => $value,
+                        ], ['name' => $field]);
+                    }
+                }
+
                 if (method_exists($this, 'afterInsert')) {
                     $this->afterInsert($sets);
                 } elseif (method_exists($this, 'afterInsertOrUpdate')) {
@@ -230,13 +359,17 @@ trait ModifierTrait
     public function insertOrUpdate(array $sets, array $conditions = [])
     {
         if (count($sets)) {
-            $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
-
             if (empty($conditions)) {
-                if (isset($sets[ $primaryKey ])) {
-                    $conditions = [$primaryKey => $sets[ $primaryKey ]];
+                if (empty($this->primaryKeys)) {
+                    foreach ($this->primaryKeys as $primaryKey) {
+                        if (isset($sets[ $primaryKey ])) {
+                            $conditions[ $primaryKey ] = $sets[ $primaryKey ];
+                        }
+                    }
                 } else {
-                    $conditions = $sets;
+                    if (isset($sets[ $primaryKey ])) {
+                        $conditions = [$primaryKey => $sets[ $primaryKey ]];
+                    }
                 }
             }
 
@@ -342,11 +475,17 @@ trait ModifierTrait
     public function update(array $sets, array $conditions = [])
     {
         if (count($sets)) {
-            $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
-
             if (empty($conditions)) {
-                if (isset($sets[ $primaryKey ])) {
-                    $conditions = [$primaryKey => $sets[ $primaryKey ]];
+                if (empty($this->primaryKeys)) {
+                    foreach ($this->primaryKeys as $primaryKey) {
+                        if (isset($sets[ $primaryKey ])) {
+                            $conditions[ $primaryKey ] = $sets[ $primaryKey ];
+                        }
+                    }
+                } else {
+                    if (isset($sets[ $primaryKey ])) {
+                        $conditions = [$primaryKey => $sets[ $primaryKey ]];
+                    }
                 }
             }
 
@@ -358,14 +497,21 @@ trait ModifierTrait
                 }
             }
 
+            if (property_exists($this, 'hasMetadata')) {
+                if (isset($sets[ 'metadata' ])) {
+                    $setsMetadata = $sets[ 'metadata' ];
+                    unset($sets[ 'metadata' ]);
+                }
+            }
+
             if (method_exists($this, 'updateRecordSets')) {
                 $this->updateRecordSets($sets);
             }
 
             if (method_exists($this, 'beforeUpdate')) {
-                $sets = $this->beforeUpdate($sets);
+                $this->beforeUpdate($sets);
             } elseif (method_exists($this, 'beforeInsertOrUpdate')) {
-                $sets = $this->beforeInsertOrUpdate($sets);
+                $this->beforeInsertOrUpdate($sets);
             }
 
             if (method_exists($this, 'getRecordOrdering')) {
@@ -374,84 +520,22 @@ trait ModifierTrait
                 }
             }
 
-            if ($row = $this->findWhere($conditions)) {
-                if (isset($this->uploadedImageFilePath)) {
-                    if ($files = input()->files()) {
-                        $files->setPath($this->uploadedFileFilepath);
-
-                        if ($files->process() === false) {
-                            foreach ($files->getErrors() as $code => $error) {
-                                $errors->createList($error);
-                            }
-
-                            if (services()->has('session') and $this->flashMessage) {
-                                session()->setFlash('danger', $errors);
-                            }
-
-                            return false;
-                        }
-
-                        // Stored Images Sets
-                        if (isset($this->uploadedImageKey)) {
-                            $sets[ $this->uploadedImageKey ] = $files->offsetGet($this->uploadedImageKey);
-
-                            if ($storedFiles = $files->offsetGet($this->uploadedImageKey)) {
-                                if (is_array($storedFiles)) {
-                                    foreach ($storedFiles as $storedFile) {
-                                        $sets[ $this->uploadedImageKey ][] = $storedFile->getClientFilename();
-                                    }
-                                } else {
-                                    $sets[ $this->uploadedImageKey ] = $storedFile->getClientFilename();
-                                }
-                            }
-                        } elseif (isset($this->uploadedImageKeys)) {
-                            foreach ($this->uploadedImageKeys as $uploadedImageKey) {
-                                $sets[ $uploadedImageKey ] = $files->offsetGet($uploadedImageKey);
-
-                                if ($storedFiles = $files->offsetGet($uploadedImageKey)) {
-                                    if (is_array($storedFiles)) {
-                                        foreach ($storedFiles as $storedFile) {
-                                            $sets[ $uploadedImageKey ][] = $storedFile->getClientFilename();
-                                        }
-                                    } else {
-                                        $sets[ $uploadedImageKey ] = $storedFile->getClientFilename();
-                                    }
-                                }
-                            }
-                        }
-
-                        // Stored Files Sets
-                        if (isset($this->uploadedFileKey)) {
-                            $sets[ $this->uploadedFileKey ] = $files->offsetGet($this->uploadedFileKey);
-
-                            if ($storedFiles = $files->offsetGet($this->uploadedFileKey)) {
-                                if (is_array($storedFiles)) {
-                                    foreach ($storedFiles as $storedFile) {
-                                        $sets[ $this->uploadedFileKey ][] = $storedFile->getClientFilename();
-                                    }
-                                } else {
-                                    $sets[ $this->uploadedFileKey ] = $storedFile->getClientFilename();
-                                }
-                            }
-                        } elseif (isset($this->uploadedFileKeys)) {
-                            foreach ($this->uploadedFileKeys as $uploadedFileKey) {
-                                $sets[ $uploadedFileKey ] = $files->offsetGet($uploadedFileKey);
-
-                                if ($storedFiles = $files->offsetGet($uploadedFileKey)) {
-                                    if (is_array($storedFiles)) {
-                                        foreach ($storedFiles as $storedFile) {
-                                            $sets[ $uploadedFileKey ][] = $storedFile->getClientFilename();
-                                        }
-                                    } else {
-                                        $sets[ $uploadedFileKey ] = $storedFile->getClientFilename();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            if ($this->row = $this->findWhere($conditions)) {
+                // Process Images and Files
+                $this->imagesFilesProcess($sets);
 
                 if ($this->qb->table($this->table)->update($sets, $conditions)) {
+
+                    if (isset($setsMetadata) and isset($this->metadataForeignKey)) {
+                        ${$this->metadataForeignKey} = $sets[ $this->primaryKey ];
+                        foreach ($setsMetadata as $field => $value) {
+                            models(get_called_class() . '\\Metadata')->insertOrUpdate([
+                                $this->metadataForeignKey => ${$this->metadataForeignKey},
+                                'name'                    => $field,
+                                'content'                 => $value,
+                            ], ['name' => $field]);
+                        }
+                    }
 
                     if (method_exists($this, 'afterUpdate')) {
                         $this->afterUpdate($sets);
@@ -593,12 +677,12 @@ trait ModifierTrait
 
         $affectedRows = 0;
         if ($result = $this->findWhere($conditions)) {
-            if($result instanceof Result) {
-                foreach($result as $row) {
+            if ($result instanceof Result) {
+                foreach ($result as $row) {
                     $this->deleteRow($row);
                     $affectedRows++;
                 }
-            } elseif($result instanceof Row) {
+            } elseif ($result instanceof Row) {
                 $this->deleteRow($result);
                 $affectedRows++;
             }
@@ -630,6 +714,16 @@ trait ModifierTrait
      */
     private function deleteRow(Row $row)
     {
+        if(method_exists($this, 'hasChilds')) {
+            if($this->hasChilds($row->id)) {
+                if (services()->has('session') and $this->flashMessage) {
+                    session()->setFlash('danger', language('FAILED_DELETE_HAS_CHILD'));
+                }
+
+                return false;
+            }
+        }
+        
         if (isset($this->uploadedImageFilePath)) {
 
             // Remove Uploaded Image
@@ -668,6 +762,25 @@ trait ModifierTrait
         }
 
         if ($this->qb->table($this->table)->limit(1)->delete($conditions)) {
+            $label = false;
+            foreach (['name', 'label', 'title', 'code'] as $labelField) {
+                if ($row->offsetExists($labelField)) {
+                    if (services()->has('session') and $this->flashMessage) {
+                        session()->setFlash('success',
+                            language('SUCCESS_DELETE_WITH_LABEL', [$row->offsetGet($labelField)]));
+                    }
+
+                    $label = true;
+                    break;
+                }
+            }
+
+            if ($label === false) {
+                if (services()->has('session') and $this->flashMessage) {
+                    session()->setFlash('success', language('SUCCESS_DELETE'));
+                }
+            }
+
             return true;
         }
 
@@ -694,12 +807,12 @@ trait ModifierTrait
 
             $affectedRows = 0;
             if ($result = $this->findWhere($conditions)) {
-                if($result instanceof Result) {
-                    foreach($result as $row) {
+                if ($result instanceof Result) {
+                    foreach ($result as $row) {
                         $this->deleteRow($row);
                         $affectedRows++;
                     }
-                } elseif($result instanceof Row) {
+                } elseif ($result instanceof Row) {
                     $this->deleteRow($result);
                     $affectedRows++;
                 }
@@ -741,7 +854,7 @@ trait ModifierTrait
         $affectedRows = 0;
         if ($result = $this->findIn($ids)) {
             foreach ($result as $row) {
-                if ($this->delete($row)) {
+                if ($this->deleteRow($row)) {
                     $affectedRows++;
                 }
             }
@@ -783,16 +896,23 @@ trait ModifierTrait
     /**
      * ModifierTrait::updateRecordStatus
      *
-     * @param int    $id
+     * @param array  $params
      * @param string $recordStatus
      * @param string $method
      *
      * @return bool
      */
-    private function updateRecordStatus($id, $recordStatus, $method)
+    private function updateRecordStatus(array $params, $recordStatus, $method)
     {
         $sets[ 'record_status' ] = $recordStatus;
-        $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
+
+        if (empty($this->primaryKeys)) {
+            $conditions = [$this->primaryKey => reset($params)];
+        } else {
+            foreach ($this->primaryKeys as $key => $primaryKey) {
+                $conditions[ $primaryKey ] = $params[ $key ];
+            }
+        }
 
         if (method_exists($this, 'updateRecordSets')) {
             $this->updateRecordSets($sets);
@@ -802,13 +922,17 @@ trait ModifierTrait
             call_user_func_array([&$this, $beforeMethod], [$sets]);
         }
 
-        if ($this->qb->table($this->table)->limit(1)->update($sets, [$primaryKey => $id])) {
+        if ($this->qb->table($this->table)->limit(1)->update($sets, $conditions)) {
             if (method_exists($this, $afterMethod = 'after' . ucfirst($method))) {
-                call_user_func([&$this, $beforeMethod]);
+                call_user_func_array([&$this, $afterMethod], [$sets]);
             }
 
             if (method_exists($this, 'rebuildTree')) {
                 $this->rebuildTree();
+            }
+
+            if (services()->has('session') and $this->flashMessage) {
+                session()->setFlash('success', language('SUCCESS_UPDATE'));
             }
 
             return true;
@@ -846,13 +970,17 @@ trait ModifierTrait
 
             if ($this->qb->table($this->table)->update($sets)) {
                 if (method_exists($this, $afterMethod = 'after' . ucfirst($method))) {
-                    call_user_func([&$this, $beforeMethod]);
+                    call_user_func_array([&$this, $afterMethod], [$sets]);
                 }
 
                 $affectedRows = $this->db->getAffectedRows();
 
                 if (method_exists($this, 'rebuildTree')) {
                     $this->rebuildTree();
+                }
+
+                if (services()->has('session') and $this->flashMessage) {
+                    session()->setFlash('success', language('SUCCESS_UPDATE'));
                 }
 
                 return $affectedRows;
@@ -888,13 +1016,17 @@ trait ModifierTrait
 
             if ($this->qb->table($this->table)->update($sets, $conditions)) {
                 if (method_exists($this, $afterMethod = 'after' . ucfirst($method))) {
-                    call_user_func([&$this, $beforeMethod]);
+                    call_user_func_array([&$this, $afterMethod], [$sets]);
                 }
 
                 $affectedRows = $this->db->getAffectedRows();
 
                 if (method_exists($this, 'rebuildTree')) {
                     $this->rebuildTree();
+                }
+
+                if (services()->has('session') and $this->flashMessage) {
+                    session()->setFlash('success', language('SUCCESS_UPDATE'));
                 }
 
                 return $affectedRows;
@@ -930,13 +1062,17 @@ trait ModifierTrait
 
             if ($this->qb->table($this->table)->update($sets, $conditions)) {
                 if (method_exists($this, $afterMethod = 'after' . ucfirst($method))) {
-                    call_user_func([&$this, $beforeMethod]);
+                    call_user_func_array([&$this, $afterMethod], [$sets]);
                 }
 
                 $affectedRows = $this->db->getAffectedRows();
 
                 if (method_exists($this, 'rebuildTree')) {
                     $this->rebuildTree();
+                }
+
+                if (services()->has('session') and $this->flashMessage) {
+                    session()->setFlash('success', language('SUCCESS_UPDATE'));
                 }
 
                 return $affectedRows;
@@ -957,7 +1093,7 @@ trait ModifierTrait
      */
     public function publish($id)
     {
-        return $this->updateRecordStatus($id, 'PUBLISH', 'publish');
+        return $this->updateRecordStatus(func_get_args(), 'PUBLISH', 'publish');
     }
 
     // ------------------------------------------------------------------------
@@ -1013,7 +1149,7 @@ trait ModifierTrait
      */
     public function restore($id)
     {
-        return $this->updateRecordStatus($id, 'PUBLISH', 'restore');
+        return $this->updateRecordStatus(func_get_args(), 'PUBLISH', 'restore');
     }
 
     // ------------------------------------------------------------------------
@@ -1069,7 +1205,7 @@ trait ModifierTrait
      */
     public function unpublish($id)
     {
-        return $this->updateRecordStatus($id, 'UNPUBLISH', 'unpublish');
+        return $this->updateRecordStatus(func_get_args(), 'UNPUBLISH', 'unpublish');
     }
 
     // ------------------------------------------------------------------------
@@ -1125,7 +1261,7 @@ trait ModifierTrait
      */
     public function softDelete($id)
     {
-        return $this->updateRecordStatus($id, 'DELETED', 'softDelete');
+        return $this->updateRecordStatus(func_get_args(), 'DELETED', 'softDelete');
     }
 
     // ------------------------------------------------------------------------
@@ -1181,7 +1317,7 @@ trait ModifierTrait
      */
     public function archive($id)
     {
-        return $this->updateRecordStatus($id, 'ARCHIVED', 'archive');
+        return $this->updateRecordStatus(func_get_args(), 'ARCHIVED', 'archive');
     }
 
     // ------------------------------------------------------------------------
@@ -1237,7 +1373,7 @@ trait ModifierTrait
      */
     public function lock($id)
     {
-        return $this->updateRecordStatus($id, 'LOCKED', 'lock');
+        return $this->updateRecordStatus(func_get_args(), 'LOCKED', 'lock');
     }
 
     // ------------------------------------------------------------------------
@@ -1293,7 +1429,7 @@ trait ModifierTrait
      */
     public function draft($id)
     {
-        return $this->updateRecordStatus($id, 'DRAFT', 'draft');
+        return $this->updateRecordStatus(func_get_args(), 'DRAFT', 'draft');
     }
 
     // ------------------------------------------------------------------------

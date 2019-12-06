@@ -406,7 +406,9 @@ class Restful extends Controller
                 $conditions = [];
 
                 foreach ($this->getValidationRules as $field => $rule) {
-                    $conditions[ $field ] = $get->offsetGet($field);
+                    if($get->offsetExists($field)) {
+                        $conditions[ $field ] = $get->offsetGet($field);
+                    }
                 }
 
                 if (false !== ($result = $this->model->findWhere($conditions, $limit))) {
@@ -1012,7 +1014,7 @@ class Restful extends Controller
         $this->updateRecordStatus(func_get_args(), 'publish');
     }
 
-// ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     /**
      * Restful::unpublish
@@ -1026,7 +1028,7 @@ class Restful extends Controller
         $this->updateRecordStatus(func_get_args(), 'unpublish');
     }
 
-// ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     /**
      * Restful::archive
@@ -1035,10 +1037,8 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public
-    function archive(
-        $id = null
-    ) {
+    public function archive($id = null)
+    {
         $this->updateRecordStatus(func_get_args(), 'archive');
     }
 
@@ -1092,7 +1092,7 @@ class Restful extends Controller
      * @param int         $code
      * @param string|null $message
      */
-    public function sendError($code, $message = null)
+    protected function sendError($code, $message = null)
     {
         if ($this->ajaxOnly === false) {
             output()->setContentType('application/json');
@@ -1121,7 +1121,7 @@ class Restful extends Controller
      *
      * @throws \Exception
      */
-    public function sendPayload($data, $longPooling = false)
+    protected function sendPayload($data, $longPooling = false)
     {
         if ($longPooling === false) {
             if ($this->ajaxOnly) {

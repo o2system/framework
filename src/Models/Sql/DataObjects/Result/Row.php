@@ -261,6 +261,20 @@ class Row extends SplArrayObject
     // ------------------------------------------------------------------------
 
     /**
+     * Row::restore
+     *
+     * @return bool
+     * @throws \O2System\Spl\Exceptions\RuntimeException
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function restore()
+    {
+        return $this->updateRecordStatus('restore');
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
      * Row::publish
      *
      * @return bool

@@ -32,27 +32,36 @@ class HasManyThrough extends Sql\Relations\Abstracts\AbstractRelation
      */
     public function getResult()
     {
-        if ($this->map->currentModel->row instanceof Sql\DataObjects\Result\Row) {
-            $criteria = $this->map->currentModel->row->offsetGet($this->map->currentPrimaryKey);
-            $condition = [
-                $this->map->intermediaryTable . '.' . $this->map->intermediaryCurrentForeignKey => $criteria,
+        if ($this->map->objectModel->row instanceof Sql\DataObjects\Result\Row) {
+            $criteria = $this->map->objectModel->row->offsetGet($this->map->objectPrimaryKey);
+            $conditions = [
+                $this->map->intermediaryTable . '.' . $this->map->intermediaryForeignKey => $criteria,
             ];
 
             $this->map->intermediaryModel->qb
                 ->select([
-                    $this->map->referenceTable . '.*',
+                    $this->map->associateTable . '.*',
                 ])
                 ->from($this->map->intermediaryTable)
-                ->join($this->map->referenceTable, implode(' = ', [
-                    $this->map->referenceTable . '.' . $this->map->referencePrimaryKey,
-                    $this->map->intermediaryTable . '.' . $this->map->intermediaryReferenceForeignKey,
+                ->join($this->map->associateTable, implode(' = ', [
+                    $this->map->associateTable . '.' . $this->map->associatePrimaryKey,
+                    $this->map->intermediaryTable . '.' . $this->map->intermediaryAssociateForeignKey,
                 ]));
 
             $this->map->intermediaryModel->result = null;
             $this->map->intermediaryModel->row = null;
 
-            if ($result = $this->map->intermediaryModel->findWhere($condition)) {
-                return $result;
+            if ($result = $this->map->intermediaryModel->findWhere($conditions)) {
+                if($result->count()) {
+                    $ids = [];
+                    foreach($result as $row) {
+                        $ids[$row->id] = $row->id;
+                    }
+
+                    if($result = $this->map->associateModel->findIn($ids)) {
+                        return $result;
+                    }
+                }
             }
         }
 

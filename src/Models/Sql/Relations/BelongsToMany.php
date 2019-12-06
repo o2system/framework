@@ -32,16 +32,16 @@ class BelongsToMany extends Sql\Relations\Abstracts\AbstractRelation
      */
     public function getResult()
     {
-        if ($this->map->currentModel->row instanceof Sql\DataObjects\Result\Row) {
-            $criteria = $this->map->currentModel->row->offsetGet($this->map->currentForeignKey);
+        if ($this->map->objectModel->row instanceof Sql\DataObjects\Result\Row) {
+            $criteria = $this->map->objectModel->row->offsetGet($this->map->objectForeignKey);
             $condition = [
-                $this->map->referenceTable . '.' . $this->map->currentForeignKey => $criteria,
+                $this->map->associateTable . '.' . $this->map->objectForeignKey => $criteria,
             ];
 
-            $this->map->referenceModel->result = null;
-            $this->map->referenceModel->row = null;
+            $this->map->associateModel->result = null;
+            $this->map->associateModel->row = null;
 
-            if ($result = $this->map->referenceModel->findWhere($condition)) {
+            if ($result = $this->map->associateModel->findWhere([$condition])) {
                 return $result;
             }
         }

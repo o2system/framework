@@ -158,7 +158,10 @@ require __DIR__ . '/Config/Constants.php';
  * FRAMEWORK HELPERS
  *---------------------------------------------------------------
  */
+require __DIR__ . '/Helpers/Array.php';
+require __DIR__ . '/Helpers/Object.php';
 require __DIR__ . '/Helpers/Framework.php';
+require __DIR__ . '/Helpers/Datetime.php';
 
 /**
  * Class Framework

@@ -11,19 +11,16 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\Sql\Relations\Maps;
+namespace O2System\Framework\Models\Sql\Relations\Maps\Traits;
 
 // ------------------------------------------------------------------------
-
 use O2System\Framework\Models\Sql\Model;
-use O2System\Framework\Models\Sql\Relations\Maps\Abstracts\AbstractMap;
 
 /**
- * Class Intermediary
- *
- * @package O2System\Framework\Models\Sql\Intermediarys\Maps
+ * Trait IntermediaryTrait
+ * @package O2System\Framework\Models\Sql\Relations\Maps\Traits
  */
-class Intermediary extends AbstractMap
+trait IntermediaryTrait
 {
     /**
      * Intermediary::$intermediaryModel
@@ -47,55 +44,51 @@ class Intermediary extends AbstractMap
     public $intermediaryPrimaryKey;
 
     /**
-     * Intermediary::$intermediaryCurrentForeignKey
+     * Intermediary::$intermediaryForeignKey
      *
      * @var string
      */
-    public $intermediaryCurrentForeignKey;
+    public $intermediaryForeignKey;
 
     /**
-     * Intermediary::$intermediaryReferenceForeignKey
+     * Intermediary::$intermediaryassociateForeignKey
      *
      * @var string
      */
-    public $intermediaryReferenceForeignKey;
+    public $intermediaryAssociateForeignKey;
 
     // ------------------------------------------------------------------------
 
     /**
-     * Intermediary::__construct
+     * IntermediaryTrait::setIntermediary
      *
-     * @param \O2System\Framework\Models\Sql\Model        $currentModel
-     * @param string|\O2System\Framework\Models\Sql\Model $referenceModel
-     * @param string|\O2System\Framework\Models\Sql\Model $intermediaryModel
-     * @param string|null                                 $intermediaryCurrentForeignKey
-     * @param string|null                                 $intermediaryReferenceForeignKey
+     * @param string|Model  $intermediaryModel
+     * @param string|null   $intermediaryForeignKey
+     * @param string|null   $intermediaryAssociateForeignKey
      */
-    public function __construct(
-        Model $currentModel,
-        $referenceModel,
+    public function setIntermediary(
         $intermediaryModel,
-        $intermediaryCurrentForeignKey = null,
-        $intermediaryReferenceForeignKey = null
-    ) {
-        // Mapping  Models
-        $this->mappingCurrentModel($currentModel);
-        $this->mappingReferenceModel($referenceModel);
+        $intermediaryForeignKey = null,
+        $intermediaryAssociateForeignKey = null
+    )
+    {
         $this->mappingIntermediaryModel($intermediaryModel);
+        
+        $this->intermediaryForeignKey = empty($intermediaryForeignKey)
+            ? $this->getTableKey($this->objectTable, $this->objectPrimaryKey)
+            : $intermediaryForeignKey;
 
-        $this->intermediaryCurrentForeignKey = empty($intermediaryCurrentForeignKey)
-            ? 'id_' . $this->currentTable
-            : $intermediaryCurrentForeignKey;
+        $this->intermediaryAssociateForeignKey = empty($intermediaryAssociateForeignKey)
+            ? $this->getTableKey($this->associateTable, $this->associatePrimaryKey)
+            : $intermediaryAssociateForeignKey;
 
-        $this->intermediaryReferenceForeignKey = empty($intermediaryReferenceForeignKey)
-            ? 'id_' . $this->referenceTable
-            : $intermediaryReferenceForeignKey;
+        return $this;
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Intermediary::mappingIntermediaryModel
+     * IntermediaryTrait::mappingIntermediaryModel
      *
      * @param string|\O2System\Framework\Models\Sql\Model $intermediaryModel
      */
@@ -110,12 +103,9 @@ class Intermediary extends AbstractMap
             $this->intermediaryTable = $this->intermediaryModel->table;
             $this->intermediaryPrimaryKey = $this->intermediaryModel->primaryKey;
         } else {
-            $this->intermediaryModel = new class extends Model
-            {
-            };
-            $this->intermediaryModel->table = $this->referenceTable = $intermediaryModel;
+            $this->intermediaryModel = new class extends Model{};
+            $this->intermediaryModel->table = $this->intermediaryTable  = $intermediaryModel;
+            $this->intermediaryPrimaryKey = $this->intermediaryModel->primaryKey = 'id';
         }
     }
-
-    // ------------------------------------------------------------------------
 }

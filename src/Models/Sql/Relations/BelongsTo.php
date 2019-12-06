@@ -31,14 +31,14 @@ class BelongsTo extends Abstracts\AbstractRelation
      */
     public function getResult()
     {
-        if ($this->map->currentModel->row instanceof Sql\DataObjects\Result\Row) {
-            $criteria = $this->map->currentModel->row->offsetGet($this->map->currentForeignKey);
-            $field = $this->map->referenceTable . '.' . $this->map->referencePrimaryKey;
+        if ($this->map->objectModel->row instanceof Sql\DataObjects\Result\Row) {
+            $criteria = $this->map->objectModel->row->offsetGet($this->map->objectForeignKey);
+            $field = $this->map->associateModel->table . '.' . $this->map->associateModel->primaryKey;
 
-            $this->map->referenceModel->result = null;
-            $this->map->referenceModel->row = null;
+            $this->map->associateModel->result = null;
+            $this->map->associateModel->row = null;
 
-            if ($result = $this->map->referenceModel->find($criteria, $field, 1)) {
+            if ($result = $this->map->associateModel->find($criteria, $field, 1)) {
                 if($result instanceof Sql\DataObjects\Result\Row) {
                     return $result;
                 } elseif($result instanceof Sql\DataObjects\Result) {

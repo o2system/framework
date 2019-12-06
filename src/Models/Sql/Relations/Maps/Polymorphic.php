@@ -20,32 +20,54 @@ use O2System\Framework\Models\Sql\Relations\Maps\Abstracts\AbstractMap;
 use O2System\Framework\Models\Sql\Relations\Maps\Traits\IntermediaryTrait;
 
 /**
- * Class Inverse
+ * Class Polymorphic
  * @package O2System\Framework\Models\Sql\Relations\Maps
  */
-class Inverse extends AbstractMap
+class Polymorphic extends AbstractMap
 {
     use IntermediaryTrait;
-    
+
     /**
-     * Inverse::__construct
+     * Polymorphic::$morphKey
+     *
+     * @var string
+     */
+    public $morphKey;
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Polymorphic::__construct
      *
      * @param \O2System\Framework\Models\Sql\Model        $objectModel
-     * @param string|\O2System\Framework\Models\Sql\Model $associateModel
-     * @param string|null                               $objectForeignKey
+     * @param string|\O2System\Framework\Models\Sql\Model $associativeModel
+     * @param string                                    $morphKey
      */
     public function __construct(
         Model $objectModel,
-        $associateModel,
-        $objectForeignKey = null
+        $associativeModel,
+        $morphKey
     ) {
         // Mapping Models
         $this->mappingObjectModel($objectModel);
-        $this->mappingAssociateModel($associateModel);
+        $this->mappingAssociateModel($associativeModel);
 
-        // Defined Object Foreign Key
-        $this->objectForeignKey = empty($objectForeignKey)
-            ? $this->getTableKey($this->associateTable, $this->associatePrimaryKey)
-            : $objectForeignKey;
+        $this->morphKey = $morphKey;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Polymorphic::setKey
+     * 
+     * @param string $key
+     *
+     * @return static
+     */
+    public function setKey(string $key)
+    {
+        $this->morphKey = $key;
+        
+        return $this;
     }
 }

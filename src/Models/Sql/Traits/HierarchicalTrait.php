@@ -35,7 +35,7 @@ trait HierarchicalTrait
      * @access  protected
      * @type    bool
      */
-    protected $hierarchical = true;
+    protected $isHierarchical = true;
 
     // ------------------------------------------------------------------------
 
@@ -112,6 +112,30 @@ trait HierarchicalTrait
     // ------------------------------------------------------------------------
 
     /**
+     * HierarchicalTrait::parent
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
+    public function parent()
+    {
+        return $this->getParent($this->row->id);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * HierarchicalTrait::parents
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function parents()
+    {
+        return $this->getParents($this->row->id_parent);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
      * HierarchicalTrait::getParents
      *
      * @param int    $id
@@ -150,13 +174,17 @@ trait HierarchicalTrait
      */
     public function getParent($id)
     {
-        if ($parent = $this->qb
+        if ($result = $this->qb
             ->select($this->table . '.*')
             ->from($this->table)
             ->where($this->primaryKey, $id)
             ->get(1)) {
-            if ($parent->count() == 1) {
-                return $parent->first();
+            if ($result->count() == 1) {
+                if( ! empty($result->first()->id_parent)) {
+                    $result->first()->parent = $this->getParent($result->id);
+                }
+
+                return $result->first();
             }
         }
 
@@ -304,5 +332,15 @@ trait HierarchicalTrait
         }
 
         return false;
+    }
+
+    /**
+     * Modules::childs
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function childs()
+    {
+        return $this->getChilds($this->row->id);
     }
 }

@@ -20,32 +20,32 @@ use O2System\Framework\Models\Sql\Relations\Maps\Abstracts\AbstractMap;
 use O2System\Framework\Models\Sql\Relations\Maps\Traits\IntermediaryTrait;
 
 /**
- * Class Inverse
+ * Class Associate
  * @package O2System\Framework\Models\Sql\Relations\Maps
  */
-class Inverse extends AbstractMap
+class Associate extends AbstractMap
 {
     use IntermediaryTrait;
     
     /**
-     * Inverse::__construct
+     * Associate::__construct
      *
      * @param \O2System\Framework\Models\Sql\Model        $objectModel
      * @param string|\O2System\Framework\Models\Sql\Model $associateModel
-     * @param string|null                               $objectForeignKey
+     * @param string|null                               $associateForeignKey
      */
     public function __construct(
         Model $objectModel,
         $associateModel,
-        $objectForeignKey = null
+        $associateForeignKey = null
     ) {
         // Mapping Models
         $this->mappingObjectModel($objectModel);
         $this->mappingAssociateModel($associateModel);
 
-        // Defined Object Foreign Key
-        $this->objectForeignKey = empty($objectForeignKey)
-            ? $this->getTableKey($this->associateTable, $this->associatePrimaryKey)
-            : $objectForeignKey;
+        // Defined Associate Foreign Key
+        $this->associateForeignKey = empty($associateForeignKey)
+            ? $this->getTableKey($this->objectTable, $this->objectPrimaryKey)
+            : $associateForeignKey;
     }
 }

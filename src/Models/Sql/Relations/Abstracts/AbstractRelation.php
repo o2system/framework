@@ -28,14 +28,14 @@ abstract class AbstractRelation
     /**
      * Relations Map
      *
-     * @var Relations\Maps\Reference|Relations\Maps\Inverse|Relations\Maps\Intermediary|\O2System\Framework\Models\Sql\Relations\Maps\Through
+     * @var Relations\Maps\Reference|Relations\Maps\Associate|Relations\Maps\Inverse|\O2System\Framework\Models\Sql\Relations\Maps\Polymorphic
      */
     protected $map;
 
     /**
      * Relations::__construct
      *
-     * @param Relations\Maps\Reference|Relations\Maps\Inverse|Relations\Maps\Intermediary|\O2System\Framework\Models\Sql\Relations\Maps\Through $map
+     * @param Relations\Maps\Reference|Relations\Maps\Associate|Relations\Maps\Inverse|\O2System\Framework\Models\Sql\Relations\Maps\Polymorphic $map
      */
     public function __construct($map)
     {

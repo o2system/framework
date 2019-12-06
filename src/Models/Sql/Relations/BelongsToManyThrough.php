@@ -32,27 +32,29 @@ class BelongsToManyThrough extends Sql\Relations\Abstracts\AbstractRelation
      */
     public function getResult()
     {
-        if ($this->map->currentModel->row instanceof Sql\DataObjects\Result\Row) {
-            $criteria = $this->map->currentModel->row->offsetGet($this->map->currentPrimaryKey);
-            $field = $this->map->currentTable . '.' . $this->map->currentPrimaryKey;
+        if ($this->map->objectModel->row instanceof Sql\DataObjects\Result\Row) {
+            $criteria = $this->map->objectModel->row->offsetGet($this->map->objectPrimaryKey);
+            $conditions = [
+                $this->map->objectTable . '.' . $this->map->objectPrimaryKey => $criteria,
+            ];
 
-            $this->map->referenceModel->qb
+            $this->map->associateModel->qb
                 ->select([
-                    $this->map->referenceTable . '.*',
+                    $this->map->associateTable . '.*',
                 ])
-                ->join($this->map->currentTable, implode(' = ', [
-                    $this->map->currentTable . '.' . $this->map->currentPrimaryKey,
-                    $this->map->intermediaryTable . '.' . $this->map->intermediaryCurrentForeignKey,
+                ->join($this->map->objectTable, implode(' = ', [
+                    $this->map->objectTable . '.' . $this->map->objectPrimaryKey,
+                    $this->map->intermediaryTable . '.' . $this->map->intermediaryForeignKey,
                 ]))
-                ->join($this->map->referenceTable, implode(' = ', [
-                    $this->map->referenceTable . '.' . $this->map->referencePrimaryKey,
-                    $this->map->intermediaryTable . '.' . $this->map->intermediaryReferenceForeignKey,
+                ->join($this->map->associateTable, implode(' = ', [
+                    $this->map->associateTable . '.' . $this->map->associatePrimaryKey,
+                    $this->map->intermediaryTable . '.' . $this->map->intermediaryAssociateForeignKey,
                 ]));
 
             $this->map->intermediaryModel->result = null;
             $this->map->intermediaryModel->row = null;
 
-            if ($result = $this->map->intermediaryModel->find($criteria, $field)) {
+            if ($result = $this->map->intermediaryModel->findWhere($conditions)) {
                 return $result;
             }
         }

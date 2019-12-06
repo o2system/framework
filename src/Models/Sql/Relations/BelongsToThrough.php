@@ -31,21 +31,21 @@ class BelongsToThrough extends Sql\Relations\Abstracts\AbstractRelation
      */
     public function getResult()
     {
-        if ($this->map->currentModel->row instanceof Sql\DataObjects\Result\Row) {
-            $criteria = $this->map->currentModel->row->offsetGet($this->map->currentPrimaryKey);
-            $field = $this->map->currentTable . '.' . $this->map->currentPrimaryKey;
+        if ($this->map->objectModel->row instanceof Sql\DataObjects\Result\Row) {
+            $criteria = $this->map->objectModel->row->offsetGet($this->map->objectPrimaryKey);
+            $field = $this->map->objectTable . '.' . $this->map->objectPrimaryKey;
 
-            $this->map->referenceModel->qb
+            $this->map->associateModel->qb
                 ->select([
-                    $this->map->referenceTable . '.*',
+                    $this->map->associateTable . '.*',
                 ])
-                ->join($this->map->currentTable, implode(' = ', [
-                    $this->map->currentTable . '.' . $this->map->currentPrimaryKey,
-                    $this->map->intermediaryTable . '.' . $this->map->intermediaryCurrentForeignKey,
+                ->join($this->map->objectTable, implode(' = ', [
+                    $this->map->objectTable . '.' . $this->map->objectPrimaryKey,
+                    $this->map->intermediaryTable . '.' . $this->map->intermediaryPrimaryKey,
                 ]))
-                ->join($this->map->referenceTable, implode(' = ', [
-                    $this->map->referenceTable . '.' . $this->map->referencePrimaryKey,
-                    $this->map->intermediaryTable . '.' . $this->map->intermediaryReferenceForeignKey,
+                ->join($this->map->associateTable, implode(' = ', [
+                    $this->map->associateTable . '.' . $this->map->associatePrimaryKey,
+                    $this->map->intermediaryTable . '.' . $this->map->intermediaryAssociateForeignKey,
                 ]));
 
             $this->map->intermediaryModel->result = null;

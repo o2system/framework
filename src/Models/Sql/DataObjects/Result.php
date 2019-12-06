@@ -56,7 +56,7 @@ class Result extends \O2System\Database\DataObjects\Result
         if ( ! models()->has($this->model->getClass())) {
             models()->add($model, $this->model->getClass());
         }
-
+        
         parent::__construct($result->toArray());
 
         $this->info = $result->getInfo();

@@ -42,11 +42,21 @@ trait FinderTrait
             $this->qb->limit($limit);
         }
 
-        if (property_exists($this, 'hierarchical')) {
+        if (property_exists($this, 'isHierarchical')) {
             $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
             $this->qb->orderBy($this->table . '.record_left', 'ASC');
         } elseif (property_exists($this, 'adjacency')) {
             $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
+        }
+
+        if (property_exists($this, 'hasMetadata')) {
+            if ( ! in_array('metadata', $this->appendColumns)) {
+                array_push($this->appendColumns, 'metadata');
+            }
+        }
+
+        if (count($this->visibleRecordStatus)) {
+            $this->qb->whereIn($this->table . '.' . 'record_status', $this->visibleRecordStatus);
         }
 
         if ($result = $this->qb->from($this->table)->get()) {
@@ -132,6 +142,23 @@ trait FinderTrait
             $field = $this->table . '.' . $field;
         }
 
+        if (property_exists($this, 'isHierarchical')) {
+            $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
+            $this->qb->orderBy($this->table . '.record_left', 'ASC');
+        } elseif (property_exists($this, 'adjacency')) {
+            $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
+        }
+
+        if (property_exists($this, 'hasMetadata')) {
+            if ( ! in_array('metadata', $this->appendColumns)) {
+                array_push($this->appendColumns, 'metadata');
+            }
+        }
+
+        if (count($this->visibleRecordStatus)) {
+            $this->qb->whereIn($this->table . '.' . 'record_status', $this->visibleRecordStatus);
+        }
+
         if ($result = $this->qb
             ->from($this->table)
             ->where($field, $criteria)
@@ -167,6 +194,23 @@ trait FinderTrait
             $this->qb->where($field, $criteria);
         }
 
+        if (property_exists($this, 'isHierarchical')) {
+            $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
+            $this->qb->orderBy($this->table . '.record_left', 'ASC');
+        } elseif (property_exists($this, 'adjacency')) {
+            $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
+        }
+
+        if (property_exists($this, 'hasMetadata')) {
+            if ( ! in_array('metadata', $this->appendColumns)) {
+                array_push($this->appendColumns, 'metadata');
+            }
+        }
+
+        if (count($this->visibleRecordStatus)) {
+            $this->qb->whereIn($this->table . '.' . 'record_status', $this->visibleRecordStatus);
+        }
+
         if ($result = $this->qb
             ->from($this->table)
             ->get($limit)) {
@@ -195,6 +239,23 @@ trait FinderTrait
         $field = isset($field) ? $field : $this->primaryKey;
         $field = $this->table . '.' . $field;
 
+        if (property_exists($this, 'isHierarchical')) {
+            $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
+            $this->qb->orderBy($this->table . '.record_left', 'ASC');
+        } elseif (property_exists($this, 'adjacency')) {
+            $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
+        }
+
+        if (property_exists($this, 'hasMetadata')) {
+            if ( ! in_array('metadata', $this->appendColumns)) {
+                array_push($this->appendColumns, 'metadata');
+            }
+        }
+
+        if (count($this->visibleRecordStatus)) {
+            $this->qb->whereIn($this->table . '.' . 'record_status', $this->visibleRecordStatus);
+        }
+
         if ($result = $this->qb
             ->from($this->table)
             ->whereIn($field, $inCriteria)
@@ -220,6 +281,23 @@ trait FinderTrait
         $field = isset($field) ? $field : $this->primaryKey;
         if (strpos($field, '.') === false) {
             $field = $this->table . '.' . $field;
+        }
+
+        if (property_exists($this, 'isHierarchical')) {
+            $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
+            $this->qb->orderBy($this->table . '.record_left', 'ASC');
+        } elseif (property_exists($this, 'adjacency')) {
+            $this->qb->orderBy($this->table . '.record_ordering', 'ASC');
+        }
+
+        if (property_exists($this, 'hasMetadata')) {
+            if ( ! in_array('metadata', $this->appendColumns)) {
+                array_push($this->appendColumns, 'metadata');
+            }
+        }
+
+        if (count($this->visibleRecordStatus)) {
+            $this->qb->whereIn($this->table . '.' . 'record_status', $this->visibleRecordStatus);
         }
 
         if ($result = $this->qb
