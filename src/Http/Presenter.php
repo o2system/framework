@@ -134,6 +134,7 @@ class Presenter extends AbstractRepository
 
         if (is_bool($theme)) {
             $this->theme = false;
+            $this->setConfig('theme', $this->theme);
         } elseif(($moduleTheme = modules()->top()->getTheme($theme, true)) instanceof Theme) {
             $this->theme = $moduleTheme;
         } elseif(($appTheme = modules()->first()->getTheme($theme, true)) instanceof Theme) {
