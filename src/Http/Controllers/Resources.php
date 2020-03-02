@@ -24,7 +24,7 @@ use O2System\Spl\Info\SplFileInfo;
  *
  * @package O2System\Framework\Http\Controllers
  */
-class Resources extends Controller
+class Resources extends Storage
 {
     /**
      * Resources::$inherited
@@ -64,48 +64,5 @@ class Resources extends Controller
     public function __construct()
     {
         $this->directoryPath = PATH_RESOURCES;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Resources::route
-     */
-    public function route()
-    {
-        $segments = server_request()->getUri()->segments->getArrayCopy();
-        array_shift($segments);
-
-        $download = false;
-        if (false !== ($key = array_search('download', $segments))) {
-            $download = true;
-            unset($segments[ $key ]);
-            $segments = array_values($segments);
-        }
-
-        if (count($segments)) {
-            $filePath = $this->directoryPath . implode(DIRECTORY_SEPARATOR, $segments);
-            if (is_file($filePath)) {
-                if ($download) {
-                    $downloader = new Downloader($filePath);
-                    $downloader
-                        ->speedLimit($this->speedLimit)
-                        ->resumeable($this->resumeable)
-                        ->download();
-                } else {
-                    $fileInfo = new SplFileInfo($filePath);
-                    header('Content-Disposition: filename=' . $fileInfo->getFilename());
-                    header('Content-Transfer-Encoding: binary');
-                    header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
-                    header('Content-Type: ' . $fileInfo->getMime());
-                    echo @readfile($filePath);
-                    exit(EXIT_SUCCESS);
-                }
-            } else {
-                redirect_url('error/404');
-            }
-        } else {
-            redirect_url('error/403');
-        }
     }
 }

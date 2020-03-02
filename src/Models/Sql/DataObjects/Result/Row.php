@@ -46,8 +46,8 @@ class Row extends SplArrayObject
     /**
      * Row::__construct
      *
-     * @param mixed  $row
-     * @param Model  $model
+     * @param mixed $row
+     * @param Model $model
      */
     public function __construct($row, Model &$model)
     {
@@ -62,7 +62,11 @@ class Row extends SplArrayObject
         }
 
         // Final rebuild row columns
-        $model->rebuildRow($row);
+        if (method_exists($model, 'rebuildRow')) {
+            call_user_func_array([$model, 'rebuildRow'], [$row]);
+        } elseif (is_callable($model->rebuildRow)) {
+            call_user_func_array($model->rebuildRow, [$row]);
+        }
 
         // Hide Columns
         if (count($model->hideColumns)) {
@@ -103,11 +107,15 @@ class Row extends SplArrayObject
     {
         if ($this->offsetExists($offset)) {
             return parent::offsetGet($offset);
-        } elseif(strpos($offset, 'record') !== false) {
+        } elseif (strpos($offset, 'record') !== false) {
             switch ($offset) {
                 case 'record':
                     return $this->record;
                     break;
+                case 'record_type':
+                    return $this->record->type;
+                case 'record_metadata':
+                    return $this->record->metadata;
                 case 'record_status':
                     return $this->record->status;
                     break;
@@ -149,7 +157,7 @@ class Row extends SplArrayObject
      * Row::__call
      *
      * @param string $method
-     * @param array  $args
+     * @param array $args
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result|\O2System\Framework\Models\Sql\DataObjects\Result\Row|null
      */
@@ -215,14 +223,14 @@ class Row extends SplArrayObject
     {
         $model = models($this->model->getClass());
 
-        if(empty($model->primaryKeys)) {
+        if (empty($model->primaryKeys)) {
             $primaryKey = isset($model->primaryKey) ? $model->primaryKey : 'id';
             $id = $this->offsetGet($primaryKey);
 
             return $model->delete($id);
         } else {
             $conditions = [];
-            foreach($model->primaryKeys as $primaryKey) {
+            foreach ($model->primaryKeys as $primaryKey) {
                 $conditions[$primaryKey] = $this->offsetGet($primaryKey);
             }
 
@@ -243,14 +251,14 @@ class Row extends SplArrayObject
     {
         $model = models($this->model->getClass());
 
-        if(empty($model->primaryKeys)) {
+        if (empty($model->primaryKeys)) {
             $primaryKey = isset($model->primaryKey) ? $model->primaryKey : 'id';
             $id = $this->offsetGet($primaryKey);
 
             return $model->{$method}($id);
         } else {
             $conditions = [];
-            foreach($model->primaryKeys as $primaryKey) {
+            foreach ($model->primaryKeys as $primaryKey) {
                 $conditions[$primaryKey] = $this->offsetGet($primaryKey);
             }
 

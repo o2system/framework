@@ -45,7 +45,7 @@ class Environment implements RequestHandlerInterface
             error_reporting(-1);
             ini_set('display_errors', 1);
 
-            if (isset($_REQUEST[ 'PHP_INFO' ])) {
+            if (isset($_REQUEST[ 'PHPINFO' ])) {
                 phpinfo();
                 exit(EXIT_SUCCESS);
             }

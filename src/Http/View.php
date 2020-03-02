@@ -19,6 +19,7 @@ use O2System\Framework\Containers\Modules\DataStructures\Module\Theme;
 use O2System\Framework\Http\Presenter\Meta;
 use O2System\Gear\Toolbar;
 use O2System\Html;
+use O2System\Security\Protections\Csrf;
 use O2System\Spl\Patterns\Structural\Composite\RenderableInterface;
 use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Exceptions\ErrorException;
@@ -676,6 +677,14 @@ class View implements RenderableInterface
          */
         if (presenter()->meta->title instanceof Meta\Title) {
             $this->document->title->text(presenter()->meta->title->__toString());
+        }
+
+        /**
+         * Injecting Meta CSRF
+         */
+        if(config()->security['protection']['csrf']) {
+            $csrf = new Csrf();
+            presenter()->meta->store('csrf-token', $csrf->getToken());
         }
 
         /**

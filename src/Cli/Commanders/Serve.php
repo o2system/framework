@@ -110,14 +110,15 @@ class Serve extends Commander
      */
     public function execute()
     {
-        $options = input()->get();
+        $this->__callOptions();
 
-        if (empty($options)) {
-            $_GET[ 'host' ] = 'localhost';
-            $_GET[ 'port' ] = 8000;
+        if(empty($this->optionHost)) {
+            $this->optionHost = 'localhost';
         }
 
-        $this->__callOptions();
+        if(empty($this->optionPort)) {
+            $this->optionPort = 8000;
+        }
 
         output()->write(
             (new Format())

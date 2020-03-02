@@ -443,6 +443,7 @@ class Framework extends Kernel
         if (profiler() !== false) {
             profiler()->watch('Parse Router Request');
         }
+
         router()->handle(new Uri());
 
         if (config()->loadFile('session') === true) {
@@ -452,7 +453,10 @@ class Framework extends Kernel
             $session->setLogger($this->services->get('logger'));
 
             if ( ! $session->isStarted()) {
-                $session->start();
+                $firstSegment = server_request()->getUri()->segments->first();
+                if( ! in_array($firstSegment, ['resources', 'images', 'storage'])) {
+                    $session->start();
+                }
             }
 
             $this->services->add($session, 'session');

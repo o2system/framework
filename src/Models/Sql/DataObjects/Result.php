@@ -49,7 +49,7 @@ class Result extends \O2System\Database\DataObjects\Result
      * @param \O2System\Database\DataObjects\Result $result
      * @param \O2System\Framework\Models\Sql\Model  $model
      */
-    public function __construct(\O2System\Database\DataObjects\Result $result, Model &$model)
+    public function __construct(\O2System\Database\DataObjects\Result $result, Model $model)
     {
         $this->model = new SplClassInfo($model);
 

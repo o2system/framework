@@ -16,36 +16,36 @@ namespace O2System\Framework\Models\Sql\Traits;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Models\Sql\Model;
-use O2System\Framework\Models\Sql\System\Metadata;
+use O2System\Framework\Models\Sql\System\Settings;
 use O2System\Spl\DataStructures\SplArrayObject;
 
 /**
- * Trait MetadataTrait
+ * Trait SettingsTrait
  * @package O2System\Framework\Models\Sql\Traits
  */
-trait MetadataTrait
+trait SettingsTrait
 {
     /**
-     * MetadataTrait::$hasMetadata
+     * SettingsTrait::$hasSettings
      * 
      * @var bool 
      */
-    protected $hasMetadata = true;
+    protected $hasSettings = true;
 
     // ------------------------------------------------------------------------
-    
+
     /**
-     * MetadataTrait::metadata
+     * SettingsTrait::settings
      *
      * @return array|bool|\O2System\Database\DataObjects\Result
      */
-    public function metadata()
+    public function settings()
     {
         $metadata = new SplArrayObject();
 
-        if($result = $this->morphMany(models(Metadata::class), 'ownership')) {
+        if($result = $this->morphMany(models(Settings::class), 'ownership')) {
             foreach($result as $row) {
-                $metadata->offsetSet($row->name, $row->content);
+                $metadata->offsetSet($row->key, $row->value);
             }
         }
 

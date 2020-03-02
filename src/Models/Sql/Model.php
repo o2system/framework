@@ -22,6 +22,7 @@ use O2System\Framework\Models\Sql\Traits\ModifierTrait;
 use O2System\Framework\Models\Sql\Traits\RecordTrait;
 use O2System\Framework\Models\Sql\Traits\RelationTrait;
 use O2System\Spl\Exceptions\RuntimeException;
+use O2System\Spl\Traits\Collectors\ErrorCollectorTrait;
 
 /**
  * Class Model
@@ -34,6 +35,7 @@ class Model
     use ModifierTrait;
     use RecordTrait;
     use RelationTrait;
+    use ErrorCollectorTrait;
 
     /**
      * Model::$group
@@ -148,61 +150,28 @@ class Model
     public $primaryKeys = [];
 
     /**
-     * Model::$metadataForeignKey
-     *
-     * @var string
-     */
-    public $metadataForeignKey;
-
-    /**
      * Model::$uploadedImageFilePath
      *
-     * Storage uploaded image filePath.
-     */
-    public $uploadedImageFilePath = null;
-
-    /**
-     * Model::$uploadedImageKey
+     * Storage uploaded image filePaths
      *
-     * Database table uploaded image key field name.
-     *
-     * @var string
-     */
-    public $uploadedImageKey = null;
-
-    /**
-     * Model::$uploadedImageKeys
-     *
-     * Database table uploaded image key columns name.
-     *
+     * @example
+     * $this->uploadFilePaths = [
+     *    'simplefile' => PATH_STORAGE . 'files/simple',
+     *    'multidimension' => [
+     *          'image' => PATH_STORAGE . 'files/multidimension/image',
+     *          'images' => PATH_STORAGE . 'files/multidimension/images',
+     *          'depth' => [
+     *              'album' => [
+     *                   'image' =>PATH_STORAGE . 'files/multidimension/depth/album/image',
+     *                   'images' =>PATH_STORAGE . 'files/multidimension/depth/album/images'
+     *              ]
+     *           ],
+     *     ]
+     * ];
+     * 
      * @var array
      */
-    public $uploadedImageKeys = [];
-
-    /**
-     * Model::$uploadedFileFilepath
-     *
-     * Storage uploaded file filePath.
-     */
-    public $uploadedFileFilepath = null;
-
-    /**
-     * Model::$uploadedFileKey
-     *
-     * Database table uploaded file key field name.
-     *
-     * @var string
-     */
-    public $uploadedFileKey = null;
-
-    /**
-     * Model::$uploadedFileKeys
-     *
-     * Database table uploaded file key columns name.
-     *
-     * @var array
-     */
-    public $uploadedFileKeys = [];
+    public $uploadFilePaths = [];
 
     /**
      * Model::$result
@@ -221,13 +190,6 @@ class Model
      * @var \O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
     public $row;
-
-    /**
-     * Result::$rebuildRowCallback
-     *
-     * @var \Closure
-     */
-    protected $rebuildRowCallback;
 
     /**
      * Model::$validSubModels
@@ -458,59 +420,5 @@ class Model
     final protected function getSubModel($model)
     {
         return $this->loadSubModel($model);
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Model::setRebuildRowCallback
-     *
-     * @param \Closure $callback
-     */
-    final public function rebuildRowCallback(\Closure $callback)
-    {
-        if(empty($this->rebuildRowCallback)) {
-            $this->rebuildRowCallback = $callback;
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Model::isCallableRebuildRowCallback
-     *
-     * @return void
-     */
-    final public function resetRebuildRowCallback()
-    {
-        $this->rebuildRowCallback = null;
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Model::isCallableRebuildRowCallback
-     *
-     * @return bool
-     */
-    final public function isCallableRebuildRowCallback()
-    {
-        return is_callable($this->rebuildRowCallback);
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Model::rebuildRow
-     *
-     * @param Row $row
-     *
-     * @return void
-     */
-    public function rebuildRow($row)
-    {
-        if(is_callable($this->rebuildRowCallback)) {
-            call_user_func($this->rebuildRowCallback, $row);
-        }
     }
 }

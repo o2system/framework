@@ -382,8 +382,21 @@ class Restful extends Controller
 
             if (empty($this->getValidationRules)) {
                 if ($get = input()->get()) {
+                    if($scopes = $get->offsetGet('scopes')) {
+                        $get->offsetUnset('scopes');
+                        $scopes = explode(',', $scopes);
+                        $scopes = array_map('trim', $scopes);
+                        $scopes = array_filter($scopes);
+
+                        $this->model->appendColumns = $scopes;
+                    }
+
                     if (false !== ($result = $this->model->findWhere($get->getArrayCopy(), $limit))) {
                         if ($result->count()) {
+                            if($get->offsetExists('id')) {
+                                $result = $result->first();
+                            }
+
                             $this->sendPayload($result);
                         } else {
                             $this->sendError(204);
@@ -397,22 +410,27 @@ class Restful extends Controller
                     $this->sendError(204);
                 }
             } elseif ($get = input()->get()) {
+                if($scopes = $get->offsetGet('scopes')) {
+                    $get->offsetUnset('scopes');
+                    $scopes = explode(',', $scopes);
+                    $scopes = array_map('trim', $scopes);
+                    $scopes = array_filter($scopes);
+
+                    $this->model->appendColumns = $scopes;
+                }
+
                 $get->validation($this->getValidationRules, $this->getValidationCustomErrors);
 
                 if ( ! $get->validate()) {
                     $this->sendError(400, implode(', ', $get->validator->getErrors()));
                 }
 
-                $conditions = [];
-
-                foreach ($this->getValidationRules as $field => $rule) {
-                    if($get->offsetExists($field)) {
-                        $conditions[ $field ] = $get->offsetGet($field);
-                    }
-                }
-
-                if (false !== ($result = $this->model->findWhere($conditions, $limit))) {
+                if (false !== ($result = $this->model->findWhere($get->getArrayCopy(), $limit))) {
                     if ($result->count()) {
+                        if($get->offsetExists('id')) {
+                            $result = $result->first();
+                        }
+
                         $this->sendPayload($result);
                     } else {
                         $this->sendError(204);
@@ -544,14 +562,6 @@ class Restful extends Controller
                     }
                 }
 
-                if (count($this->fillableColumns)) {
-                    foreach ($this->fillableColumns as $column) {
-                        if ($post->offsetExists($column)) {
-                            $data[ $column ] = $post->offsetGet($column);
-                        }
-                    }
-                }
-
                 if (count($data)) {
                     $data[ 'record_create_timestamp' ] = $data[ 'record_update_timestamp' ] = timestamp();
 
@@ -654,14 +664,6 @@ class Restful extends Controller
                     }
                 }
 
-                if (count($this->fillableColumns)) {
-                    foreach ($this->fillableColumns as $column) {
-                        if ($post->offsetExists($column)) {
-                            $data[ $column ] = $post->offsetGet($column);
-                        }
-                    }
-                }
-
                 if (count($data)) {
                     $data[ 'record_update_timestamp' ] = timestamp();
 
@@ -756,7 +758,7 @@ class Restful extends Controller
 
                 if ($result = $this->model->findWhere($conditions)) {
                     if ($result instanceof Row) {
-                        if ($row->delete()) {
+                        if ($result->delete()) {
                             $this->sendError(200);
                         } else {
                             $this->sendError(501);
@@ -827,7 +829,7 @@ class Restful extends Controller
 
                 if ($result = $this->model->findWhere($conditions)) {
                     if ($result instanceof Row) {
-                        if ($row->delete()) {
+                        if ($result->delete()) {
                             $this->sendError(200);
                         } else {
                             $this->sendError(501);
@@ -905,7 +907,7 @@ class Restful extends Controller
 
                 if ($result = $this->model->findWhere($conditions)) {
                     if ($result instanceof Row) {
-                        if ($row->{$method}()) {
+                        if ($result->{$method}()) {
                             $this->sendError(200);
                         } else {
                             $this->sendError(501);
@@ -979,7 +981,7 @@ class Restful extends Controller
 
                 if ($result = $this->model->findWhere($conditions)) {
                     if ($result instanceof Row) {
-                        if ($row->{$method}()) {
+                        if ($result->{$method}()) {
                             $this->sendError(200);
                         } else {
                             $this->sendError(501);

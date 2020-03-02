@@ -15,16 +15,25 @@ namespace O2System\Framework\Services;
 
 // ------------------------------------------------------------------------
 
+use O2System\Cache\Item;
+use O2System\Security\Authentication\JsonWebToken;
+use O2System\Security\Authentication\User;
 use O2System\Security\Authentication\User\Account;
 use O2System\Security\Authentication\User\Role;
+use O2System\Session;
+use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\Exceptions\RuntimeException;
+use O2System\Spl\Traits\Collectors\ErrorCollectorTrait;
+use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * Class AccessControl
  * @package O2System\Framework\Services
  */
-class AccessControl extends \O2System\Security\Authentication\User
+class AccessControl extends User
 {
+    use ErrorCollectorTrait;
+
     /**
      * User::$app
      *
@@ -45,7 +54,7 @@ class AccessControl extends \O2System\Security\Authentication\User
             $this->setConfig($config->getArrayCopy());
         }
 
-        if ( ! models('users')) {
+        if (!models('users')) {
             throw new RuntimeException('ACL_E_UNDEFINED_USERS_MODEL');
         }
     }
@@ -80,37 +89,25 @@ class AccessControl extends \O2System\Security\Authentication\User
      */
     public function authenticate($username, $password)
     {
-        if ($user = $this->find($username)) {
-            if ($user->account) {
-                if ($this->passwordVerify($password, $user->account->password)) {
-                    if ($this->passwordRehash($password)) {
-                        $user->account->update([
-                            'id'       => $user->id,
-                            'password' => $this->passwordHash($password),
-                        ]);
-                    }
+        if ($account = $this->find($username)) {
+            if ($this->passwordVerify($password, $account->password)) {
+                if ($this->passwordRehash($password)) {
+                    $update = [
+                        'password' => $this->passwordHash($password),
+                    ];
 
-                    $account = $user->account->getArrayCopy();
-                }
-            } elseif ($this->passwordVerify($password, $user->password)) {
-                $account = $user->getArrayCopy();
-            }
-
-            if (isset($account)) {
-                foreach ($account as $key => $value) {
-                    if (strpos($key, 'record') !== false) {
-                        unset($account[ $key ]);
-                    } elseif (in_array($key,
-                        ['password', 'pin', 'token', 'sso', 'id_sys_user', 'id_sys_module', 'id_sys_module_role'])) {
-                        unset($account[ $key ]);
-                    }
+                    models('users')->update($update, [
+                        'id' => $account->id
+                    ]);
                 }
 
-                $this->login($account);
-
-                return true;
+                return $this->forceLogin($account);
             }
         }
+
+        $this->attempt();
+
+        $this->addError(__LINE__, 'AUTHENTICATE_FAILED');
 
         return false;
     }
@@ -124,14 +121,13 @@ class AccessControl extends \O2System\Security\Authentication\User
      *
      * @return bool|mixed|\O2System\Database\DataObjects\Result|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function find($username)
+    public function find($username, $column = 'username')
     {
-        $column = 'username';
         if (is_numeric($username)) {
             $column = 'id';
         } elseif (filter_var($username, FILTER_VALIDATE_EMAIL)) {
             $column = 'email';
-        } elseif (preg_match($this->config[ 'msisdnRegex' ], $username)) {
+        } elseif (preg_match($this->config['msisdnRegex'], $username)) {
             $column = 'msisdn';
         }
 
@@ -154,45 +150,17 @@ class AccessControl extends \O2System\Security\Authentication\User
      */
     public function loggedIn()
     {
-        if (parent::loggedIn()) {
-            if(is_object($_SESSION['account'])) {
-                $account = new Account($_SESSION['account']->getArrayCopy());
-                $username = $account->user->username;
-            } else {
-                $account = new Account();
-                $username = $_SESSION['account']['username'];
-            }
+        if (session()->has('account')) {
+            $account = session()->get('account');
 
-            if ($user = models('users')->findWhere(['username' => $username], 1)) {
-                if ($profile = $user->profile) {
-                    $account->store('profile', $profile);
-                }
+            return true;
+        }
 
-                if ($employee = $user->employee) {
-                    $account->store('employee', $employee);
-                }
+        if ($this->tokenOn()) {
+            return true;
+        }
 
-                if ($member = $user->member) {
-                    $account->store('member', $member);
-                }
-
-                if ($role = $user->role) {
-                    $user->store('role', $role);
-                }
-
-                $account->store('user', $user);
-
-                session()->set('account', $account);
-            }
-
-            // Store Globals Account
-            globals()->store('account', $account);
-
-            // Store Presenter Account
-            if (services()->has('view')) {
-                presenter()->store('account', $account);
-            }
-
+        if ($this->signOn()) {
             return true;
         }
 
@@ -211,39 +179,57 @@ class AccessControl extends \O2System\Security\Authentication\User
      */
     public function forceLogin($username, $column = 'username')
     {
-        if (is_numeric($username)) {
-            $column = 'id';
-        } elseif (filter_var($username, FILTER_VALIDATE_EMAIL)) {
-            $column = 'email';
-        } elseif (preg_match($this->config[ 'msisdnRegex' ], $username)) {
-            $column = 'msisdn';
-        } elseif (strpos($username, 'token-') !== false) {
-            $username = str_replace('token-', '', $username);
-            $column = 'token';
-        } elseif (strpos($username, 'sso-') !== false) {
-            $username = str_replace('sso-', '', $username);
-            $column = 'sso';
+        if (!is_object($username)) {
+            $account = $this->find($username, $column);
+        } else {
+            $account = $username;
         }
 
-        if ($account = models('users')->findWhere([$column => $username], 1)) {
+        if (isset($account)) {
             $account = $account->getArrayCopy();
 
             foreach ($account as $key => $value) {
                 if (strpos($key, 'record') !== false) {
-                    unset($account[ $key ]);
+                    unset($account[$key]);
                 } elseif (in_array($key, ['password', 'pin', 'token', 'sso'])) {
-                    unset($account[ $key ]);
+                    unset($account[$key]);
                 }
             }
 
-            if ($column === 'token') {
-                models('users')->update([
-                    'id'    => $account[ 'id' ],
-                    'token' => null,
-                ]);
+            if ($sessionsModel = models('users')->sessions) {
+                $jwt = new JsonWebToken();
+
+                $payload = $jwt->encode(array_merge($account, [
+                    'iat' => $timestamp = timestamp(),
+                    'exp' => $expires = timestamp(strtotime('+1 day'))
+                ]));
+
+                $userAgent = input()->server('HTTP_USER_AGENT');
+                $ssid = substr(md5(json_encode($account) . $userAgent), -6, 10);
+
+                $session = [
+                    'id_sys_user' => $account['id'],
+                    'ssid' => $ssid,
+                    'jwt' => $payload,
+                    'timestamp' => $timestamp,
+                    'expires' => $expires,
+                    'useragent' => $userAgent
+                ];
+
+                if ($sessionsModel->insertOrUpdate($session, [
+                    'id_sys_user' => $account['id'],
+                    'ssid' => $ssid
+                ])) {
+                    $account['session'] = $sessionsModel->findWhere([
+                        'jwt' => $session['jwt']
+                    ], 1);
+                }
             }
 
-            $this->login($account);
+            $account = new Account($account);
+
+            session()->store('account', $account);
+            globals()->store('account', $account);
 
             return true;
         }
@@ -272,7 +258,7 @@ class AccessControl extends \O2System\Security\Authentication\User
                     if ($segment = $model->segments->find(implode('/', $segments), 'segments')) {
                         if ($authority = $model->segments->authorities->users->findWhere([
                             'id_sys_module_segment' => $segment->id,
-                            'id_sys_module_user'    => $account->user->moduleUser->id,
+                            'id_sys_module_user' => $account->user->moduleUser->id,
                         ])) {
                             if ($authority->first()->permission === 'WRITE') {
                                 return true;
@@ -300,7 +286,7 @@ class AccessControl extends \O2System\Security\Authentication\User
 
                         if ($authority = $model->segments->authorities->roles->findWhere([
                             'id_sys_module_segment' => $segment->id,
-                            'id_sys_module_role'    => $account->user->role->id,
+                            'id_sys_module_role' => $account->user->role->id,
                         ])) {
                             if ($authority->first()->permission === 'WRITE') {
                                 return true;
@@ -356,7 +342,7 @@ class AccessControl extends \O2System\Security\Authentication\User
                     if ($segment = $model->segments->find(implode('/', $segments), 'segments')) {
                         if ($authority = $model->segments->authorities->users->findWhere([
                             'id_sys_module_segment' => $segment->id,
-                            'id_sys_module_user'    => $account->user->moduleUser->id,
+                            'id_sys_module_user' => $account->user->moduleUser->id,
                         ])) {
                             if ($authority->first()->permission === 'WRITE') {
                                 return true;
@@ -365,7 +351,7 @@ class AccessControl extends \O2System\Security\Authentication\User
 
                         if ($authority = $model->segments->authorities->roles->findWhere([
                             'id_sys_module_segment' => $segment->id,
-                            'id_sys_module_role'    => $account->user->role->id,
+                            'id_sys_module_role' => $account->user->role->id,
                         ])) {
                             if ($authority->first()->permission === 'WRITE') {
                                 return true;
@@ -382,7 +368,112 @@ class AccessControl extends \O2System\Security\Authentication\User
     // ------------------------------------------------------------------------
 
     /**
-     * User::getIframeCode
+     * AccessControl::tokenOn
+     */
+    public function tokenOn()
+    {
+        if (false !== ($bearerToken = input()->bearerToken())) {
+            $payload = (new JsonWebToken())->decode($bearerToken);
+        } elseif (null !== ($cookieJWT = get_cookie('jwt'))) {
+            $payload = (new JsonWebToken())->decode($cookieJWT);
+            delete_cookie('jwt');
+        }
+
+        if (!empty($payload)) {
+            $this->forceLogin($payload['username']);
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AccessControll::tokenOff
+     */
+    public function tokenOff()
+    {
+        if ($cookieSSID = get_cookie('jwt')) {
+            delete_cookie('jwt');
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AccessControl::logout
+     */
+    public function logout()
+    {
+        if(services()->has('session')) {
+            session()->offsetUnset('account');
+            session()->destroy();
+        } else {
+            $session = new Session(config('session', true));
+            $session->setLogger(services()->get('logger'));
+
+            $session->start();
+
+            $session->offsetUnset('account');
+            $session->destroy();
+        }
+
+        unset($_SESSION['account']);
+
+        foreach($_COOKIE as $key => $value) {
+            unset($_COOKIE[$key]);
+        }
+
+        $this->signOff();
+        $this->tokenOff();
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AccessControl::signOn
+     *
+     * @return bool
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function signOn()
+    {
+        if (null !== ($cookieSSID = get_cookie('ssid'))) {
+            if ($session = models('users')->sessions->findWhere([
+                'ssid' => $cookieSSID
+            ], 1)) {
+                if (timestamp() >= strtotime($session->expires)) {
+                    delete_cookie('ssid');
+                    return false;
+                }
+
+                $account = (new JsonWebToken())->decode($session->jwt);
+
+                return $this->forceLogin($account['username']);
+            }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AccessControl::signOff
+     *
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function signOff()
+    {
+        if ($cookieSSID = get_cookie('ssid')) {
+            delete_cookie('ssid');
+        }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * AccessControl::getIframeCode
      *
      * @return string
      * @throws \Psr\Cache\InvalidArgumentException
@@ -390,7 +481,7 @@ class AccessControl extends \O2System\Security\Authentication\User
     public function getIframeCode()
     {
         if ($this->signedOn() && $this->loggedIn() === false) {
-            return '<iframe id="sign-on-iframe" width="1" height="1" src="' . rtrim($this->config[ 'sso' ][ 'server' ],
+            return '<iframe id="sign-on-iframe" width="1" height="1" src="' . rtrim($this->config['sso']['server'],
                     '/') . '" style="display: none; visibility: hidden;"></iframe>';
         }
 
