@@ -45,6 +45,8 @@ class Config extends Env
         $this->setFileDirName('Config');
         $this->addFilePath(PATH_FRAMEWORK);
         $this->addFilePath(PATH_APP);
+
+        $this->loadFile('Config');
     }
 
     // ------------------------------------------------------------------------
@@ -65,15 +67,19 @@ class Config extends Env
         $configFile = str_replace($basename, $filename, $offset);
         $offset = camelcase($basename);
 
-        foreach ($this->filePaths as $configFilePath) {
+        $configFilePaths = array_reverse($this->filePaths);
+
+        foreach ($configFilePaths as $configFilePath) {
             if (is_file(
                 $filePath = $configFilePath . ucfirst(
                         strtolower(ENVIRONMENT)
                     ) . DIRECTORY_SEPARATOR . $configFile . '.php'
             )) {
                 include($filePath);
+                break;
             } elseif (is_file($filePath = $configFilePath . DIRECTORY_SEPARATOR . $configFile . '.php')) {
                 include($filePath);
+                break;
             }
         }
 
@@ -82,7 +88,24 @@ class Config extends Env
                 array_push($this->loaded, $offset);
             }
 
-            $this->addItem($offset, $$offset);
+            if($offset === 'config') {
+                if(is_array($$offset)) {
+                    foreach($$offset as $key => $value) {
+                        $this->addItem($key, $value);
+                    }
+                }
+            } elseif($this->offsetExists($offset)) {
+                $currentConfig = $this->offsetGet($offset);
+
+                if(is_array($currentConfig)) {
+                    $newConfig = array_merge($currentConfig, $$offset);
+                    $this->addItem($offset, $newConfig);
+                } else {
+                    $this->addItem($offset, $$offset);
+                }
+            } else {
+                $this->addItem($offset, $$offset);
+            }
 
             unset($$offset);
 

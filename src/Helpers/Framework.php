@@ -219,7 +219,7 @@ if ( ! function_exists('modules')) {
         $args = func_get_args();
 
         if (count($args)) {
-            return o2system()->modules->getModule($args[ 0 ]);
+            return o2system()->modules->find($args[ 0 ]);
         }
 
         return o2system()->modules;

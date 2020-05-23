@@ -14,6 +14,8 @@ namespace O2System\Framework\Models\Sql\Traits;
 
 // ------------------------------------------------------------------------
 
+use O2System\Spl\DataStructures\SplArrayStorage;
+
 /**
  * Class TraitRecord
  *
@@ -90,83 +92,85 @@ trait RecordTrait
     // ------------------------------------------------------------------------
 
     /**
-     * RecordTrait::insertRecordSets
+     * RecordTrait::insertRecordData
      *
-     * @param array $sets
+     * @param SplArrayStorage $data
      */
-    protected function insertRecordSets(array &$sets)
+    protected function insertRecordData(SplArrayStorage &$data)
     {
         $timestamp = $this->unixTimestamp === true ? strtotime(date('Y-m-d H:i:s')) : date('Y-m-d H:i:s');
 
         if(is_null($this->recordUser)) {
-            if(globals()->offsetExists('account')) {
-                $this->setRecordUser(globals()->account->id);
+            if(services()->has('accessControl')) {
+                if(services('accessControl')->loggedIn()) {
+                    $this->setRecordUser(session()->account->id);
+                }
             }
         }
 
-        if ( ! isset($sets[ 'record_status' ])) {
-            $sets[ 'record_status' ] = $this->recordStatus;
+        if ( ! isset($data[ 'record_status' ])) {
+            $data[ 'record_status' ] = $this->recordStatus;
         }
 
         if (empty($this->primaryKeys)) {
             $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
-            if (isset($sets[ $primaryKey ])) {
-                if (empty($sets[ $primaryKey ])) {
-                    unset($sets[ $primaryKey ]);
+            if (isset($data[ $primaryKey ])) {
+                if (empty($data[ $primaryKey ])) {
+                    unset($data[ $primaryKey ]);
                 }
             }
 
-            if (empty($sets[ $primaryKey ])) {
-                if ( ! isset($sets[ 'record_create_user' ])) {
-                    $sets[ 'record_create_user' ] = $this->recordUser;
+            if (empty($data[ $primaryKey ])) {
+                if ( ! isset($data[ 'record_create_user' ])) {
+                    $data[ 'record_create_user' ] = $this->recordUser;
                 }
 
-                if ( ! isset($sets[ 'record_create_timestamp' ])) {
-                    $sets[ 'record_create_timestamp' ] = $timestamp;
+                if ( ! isset($data[ 'record_create_timestamp' ])) {
+                    $data[ 'record_create_timestamp' ] = $timestamp;
                 } elseif ($this->unixTimestamp) {
-                    $sets[ 'record_create_timestamp' ] = strtotime($sets[ 'record_create_timestamp' ]);
+                    $data[ 'record_create_timestamp' ] = strtotime($data[ 'record_create_timestamp' ]);
                 }
             }
         } else {
             foreach ($this->primaryKeys as $primaryKey) {
-                if (empty($sets[ $primaryKey ])) {
-                    if ( ! isset($sets[ 'record_create_user' ])) {
-                        $sets[ 'record_create_user' ] = $this->recordUser;
+                if (empty($data[ $primaryKey ])) {
+                    if ( ! isset($data[ 'record_create_user' ])) {
+                        $data[ 'record_create_user' ] = $this->recordUser;
                     }
 
-                    if ( ! isset($sets[ 'record_create_timestamp' ])) {
-                        $sets[ 'record_create_timestamp' ] = $timestamp;
+                    if ( ! isset($data[ 'record_create_timestamp' ])) {
+                        $data[ 'record_create_timestamp' ] = $timestamp;
                     } elseif ($this->unixTimestamp) {
-                        $sets[ 'record_create_timestamp' ] = strtotime($sets[ 'record_create_timestamp' ]);
+                        $data[ 'record_create_timestamp' ] = strtotime($data[ 'record_create_timestamp' ]);
                     }
                 }
             }
         }
 
-        if ( ! isset($sets[ 'record_update_user' ])) {
-            $sets[ 'record_update_user' ] = $this->recordUser;
+        if ( ! isset($data[ 'record_update_user' ])) {
+            $data[ 'record_update_user' ] = $this->recordUser;
         }
 
-        if ( ! isset($sets[ 'record_update_timestamp' ])) {
-            $sets[ 'record_update_timestamp' ] = $timestamp;
+        if ( ! isset($data[ 'record_update_timestamp' ])) {
+            $data[ 'record_update_timestamp' ] = $timestamp;
         } elseif ($this->unixTimestamp) {
-            $sets[ 'record_update_timestamp' ] = strtotime($sets[ 'record_update_timestamp' ]);
+            $data[ 'record_update_timestamp' ] = strtotime($data[ 'record_update_timestamp' ]);
         }
 
-        if ( ! isset($sets[ 'record_ordering' ]) && $this->recordOrdering === true) {
-            $sets[ 'record_ordering' ] = $this->getRecordOrdering();
+        if ( ! isset($data[ 'record_ordering' ]) && $this->recordOrdering === true) {
+            $data[ 'record_ordering' ] = $this->getRecordOrdering();
         }
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * RecordTrait::updateRecordSets
+     * RecordTrait::updateRecordData
      *
-     * @param array $sets
+     * @param SplArrayStorage $data
      */
-    protected function updateRecordSets(array &$sets)
+    protected function updateRecordData(SplArrayStorage &$data)
     {
         if(is_null($this->recordUser)) {
             if(globals()->offsetExists('account')) {
@@ -174,18 +178,18 @@ trait RecordTrait
             }
         }
 
-        if ( ! isset($sets[ 'record_status' ])) {
-            $sets[ 'record_status' ] = $this->recordStatus;
+        if ( ! isset($data[ 'record_status' ])) {
+            $data[ 'record_status' ] = $this->recordStatus;
         }
 
-        if ( ! isset($sets[ 'record_update_user' ])) {
-            $sets[ 'record_update_user' ] = $this->recordUser;
+        if ( ! isset($data[ 'record_update_user' ])) {
+            $data[ 'record_update_user' ] = $this->recordUser;
         }
 
         $timestamp = $this->unixTimestamp === true ? strtotime(date('Y-m-d H:i:s')) : date('Y-m-d H:i:s');
 
-        if ( ! isset($sets[ 'record_update_timestamp' ])) {
-            $sets[ 'record_update_timestamp' ] = $timestamp;
+        if ( ! isset($data[ 'record_update_timestamp' ])) {
+            $data[ 'record_update_timestamp' ] = $timestamp;
         }
     }
 

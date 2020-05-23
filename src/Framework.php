@@ -28,13 +28,13 @@ use O2System\Kernel\Http\Message\Uri;
 
 switch (strtoupper(ENVIRONMENT)) {
     case 'DEVELOPMENT':
-        error_reporting(-1);
         ini_set('display_errors', 1);
+        error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT & ~E_USER_NOTICE & ~E_USER_DEPRECATED);
         break;
     case 'TESTING':
     case 'PRODUCTION':
         ini_set('display_errors', 0);
-        error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT & ~E_USER_NOTICE & ~E_USER_DEPRECATED);
+        error_reporting(-1);
         break;
     default:
         header('HTTP/1.1 503 Service Unavailable.', true, 503);
@@ -243,21 +243,34 @@ class Framework extends Kernel
             profiler()->watch('Starting Framework Services');
         }
 
-        $services = [
-            'Services\Shutdown' => 'shutdown',
-            'Services\Logger'   => 'logger',
-            'Services\Loader'   => 'loader',
-        ];
-
-        foreach ($services as $className => $classOffset) {
-            $this->services->load($className, $classOffset);
-        }
-
         // Instantiate Config Container
         if (profiler() !== false) {
             profiler()->watch('Starting Config Container');
         }
         $this->config = new Framework\Containers\Config();
+
+        // Set Default Language
+        if($languageDefault = $this->config['language']['default']) {
+            language()->setDefault($languageDefault);
+            unset($languageDefault);
+        }
+
+        // Set Language Options
+        if($languageOptions = $this->config['language']['options']) {
+            language()->setOptions($languageOptions);
+            unset($languageOptions);
+        }
+
+        // Instantiate Shutdown Service Container
+        $this->services->load('Services\Shutdown', 'shutdown');
+
+        // Instantiate Logger Service
+        if($this->config[ 'logger' ][ 'threshold' ] !== LOGGER_DISABLED) {
+            $this->services->load('Services\Logger', 'logger');
+        }
+
+        // Instantiate Loader Service
+        $this->services->load('Services\Loader', 'loader');
 
         // Instantiate Globals Container
         if (profiler() !== false) {
@@ -277,12 +290,6 @@ class Framework extends Kernel
         }
         $this->models = new Framework\Containers\Models();
 
-        // Instantiate Modules Container
-        if (profiler() !== false) {
-            profiler()->watch('Starting Modules Container');
-        }
-        $this->modules = new Framework\Containers\Modules();
-
         if (config()->loadFile('cache') === true) {
             // Instantiate Cache Service
             if (profiler() !== false) {
@@ -290,19 +297,6 @@ class Framework extends Kernel
             }
 
             $this->services->add(new Framework\Services\Cache(config('cache', true)), 'cache');
-
-            // Language Service Load Registry
-            if (profiler() !== false) {
-                profiler()->watch('Loading Language Registry');
-            }
-
-            language()->loadRegistry();
-
-            // Modules Service Load Registry
-            if (profiler() !== false) {
-                profiler()->watch('Loading Modules Registry');
-            }
-            $this->modules->loadRegistry();
         }
     }
 
@@ -313,31 +307,26 @@ class Framework extends Kernel
      */
     protected function __reconstruct()
     {
-        // Modules default app
-        if (null !== ($defaultApp = config('app'))) {
-            if (false !== ($defaultModule = modules()->getApp($defaultApp))) {
-                // Register Domain App Module Namespace
-                loader()->addNamespace($defaultModule->getNamespace(), $defaultModule->getRealPath());
-
-                // Push Domain App Module
-                modules()->push($defaultModule);
-            } elseif (false !== ($defaultModule = modules()->getModule($defaultApp))) {
-                // Register Path Module Namespace
-                loader()->addNamespace($defaultModule->getNamespace(), $defaultModule->getRealPath());
-
-                // Push Path Module
-                modules()->push($defaultModule);
-            }
-        }
-
         if (profiler() !== false) {
             profiler()->watch('Calling Hooks Service: Post System');
         }
         hooks()->callEvent(Framework\Services\Hooks::POST_SYSTEM);
 
         if (is_cli()) {
+            // Instantiate CLI Router Service
+            $this->services->load(Kernel\Cli\Router::class);
+
             $this->cliHandler();
         } else {
+            // Instantiate Http Router Service
+            $this->services->load(Framework\Http\Router::class);
+
+            // Instantiate Modules Container
+            if (profiler() !== false) {
+                profiler()->watch('Starting Modules Container');
+            }
+            $this->modules = new Framework\Containers\Modules();
+
             $this->httpHandler();
         }
     }
@@ -353,9 +342,6 @@ class Framework extends Kernel
      */
     private function cliHandler()
     {
-        // Instantiate CLI Router Service
-        $this->services->load(Kernel\Cli\Router::class);
-
         if (profiler() !== false) {
             profiler()->watch('Parse Router Request');
         }
@@ -435,16 +421,35 @@ class Framework extends Kernel
 
             // Instantiate Http Presenter Service
             $this->services->load(Framework\Http\Presenter::class);
+
+            // Initialize Http Presenter Service
+            if (profiler() !== false) {
+                profiler()->watch('Initialize Http Presenter Service');
+            }
         }
 
-        // Instantiate Http Router Service
-        $this->services->load(Framework\Http\Router::class);
+        // Initialize Http Presenter Service
+        if (profiler() !== false) {
+            profiler()->watch('Registering App');
+        }
 
+        if(empty($this->config->get('app'))) {
+            $app = (new Framework\Containers\Modules\DataStructures\Module(PATH_APP))
+                ->setType('APP')
+                ->setNamespace('App\\');
+            $this->modules->register($app);
+        } else {
+            $app = (new Framework\Containers\Modules\DataStructures\Module(PATH_APP .  $this->config->get('app') . DIRECTORY_SEPARATOR))
+                ->setType('APP')
+                ->setNamespace('App\\' . studlycase($this->config->get('app')) . '\\');
+            $this->modules->register($app);
+        }
+        
         if (profiler() !== false) {
             profiler()->watch('Parse Router Request');
         }
 
-        router()->handle(new Uri());
+        router()->handle();
 
         if (config()->loadFile('session') === true) {
 
@@ -492,41 +497,14 @@ class Framework extends Kernel
             $controllerParameter = dash($controller->getParameter());
             $controllerRequestMethod = dash($controller->getRequestMethod());
 
-            $modules = $this->modules->getArrayCopy();
-            
-            // Run Module Autoloader
-            foreach ($modules as $module) {
-                if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
-                    continue;
-                }
-
-                // Autoload Module Language
-                if ($this->services->has('language')) {
-                    language()->loadFile($module->getParameter());
-                }
-
-                // Autoload Module Model
-                $module->loadModel();
-
-                // Add View Resource Directory
-                if($this->services->has('view')) {
-                    view()->addFilePath($module->getResourcesDir());
-                    presenter()->assets->pushFilePath($module->getResourcesDir());
-                }
-            }
-            
-            if ($this->services->has('view')) {
-                presenter()->initialize();
-            }
-
-            // Autoload Language
+            // Controller Autoload Language
             if ($this->services->has('language')) {
                 language()->loadFile($controller->getParameter());
                 language()->loadFile($controller->getRequestMethod());
                 language()->loadFile($controller->getParameter() . '/' . $controller->getRequestMethod());
             }
 
-            // Autoload Model
+            // Controller Autoload Model
             $modelClassName = str_replace(['Controllers', 'Presenters'], 'Models', $controller->getName());
 
             if (class_exists($modelClassName)) {
@@ -581,8 +559,12 @@ class Framework extends Kernel
             }
 
             ob_start();
-            $requestController->__call($requestMethod, $requestMethodArgs);
-            $requestControllerOutput = ob_get_contents();
+            $requestControllerOutput = $requestController->__call($requestMethod, $requestMethodArgs);
+
+            if(empty($requestControllerOutput)) {
+                $requestControllerOutput = ob_get_contents();
+            }
+
             ob_end_clean();
 
             if (is_numeric($requestControllerOutput)) {
@@ -594,10 +576,11 @@ class Framework extends Kernel
                     output()->sendError(204);
                 }
             } elseif (is_array($requestControllerOutput) or is_object($requestControllerOutput)) {
+                output()->setContentType('application/json');
                 output()->sendPayload($requestControllerOutput);
             } elseif ($requestController instanceof Framework\Http\Controllers\Restful) {
                 if (empty($requestControllerOutput)) {
-                    $requestController->sendError(204);
+                    output()->sendError(204);
                 } elseif (is_string($requestControllerOutput)) {
                     if (is_json($requestControllerOutput)) {
                         output()->setContentType('application/json');
@@ -608,34 +591,19 @@ class Framework extends Kernel
                     echo $requestControllerOutput;
                 }
             } elseif (is_string($requestControllerOutput)) {
-                if (is_json($requestControllerOutput)) {
+                if(is_json($requestControllerOutput)) {
                     output()->setContentType('application/json');
-                    echo $requestControllerOutput;
-                } elseif ($this->services->has('view')) {
-                    if (empty($requestControllerOutput)) {
-                        $filenames = [
-                            $controllerRequestMethod,
-                            $controllerParameter . DIRECTORY_SEPARATOR . $controllerRequestMethod,
-                        ];
-
-                        if ($controllerRequestMethod === 'index') {
-                            array_unshift($filenames, $controllerParameter);
-                        }
-
-                        foreach ($filenames as $filename) {
-                            if (false !== ($filePath = view()->getFilePath($filename))) {
-                                view()->load($filePath);
-                                break;
-                            }
-                        }
+                    output()->send($requestControllerOutput);
+                } elseif(is_ajax()) {
+                    output()->setContentType('application/json');
+                    if(empty($requestControllerOutput) or $requestControllerOutput === '') {
+                        output()->sendError(204);
                     } else {
-                        presenter()->partials->offsetSet('content', $requestControllerOutput);
+                        output()->sendPayload($requestControllerOutput);
                     }
-
-                    if (presenter()->partials->offsetExists('content')) {
-                        if(is_ajax()) {
-                            echo presenter()->partials->content;
-                        } else {
+                } elseif ($this->services->has('view')) {
+                    if (empty($requestControllerOutput) or $requestControllerOutput === '') {
+                        if(presenter()->partials->offsetExists('content')) {
                             $htmlOutput = view()->render();
 
                             if (empty($htmlOutput)) {
@@ -644,15 +612,21 @@ class Framework extends Kernel
                                 output()->setContentType('text/html');
                                 output()->send($htmlOutput);
                             }
+                        } else {
+                            output()->sendError(204);
                         }
                     } else {
-                        output()->sendError(204);
+                        presenter()->partials->offsetSet('content', $requestControllerOutput);
+
+                        $htmlOutput = view()->render();
+
+                        if (empty($htmlOutput)) {
+                            output()->sendError(204);
+                        } else {
+                            output()->setContentType('text/html');
+                            output()->send($htmlOutput);
+                        }
                     }
-                } elseif (empty($requestControllerOutput) or $requestControllerOutput === '') {
-                    output()->sendError(204);
-                } else {
-                    output()->setContentType('text/plain');
-                    output()->send($requestControllerOutput);
                 }
             }
         } else {

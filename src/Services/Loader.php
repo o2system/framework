@@ -81,23 +81,6 @@ class Loader implements AutoloadInterface
     // ------------------------------------------------------------------------
 
     /**
-     * Loader::__construct
-     */
-    public function __construct()
-    {
-        $this->register();
-
-        // Add Kernel Namespace
-        $this->addNamespace('O2System\Kernel', PATH_KERNEL);
-
-        if (class_exists('O2System', false)) {
-            $this->addNamespace('O2System\Framework', PATH_FRAMEWORK);
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
      * Loader::register
      *
      * Register loader with SPL autoloader stack.
@@ -344,6 +327,7 @@ class Loader implements AutoloadInterface
      */
     public function loadModuleClass($class)
     {
+        echo $class . PHP_EOL;
         if (modules() instanceof Modules) {
             if (false !== ($modules = modules()->getRegistry())) {
                 foreach ($modules as $module) {
@@ -415,6 +399,7 @@ class Loader implements AutoloadInterface
      */
     public function loadMappedFile($namespace, $relativeClass)
     {
+        print_r(func_get_args()) . PHP_EOL;
         // are there any base directories for this namespace prefix?
         if (isset($this->namespaceDirs[ $namespace ]) === false) {
             return false;
@@ -434,6 +419,7 @@ class Loader implements AutoloadInterface
             if ($this->requireFile($file)) {
                 // yes, we're done
                 return $file;
+                break;
             }
         }
 

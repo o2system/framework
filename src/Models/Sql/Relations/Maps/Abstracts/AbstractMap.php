@@ -45,6 +45,13 @@ abstract class AbstractMap
     public $objectPrimaryKey;
 
     /**
+     * AbstractMap::$objectPrimaryKeys
+     *
+     * @var array
+     */
+    public $objectPrimaryKeys = [];
+
+    /**
      * AbstractMap::$objectForeignKey
      *
      * @var string
@@ -71,6 +78,13 @@ abstract class AbstractMap
      * @var string
      */
     public $associatePrimaryKey;
+
+    /**
+     * AbstractMap::$associatePrimaryKeys
+     *
+     * @var array
+     */
+    public $associatePrimaryKeys = [];
 
     /**
      * AbstractMap::$associateForeignKey
@@ -122,16 +136,19 @@ abstract class AbstractMap
     {
         if ($objectModel instanceof Model) {
             $this->objectModel = $objectModel;
-            $this->objectTable = $objectModel->table;
-            $this->objectPrimaryKey = $objectModel->primaryKey;
+            $this->objectTable = $this->objectModel->table;
+            $this->objectPrimaryKey = $this->objectModel->primaryKey;
+            $this->objectPrimaryKeys = $this->objectModel->primaryKeys;
         } elseif (class_exists($objectModel)) {
             $this->objectModel = models($objectModel);
             $this->objectTable = $this->objectModel->table;
             $this->objectPrimaryKey = $this->objectModel->primaryKey;
+            $this->objectPrimaryKeys = $this->objectModel->primaryKeys;
         } else {
             $this->objectModel = new class extends Model {};
             $this->objectTable = $this->objectModel->table = $objectModel;
             $this->objectPrimaryKey = $this->objectModel->primaryKey = 'id';
+            $this->objectPrimaryKeys = $this->objectModel->primaryKeys;
         }
     }
 
@@ -148,14 +165,17 @@ abstract class AbstractMap
             $this->associateModel = $associateModel;
             $this->associateTable = $this->associateModel->table;
             $this->associatePrimaryKey = $this->associateModel->primaryKey;
+            $this->associatePrimaryKeys = $this->associateModel->primaryKeys;
         } elseif (class_exists($associateModel)) {
             $this->associateModel = models($associateModel);
             $this->associateTable = $this->associateModel->table;
             $this->associatePrimaryKey = $this->associateModel->primaryKey;
+            $this->associatePrimaryKeys = $this->associateModel->primaryKeys;
         } else {
             $this->associateModel = new class extends Model {};
             $this->associateTable = $this->associateModel->table = $associateModel;
             $this->associatePrimaryKey = $this->associateModel->primaryKey = 'id';
+            $this->associatePrimaryKeys = $this->associateModel->primaryKeys;
         }
 
         if (empty($this->objectForeignKey)) {

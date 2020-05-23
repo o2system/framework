@@ -22,6 +22,7 @@ use O2System\Framework\Models\Sql\DataObjects\Result;
 use O2System\Framework\Models\Sql\DataObjects\Result\Row;
 use O2System\Framework\Models\Sql\Model;
 use O2System\Security\Form\Validator;
+use O2System\Spl\DataStructures\SplArrayStorage;
 use O2System\Spl\Exceptions\Logic\OutOfRangeException;
 
 /**
@@ -310,7 +311,7 @@ class Restful extends Controller
 
         if (input()->server('REQUEST_METHOD') === 'OPTIONS') {
             exit(EXIT_SUCCESS);
-        } elseif ( ! in_array(input()->server('REQUEST_METHOD'), $this->accessControlAllowMethods)) {
+        } elseif (!in_array(input()->server('REQUEST_METHOD'), $this->accessControlAllowMethods)) {
             $this->sendError(405);
         } elseif (count($this->accessControlParams)) {
             if ($this->accessControlMethod === 'GET') {
@@ -350,39 +351,39 @@ class Restful extends Controller
         if (empty($this->model)) {
             output()->sendError(204);
         } else {
-            if ( ! $this->model instanceof Model) {
+            if (!$this->model instanceof Model) {
                 $this->sendError(503, 'Model is not exists!');
             }
 
-            if ( ! $this->model instanceof Model) {
+            if (!$this->model instanceof Model) {
                 $this->sendError(503, 'Model is not exists!');
             }
 
             if ($page = input()->get('page')) {
                 $this->model->withPaging($page);
-                unset($_GET[ 'page' ]);
+                unset($_GET['page']);
             }
 
             if ($limit = input()->get('limit')) {
                 $this->model->qb->limit($limit);
-                unset($_GET[ 'limit' ]);
+                unset($_GET['limit']);
             } else {
                 $limit = null;
             }
 
             if ($search = input()->get('search')) {
-                if ( ! empty($this->searchableColumns)) {
+                if (!empty($this->searchableColumns)) {
                     foreach ($this->searchableColumns as $column) {
                         $this->model->qb->orLike($column, $search);
                     }
                 }
 
-                unset($_GET[ 'search' ]);
+                unset($_GET['search']);
             }
 
             if (empty($this->getValidationRules)) {
                 if ($get = input()->get()) {
-                    if($scopes = $get->offsetGet('scopes')) {
+                    if ($scopes = $get->offsetGet('scopes')) {
                         $get->offsetUnset('scopes');
                         $scopes = explode(',', $scopes);
                         $scopes = array_map('trim', $scopes);
@@ -393,7 +394,7 @@ class Restful extends Controller
 
                     if (false !== ($result = $this->model->findWhere($get->getArrayCopy(), $limit))) {
                         if ($result->count()) {
-                            if($get->offsetExists('id')) {
+                            if ($get->offsetExists('id')) {
                                 $result = $result->first();
                             }
 
@@ -410,7 +411,7 @@ class Restful extends Controller
                     $this->sendError(204);
                 }
             } elseif ($get = input()->get()) {
-                if($scopes = $get->offsetGet('scopes')) {
+                if ($scopes = $get->offsetGet('scopes')) {
                     $get->offsetUnset('scopes');
                     $scopes = explode(',', $scopes);
                     $scopes = array_map('trim', $scopes);
@@ -421,13 +422,13 @@ class Restful extends Controller
 
                 $get->validation($this->getValidationRules, $this->getValidationCustomErrors);
 
-                if ( ! $get->validate()) {
+                if (!$get->validate()) {
                     $this->sendError(400, implode(', ', $get->validator->getErrors()));
                 }
 
                 if (false !== ($result = $this->model->findWhere($get->getArrayCopy(), $limit))) {
                     if ($result->count()) {
-                        if($get->offsetExists('id')) {
+                        if ($get->offsetExists('id')) {
                             $result = $result->first();
                         }
 
@@ -456,58 +457,58 @@ class Restful extends Controller
         if (empty($this->model)) {
             output()->sendError(204);
         } else {
-            if ( ! $this->model instanceof Model) {
+            if (!$this->model instanceof Model) {
                 $this->sendError(503, 'Model is not exists!');
             }
 
             $hasAction = false;
             if ($request = input()->request()) {
                 // Start as limit
-                $this->model->qb->limit($request[ 'start' ]);
+                $this->model->qb->limit($request['start']);
 
                 // Length as offset
-                $this->model->qb->offset($request[ 'length' ]);
+                $this->model->qb->offset($request['length']);
 
                 // Set ordering
-                if ( ! empty($request[ 'order' ])) {
-                    foreach ($request[ 'order' ] as $dt => $order) {
-                        $field = $request[ 'columns' ][ $order[ 'column' ] ][ 'data' ];
-                        $this->model->qb->orderBy($field, strtoupper($order[ 'dir' ]));
+                if (!empty($request['order'])) {
+                    foreach ($request['order'] as $dt => $order) {
+                        $field = $request['columns'][$order['column']]['data'];
+                        $this->model->qb->orderBy($field, strtoupper($order['dir']));
                     }
                 }
 
                 $this->model->visibleColumns = [];
 
-                foreach ($request[ 'columns' ] as $dt => $column) {
-                    if ($column[ 'data' ] === 'action') {
+                foreach ($request['columns'] as $dt => $column) {
+                    if ($column['data'] === 'action') {
                         $this->model->appendColumns[] = 'action';
 
                         continue;
                     }
 
-                    if ($column[ 'searchable' ]) {
+                    if ($column['searchable']) {
                         if ($dt == 0) {
-                            if ( ! empty($column[ 'search' ][ 'value' ])) {
-                                $this->model->qb->like($column[ 'data' ], $column[ 'search' ][ 'value' ]);
+                            if (!empty($column['search']['value'])) {
+                                $this->model->qb->like($column['data'], $column['search']['value']);
 
-                                if ( ! empty($request[ 'search' ][ 'value' ])) {
-                                    $this->model->qb->orLike($column[ 'data' ], $request[ 'search' ][ 'value' ]);
+                                if (!empty($request['search']['value'])) {
+                                    $this->model->qb->orLike($column['data'], $request['search']['value']);
                                 }
-                            } elseif ( ! empty($request[ 'search' ][ 'value' ])) {
-                                $this->model->qb->like($column[ 'data' ], $request[ 'search' ][ 'value' ]);
+                            } elseif (!empty($request['search']['value'])) {
+                                $this->model->qb->like($column['data'], $request['search']['value']);
                             }
                         } else {
-                            if ( ! empty($column[ 'search' ][ 'value' ])) {
-                                $this->model->qb->orLike($column[ 'data' ], $column[ 'search' ][ 'value' ]);
+                            if (!empty($column['search']['value'])) {
+                                $this->model->qb->orLike($column['data'], $column['search']['value']);
                             }
 
-                            if ( ! empty($request[ 'search' ][ 'value' ])) {
-                                $this->model->qb->orLike($column[ 'data' ], $request[ 'search' ][ 'value' ]);
+                            if (!empty($request['search']['value'])) {
+                                $this->model->qb->orLike($column['data'], $request['search']['value']);
                             }
                         }
                     }
 
-                    $this->model->visibleColumns[] = $column[ 'data' ];
+                    $this->model->visibleColumns[] = $column['data'];
                 }
             }
 
@@ -517,10 +518,10 @@ class Restful extends Controller
 
             if (false !== ($result = $this->model->all())) {
                 output()->sendPayload([
-                    'draw'            => input()->request('draw'),
-                    'recordsTotal'    => $result->info->num_total,
+                    'draw' => input()->request('draw'),
+                    'recordsTotal' => $result->info->num_total,
                     'recordsFiltered' => $result->info->num_founds,
-                    'data'            => $result->toArray(),
+                    'data' => $result->toArray(),
                 ]);
             } else {
                 $this->sendError(204);
@@ -541,43 +542,20 @@ class Restful extends Controller
         if (empty($this->model)) {
             output()->sendError(204);
         } else {
-            if ( ! $this->model instanceof Model) {
+            if (!$this->model instanceof Model) {
                 $this->sendError(503, 'Model is not ready');
             }
 
             if ($post = input()->post()) {
-                if (count($this->createValidationRules)) {
-                    $post->validation($this->createValidationRules, $this->createValidationCustomErrors);
-                    if ( ! $post->validate()) {
-                        $this->sendError(400, $post->validator->getErrors());
-                    }
-                }
-
-                $data = $post->getArrayCopy();
-                if (count($this->createValidationRules)) {
-                    foreach ($this->createValidationRules as $field => $rule) {
-                        if ($post->offsetExists($field)) {
-                            $data[ $field ] = $post->offsetGet($field);
-                        }
-                    }
-                }
-
-                if (count($data)) {
-                    $data[ 'record_create_timestamp' ] = $data[ 'record_update_timestamp' ] = timestamp();
-
-                    if (isset($GLOBALS[ 'account' ][ 'id' ])) {
-                        $data[ 'record_create_user' ] = $data[ 'record_update_user' ] = globals()->account->id;
-                    }
-
-                    if ($this->model->insert($data)) {
-                        $data[ 'id' ] = $this->model->db->getLastInsertId();
+                if ($post->count()) {
+                    if ($this->model->insert($post)) {
                         $this->sendPayload([
                             'code' => 200,
                             'Successful insert request',
-                            'data' => $data,
+                            'data' => $post,
                         ]);
                     } else {
-                        $this->sendError(501, 'Failed update request');
+                        $this->sendError(400, $this->model->getLatestErrorMessage());
                     }
                 } else {
                     $this->sendError(400, 'Post parameters cannot be empty!');
@@ -598,94 +576,34 @@ class Restful extends Controller
      */
     public function update()
     {
-        if (empty($this->model)) {
-            output()->sendError(204);
-        } else {
-            if ( ! $this->model instanceof Model) {
-                $this->sendError(503, 'Model is not ready');
-            }
-
-            if ($post = input()->post()) {
-                $conditions = [];
-
-                if (empty($this->updateValidationRules)) {
-                    if (empty($this->model->primaryKeys)) {
-                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                        if ($post->offsetExists($primaryKey)) {
-                            $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
-                        }
-
-                        $this->updateValidationRules[ $primaryKey ] = 'required';
-                        $this->updateValidationCustomErrors[ $primaryKey ] = [
-                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                        ];
-                    } else {
-                        foreach ($this->model->primaryKeys as $primaryKey) {
-                            if ($post->offsetExists($primaryKey)) {
-                                $conditions[ $primaryKey ] = $post->offsetGet($primaryKey);
-                            }
-
-                            $this->updateValidationRules[ $primaryKey ] = 'required';
-                            $this->updateValidationCustomErrors[ $primaryKey ] = [
-                                'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                            ];
-                        }
-                    }
-                } else {
-                    if (empty($this->model->primaryKeys)) {
-                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-
-                        if ($post->offsetExists($primaryKey)) {
-                            $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
-                        }
-                    } else {
-                        foreach ($this->model->primaryKeys as $primaryKey) {
-                            if ($post->offsetExists($primaryKey)) {
-                                $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
-                            }
-                        }
-                    }
-                }
-
-                if (count($this->updateValidationRules)) {
-                    $post->validation($this->updateValidationRules, $this->updateValidationCustomErrors);
-                }
-
-                if ( ! $post->validate()) {
-                    $this->sendError(400, implode(', ', $post->validator->getErrors()));
-                }
-
-                $data = $post->getArrayCopy();
-                if (count($this->updateValidationRules)) {
-                    foreach ($this->updateValidationRules as $field => $rule) {
-                        if ($post->offsetExists($field)) {
-                            $data[ $field ] = $post->offsetGet($field);
-                        }
-                    }
-                }
-
-                if (count($data)) {
-                    $data[ 'record_update_timestamp' ] = timestamp();
-
-                    if (isset($GLOBALS[ 'account' ][ 'id' ])) {
-                        $data[ 'record_update_user' ] = globals()->account->id;
-                    }
-
-                    if (empty($conditions)) {
-                        $this->sendError(501, 'Unavailable primary keys data');
-                    }
-
-                    if ($this->model->update($data, $conditions)) {
-                        $this->sendError(200, 'Successful update request');
-                    } else {
-                        $this->sendError(501, 'Failed update request');
-                    }
-                } else {
-                    $this->sendError(400, 'Post parameters cannot be empty!');
-                }
+        if (in_array(input()->server('REQUEST_METHOD'), ['PUT', 'POST'])) {
+            if (empty($this->model)) {
+                output()->sendError(204);
             } else {
-                $this->sendError(400);
+                if (!$this->model instanceof Model) {
+                    $this->sendError(503, 'Model is not ready');
+                }
+
+                if ($post = input()->post()) {
+                    if ($post->count()) {
+                        if ($this->model->update($post)) {
+                            $this->sendPayload([
+                                'code' => 200,
+                                'Successful update request',
+                                'data' => $post,
+                            ]);
+                        } else {
+                            $this->sendError(400, $this->model->getLatestErrorMessage());
+                        }
+                    } else {
+                        $this->sendError(400, 'Post parameters cannot be empty!');
+                    }
+                } else {
+                    $this->sendError(400);
+                }
             }
+        } else {
+            $this->sendError(403, 'Invalid request method!');
         }
     }
 
@@ -698,155 +616,43 @@ class Restful extends Controller
      * @throws \O2System\Spl\Exceptions\RuntimeException
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function delete($id = null)
+    public function delete($id)
     {
-        if (empty($this->model)) {
-            output()->sendError(204);
-        } else {
-            if ( ! $this->model instanceof Model) {
-                $this->sendError(503, 'Model is not ready!');
-            }
-
-            if ($post = input()->post()) {
-                if (empty($this->actionValidationRules)) {
-                    if (empty($this->model->primaryKeys)) {
-                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                        if ($post->offsetExists($primaryKey)) {
-                            $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
-                        }
-
-                        $this->actionValidationRules[ $primaryKey ] = 'required';
-                        $this->actionValidationCustomErrors[ $primaryKey ] = [
-                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                        ];
-                    } else {
-                        foreach ($this->model->primaryKeys as $primaryKey) {
-                            $conditions[ $primaryKey ] = $post->offsetGet($primaryKey);
-
-                            $this->actionValidationRules[ $primaryKey ] = 'required';
-                            $this->actionValidationCustomErrors[ $primaryKey ] = [
-                                'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                            ];
-                        }
-                    }
-                } else {
-                    if (empty($this->model->primaryKeys)) {
-                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                        if ($post->offsetExists($primaryKey)) {
-                            $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
-                        }
-                    } else {
-                        foreach ($this->model->primaryKeys as $primaryKey) {
-                            if ($post->offsetExists($primaryKey)) {
-                                $conditions[ $primaryKey ] = $post->offsetGet($primaryKey);
-                            }
-                        }
-                    }
-                }
-
-                if (count($this->actionValidationRules)) {
-                    $post->validation($this->actionValidationRules, $this->actionValidationCustomErrors);
-                }
-
-                if (empty($conditions)) {
-                    $this->sendError(501, 'Unavailable primary keys data');
-                }
-
-                if ( ! $post->validate()) {
-                    $this->sendError(400, implode(', ', $post->validator->getErrors()));
-                }
-
-                if ($result = $this->model->findWhere($conditions)) {
-                    if ($result instanceof Row) {
-                        if ($result->delete()) {
-                            $this->sendError(200);
-                        } else {
-                            $this->sendError(501);
-                        }
-                    } elseif ($result instanceof Result) {
-                        foreach ($result as $row) {
-                            $row->delete();
-                        }
-
-                        $this->sendError(200);
-                    }
-                } else {
-                    $this->sendError(404, 'Data not found!');
-                }
-            } elseif (input()->server('REQUEST_METHOD') === 'DELETE') {
-                $params = func_get_args();
-                $validator = new Validator();
-
-                if (empty($this->actionValidationRules)) {
-                    if (empty($this->model->primaryKeys)) {
-                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                        if (count($params)) {
-                            $conditions = [$primaryKey => reset($params)];
-                        }
-
-                        $this->actionValidationRules[ $primaryKey ] = 'required';
-                        $this->actionValidationCustomErrors[ $primaryKey ] = [
-                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                        ];
-                    } else {
-                        foreach ($this->model->primaryKeys as $key => $primaryKey) {
-                            if (isset($params[ $key ])) {
-                                $conditions[ $primaryKey ] = $params[ $key ];
-                            }
-
-                            $this->actionValidationRules[ $primaryKey ] = 'required';
-                            $this->actionValidationCustomErrors[ $primaryKey ] = [
-                                'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                            ];
-                        }
-                    }
-                } else {
-                    if (empty($this->model->primaryKeys)) {
-                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                        if (count($params)) {
-                            $conditions = [$primaryKey => reset($params)];
-                        }
-                    } else {
-                        foreach ($this->model->primaryKeys as $key => $primaryKey) {
-                            if (isset($params[ $key ])) {
-                                $conditions[ $primaryKey ] = $params[ $key ];
-                            }
-                        }
-                    }
-                }
-
-                if (count($this->actionValidationRules)) {
-                    $validator->setRules($this->actionValidationRules, $this->actionValidationCustomErrors);
-                }
-
-                if (empty($conditions)) {
-                    $this->sendError(501, 'Unavailable primary keys data');
-                }
-
-                if ( ! $validator->validate($conditions)) {
-                    $this->sendError(400, implode(', ', $validator->getErrors()));
-                }
-
-                if ($result = $this->model->findWhere($conditions)) {
-                    if ($result instanceof Row) {
-                        if ($result->delete()) {
-                            $this->sendError(200);
-                        } else {
-                            $this->sendError(501);
-                        }
-                    } elseif ($result instanceof Result) {
-                        foreach ($result as $row) {
-                            $row->delete();
-                        }
-
-                        $this->sendError(200);
-                    }
-                } else {
-                    $this->sendError(404, 'Data not found!');
-                }
+        if (input()->server('REQUEST_METHOD') === 'DELETE') {
+            if (empty($this->model)) {
+                output()->sendError(204);
             } else {
-                $this->sendError(400);
+                if (!$this->model instanceof Model) {
+                    $this->sendError(503, 'Model is not ready!');
+                }
+
+                $params = func_get_args();
+
+                if(count($params)) {
+                    $conditions = [];
+
+                    if(empty($this->model->primaryKeys)) {
+                        $conditions[$this->model->primaryKey] = reset($params);
+                    } else {
+                        foreach($this->model->primaryKeys as $key => $primaryKey) {
+                            $conditions[$primaryKey] = $params[$key];
+                        }
+                    }
+
+                    if($this->model->deleteBy($conditions)) {
+                        $this->sendPayload([
+                            'code' => 200,
+                            'Successful delete data'
+                        ]);
+                    } else {
+                        $this->sendError(400, $this->model->getLatestErrorMessage());
+                    }
+                } else {
+                    $this->sendError(400, 'Request parameters cannot be empty!');
+                }
             }
+        } else {
+            $this->sendError(403, 'Invalid request method!');
         }
     }
 
@@ -855,150 +661,35 @@ class Restful extends Controller
     /**
      * Restful::updateRecordStatus
      *
-     * @param array  $params
+     * @param array $params
+     * @param string $recordStatus
      * @param string $method
      */
-    private function updateRecordStatus(array $params, $method)
+    private function updateRecordStatus(array $primaryKeys, $recordStatus, $method)
     {
-        if (empty($this->model)) {
-            output()->sendError(204);
-        } else {
-            if ( ! $this->model instanceof Model) {
-                $this->sendError(503, 'Model is not ready');
-            }
-
-            if ($post = input()->post()) {
-                if (empty($this->actionValidationRules)) {
-                    if (empty($this->model->primaryKeys)) {
-                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                        if ($post->offsetExists($primaryKey)) {
-                            $conditions = [$primaryKey => $post->offsetGet($primaryKey)];
-                        }
-
-                        $this->actionValidationRules[ $primaryKey ] = 'required';
-                        $this->actionValidationCustomErrors[ $primaryKey ] = [
-                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                        ];
-                    } else {
-                        foreach ($this->model->primaryKeys as $primaryKey) {
-                            if ($post->offsetExists($primaryKey)) {
-                                $conditions[ $primaryKey ] = $post->offsetGet($primaryKey);
-                            }
-
-                            $this->actionValidationRules[ $primaryKey ] = 'required';
-                            $this->actionValidationCustomErrors[ $primaryKey ] = [
-                                'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                            ];
-                        }
-                    }
-                }
-
-                if (count($this->actionValidationRules)) {
-                    $post->validation($this->actionValidationRules, $this->actionValidationCustomErrors);
-                }
-
-                if (empty($conditions)) {
-                    $this->sendError(501, 'Unavailable primary keys data');
-                }
-
-                if ( ! $post->validate()) {
-                    $this->sendError(400, implode(', ', $post->validator->getErrors()));
-                }
-
-                if ($result = $this->model->findWhere($conditions)) {
-                    if ($result instanceof Row) {
-                        if ($result->{$method}()) {
-                            $this->sendError(200);
-                        } else {
-                            $this->sendError(501);
-                        }
-                    } elseif ($result instanceof Result) {
-                        foreach ($result as $row) {
-                            $row->{$method}();
-                        }
-
-                        $this->sendError(200);
-                    }
-                } else {
-                    $this->sendError(404, 'Data not found!');
-                }
-            } elseif (input()->server('REQUEST_METHOD') === 'PATCH') {
-                $validator = new Validator();
-
-                if (empty($this->actionValidationRules)) {
-                    if (empty($this->model->primaryKeys)) {
-                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                        if (count($params)) {
-                            $conditions = [$primaryKey => reset($params)];
-                        }
-
-                        $this->actionValidationRules[ $primaryKey ] = 'required';
-                        $this->actionValidationCustomErrors[ $primaryKey ] = [
-                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                        ];
-                    } else {
-                        foreach ($this->model->primaryKeys as $key => $primaryKey) {
-                            if (isset($params[ $key ])) {
-                                $conditions[ $primaryKey ] = $params[ $key ];
-                            }
-
-                            $this->actionValidationRules[ $primaryKey ] = 'required';
-                            $this->actionValidationCustomErrors[ $primaryKey ] = [
-                                'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                            ];
-                        }
-                    }
-                } else {
-                    if (empty($this->model->primaryKeys)) {
-                        $primaryKey = empty($this->model->primaryKey) ? 'id' : $this->model->primaryKey;
-                        if (count($params)) {
-                            $conditions = [$primaryKey => reset($params)];
-                        }
-                    } else {
-                        foreach ($this->model->primaryKeys as $key => $primaryKey) {
-                            if (isset($params[ $key ])) {
-                                $conditions[ $primaryKey ] = $params[ $key ];
-                            }
-                        }
-                    }
-                }
-
-                if (count($this->actionValidationRules)) {
-                    $validator->setRules($this->actionValidationRules, $this->actionValidationCustomErrors);
-                }
-
-                if (empty($conditions)) {
-                    $this->sendError(501, 'Unavailable primary keys data');
-                }
-
-                if ( ! $validator->validate($conditions)) {
-                    $this->sendError(400, implode(', ', $validator->getErrors()));
-                }
-
-                if ( ! $this->model instanceof Model) {
-                    $this->sendError(503, 'Model is not ready!');
-                }
-
-                if ($result = $this->model->findWhere($conditions)) {
-                    if ($result instanceof Row) {
-                        if ($result->{$method}()) {
-                            $this->sendError(200);
-                        } else {
-                            $this->sendError(501);
-                        }
-                    } elseif ($result instanceof Result) {
-                        foreach ($result as $row) {
-                            $row->{$method}();
-                        }
-
-                        $this->sendError(200);
-                    }
-                } else {
-                    $this->sendError(404, 'Data not found!');
-                }
+        if (input()->server('REQUEST_METHOD') === 'PATCH') {
+            if (empty($this->model)) {
+                output()->sendError(204);
             } else {
-                $this->sendError(400);
+                if (!$this->model instanceof Model) {
+                    $this->sendError(503, 'Model is not ready');
+                }
+
+                if (count($primaryKeys)) {
+                    if ($this->model->updateRecordStatus($primaryKeys, $recordStatus, $method)) {
+                        $this->sendPayload([
+                            'code' => 200,
+                            'Successful ' . $method . ' request',
+                        ]);
+                    } else {
+                        $this->sendError(400, $this->model->getLatestErrorMessage());
+                    }
+                } else {
+                    $this->sendError(400, 'Request parameters cannot be empty!');
+                }
             }
+        } else {
+            $this->sendError(403, 'Invalid request method!');
         }
     }
 
@@ -1011,9 +702,9 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function publish($id = null)
+    public function publish($id)
     {
-        $this->updateRecordStatus(func_get_args(), 'publish');
+        $this->updateRecordStatus(func_get_args(), 'PUBLISH', 'publish');
     }
 
     // ------------------------------------------------------------------------
@@ -1025,9 +716,9 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function unpublish($id = null)
+    public function unpublish($id)
     {
-        $this->updateRecordStatus(func_get_args(), 'unpublish');
+        $this->updateRecordStatus(func_get_args(), 'UNPUBLISH', 'unpublish');
     }
 
     // ------------------------------------------------------------------------
@@ -1039,9 +730,9 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function archive($id = null)
+    public function archive($id)
     {
-        $this->updateRecordStatus(func_get_args(), 'archive');
+        $this->updateRecordStatus(func_get_args(), 'ARCHIVED', 'archive');
     }
 
     // ------------------------------------------------------------------------
@@ -1053,9 +744,9 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function lock($id = null)
+    public function lock($id)
     {
-        $this->updateRecordStatus(func_get_args(), 'lock');
+        $this->updateRecordStatus(func_get_args(), 'LOCKED', 'lock');
     }
 
     // ------------------------------------------------------------------------
@@ -1067,9 +758,9 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function softDelete($id = null)
+    public function softDelete($id)
     {
-        $this->updateRecordStatus(func_get_args(), 'softDelete');
+        $this->updateRecordStatus(func_get_args(), 'DELETED', 'softDelete');
     }
 
     // ------------------------------------------------------------------------
@@ -1081,9 +772,9 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function draft($id = null)
+    public function draft($id)
     {
-        $this->updateRecordStatus(func_get_args(), 'draft');
+        $this->updateRecordStatus(func_get_args(), 'DRAFT', 'draft');
     }
 
     // ------------------------------------------------------------------------
@@ -1091,7 +782,7 @@ class Restful extends Controller
     /**
      * Restful::sendError
      *
-     * @param int         $code
+     * @param int $code
      * @param string|null $message
      */
     protected function sendError($code, $message = null)
@@ -1104,9 +795,9 @@ class Restful extends Controller
             if (is_numeric(key($code))) {
                 $message = reset($code);
                 $code = key($code);
-            } elseif (isset($code[ 'code' ])) {
-                $code = $code[ 'code' ];
-                $message = $code[ 'message' ];
+            } elseif (isset($code['code'])) {
+                $code = $code['code'];
+                $message = $code['message'];
             }
         }
 
@@ -1118,8 +809,8 @@ class Restful extends Controller
     /**
      * Restful::sendPayload
      *
-     * @param mixed $data        The payload data to-be send.
-     * @param bool  $longPooling Long pooling flag mode.
+     * @param mixed $data The payload data to-be send.
+     * @param bool $longPooling Long pooling flag mode.
      *
      * @throws \Exception
      */
@@ -1154,7 +845,7 @@ class Restful extends Controller
             $longPoolingCacheKey = 'long-pooling-' . session()->get('id');
             $longPoolingCacheData = null;
 
-            if ( ! cache()->hasItem($longPoolingCacheKey)) {
+            if (!cache()->hasItem($longPoolingCacheKey)) {
                 cache()->save(new Item($longPoolingCacheKey, $data));
             }
 
@@ -1174,10 +865,10 @@ class Restful extends Controller
                 $longPoolingCacheMetadata = $longPoolingCacheData->getMetadata();
 
                 // if no timestamp delivered via ajax or data.txt has been changed SINCE last ajax timestamp
-                if ($lastCallTimestamp == null || $longPoolingCacheMetadata[ 'ctime' ] > $lastCallTimestamp) {
+                if ($lastCallTimestamp == null || $longPoolingCacheMetadata['ctime'] > $lastCallTimestamp) {
                     output()->send([
                         'timestamp' => $longPoolingCacheMetadata,
-                        'data'      => $data,
+                        'data' => $data,
                     ]);
                 } else {
                     // wait for 1 sec (not very sexy as this blocks the PHP/Apache process, but that's how it goes)

@@ -22,16 +22,61 @@ use O2System\Image\Uploader;
 use O2System\Framework\Libraries\Ui\Contents\Lists\Unordered;
 use O2System\Framework\Models\Sql\DataObjects\Result;
 use O2System\Framework\Models\Sql\DataObjects\Result\Row;
+use O2System\Kernel\DataStructures\Input\Abstracts\AbstractInput;
+use O2System\Kernel\DataStructures\Input\Post;
 use O2System\Kernel\Http\Message\UploadFile;
 use O2System\Spl\DataStructures\SplArrayObject;
+use O2System\Spl\DataStructures\SplArrayStorage;
 
 /**
- * Class TraitModifier
+ * Class ModifierTrait
  *
  * @package O2System\Framework\Models\Sql\Traits
  */
 trait ModifierTrait
 {
+    /**
+     * ModifierTrait::$insertValidationRules
+     *
+     * @var array
+     */
+    public $insertValidationRules = [];
+
+    /**
+     * ModifierTrait::$insertValidationCustomErrors
+     *
+     * @var array
+     */
+    public $insertValidationCustomErrors = [];
+
+    /**
+     * ModifierTrait::$updateValidationRules
+     *
+     * @var array
+     */
+    public $updateValidationRules = [];
+
+    /**
+     * ModifierTrait::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [];
+
+    /**
+     * ModifierTrait::$actionValidationRules
+     *
+     * @var array
+     */
+    public $actionValidationRules = [];
+
+    /**
+     * ModifierTrait::$actionValidationCustomErrors
+     *
+     * @var array
+     */
+    public $actionValidationCustomErrors = [];
+
     /**
      * ModifierTrait::$uploadedFiles
      *
@@ -69,17 +114,17 @@ trait ModifierTrait
      * @param mixed $uploadFilePaths
      * @return array
      */
-    private function getUploadedFiles(array $files, $uploadFilePaths, array &$sets)
+    private function getUploadedFiles(array $files, $uploadFilePaths, array &$data)
     {
         $files = array_intersect_key($files, $uploadFilePaths);
         foreach ($files as $field => &$file) {
             if ($file instanceof UploadFile) {
                 $file->setPath($uploadFilePaths[$field]);
                 if ($file->store()) {
-                    $sets[$field] = $file->getClientFilename();
+                    $data[$field] = $file->getClientFilename();
 
                     if (isset($this->row[$field])) {
-                        if ($sets[$field] !== $this->row[$field]) {
+                        if ($data[$field] !== $this->row[$field]) {
                             unlink($uploadFilePaths[$field] . $this->row[$field]);
                         }
                     }
@@ -93,16 +138,16 @@ trait ModifierTrait
                     return false;
                 }
             } elseif (is_array($file) and is_array($uploadFilePaths[$field])) {
-                $file = $this->getUploadedFiles($file, $uploadFilePaths[$field], $sets);
+                $file = $this->getUploadedFiles($file, $uploadFilePaths[$field], $data);
                 foreach ($file as $fileKey => $fileObject) {
                     if ($fileObject instanceof UploadFile) {
                         if (!$fileObject->isMoved) {
                             $fileObject->setPath($uploadFilePaths[$field][$fileKey]);
                             if ($fileObject->store()) {
-                                $sets[$field][$fileKey] = $fileObject->getClientFilename();
+                                $data[$field][$fileKey] = $fileObject->getClientFilename();
 
                                 if (isset($this->row[$field][$fileKey])) {
-                                    if ($sets[$field][$fileKey] !== $this->row[$field][$fileKey]) {
+                                    if ($data[$field][$fileKey] !== $this->row[$field][$fileKey]) {
                                         unlink($uploadFilePaths[$field][$fileKey] . $this->row[$field][$fileKey]);
                                     }
                                 }
@@ -116,14 +161,14 @@ trait ModifierTrait
                                 return false;
                             }
                         } else {
-                            if (isset($sets[$fileKey])) {
-                                unset($sets[$fileKey]);
+                            if (isset($data[$fileKey])) {
+                                unset($data[$fileKey]);
                             }
 
-                            $sets[$field][$fileKey] = $fileObject->getClientFilename();
+                            $data[$field][$fileKey] = $fileObject->getClientFilename();
 
                             if (isset($this->row[$field][$fileKey])) {
-                                if ($sets[$field][$fileKey] !== $this->row[$field][$fileKey]) {
+                                if ($data[$field][$fileKey] !== $this->row[$field][$fileKey]) {
                                     unlink($uploadFilePaths[$field][$fileKey] . $this->row[$field][$fileKey]);
                                 }
                             }
@@ -172,12 +217,12 @@ trait ModifierTrait
     /**
      * ModifierTrait::processImagesFiles
      *
-     * @param array $sets
+     * @param array $data
      */
-    protected function processImagesFiles(&$sets)
+    protected function processImagesFiles(&$data)
     {
         if ($files = input()->files() and count($this->uploadFilePaths)) {
-            $this->uploadedFiles = $this->getUploadedFiles($files->getArrayCopy(), $this->uploadFilePaths, $sets);
+            $this->uploadedFiles = $this->getUploadedFiles($files->getArrayCopy(), $this->uploadFilePaths, $data);
         }
     }
 
@@ -186,115 +231,169 @@ trait ModifierTrait
     /**
      * ModifierTrait::insert
      *
-     * @param array $sets
+     * @param SplArrayStorage $data
      *
      * @return bool
      * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
      */
-    public function insert(array $sets)
+    public function insert(SplArrayStorage $data)
     {
-        if (count($sets)) {
-            if (count($this->fillableColumns)) {
-                foreach ($sets as $key => $value) {
-                    if (!in_array($key, $this->fillableColumns)) {
-                        unset($sets[$key]);
+        if($data instanceof AbstractInput) {
+            if (count($this->insertValidationRules)) {
+                $data->validation($this->insertValidationRules, $this->insertValidationCustomErrors);
+
+                if (!$data->validate()) {
+                    $this->addErrors($data->validator->getErrors());
+
+                    if (services()->has('session') and $this->flashMessage) {
+                        $errors = new Unordered();
+                        foreach ($data->validator->getErrors() as $error) {
+                            $errors->createList($error);
+                        }
+
+                        session()->setFlash('danger',
+                            language('FAILED_INSERT', $errors->__toString()));
                     }
+
+                    return false;
                 }
             }
+        }
+        
+        if (count($data)) {
+            if (method_exists($this, 'insertRecordData')) {
+                $this->insertRecordData($data);
+            }
 
-            if (method_exists($this, 'insertRecordSets')) {
-                $this->insertRecordSets($sets);
+            if (method_exists($this, 'beforeInsertOrUpdate')) {
+                $this->beforeInsertOrUpdate($data);
             }
 
             if (method_exists($this, 'beforeInsert')) {
-                $this->beforeInsert($sets);
-            } elseif (method_exists($this, 'beforeInsertOrUpdate')) {
-                $this->beforeInsertOrUpdate($sets);
+                $this->beforeInsert($data);
             }
 
             if (method_exists($this, 'getRecordOrdering')) {
-                if ($this->recordOrdering === true && empty($sets['record_ordering'])) {
-                    $sets['record_ordering'] = $this->getRecordOrdering();
+                if ($this->recordOrdering === true && empty($data['record_ordering'])) {
+                    $data['record_ordering'] = $this->getRecordOrdering();
                 }
             }
 
             // Process Images and Files
-            $this->processImagesFiles($sets);
+            $this->processImagesFiles($data);
 
             if ($this->hasErrors()) {
                 return false;
             }
 
-            // Remove sets metadata
+            $temporaryData = [];
+
+            // Remove data metadata
             if ($this->hasMetadata === true) {
-                if (isset($sets['metadata'])) {
-                    $setsMetadata = $sets['metadata'];
-                    unset($sets['metadata']);
+                if (isset($data['metadata'])) {
+                    $metadata = new SplArrayStorage($data['metadata']);
                 }
             }
 
-            // Remove sets settings
+            // Remove data settings
             if ($this->hasSettings === true) {
-                if (isset($sets['settings'])) {
-                    $setsSettings = $sets['settings'];
-                    unset($sets['settings']);
+                if (isset($data['settings'])) {
+                    $settings = new SplArrayStorage($data['settings']);
+                }
+            }
+
+            // Remove unfillable data
+            if (count($this->fillableColumns)) {
+                foreach ($data as $key => $value) {
+                    if (!in_array($key, $this->fillableColumns)) {
+                        $temporaryData[$key] = $value;
+                        unset($data[$key]);
+                    }
                 }
             }
 
             // Begin Transaction
             $this->db->transactionBegin();
 
-            if ($this->qb->table($this->table)->insert($sets)) {
-                $sets[$this->primaryKey] = $this->db->getLastInsertId();
+            if ($this->qb->table($this->table)->insert($data->getArrayCopy())) {
+                $data[$this->primaryKey] = $this->db->getLastInsertId();
 
-                if (isset($setsMetadata)) {
-                    $sets['metadata'] = new SplArrayObject();
+                if (!empty($temporaryData)) {
+                    $data->append($temporaryData);
+                }
 
-                    foreach ($setsMetadata as $field => $value) {
-                        models(Metadata::class)->insertOrUpdate($metadata = [
-                            'ownership_id' => $sets[$this->primaryKey],
+                if (isset($metadata)) {
+                    $data['metadata'] = new SplArrayObject();
+
+                    if (empty($this->primaryKeys)) {
+                        $ownershipId = $data[$this->primaryKey];
+                    } else {
+                        $ownershipId = [];
+                        foreach ($this->primaryKeys as $primaryKey) {
+                            array_push($ownershipId, $data[$primaryKey]);
+                        }
+
+                        $ownershipId = implode('-', $ownershipId);
+                    }
+
+                    foreach ($metadata as $field => $value) {
+                        models(Metadata::class)->insertOrUpdate(new SplArrayStorage([
+                            'ownership_id' => $ownershipId,
                             'ownership_model' => get_called_class(),
                             'name' => $field,
                             'content' => $value,
-                        ], [
-                            'ownership_id' => $sets[$this->primaryKey],
+                        ]), [
+                            'ownership_id' => $ownershipId,
                             'ownership_model' => get_called_class(),
                             'name' => $field,
                         ]);
 
-                        $sets['metadata'][$field] = $value;
+                        $data['metadata'][$field] = $value;
                     }
 
-                    unset($setsMetadata);
+                    unset($metadata);
                 }
 
-                if (isset($setsSettings)) {
-                    $sets['settings'] = new SplArrayObject();
+                if (isset($settings)) {
+                    $data['settings'] = new SplArrayObject();
 
-                    foreach ($setsSettings as $field => $value) {
-                        models(Metadata::class)->insertOrUpdate($setting = [
-                            'ownership_id' => $sets[$this->primaryKey],
+                    if (empty($this->primaryKeys)) {
+                        $ownershipId = $data[$this->primaryKey];
+                    } else {
+                        $ownershipId = [];
+                        foreach ($this->primaryKeys as $primaryKey) {
+                            array_push($ownershipId, $data[$primaryKey]);
+                        }
+
+                        $ownershipId = implode('-', $ownershipId);
+                    }
+
+                    foreach ($settings as $field => $value) {
+                        models(Metadata::class)->insertOrUpdate(new SplArrayStorage([
+                            'ownership_id' => $ownershipId,
                             'ownership_model' => get_called_class(),
                             'key' => $field,
                             'value' => $value,
-                        ], [
-                            'ownership_id' => $sets[$this->primaryKey],
+                        ]), [
+                            'ownership_id' => $ownershipId,
                             'ownership_model' => get_called_class(),
                             'name' => $field,
                         ]);
 
-                        $sets['settings'][$field] = $value;
+                        $data['settings'][$field] = $value;
                     }
 
-                    unset($setsSettings);
+                    unset($settings);
                 }
 
                 // After Insert Hook Process
                 if ($this->db->transactionSuccess()) {
+                    if (method_exists($this, 'afterInsertOrUpdate')) {
+                        $this->afterInsertOrUpdate($data);
+                    }
+
                     if (method_exists($this, 'afterInsert')) {
-                        $this->afterInsert($sets);
-                    } elseif (method_exists($this, 'afterInsertOrUpdate')) {
-                        $this->afterInsertOrUpdate($sets);
+                        $this->afterInsert($data);
                     }
                 }
 
@@ -311,10 +410,10 @@ trait ModifierTrait
 
                     $label = false;
                     foreach (['name', 'label', 'title', 'code'] as $labelField) {
-                        if (isset($sets[$labelField])) {
+                        if (isset($data[$labelField])) {
                             if (services()->has('session') and $this->flashMessage) {
                                 session()->setFlash('success',
-                                    language('SUCCESS_INSERT_WITH_LABEL', [$sets[$labelField]]));
+                                    language('SUCCESS_INSERT_WITH_LABEL', [$data[$labelField]]));
                             }
 
                             $label = true;
@@ -335,13 +434,13 @@ trait ModifierTrait
 
                     $label = false;
                     foreach (['name', 'label', 'title', 'code'] as $labelField) {
-                        if (isset($sets[$labelField])) {
+                        if (isset($data[$labelField])) {
                             if (services()->has('session') and $this->flashMessage) {
                                 session()->setFlash('danger',
-                                    language('FAILED_INSERT_WITH_LABEL', [$sets[$labelField]]));
+                                    language('FAILED_INSERT_WITH_LABEL', [$data[$labelField]]));
                             }
 
-                            $this->addError(__LINE__, language('FAILED_INSERT_WITH_LABEL', [$sets[$labelField]]));
+                            $this->addError(__LINE__, language('FAILED_INSERT_WITH_LABEL', [$data[$labelField]]));
 
                             $label = true;
                             break;
@@ -356,6 +455,14 @@ trait ModifierTrait
                         $this->addError(__LINE__, language('FAILED_INSERT'));
                     }
                 }
+            } else {
+                if (services()->has('session') and $this->flashMessage) {
+                    session()->setFlash('danger', $this->db->getLatestErrorMessage());
+                }
+
+                $this->addError($this->db->getLatestErrorCode(), $this->db->getLatestErrorMessage());
+
+                return false;
             }
         }
 
@@ -373,25 +480,25 @@ trait ModifierTrait
     /**
      * ModifierTrait::insertOrUpdate
      *
-     * @param array $sets
+     * @param SplArrayStorage $data
      * @param array $conditions
      *
      * @return bool
      * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
      */
-    public function insertOrUpdate(array $sets, array $conditions = [])
+    public function insertOrUpdate(SplArrayStorage $data, array $conditions = [])
     {
-        if (count($sets)) {
+        if ($data->count()) {
             if (empty($conditions)) {
                 if (empty($this->primaryKeys)) {
                     foreach ($this->primaryKeys as $primaryKey) {
-                        if (isset($sets[$primaryKey])) {
-                            $conditions[$primaryKey] = $sets[$primaryKey];
+                        if ($data->offsetExists($primaryKey)) {
+                            $conditions[$primaryKey] = $data->offsetGet($primaryKey);
                         }
                     }
                 } else {
-                    if (isset($sets[$primaryKey])) {
-                        $conditions = [$primaryKey => $sets[$primaryKey]];
+                    if ($data->offsetExists($primaryKey)) {
+                        $conditions = [$primaryKey => $data->offsetGet($primaryKey)];
                     }
                 }
             }
@@ -399,9 +506,53 @@ trait ModifierTrait
             // Try to find
             if ($result = $this->qb->from($this->table)->getWhere($conditions)) {
                 if ($result->count() > 0) {
-                    return $this->update($sets, $conditions);
+                    if($data instanceof AbstractInput) {
+                        if (count($this->updateValidationRules)) {
+                            $data->validation($this->updateValidationRules, $this->updateValidationCustomErrors);
+
+                            if (!$data->validate()) {
+                                $this->addErrors($data->validator->getErrors());
+
+                                if (services()->has('session') and $this->flashMessage) {
+                                    $errors = new Unordered();
+                                    foreach ($data->validator->getErrors() as $error) {
+                                        $errors->createList($error);
+                                    }
+
+                                    session()->setFlash('danger',
+                                        language('FAILED_INSERT', $errors->__toString()));
+                                }
+
+                                return false;
+                            }
+                        }
+                    }
+
+                    return $this->update($data, $conditions);
                 } else {
-                    return $this->insert($sets);
+                    if($data instanceof AbstractInput) {
+                        if (count($this->insertValidationRules)) {
+                            $data->validation($this->insertValidationRules, $this->insertValidationCustomErrors);
+
+                            if (!$data->validate()) {
+                                $this->addErrors($data->validator->getErrors());
+
+                                if (services()->has('session') and $this->flashMessage) {
+                                    $errors = new Unordered();
+                                    foreach ($data->validator->getErrors() as $error) {
+                                        $errors->createList($error);
+                                    }
+
+                                    session()->setFlash('danger',
+                                        language('FAILED_INSERT', $errors->__toString()));
+                                }
+
+                                return false;
+                            }
+                        }
+                    }
+                    
+                    return $this->insert($data);
                 }
             }
         }
@@ -414,37 +565,41 @@ trait ModifierTrait
     /**
      * ModifierTrait::insertMany
      *
-     * @param array $sets
+     * @param array $data
      *
      * @return bool|int
      */
-    public function insertMany(array $sets)
+    public function insertMany(array $data)
     {
-        if (count($sets)) {
-            if (method_exists($this, 'insertRecordSets')) {
-                foreach ($sets as $set) {
-                    $this->insertRecordSets($set);
-                    if ($this->recordOrdering === true && empty($sets['record_ordering'])) {
+        if (count($data)) {
+            if (method_exists($this, 'insertRecordData')) {
+                foreach ($data as $set) {
+                    $this->insertRecordData($set);
+                    if ($this->recordOrdering === true && empty($data['record_ordering'])) {
                         $set['record_ordering'] = $this->getRecordOrdering();
                     }
                 }
             }
 
+            if (method_exists($this, 'beforeInsertOrUpdateMany')) {
+                $this->beforeInsertOrUpdateMany($data);
+            }
+
             if (method_exists($this, 'beforeInsertMany')) {
-                $this->beforeInsertMany($sets);
-            } elseif (method_exists($this, 'beforeInsertOrUpdateMany')) {
-                $this->beforeInsertOrUpdateMany($sets);
+                $this->beforeInsertMany($data);
             }
 
             // Begin Transaction
             $this->db->transactionBegin();
 
-            if ($this->qb->table($this->table)->insertBatch($sets)) {
+            if ($this->qb->table($this->table)->insertBatch($data)) {
                 if ($this->db->transactionSuccess()) {
+                    if (method_exists($this, 'afterInsertOrUpdateMany')) {
+                        $this->afterInsertOrUpdateMany($data);
+                    }
+
                     if (method_exists($this, 'afterInsertMany')) {
-                        $this->afterInsertMany($sets);
-                    } elseif (method_exists($this, 'afterInsertOrUpdateMany')) {
-                        $this->afterInsertOrUpdateMany($sets);
+                        $this->afterInsertMany($data);
                     }
                 }
 
@@ -471,14 +626,14 @@ trait ModifierTrait
                         $this->db->transactionRollBack();
                     }
                 }
+            } else {
+                if (services()->has('session') and $this->flashMessage) {
+                    session()->setFlash('danger', $this->db->getLatestErrorMessage());
+                }
+
+                $this->addError($this->db->getLatestErrorCode(), $this->db->getLatestErrorMessage());
             }
         }
-
-        if (services()->has('session') and $this->flashMessage) {
-            session()->setFlash('danger', language('FAILED_INSERT_MANY'));
-        }
-
-        $this->addError(__LINE__, language('FAILED_INSERT_MANY'));
 
         return false;
     }
@@ -488,22 +643,44 @@ trait ModifierTrait
     /**
      * ModifierTrait::insertIfNotExists
      *
-     * @param array $sets
+     * @param SplArrayStorage $data
      * @param array $conditions
      *
      * @return bool
      * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
      */
-    public function insertIfNotExists(array $sets, array $conditions = [])
+    public function insertIfNotExists(SplArrayStorage $data, array $conditions = [])
     {
+        if($data instanceof AbstractInput) {
+            if (count($this->insertValidationRules)) {
+                $data->validation($this->insertValidationRules, $this->insertValidationCustomErrors);
+
+                if (!$data->validate()) {
+                    $this->addErrors($data->validator->getErrors());
+
+                    if (services()->has('session') and $this->flashMessage) {
+                        $errors = new Unordered();
+                        foreach ($data->validator->getErrors() as $error) {
+                            $errors->createList($error);
+                        }
+
+                        session()->setFlash('danger',
+                            language('FAILED_INSERT', $errors->__toString()));
+                    }
+
+                    return false;
+                }
+            }
+        }
+        
         if (empty($conditions)) {
-            $conditions = $sets;
+            $conditions = $data->getArrayCopy();
         }
 
-        if (count($sets)) {
+        if (count($data)) {
             if ($result = $this->qb->from($this->table)->getWhere($conditions)) {
                 if ($result->count() == 0) {
-                    return $this->insert($sets);
+                    return $this->insert($data);
                 }
             }
         }
@@ -516,50 +693,93 @@ trait ModifierTrait
     /**
      * ModifierTrait::update
      *
-     * @param array $sets
+     * @param SplArrayStorage $data
      * @param array $conditions
      *
      * @return bool
      * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
      */
-    public function update(array $sets, array $conditions = [])
+    public function update(SplArrayStorage $data, array $conditions = [])
     {
-        if (count($sets)) {
-            if (empty($conditions)) {
-                if (empty($this->primaryKeys)) {
-                    foreach ($this->primaryKeys as $primaryKey) {
-                        if (isset($sets[$primaryKey])) {
-                            $conditions[$primaryKey] = $sets[$primaryKey];
+        if (empty($this->updateValidationRules)) {
+            if (empty($this->model->primaryKeys)) {
+                $primaryKey = empty($this->primaryKey) ? 'id' : $this->primaryKey;
+                if ($data->offsetExists($primaryKey)) {
+                    if (!array_key_exists($primaryKey, $conditions)) {
+                        $conditions[$primaryKey] = $data->offsetGet($primaryKey);
+                    }
+                }
+
+                $this->updateValidationRules[$primaryKey] = 'required';
+                $this->updateValidationCustomErrors[$primaryKey] = [
+                    'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
+                ];
+            } else {
+                foreach ($this->model->primaryKeys as $primaryKey) {
+                    if ($data->offsetExists($primaryKey)) {
+                        if (!array_key_exists($primaryKey, $conditions)) {
+                            $conditions[$primaryKey] = $data->offsetGet($primaryKey);
                         }
                     }
-                } else {
-                    if (isset($sets[$primaryKey])) {
-                        $conditions = [$primaryKey => $sets[$primaryKey]];
-                    }
+
+                    $this->updateValidationRules[$primaryKey] = 'required';
+                    $this->updateValidationCustomErrors[$primaryKey] = [
+                        'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
+                    ];
                 }
             }
-
-            if (count($this->fillableColumns)) {
-                foreach ($sets as $key => $value) {
-                    if (!in_array($key, $this->fillableColumns)) {
-                        unset($sets[$key]);
+        } elseif (empty($conditions)) {
+            if (empty($this->primaryKeys)) {
+                foreach ($this->primaryKeys as $primaryKey) {
+                    if ($data->offsetExists($primaryKey)) {
+                        $conditions[$primaryKey] = $data->offsetGet($primaryKey);
                     }
                 }
+            } else {
+                if ($data->offsetExists($primaryKey)) {
+                    $conditions = [$primaryKey => $data->offsetGet($primaryKey)];
+                }
+            }
+        }
+
+        if($data instanceof AbstractInput) {
+            if (count($this->updateValidationRules)) {
+                $data->validation($this->updateValidationRules, $this->updateValidationCustomErrors);
+
+                if (!$data->validate()) {
+                    $this->addErrors($data->validator->getErrors());
+
+                    if (services()->has('session') and $this->flashMessage) {
+                        $errors = new Unordered();
+                        foreach ($data->validator->getErrors() as $error) {
+                            $errors->createList($error);
+                        }
+
+                        session()->setFlash('danger',
+                            language('FAILED_UPDATE', $errors->__toString()));
+                    }
+
+                    return false;
+                }
+            }
+        }
+        
+        if (count($data)) {
+            if (method_exists($this, 'updateRecordData')) {
+                $this->updateRecordData($data);
             }
 
-            if (method_exists($this, 'updateRecordSets')) {
-                $this->updateRecordSets($sets);
+            if (method_exists($this, 'beforeInsertOrUpdate')) {
+                $this->beforeInsertOrUpdate($data);
             }
 
             if (method_exists($this, 'beforeUpdate')) {
-                $this->beforeUpdate($sets);
-            } elseif (method_exists($this, 'beforeInsertOrUpdate')) {
-                $this->beforeInsertOrUpdate($sets);
+                $this->beforeUpdate($data);
             }
 
             if (method_exists($this, 'getRecordOrdering')) {
-                if ($this->recordOrdering === true && empty($sets['record_ordering'])) {
-                    $sets['record_ordering'] = $this->getRecordOrdering();
+                if ($this->recordOrdering === true && empty($data['record_ordering'])) {
+                    $data['record_ordering'] = $this->getRecordOrdering();
                 }
             }
 
@@ -581,79 +801,117 @@ trait ModifierTrait
                 }
 
                 // Process Images and Files
-                $this->processImagesFiles($sets);
+                $this->processImagesFiles($data);
 
                 if ($this->hasErrors()) {
                     return false;
                 }
 
-                // Remove sets metadata
+                $temporaryData = [];
+
+                // Remove data metadata
                 if ($this->hasMetadata === true) {
-                    if (isset($sets['metadata'])) {
-                        $setsMetadata = $sets['metadata'];
-                        unset($sets['metadata']);
+                    if (isset($data['metadata'])) {
+                        $metadata = new SplArrayStorage($data['metadata']);
                     }
                 }
-                
-                // Remove sets settings
+
+                // Remove data settings
                 if ($this->hasSettings === true) {
-                    if(isset($sets['settings'])) {
-                        $setSettings = $sets['settings'];
-                        unset($sets['settings']);
+                    if (isset($data['settings'])) {
+                        $settings = new SplArrayStorage($data['settings']);
+                    }
+                }
+
+                // Remove unfillable data
+                if (count($this->fillableColumns)) {
+                    foreach ($data as $key => $value) {
+                        if (!in_array($key, $this->fillableColumns)) {
+                            $temporaryData[$key] = $value;
+                            $data->offsetUnset($key);
+                        }
                     }
                 }
 
                 // Begin Transaction
                 $this->db->transactionBegin();
 
-                if ($this->qb->table($this->table)->update($sets, $conditions)) {
-                    if (isset($setsMetadata)) {
-                        $sets['metadata'] = new SplArrayObject();
+                if ($this->qb->table($this->table)->limit(1)->update($data->getArrayCopy(), $conditions)) {
+                    if (!empty($temporaryData)) {
+                        $data->append($temporaryData);
+                    }
 
-                        foreach ($setsMetadata as $field => $value) {
-                            models(Metadata::class)->insertOrUpdate($setsMetadata = [
-                                'ownership_id' => $sets[$this->primaryKey],
+                    if (isset($metadata)) {
+                        $data['metadata'] = new SplArrayObject();
+
+                        if (empty($this->primaryKeys)) {
+                            $ownershipId = $data[$this->primaryKey];
+                        } else {
+                            $ownershipId = [];
+                            foreach ($this->primaryKeys as $primaryKey) {
+                                array_push($ownershipId, $data[$primaryKey]);
+                            }
+
+                            $ownershipId = implode('-', $ownershipId);
+                        }
+
+                        foreach ($metadata as $field => $value) {
+                            models(Metadata::class)->insertOrUpdate(new SplArrayStorage([
+                                'ownership_id' => $ownershipId,
                                 'ownership_model' => get_called_class(),
                                 'name' => $field,
                                 'content' => $value,
-                            ], [
-                                'ownership_id' => $sets[$this->primaryKey],
+                            ]), [
+                                'ownership_id' => $ownershipId,
                                 'ownership_model' => get_called_class(),
                                 'name' => $field,
                             ]);
 
-                            $sets['metadata'][$field] = $value;
+                            $data['metadata'][$field] = $value;
                         }
 
-                        unset($setsMetadata);
+                        unset($metadata);
                     }
 
-                    if (isset($setsSettings)) {
-                        $sets['settings'] = new SplArrayObject();
+                    if (isset($settings)) {
+                        $data['settings'] = new SplArrayObject();
 
-                        foreach ($setsSettings as $field => $value) {
-                            models(Metadata::class)->insertOrUpdate($setting = [
-                                'ownership_id' => $sets[$this->primaryKey],
+                        if (empty($this->primaryKeys)) {
+                            $ownershipId = $data->offsetGet($this->primaryKey);
+                        } else {
+                            $ownershipId = [];
+                            foreach ($this->primaryKeys as $primaryKey) {
+                                array_push($ownershipId, $data->offsetGet($this->primaryKey));
+                            }
+
+                            $ownershipId = implode('-', $ownershipId);
+                        }
+
+                        foreach ($settings as $field => $value) {
+                            models(Settings::class)->insertOrUpdate(new SplArrayStorage([
+                                'ownership_id' => $ownershipId,
                                 'ownership_model' => get_called_class(),
                                 'key' => $field,
                                 'value' => $value,
-                            ], [
-                                'ownership_id' => $sets[$this->primaryKey],
+                            ]), [
+                                'ownership_id' => $ownershipId,
                                 'ownership_model' => get_called_class(),
                                 'name' => $field,
                             ]);
 
-                            $sets['settings'][$field] = $value;
+                            $data['settings'][$field] = $value;
                         }
 
-                        unset($setsSettings);
+                        unset($settings);
                     }
 
                     if ($this->db->transactionSuccess()) {
+                        if (method_exists($this, 'afterInsertOrUpdate')) {
+                            $this->afterInsertOrUpdate($data);
+                        }
+
                         if (method_exists($this, 'afterUpdate')) {
-                            $this->afterUpdate($sets);
-                        } elseif (method_exists($this, 'afterInsertOrUpdate')) {
-                            $this->afterInsertOrUpdate($sets);
+                            $this->afterUpdate($data);
                         }
                     }
 
@@ -670,10 +928,10 @@ trait ModifierTrait
 
                         $label = false;
                         foreach (['name', 'label', 'title', 'code'] as $labelField) {
-                            if (isset($sets[$labelField])) {
+                            if (isset($data[$labelField])) {
                                 if (services()->has('session') and $this->flashMessage) {
                                     session()->setFlash('success',
-                                        language('SUCCESS_UPDATE_WITH_LABEL', [$sets[$labelField]]));
+                                        language('SUCCESS_UPDATE_WITH_LABEL', [$data[$labelField]]));
                                 }
 
                                 $label = true;
@@ -692,6 +950,14 @@ trait ModifierTrait
                         // Rollback transaction if FAILED
                         $this->db->transactionRollback();
                     }
+                } else {
+                    if (services()->has('session') and $this->flashMessage) {
+                        session()->setFlash('danger', $this->db->getLatestErrorMessage());
+                    }
+
+                    $this->addError($this->db->getLatestErrorCode(), $this->db->getLatestErrorMessage());
+
+                    return false;
                 }
             }
         }
@@ -710,15 +976,15 @@ trait ModifierTrait
     /**
      * ModifierTrait::updateOrInsert
      *
-     * @param array $sets
+     * @param SplArrayStorage $data
      * @param array $conditions
      *
      * @return bool
      * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
      */
-    public function updateOrInsert(array $sets, array $conditions = [])
+    public function updateOrInsert(SplArrayStorage $data, array $conditions = [])
     {
-        return $this->insertOrUpdate($sets, $conditions);
+        return $this->insertOrUpdate($data, $conditions);
     }
 
     // ------------------------------------------------------------------------
@@ -726,35 +992,34 @@ trait ModifierTrait
     /**
      * ModifierTrait::updateMany
      *
-     * @param array $sets
+     * @param SplArrayStorage $data
+     * @param array           $conditions
      *
      * @return bool|array
      */
-    public function updateMany(array $sets)
+    public function updateMany(SplArrayStorage $data, array $conditions = [])
     {
-        $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
+        $this->updateRecordData($data);
 
-        if (method_exists($this, 'updateRecordSets')) {
-            foreach ($sets as $key => $set) {
-                $this->updateRecordSets($sets[$key]);
-            }
+        if (method_exists($this, 'beforeInsertOrUpdateMany')) {
+            $this->beforeInsertOrUpdateMany($data);
         }
 
         if (method_exists($this, 'beforeUpdateMany')) {
-            $this->beforeUpdateMany($sets);
-        } elseif (method_exists($this, 'beforeInsertOrUpdateMany')) {
-            $this->beforeInsertOrUpdateMany($sets);
+            $this->beforeUpdateMany($data);
         }
 
         // Begin Transaction
         $this->db->transactionBegin();
 
-        if ($this->qb->table($this->table)->updateBatch($sets, $primaryKey)) {
+        if ($this->qb->table($this->table)->update($data, $conditions)) {
             if ($this->db->transactionSuccess()) {
+                if (method_exists($this, 'afterInsertOrUpdateMany')) {
+                    return $this->afterInsertOrUpdateMany($data);
+                }
+
                 if (method_exists($this, 'afterUpdateMany')) {
-                    return $this->afterUpdateMany($sets);
-                } elseif (method_exists($this, 'afterInsertOrUpdateMany')) {
-                    return $this->afterInsertOrUpdateMany($sets);
+                    return $this->afterUpdateMany($data);
                 }
             }
 
@@ -771,7 +1036,7 @@ trait ModifierTrait
                 $this->db->transactionCommit();
 
                 if (services()->has('session') and $this->flashMessage) {
-                    session()->setFlash('success', language('SUCCESS_UPDATE_MANY'));
+                    session()->setFlash('success', language('SUCCESS_UPDATE_MANY', [$affectedRows]));
                 }
 
                 return $affectedRows;
@@ -779,13 +1044,13 @@ trait ModifierTrait
                 // Rollback transaction if FAILED
                 $this->db->transactionRollback();
             }
-        }
+        } else {
+            if (services()->has('session') and $this->flashMessage) {
+                session()->setFlash('danger', $this->db->getLatestErrorMessage());
+            }
 
-        if (services()->has('session') and $this->flashMessage) {
-            session()->setFlash('danger', language('FAILED_UPDATE_MANY'));
+            $this->addError($this->db->getLatestErrorCode(), $this->db->getLatestErrorMessage());
         }
-
-        $this->addError(__LINE__, language('FAILED_UPDATE_MANY'));
 
         return false;
     }
@@ -803,8 +1068,24 @@ trait ModifierTrait
      */
     public function delete($id)
     {
+        $params = func_get_args();
+
+        if(count($params)) {
+            $conditions = [];
+
+            if(empty($this->model->primaryKeys)) {
+                $conditions[$this->model->primaryKey] = reset($params);
+            } else {
+                foreach($this->model->primaryKeys as $key => $primaryKey) {
+                    if(isset($params[$key])) {
+                        $conditions[$primaryKey] = $params[$key];
+                    }
+                }
+            }
+        }
+
         $affectedRows = 0;
-        if ($result = $this->find($id)) {
+        if ($result = $this->findWhere($conditions, 1)) {
             // Begin Transaction
             $this->db->transactionBegin();
 
@@ -847,10 +1128,10 @@ trait ModifierTrait
         }
 
         if (services()->has('session') and $this->flashMessage) {
-            session()->setFlash('danger', language('FAILED_DELETE'));
+            session()->setFlash('danger', language('DATA_NOT_FOUND'));
         }
 
-        $this->addError(__LINE__, language('FAILED_DELETE'));
+        $this->addError(404, language('DATA_NOT_FOUND'));
 
         return false;
     }
@@ -872,6 +1153,8 @@ trait ModifierTrait
                     session()->setFlash('danger', language('FAILED_DELETE_HAS_CHILD'));
                 }
 
+                $this->addError(403, language('FAILED_DELETE_HAS_CHILD', [$row]));
+
                 return false;
             }
         }
@@ -885,19 +1168,28 @@ trait ModifierTrait
         }
 
         if (method_exists($this, 'beforeDelete')) {
-            if( ! call_user_func_array([&$this, 'beforeDelete'], [$row])) {
-                return false;
-            }
+            call_user_func_array([&$this, 'beforeDelete'], [$row]);
         }
 
-        if ($this->qb->table($this->table)->delete($conditions)) {
+        if ($this->qb->table($this->table)->limit(1)->delete($conditions)) {
             // Remove uploaded files
             $this->removeUploadedFiles($row->getArrayCopy(), $this->uploadFilePaths);
+
+            if (empty($this->primaryKeys)) {
+                $ownershipId = $data[$this->primaryKey];
+            } else {
+                $ownershipId = [];
+                foreach ($this->primaryKeys as $primaryKey) {
+                    array_push($ownershipId, $data[$primaryKey]);
+                }
+
+                $ownershipId = implode('-', $ownershipId);
+            }
 
             // Delete Metadata
             if ($this->hasMetadata === true) {
                 models(Metadata::class)->deleteBy([
-                    'ownership_id' => $row[$this->primaryKey],
+                    'ownership_id' => $ownershipId,
                     'ownership_model' => get_called_class(),
                 ]);
             }
@@ -905,7 +1197,7 @@ trait ModifierTrait
             // Delete Settings
             if ($this->hasSettings === true) {
                 models(Settings::class)->deleteBy([
-                    'ownership_id' => $row[$this->primaryKey],
+                    'ownership_id' => $ownershipId,
                     'ownership_model' => get_called_class(),
                 ]);
             }
@@ -923,13 +1215,13 @@ trait ModifierTrait
 
                 return true;
             }
-        }
+        } else {
+            if (services()->has('session') and $this->flashMessage) {
+                session()->setFlash('danger', $this->db->getLatestErrorMessage());
+            }
 
-        if (services()->has('session') and $this->flashMessage) {
-            session()->setFlash('danger', language('FAILED_DELETE'));
+            $this->addError($this->db->getLatestErrorCode(), $this->db->getLatestErrorMessage());
         }
-
-        $this->addError(__LINE__, language('FAILED_DELETE'));
 
         return false;
     }
@@ -948,26 +1240,19 @@ trait ModifierTrait
     public function deleteBy($conditions = [])
     {
         if (count($conditions)) {
-            if (method_exists($this, 'beforeDelete')) {
-                $this->beforeDelete($conditions);
-            }
-
             $affectedRows = 0;
-            if ($result = $this->findWhere($conditions)) {
+            if ($result = $this->findWhere($conditions, 1)) {
                 // Begin Transaction
                 $this->db->transactionBegin();
 
                 if ($result instanceof Result) {
-                    foreach ($result as $row) {
-                        if ($this->deleteRow($row)) {
-                            $affectedRows++;
-                        }
+                    if ($this->deleteRow($result->first())) {
+                        $affectedRows++;
                     }
                 } elseif ($result instanceof Row) {
                     if ($this->deleteRow($result)) {
                         $affectedRows++;
                     }
-
                 }
             }
 
@@ -1019,10 +1304,6 @@ trait ModifierTrait
      */
     public function deleteMany(array $ids)
     {
-        if (method_exists($this, 'beforeDelete')) {
-            $this->beforeDelete();
-        }
-
         $affectedRows = 0;
         if ($result = $this->findIn($ids)) {
             // Begin Transaction
@@ -1046,7 +1327,7 @@ trait ModifierTrait
                     $this->db->transactionCommit();
 
                     if (services()->has('session') and $this->flashMessage) {
-                        session()->setFlash('success', language('SUCCESS_DELETE'));
+                        session()->setFlash('success', language('SUCCESS_DELETE_MANY', [$affectedRows]));
                     }
 
                     return $affectedRows;
@@ -1061,10 +1342,10 @@ trait ModifierTrait
         }
 
         if (services()->has('session') and $this->flashMessage) {
-            session()->setFlash('danger', language('FAILED_DELETE'));
+            session()->setFlash('danger', language('FAILED_DELETE_MANY'));
         }
 
-        $this->addError(__LINE__, language('FAILED_DELETE'));
+        $this->addError(__LINE__, language('FAILED_DELETE_MANY'));
 
         return false;
     }
@@ -1082,83 +1363,41 @@ trait ModifierTrait
      */
     public function deleteManyBy($conditions = [])
     {
-        return $this->deleteBy($conditions);
-    }
+        if (count($conditions)) {
+            $affectedRows = 0;
+            if ($result = $this->findWhere($conditions)) {
+                // Begin Transaction
+                $this->db->transactionBegin();
 
-    // ------------------------------------------------------------------------
-
-    /**
-     * ModifierTrait::updateRecordStatus
-     *
-     * @param array $params
-     * @param string $recordStatus
-     * @param string $method
-     *
-     * @return bool
-     */
-    private function updateRecordStatus(array $params, $recordStatus, $method)
-    {
-        $sets['record_status'] = $recordStatus;
-
-        if (empty($this->primaryKeys)) {
-            $conditions = [$this->primaryKey => reset($params)];
-        } else {
-            foreach ($this->primaryKeys as $key => $primaryKey) {
-                $conditions[$primaryKey] = $params[$key];
-            }
-        }
-
-        if (method_exists($this, 'updateRecordSets')) {
-            $this->updateRecordSets($sets);
-        }
-
-        if (method_exists($this, $beforeMethod = 'before' . ucfirst($method))) {
-            call_user_func_array([&$this, $beforeMethod], [$sets]);
-        }
-
-        // Begin Transaction
-        $this->db->transactionBegin();
-
-        if ($this->qb->table($this->table)->limit(1)->update($sets, $conditions)) {
-            $affectedRows = $this->db->getAffectedRows();
-
-            if ($affectedRows > 0) {
-                if ($this->db->transactionSuccess()) {
-                    if (method_exists($this, $afterMethod = 'after' . ucfirst($method))) {
-                        call_user_func_array([&$this, $afterMethod], [$sets]);
+                if ($result instanceof Result) {
+                    foreach ($result as $row) {
+                        if ($this->deleteRow($row)) {
+                            $affectedRows++;
+                        }
+                    }
+                } elseif ($result instanceof Row) {
+                    if ($this->deleteRow($result)) {
+                        $affectedRows++;
                     }
                 }
+            }
 
+            if ($affectedRows > 0) {
                 if ($this->db->transactionSuccess()) {
                     if (method_exists($this, 'rebuildTree')) {
                         $this->rebuildTree();
                     }
                 }
 
-                if ($this->db->transactionSuccess()) {
-                    // Commit transaction if SUCCESS
+                // Commit transaction if SUCCESS
+                if ($this->db->transactionSuccess() === true) {
                     $this->db->transactionCommit();
 
-                    $label = false;
-                    foreach (['name', 'label', 'title', 'code'] as $labelField) {
-                        if (isset($sets[$labelField])) {
-                            if (services()->has('session') and $this->flashMessage) {
-                                session()->setFlash('success',
-                                    language('SUCCESS_UPDATE_WITH_LABEL', [$sets[$labelField]]));
-                            }
-
-                            $label = true;
-                            break;
-                        }
+                    if (services()->has('session') and $this->flashMessage) {
+                        session()->setFlash('success', language('SUCCESS_DELETE_MANY_BY', [$conditions]));
                     }
 
-                    if ($label === false) {
-                        if (services()->has('session') and $this->flashMessage) {
-                            session()->setFlash('success', language('SUCCESS_UPDATE'));
-                        }
-                    }
-
-                    return true;
+                    return $affectedRows;
                 } else {
                     // Rollback transaction if FAILED
                     $this->db->transactionRollback();
@@ -1170,12 +1409,40 @@ trait ModifierTrait
         }
 
         if (services()->has('session') and $this->flashMessage) {
-            session()->setFlash('danger', language('FAILED_UPDATE'));
+            session()->setFlash('danger', language('FAILED_DELETE_MANY_BY', [$conditions]));
         }
 
-        $this->addError(__LINE__, language('FAILED_UPDATE'));
+        $this->addError(__LINE__, language('FAILED_DELETE_MANY_BY', [$conditions]));
 
         return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * ModifierTrait::updateRecordStatus
+     *
+     * @param array  $primaryKeys
+     * @param string $recordStatus
+     * @param string $method
+     *
+     * @return bool
+     */
+    public function updateRecordStatus(array $primaryKeys, $recordStatus, $method)
+    {
+        $conditions = [];
+
+        if(empty($this->model->primaryKeys)) {
+            $conditions[$this->model->primaryKey] = reset($primaryKeys);
+        } else {
+            foreach($this->model->primaryKeys as $key => $primaryKey) {
+                if(isset($params[$key])) {
+                    $conditions[$primaryKey] = $params[$key];
+                }
+            }
+        }
+
+        return $this->updateRecordStatusBy($recordStatus, $method, $conditions);
     }
 
     // ------------------------------------------------------------------------
@@ -1192,29 +1459,29 @@ trait ModifierTrait
     private function updateRecordStatusMany(array $ids, $recordStatus, $method)
     {
         if (count($ids)) {
-            $sets['record_status'] = $recordStatus;
+            $data['record_status'] = $recordStatus;
             $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
 
             $this->qb->whereIn($primaryKey, $ids);
 
-            if (method_exists($this, 'updateRecordSets')) {
-                $this->updateRecordSets($sets);
+            if (method_exists($this, 'updateRecordData')) {
+                $this->updateRecordData($data);
             }
 
             if (method_exists($this, $beforeMethod = 'before' . ucfirst($method))) {
-                call_user_func_array([&$this, $beforeMethod], [$sets]);
+                call_user_func_array([&$this, $beforeMethod], [$data]);
             }
 
             // Begin Transaction
             $this->db->transactionBegin();
 
-            if ($this->qb->table($this->table)->update($sets)) {
+            if ($this->qb->table($this->table)->update($data)) {
                 $affectedRows = $this->db->getAffectedRows();
 
                 if ($affectedRows > 0) {
                     if ($this->db->transactionSuccess()) {
                         if (method_exists($this, $afterMethod = 'after' . ucfirst($method))) {
-                            call_user_func_array([&$this, $afterMethod], [$sets]);
+                            call_user_func_array([&$this, $afterMethod], [$data]);
                         }
                     }
 
@@ -1229,7 +1496,7 @@ trait ModifierTrait
                         $this->db->transactionCommit();
 
                         if (services()->has('session') and $this->flashMessage) {
-                            session()->setFlash('success', language('SUCCESS_UPDATE_MANY'));
+                            session()->setFlash('success', language('SUCCESS_UPDATE_MANY', [$affectedRows]));
                         }
 
                         return $affectedRows;
@@ -1241,6 +1508,12 @@ trait ModifierTrait
                     // Rollback transaction if FAILED
                     $this->db->transactionRollback();
                 }
+            } else {
+                if (services()->has('session') and $this->flashMessage) {
+                    session()->setFlash('danger', $this->db->getLatestErrorMessage());
+                }
+
+                $this->addError($this->db->getLatestErrorCode(), $this->db->getLatestErrorMessage());
             }
         }
 
@@ -1266,62 +1539,91 @@ trait ModifierTrait
      */
     private function updateRecordStatusBy($recordStatus, $method, array $conditions)
     {
-        if (count($conditions)) {
-            $sets['record_status'] = $recordStatus;
-
-            if (method_exists($this, 'updateRecordSets')) {
-                $this->updateRecordSets($sets);
+        if($result = $this->findWhere($conditions)) {
+            if ($result instanceof Row) {
+                $data = $result;
+            } elseif ($result instanceof Result) {
+                if($result->count() == 1) {
+                    $data = $result->first();
+                }
             }
 
-            if (method_exists($this, $beforeMethod = 'before' . ucfirst($method))) {
-                call_user_func_array([&$this, $beforeMethod], [$sets]);
-            }
+            unset($result);
 
-            // Begin transaction
-            $this->db->transactionBegin();
+            if(isset($data)) {
+                $this->updateRecordData($data);
+                $data['record_status'] = $recordStatus;
 
-            if ($this->qb->table($this->table)->update($sets, $conditions)) {
+                if (method_exists($this, $beforeMethod = 'before' . ucfirst($method))) {
+                    call_user_func_array([&$this, $beforeMethod], [$data]);
+                }
 
-                $affectedRows = $this->db->getAffectedRows();
+                // Begin Transaction
+                $this->db->transactionBegin();
 
-                if ($affectedRows > 0) {
-                    if ($this->db->transactionSuccess()) {
-                        if (method_exists($this, $afterMethod = 'after' . ucfirst($method))) {
-                            call_user_func_array([&$this, $afterMethod], [$sets]);
-                        }
-                    }
+                if($this->qb->table($this->table)->limit(1)->update($data, $conditions)) {
+                    $affectedRows = $this->db->getAffectedRows();
 
-                    if ($this->db->transactionSuccess()) {
-                        if (method_exists($this, 'rebuildTree')) {
-                            $this->rebuildTree();
-                        }
-                    }
-
-                    if ($this->db->transactionSuccess()) {
-                        // Commit transaction if SUCCESS
-                        $this->db->transactionCommit();
-
-                        if (services()->has('session') and $this->flashMessage) {
-                            session()->setFlash('success', language('SUCCESS_UPDATE'));
+                    if ($affectedRows > 0) {
+                        if ($this->db->transactionSuccess()) {
+                            if (method_exists($this, $afterMethod = 'after' . ucfirst($method))) {
+                                call_user_func_array([&$this, $afterMethod], [$data]);
+                            }
                         }
 
-                        return $affectedRows;
+                        if ($this->db->transactionSuccess()) {
+                            if (method_exists($this, 'rebuildTree')) {
+                                $this->rebuildTree();
+                            }
+                        }
+
+                        if ($this->db->transactionSuccess()) {
+                            // Commit transaction if SUCCESS
+                            $this->db->transactionCommit();
+
+                            $label = false;
+                            foreach (['name', 'label', 'title', 'code'] as $labelField) {
+                                if (isset($data[$labelField])) {
+                                    if (services()->has('session') and $this->flashMessage) {
+                                        session()->setFlash('success',
+                                            language('SUCCESS_UPDATE_WITH_LABEL', [$data[$labelField]]));
+                                    }
+
+                                    $label = true;
+                                    break;
+                                }
+                            }
+
+                            if ($label === false) {
+                                if (services()->has('session') and $this->flashMessage) {
+                                    session()->setFlash('success', language('SUCCESS_UPDATE'));
+                                }
+                            }
+
+                            return true;
+                        } else {
+                            // Rollback transaction if FAILED
+                            $this->db->transactionRollback();
+                        }
                     } else {
                         // Rollback transaction if FAILED
                         $this->db->transactionRollback();
                     }
                 } else {
-                    // Rollback transaction if FAILED
-                    $this->db->transactionRollback();
+                    if (services()->has('session') and $this->flashMessage) {
+                        session()->setFlash('danger', $this->db->getLatestErrorMessage());
+                    }
+
+                    $this->addError($this->db->getLatestErrorCode(), $this->db->getLatestErrorMessage());
                 }
             }
         }
 
         if (services()->has('session') and $this->flashMessage) {
-            session()->setFlash('danger', language('FAILED_UPDATE'));
+            session()->setFlash('danger', language('DATA_NOT_FOUND'));
         }
 
-        $this->addError(__LINE__, language('FAILED_UPDATE'));
+        $this->addError(404, language('DATA_NOT_FOUND'));
 
         return false;
     }
@@ -1340,26 +1642,26 @@ trait ModifierTrait
     private function updateRecordStatusManyBy($recordStatus, $method, array $conditions)
     {
         if (count($conditions)) {
-            $sets['record_status'] = $recordStatus;
+            $data['record_status'] = $recordStatus;
 
-            if (method_exists($this, 'updateRecordSets')) {
-                $this->updateRecordSets($sets);
+            if (method_exists($this, 'updateRecordData')) {
+                $this->updateRecordData($data);
             }
 
             if (method_exists($this, $beforeMethod = 'before' . ucfirst($method))) {
-                call_user_func_array([&$this, $beforeMethod], [$sets]);
+                call_user_func_array([&$this, $beforeMethod], [$data]);
             }
 
             // Begin transaction
             $this->db->transactionBegin();
 
-            if ($this->qb->table($this->table)->update($sets, $conditions)) {
+            if ($this->qb->table($this->table)->update($data, $conditions)) {
                 $affectedRows = $this->db->getAffectedRows();
 
                 if ($affectedRows > 0) {
                     if ($this->db->transactionSuccess()) {
                         if (method_exists($this, $afterMethod = 'after' . ucfirst($method))) {
-                            call_user_func_array([&$this, $afterMethod], [$sets]);
+                            call_user_func_array([&$this, $afterMethod], [$data]);
                         }
                     }
 
@@ -1374,7 +1676,7 @@ trait ModifierTrait
                         $this->db->transactionCommit();
 
                         if (services()->has('session') and $this->flashMessage) {
-                            session()->setFlash('success', language('SUCCESS_UPDATE'));
+                            session()->setFlash('success', language('SUCCESS_UPDATE_MANY_BY', [$affectedRows, $conditions]));
                         }
 
                         return $affectedRows;
@@ -1386,14 +1688,20 @@ trait ModifierTrait
                     // Rollback transaction if FAILED
                     $this->db->transactionRollback();
                 }
+            } else {
+                if (services()->has('session') and $this->flashMessage) {
+                    session()->setFlash('danger', $this->db->getLatestErrorMessage());
+                }
+
+                $this->addError($this->db->getLatestErrorCode(), $this->db->getLatestErrorMessage());
             }
         }
 
         if (services()->has('session') and $this->flashMessage) {
-            session()->setFlash('danger', language('FAILED_UPDATE_MANY'));
+            session()->setFlash('danger', language('FAILED_UPDATE_MANY', [$conditions]));
         }
 
-        $this->addError(__LINE__, language('FAILED_UPDATE_MANY'));
+        $this->addError(__LINE__, language('FAILED_UPDATE_MANY', $conditions));
 
         return false;
     }

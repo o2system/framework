@@ -40,12 +40,12 @@ class ServiceWorker extends Controller
     public function index()
     {
         if ($javascript = file_get_contents(PATH_RESOURCES . 'service-worker.js')) {
-            $appName = modules()->getActiveApp()->getParameter();
+            $appName = globals()->offsetGet('app')->getParameter();
             
             $javascript = str_replace([
                 '{{$appName}}',
                 '{{ $appName }}',
-            ], modules()->getActiveApp()->getParameter(), $javascript);
+            ], globals()->offsetGet('app')->getParameter(), $javascript);
 
             if (! presenter()->theme) {
                 $javascript = str_replace([

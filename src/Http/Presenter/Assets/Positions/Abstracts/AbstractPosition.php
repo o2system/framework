@@ -384,7 +384,7 @@ abstract class AbstractPosition
 
         foreach ($directories as $directory) {
             if (strpos($filename, 'app') !== false) {
-                if ($app = modules()->getActiveApp()) {
+                if ($app = globals()->offsetGet('app')) {
                     $directory = $app->getResourcesDir();
                 }
             }

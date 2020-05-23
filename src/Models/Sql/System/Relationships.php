@@ -33,7 +33,7 @@ class Relationships extends Model
     // ------------------------------------------------------------------------
 
     /**
-     * Relationships::items
+     * Relationships::ownership
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */

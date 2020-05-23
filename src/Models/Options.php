@@ -292,13 +292,7 @@ class Options extends Model
      */
     public function languages()
     {
-        $languages = [];
-
-        foreach ($this->language->getRegistry() as $language) {
-            $languages[ $language->getParameter() ] = $language->getProperties()->name;
-        }
-
-        return $languages;
+        return $this->language->getOptions();
     }
 
     // ------------------------------------------------------------------------

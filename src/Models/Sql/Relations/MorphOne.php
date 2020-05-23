@@ -32,7 +32,17 @@ class MorphOne extends Sql\Relations\Abstracts\AbstractRelation
     public function getResult()
     {
         $morphKey = singular($this->map->morphKey);
-        $conditions[ $this->map->associateTable . '.' . $morphKey . '_id' ] = $this->map->objectModel->row->offsetGet($this->map->objectPrimaryKey);
+
+        if(empty($this->map->objectPrimaryKeys)) {
+            $conditions[ $this->map->associateTable . '.' . $morphKey . '_id' ] = $this->map->objectModel->row->offsetGet($this->map->objectPrimaryKey);
+        } else {
+            foreach($this->map->objectPrimaryKeys as $objectPrimaryKey) {
+                $conditions[ $this->map->associateTable . '.' . $morphKey . '_id' ][] = $this->map->objectModel->row->offsetGet($objectPrimaryKey);
+            }
+
+            $conditions[ $this->map->associateTable . '.' . $morphKey . '_id' ] = implode('-', $conditions[ $this->map->associateTable . '.' . $morphKey . '_id' ]);
+        }
+
         $conditions[ $this->map->associateTable . '.' . $morphKey . '_model' ] = get_class($this->map->objectModel);
 
         if ($result = $this->map->associateModel->findWhere($conditions)) {

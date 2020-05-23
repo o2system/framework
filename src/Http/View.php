@@ -58,12 +58,7 @@ class View implements RenderableInterface
      * @return View
      */
     public function __construct()
-    {
-        $this->setFileDirName('views');
-        $this->addFilePath(PATH_RESOURCES);
-
-        output()->addFilePath(PATH_RESOURCES);
-
+    {   
         $this->config = config()->loadFile('view', true);
 
         $this->setFileExtensions(
@@ -80,6 +75,8 @@ class View implements RenderableInterface
         $this->document = new Html\Document();
         $this->document->formatOutput = (bool)$this->config->beautify;
     }
+
+    // ------------------------------------------------------------------------
 
     /**
      * View::__get
@@ -286,6 +283,65 @@ class View implements RenderableInterface
     // ------------------------------------------------------------------------
 
     /**
+     * View::getPageFilePath
+     *
+     * @param string $filename
+     *
+     * @return string Returns FALSE if failed.
+     */
+    public function getPageFilePath($filename)
+    {
+        $filename = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $filename);
+
+        if (is_file($filename)) {
+            return realpath($filename);
+        } else {
+            $pagesDirectories = array_merge([
+                modules()->top()->getRealPath() . 'Pages' . DIRECTORY_SEPARATOR,
+                PATH_RESOURCES . modules()->top()->getParameter() . DIRECTORY_SEPARATOR . 'pages' . DIRECTORY_SEPARATOR,
+                PATH_APP . 'Pages' . DIRECTORY_SEPARATOR,
+                PATH_RESOURCES . 'pages' . DIRECTORY_SEPARATOR,
+            ]);
+
+            if(presenter()->theme) {
+                array_unshift($pagesDirectories, presenter()->theme->getRealPath() . 'pages' . DIRECTORY_SEPARATOR);
+            }
+
+            foreach ($pagesDirectories as $pageDirectory) {
+                foreach (['.php','.phtml', '.html', '.vue', '.jsx'] as $pageExtension) {
+                    // Find specific view file for mobile version
+                    if (services('userAgent')->isMobile()) {
+                        // Find without controller parameter as sub directory
+                        if (is_file($filePath = $pageDirectory . $filename . '.mobile' . $pageExtension)) {
+                            return realpath($filePath);
+                            break; // break extension
+                            break; // break directory
+                        } elseif (is_file($filePath = $pageDirectory . $filename . DIRECTORY_SEPARATOR . 'index.mobile' . $pageExtension)) {
+                            return realpath($filePath);
+                            break; // break extension
+                            break; // break directory
+                        }
+                    }
+
+                    if (is_file($filePath = $pageDirectory . $filename . $pageExtension)) {
+                        return realpath($filePath);
+                        break; // break extension
+                        break; // break directory
+                    } elseif(is_file($filePath = $pageDirectory . $filename . DIRECTORY_SEPARATOR . 'index' . $pageExtension)) {
+                        return realpath($filePath);
+                        break; // break extension
+                        break; // break directory
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
      * View::getFilePath
      *
      * @param string $filename
@@ -299,47 +355,46 @@ class View implements RenderableInterface
         if (is_file($filename)) {
             return realpath($filename);
         } else {
-            $viewsDirectories = array_merge([
-                PATH_KERNEL . 'Views' . DIRECTORY_SEPARATOR,
+            $viewsDirectories = [
+                modules()->top()->getRealPath() . 'Views' . DIRECTORY_SEPARATOR,
+                PATH_RESOURCES . modules()->top()->getParameter() . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR,
+                PATH_APP . 'Views' . DIRECTORY_SEPARATOR,
+                PATH_RESOURCES . 'views' . DIRECTORY_SEPARATOR,
                 PATH_FRAMEWORK . 'Views' . DIRECTORY_SEPARATOR,
-            ], $this->filePaths);
+                PATH_KERNEL . 'Views' . DIRECTORY_SEPARATOR
+            ];
 
-            $viewsDirectories = array_unique($viewsDirectories);
-            $viewsDirectories = array_reverse($viewsDirectories);
-
-            $controllerSubDir = null;
-            if($controller = services('controller')) {
-                $controllerSubDir = services('controller')->getParameter() . DIRECTORY_SEPARATOR;
+            if(presenter()->theme) {
+                array_unshift($viewsDirectories, presenter()->theme->getRealPath() . 'views' . DIRECTORY_SEPARATOR);
             }
 
-            foreach ($viewsDirectories as $viewsDirectory) {
-                $filename = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $filename);
+            $viewsExtensions = ['.phtml','.php'];
 
-                // Find specific view file for mobile version
-                if (services('userAgent')->isMobile()) {
-                    // Find without controller parameter as sub directory
-                    if (is_file($filePath = $viewsDirectory . $filename . '.mobile.phtml')) {
-                        return realpath($filePath);
-                        break;
+            foreach ($viewsDirectories as $viewDirectory) {
+                foreach ($viewsExtensions as $viewExtension) {
+                    // Find specific view file for mobile version
+                    if (services('userAgent')->isMobile()) {
+                        // Find without controller parameter as sub directory
+                        if (is_file($filePath = $viewDirectory . $filename . '.mobile' . $viewExtension)) {
+                            return realpath($filePath);
+                            break; // break extension
+                            break; // break directory
+                        } elseif (is_file($filePath = $viewDirectory . $filename . DIRECTORY_SEPARATOR . 'index.mobile' . $viewExtension)) {
+                            return realpath($filePath);
+                            break; // break extension
+                            break; // break directory
+                        }
                     }
 
-                    // Find without controller parameter as sub directory
-                    if (is_file($filePath = $viewsDirectory . $controllerSubDir . $filename . '.mobile.phtml')) {
+                    if (is_file($filePath = $viewDirectory . $filename . $viewExtension)) {
                         return realpath($filePath);
-                        break;
+                        break; // break extension
+                        break; // break directory
+                    } elseif(is_file($filePath = $viewDirectory . $filename . DIRECTORY_SEPARATOR . 'index' . $viewExtension)) {
+                        return realpath($filePath);
+                        break; // break extension
+                        break; // break directory
                     }
-                }
-
-                // Find without controller parameter as sub directory
-                if (is_file($filePath = $viewsDirectory . $filename . '.phtml')) {
-                    return realpath($filePath);
-                    break;
-                }
-
-                // Find without controller parameter as sub directory
-                if (is_file($filePath = $viewsDirectory . $controllerSubDir . $filename . '.phtml')) {
-                    return realpath($filePath);
-                    break;
                 }
             }
         }
@@ -761,28 +816,40 @@ class View implements RenderableInterface
 
         // Uglify Output
         if ($this->config->output[ 'uglify' ] === true) {
-            $htmlOutput = preg_replace(
-                [
-                    '/\>[^\S ]+/s',     // strip whitespaces after tags, except space
-                    '/[^\S ]+\</s',     // strip whitespaces before tags, except space
-                    '/(\s)+/s',         // shorten multiple whitespace sequences
-                    '/<!--(.|\s)*?-->/', // Remove HTML comments
-                    '/<!--(.*)-->/Uis',
-                    "/[[:blank:]]+/",
-                ],
-                [
-                    '>',
-                    '<',
-                    '\\1',
-                    '',
-                    '',
-                    ' ',
-                ],
-                str_replace(["\n", "\r", "\t"], '', $htmlOutput));
-        }
+            // remove html comments
+            $htmlOutput = preg_replace('/<!--(.|\s)*?-->/', '', $htmlOutput);
 
-        // Beautify Output
-        if ($this->config->output[ 'beautify' ] === true) {
+            // remove CDATA
+            $htmlOutput = preg_replace('~//<!\[CDATA\[\s*|\s*//\]\]>~', '', $htmlOutput);
+
+            // remove javascripts comments
+            $htmlOutput = preg_replace('/(?:(?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:(?<!\:|\\\)\/\/[^"\'].*))/', '', $htmlOutput);
+
+            /*
+            * remove comments like this
+            */
+            $htmlOutput = preg_replace('/\/\*[^\/]*\*\//', '', $htmlOutput);
+
+            /**
+             * remove comments like this other method
+             */
+            $htmlOutput = preg_replace('/\/\*\*((\r\n|\n) \*[^\n]*)+(\r\n|\n) \*\//', '', $htmlOutput);
+
+            // remove comments like this
+            $htmlOutput = preg_replace('/\n(\s+)?\/\/[^\n]*/', '', $htmlOutput);
+
+            //double spaces
+            $htmlOutput = preg_replace('/ (\t| )+/', '', $htmlOutput);
+
+            //double newlines
+            $htmlOutput = preg_replace('/([\n])+/', "$1", $htmlOutput);
+
+            // remove tabs, spaces, newlines, etc.
+            $htmlOutput = str_replace([PHP_EOL, "\t"], '', $htmlOutput);
+
+            //remove all spaces
+            $htmlOutput = preg_replace('|\s\s+|', ' ', $htmlOutput);
+        } elseif ($this->config->output[ 'beautify' ] === true) {
             $beautifier = new Html\Dom\Beautifier();
             $htmlOutput = $beautifier->format($htmlOutput);
         }

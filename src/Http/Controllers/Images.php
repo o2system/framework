@@ -322,9 +322,20 @@ class Images extends Controller
             $config->offsetSet('quality', intval($this->imageQuality));
         }
 
-        $manipulation = new Manipulation($config);
-        $manipulation->setImageFile($this->imageFilePath);
-        $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
+        if(in_array(pathinfo($this->imageFilePath, PATHINFO_EXTENSION), ['gif', 'svg'])) {
+            header('Content-Transfer-Encoding: binary');
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s', strtotime(filemtime($this->imageFilePath))) . ' GMT');
+            header('Content-Disposition: filename=' . pathinfo($this->imageFilePath, PATHINFO_BASENAME));
+            header('Content-Type: ' . $this->imageFileMime);
+
+            echo readfile($this->imageFilePath);
+        } else {
+            $manipulation = new Manipulation($config);
+            $manipulation->setImageFile($this->imageFilePath);
+
+            $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
+        }
+
         exit(EXIT_SUCCESS);
     }
 }

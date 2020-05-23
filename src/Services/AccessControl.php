@@ -22,6 +22,7 @@ use O2System\Security\Authentication\User\Account;
 use O2System\Security\Authentication\User\Role;
 use O2System\Session;
 use O2System\Spl\DataStructures\SplArrayObject;
+use O2System\Spl\DataStructures\SplArrayStorage;
 use O2System\Spl\Exceptions\RuntimeException;
 use O2System\Spl\Traits\Collectors\ErrorCollectorTrait;
 use Psr\Cache\CacheItemPoolInterface;
@@ -92,9 +93,10 @@ class AccessControl extends User
         if ($account = $this->find($username)) {
             if ($this->passwordVerify($password, $account->password)) {
                 if ($this->passwordRehash($password)) {
-                    $update = [
+                    $update = new SplArrayStorage();
+                    $update->append([
                         'password' => $this->passwordHash($password),
-                    ];
+                    ]);
 
                     models('users')->update($update, [
                         'id' => $account->id
@@ -207,14 +209,15 @@ class AccessControl extends User
                 $userAgent = input()->server('HTTP_USER_AGENT');
                 $ssid = substr(md5(json_encode($account) . $userAgent), -6, 10);
 
-                $session = [
+                $session = new SplArrayStorage();
+                $session->append([
                     'id_sys_user' => $account['id'],
                     'ssid' => $ssid,
                     'jwt' => $payload,
                     'timestamp' => $timestamp,
                     'expires' => $expires,
                     'useragent' => $userAgent
-                ];
+                ]);
 
                 if ($sessionsModel->insertOrUpdate($session, [
                     'id_sys_user' => $account['id'],

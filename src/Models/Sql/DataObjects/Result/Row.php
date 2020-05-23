@@ -18,6 +18,7 @@ namespace O2System\Framework\Models\Sql\DataObjects\Result;
 use O2System\Database;
 use O2System\Framework\Models\Sql\Model;
 use O2System\Spl\DataStructures\SplArrayObject;
+use O2System\Spl\DataStructures\SplArrayStorage;
 use O2System\Spl\Info\SplClassInfo;
 
 /**
@@ -106,9 +107,22 @@ class Row extends SplArrayObject
     public function offsetGet($offset)
     {
         if ($this->offsetExists($offset)) {
+            $model = models($this->model->getClass());
+            $method = camelcase('get_' . $offset);
+            $args = [parent::offsetGet($offset)];
+
+            if (method_exists($model, $method)) {
+                $model->row = $this;
+
+                return call_user_func_array([&$model, $method], $args);
+            }
+            
             return parent::offsetGet($offset);
         } elseif (strpos($offset, 'record') !== false) {
             switch ($offset) {
+                default:
+                    return $this->record->{str_replace('record_', '', $offset)};
+                    break;
                 case 'record':
                     return $this->record;
                     break;
@@ -236,6 +250,22 @@ class Row extends SplArrayObject
 
             return $model->deleteBy($conditions);
         }
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::update
+     *
+     * @param SplArrayStorage $data
+     *
+     * @return bool Returns FALSE if failed.
+     */
+    public function update(SplArrayStorage $data)
+    {
+        $model = models($this->model->getClass());
+
+        return $model->update($data);
     }
 
     // ------------------------------------------------------------------------
