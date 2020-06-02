@@ -1169,6 +1169,14 @@ trait ModifierTrait
 
         if (method_exists($this, 'beforeDelete')) {
             call_user_func_array([&$this, 'beforeDelete'], [$row]);
+
+            if($this->hasErrors()) {
+                if (services()->has('session') and $this->flashMessage) {
+                    session()->setFlash('danger', $this->db->getLatestErrorMessage());
+                }
+
+                return false;
+            }
         }
 
         if ($this->qb->table($this->table)->limit(1)->delete($conditions)) {

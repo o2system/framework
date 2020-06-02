@@ -28,13 +28,13 @@ use O2System\Kernel\Http\Message\Uri;
 
 switch (strtoupper(ENVIRONMENT)) {
     case 'DEVELOPMENT':
-        ini_set('display_errors', 1);
         error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT & ~E_USER_NOTICE & ~E_USER_DEPRECATED);
+        ini_set('display_errors', 1);
         break;
     case 'TESTING':
     case 'PRODUCTION':
-        ini_set('display_errors', 0);
         error_reporting(-1);
+        ini_set('display_errors', 0);
         break;
     default:
         header('HTTP/1.1 503 Service Unavailable.', true, 503);
@@ -184,7 +184,7 @@ class Framework extends Kernel
      *
      * Framework Container Globals
      *
-     * @var Framework\Containers\Globals
+     * @var Kernel\DataStructures\Input\Globals
      */
     public $globals;
 
@@ -193,9 +193,9 @@ class Framework extends Kernel
      *
      * Framework Container Environment
      *
-     * @var Framework\Containers\Environment
+     * @var Kernel\DataStructures\Input\Env
      */
-    public $environment;
+    public $env;
 
     /**
      * Framework::$models
@@ -243,6 +243,16 @@ class Framework extends Kernel
             profiler()->watch('Starting Framework Services');
         }
 
+        $services = [
+            'Services\Shutdown' => 'shutdown',
+            'Services\Logger'   => 'logger',
+            'Services\Loader'   => 'loader',
+        ];
+
+        foreach ($services as $className => $classOffset) {
+            $this->services->load($className, $classOffset);
+        }
+
         // Instantiate Config Container
         if (profiler() !== false) {
             profiler()->watch('Starting Config Container');
@@ -282,13 +292,19 @@ class Framework extends Kernel
         if (profiler() !== false) {
             profiler()->watch('Starting Environment Container');
         }
-        $this->environment = new Kernel\DataStructures\Input\Env();
+        $this->env = new Kernel\DataStructures\Input\Env();
 
         // Instantiate Models Container
         if (profiler() !== false) {
             profiler()->watch('Starting Models Container');
         }
         $this->models = new Framework\Containers\Models();
+
+        // Instantiate Modules Container
+        if (profiler() !== false) {
+            profiler()->watch('Starting Modules Container');
+        }
+        $this->modules = new Framework\Containers\Modules();
 
         if (config()->loadFile('cache') === true) {
             // Instantiate Cache Service
@@ -321,12 +337,6 @@ class Framework extends Kernel
             // Instantiate Http Router Service
             $this->services->load(Framework\Http\Router::class);
 
-            // Instantiate Modules Container
-            if (profiler() !== false) {
-                profiler()->watch('Starting Modules Container');
-            }
-            $this->modules = new Framework\Containers\Modules();
-
             $this->httpHandler();
         }
     }
@@ -349,19 +359,12 @@ class Framework extends Kernel
 
         if ($commander = router()->getCommander()) {
             if ($commander instanceof Kernel\Cli\Router\DataStructures\Commander) {
-                // Autoload Language
-                language()->loadFile($commander->getParameter());
-                language()->loadFile($commander->getRequestMethod());
-                language()->loadFile($commander->getParameter() . '/' . $commander->getRequestMethod());
 
-                $modules = $this->modules->getArrayCopy();
-
-                // Run Module Autoloader
-                foreach ($modules as $module) {
-                    if (in_array($module->getType(), ['KERNEL', 'FRAMEWORK'])) {
-                        continue;
-                    }
-                    $module->loadModel();
+                if($this->services->has('language')) {
+                    // Autoload Language
+                    language()->loadFile($commander->getParameter());
+                    language()->loadFile($commander->getRequestMethod());
+                    language()->loadFile($commander->getParameter() . '/' . $commander->getRequestMethod());
                 }
 
                 // Autoload Model
@@ -433,16 +436,18 @@ class Framework extends Kernel
             profiler()->watch('Registering App');
         }
 
-        if(empty($this->config->get('app'))) {
-            $app = (new Framework\Containers\Modules\DataStructures\Module(PATH_APP))
-                ->setType('APP')
-                ->setNamespace('App\\');
-            $this->modules->register($app);
-        } else {
-            $app = (new Framework\Containers\Modules\DataStructures\Module(PATH_APP .  $this->config->get('app') . DIRECTORY_SEPARATOR))
-                ->setType('APP')
-                ->setNamespace('App\\' . studlycase($this->config->get('app')) . '\\');
-            $this->modules->register($app);
+        if($this->modules instanceof Framework\Containers\Modules) {
+            if(empty($this->config->get('app'))) {
+                $app = (new Framework\Containers\Modules\DataStructures\Module(PATH_APP))
+                    ->setType('APP')
+                    ->setNamespace('App\\');
+                $this->modules->register($app);
+            } else {
+                $app = (new Framework\Containers\Modules\DataStructures\Module(PATH_APP .  $this->config->get('app') . DIRECTORY_SEPARATOR))
+                    ->setType('APP')
+                    ->setNamespace('App\\' . studlycase($this->config->get('app')) . '\\');
+                $this->modules->register($app);
+            }
         }
         
         if (profiler() !== false) {

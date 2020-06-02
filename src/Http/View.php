@@ -296,14 +296,19 @@ class View implements RenderableInterface
         if (is_file($filename)) {
             return realpath($filename);
         } else {
-            $pagesDirectories = array_merge([
+            $pagesDirectories = [
                 modules()->top()->getRealPath() . 'Pages' . DIRECTORY_SEPARATOR,
+                modules()->top()->getRealPath() . 'Pages' . DIRECTORY_SEPARATOR . language()->getDefault() . DIRECTORY_SEPARATOR,
                 PATH_RESOURCES . modules()->top()->getParameter() . DIRECTORY_SEPARATOR . 'pages' . DIRECTORY_SEPARATOR,
+                PATH_RESOURCES . modules()->top()->getParameter() . DIRECTORY_SEPARATOR . 'pages' . DIRECTORY_SEPARATOR . language()->getDefault() . DIRECTORY_SEPARATOR,
                 PATH_APP . 'Pages' . DIRECTORY_SEPARATOR,
+                PATH_APP . 'Pages' . DIRECTORY_SEPARATOR . language()->getDefault() . DIRECTORY_SEPARATOR,
                 PATH_RESOURCES . 'pages' . DIRECTORY_SEPARATOR,
-            ]);
+                PATH_RESOURCES . 'pages' . DIRECTORY_SEPARATOR . language()->getDefault() . DIRECTORY_SEPARATOR,
+            ];
 
             if(presenter()->theme) {
+                array_unshift($pagesDirectories, presenter()->theme->getRealPath() . 'pages' . DIRECTORY_SEPARATOR . language()->getDefault() . DIRECTORY_SEPARATOR);
                 array_unshift($pagesDirectories, presenter()->theme->getRealPath() . 'pages' . DIRECTORY_SEPARATOR);
             }
 

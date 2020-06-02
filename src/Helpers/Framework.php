@@ -60,7 +60,7 @@ if ( ! function_exists('globals')) {
      *
      * Convenient shortcut for O2System Framework globals container.
      *
-     * @return O2System\Framework\Containers\Globals
+     * @return mixed|O2System\Kernel\DataStructures\Input\Globals
      */
     function globals()
     {
@@ -86,7 +86,7 @@ if ( ! function_exists('env')) {
      *
      * Convenient shortcut for O2System Framework environment container.
      *
-     * @return mixed|O2System\Framework\Containers\Globals
+     * @return mixed|O2System\Kernel\DataStructures\Input\Env
      */
     function env()
     {
@@ -100,7 +100,7 @@ if ( ! function_exists('env')) {
             return null;
         }
 
-        return o2system()->environment;
+        return o2system()->env;
     }
 }
 

@@ -40,7 +40,7 @@ class Resources extends Storage
      *
      * @var string
      */
-    public $directoryPath;
+    public $directoryPath = PATH_RESOURCES;
 
     /**
      * Resources::$speedLimit
@@ -57,12 +57,4 @@ class Resources extends Storage
     public $resumeable = true;
 
     // ------------------------------------------------------------------------
-
-    /**
-     * Resources::__construct
-     */
-    public function __construct()
-    {
-        $this->directoryPath = PATH_RESOURCES;
-    }
 }

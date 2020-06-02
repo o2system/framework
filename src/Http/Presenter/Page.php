@@ -132,15 +132,41 @@ class Page extends AbstractRepository
      *
      * Gets page presets.
      *
-     * @return bool|\O2System\Spl\DataStructures\SplArrayObject
+     * @return mixed Returns FALSE if failed.
      */
-    public function getPresets()
+    public function getPresets($offset = null)
     {
         if ($this->presets instanceof SplArrayObject) {
-            return $this->presets;
+            if(empty($offset)) {
+                return $this->presets;
+            }
+
+            if($this->presets->offsetExists($offset)) {
+                return $this->presets->offsetGet($offset);
+            }
         }
 
         return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Page::addPreset
+     *
+     * Gets page presets.
+     *
+     * @return static
+     */
+    public function addPreset($key, $value)
+    {
+        if ( ! $this->presets instanceof SplArrayObject) {
+            $this->presets = new SplArrayObject();
+        }
+
+        $this->presets->offsetSet($key, $value);
+
+        return $this;
     }
 
     // ------------------------------------------------------------------------
@@ -173,6 +199,18 @@ class Page extends AbstractRepository
 
                 if (isset($properties->presets)) {
                     $this->presets = new SplArrayObject(get_object_vars($properties->presets));
+
+                    if(isset($this->presets->title)) {
+                        $this->setHeader($this->presets->title);
+                    }
+
+                    if(isset($this->presets->description)) {
+                        $this->setDescription($this->presets->description);
+                    }
+
+                    if(isset($this->presets->content)) {
+                        $this->setContent($this->presets->content);
+                    }
                 }
             }
         }

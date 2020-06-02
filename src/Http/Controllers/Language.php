@@ -16,35 +16,26 @@ namespace O2System\Framework\Http\Controllers;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Http\Controller;
-use O2System\Spl\Info\SplFileInfo;
 
 /**
- * Class Pages
- *
+ * Class Language
  * @package O2System\Framework\Http\Controllers
  */
-class Pages extends Controller
+class Language extends Controller
 {
     /**
-     * Controller::$inherited
-     *
-     * Controller inherited flag.
-     *
-     * @var bool
-     */
-    static public $inherited = true;
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Pages::index
-     *
-     * @return void
+     * Language::index
      */
     public function index()
     {
-        if(presenter()->page->file instanceof SplFileInfo) {
-            view()->page(presenter()->page->file->getRealPath());
+        if($changeTo = input()->get('change')) {
+            language()->change($changeTo);
+        }
+
+        if($referrerUrl = input()->server('HTTP_REFERRER')) {
+            redirect_url($referrerUrl);
+        } else {
+            redirect_url(base_url());
         }
     }
 }

@@ -40,7 +40,7 @@ class Storage extends Controller
      *
      * @var string
      */
-    public $directoryPath;
+    public $directoryPath = PATH_STORAGE;
 
     /**
      * Storage::$speedLimit
@@ -55,16 +55,6 @@ class Storage extends Controller
      * @var bool
      */
     public $resumeable = true;
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Storage::__construct
-     */
-    public function __construct()
-    {
-        $this->directoryPath = PATH_STORAGE;
-    }
 
     // ------------------------------------------------------------------------
 
@@ -86,6 +76,7 @@ class Storage extends Controller
 
         if (count($segments)) {
             $filePath = $this->directoryPath . implode(DIRECTORY_SEPARATOR, $segments);
+
             if (is_file($filePath)) {
                 if ($download) {
                     $downloader = new Downloader($filePath);
@@ -98,7 +89,7 @@ class Storage extends Controller
                 } else {
                     $fileInfo = new SplFileInfo($filePath);
 
-                    if(in_array($fileInfo->getExtension(), ['json', 'txt', 'xml'])) {
+                    if(in_array($fileInfo->getExtension(), ['json', 'txt', 'xml', 'js', 'css'])) {
                         header('Content-Disposition: filename=' . $fileInfo->getFilename());
                         header('Content-Transfer-Encoding: binary');
                         header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');

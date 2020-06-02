@@ -52,6 +52,8 @@ class Language extends \O2System\Kernel\Services\Language
      * Language::setOptions
      *
      * @param array $options
+     *
+     * @return static
      */
     public function setOptions(array $options)
     {
@@ -79,6 +81,8 @@ class Language extends \O2System\Kernel\Services\Language
      *
      * @param string $option
      * @param string $label
+     *
+     * @return static
      */
     public function addOption($option, $label)
     {
@@ -100,5 +104,21 @@ class Language extends \O2System\Kernel\Services\Language
     public function hasOption($option)
     {
         return array_key_exists($option, $this->options);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Language::change
+     *
+     * @param string $language
+     *
+     * @return static
+     */
+    public function change($language)
+    {
+        session()->offsetSet('language', $language);
+
+        return $this;
     }
 }

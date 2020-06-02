@@ -74,4 +74,17 @@ class Controller extends \O2System\Kernel\Http\Controller
     {
         view($file, $vars);
     }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Controller::render
+     *
+     * @param string $file
+     * @param array  $vars
+     */
+    protected function render($file, array $vars = [])
+    {
+        view($file, $vars);
+    }
 }
