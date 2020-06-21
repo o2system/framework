@@ -25,6 +25,16 @@ if ( ! function_exists('base_url')) {
             ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
             ->withQuery('');
 
+        if($uri->getSubDomain() !== globals()->get('app')) {
+            if(!empty(globals()->app->getSegments())) {
+                if(is_array($segments)) {
+                    $segments = array_merge(globals()->app->getSegments(), $segments);
+                } elseif(is_string($segments)) {
+                    $segments = implode('/', globals()->app->getSegments()) . '/' . $segments;
+                }
+            }
+        }
+
         if ($uriConfig = config()->offsetGet('uri')) {
             if ( ! empty($uriConfig[ 'base' ])) {
                 $base = (is_https() ? 'https' : 'http') . '://' . str_replace(['http://', 'https://'], '',

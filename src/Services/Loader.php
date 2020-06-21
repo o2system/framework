@@ -58,7 +58,9 @@ class Loader implements AutoloadInterface
      *
      * @var array
      */
-    protected $namespaceDirs = [];
+    protected $namespaceDirs = [
+        PATH_APP,
+    ];
 
     /**
      * Loader::$namespaceDirsMap
@@ -67,7 +69,9 @@ class Loader implements AutoloadInterface
      *
      * @var array
      */
-    protected $namespaceDirsMap = [];
+    protected $namespaceDirsMap = [
+        PATH_APP => '\\App\\'
+    ];
 
     /**
      * Loader::$loadedHelpers

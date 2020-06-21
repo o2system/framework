@@ -89,6 +89,11 @@ class Module extends Make
 
         if ( ! is_dir($modulePath)) {
             mkdir($modulePath, 0777, true);
+
+            // Make default structure
+            foreach (['Config', 'Controllers', 'Helpers', 'Http','Languages', 'Models', 'Presenters'] as $defaultDir) {
+                mkdir($modulePath . $defaultDir . DIRECTORY_SEPARATOR, 0777, true);
+            }
         } else {
             output()->write(
                 (new Format())
@@ -131,7 +136,8 @@ class Module extends Make
 
         (new Controller())
             ->optionPath($this->optionPath)
-            ->optionFilename($this->optionFilename);
+            ->optionFilename($this->optionFilename)
+            ->execute();
 
         if (is_dir($modulePath)) {
             output()->write(

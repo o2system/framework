@@ -81,17 +81,15 @@ class Config extends Make
         $vars[ 'CONFIG' ] = '$' . camelcase(pathinfo($filePath, PATHINFO_FILENAME));
         $vars[ 'FILEPATH' ] = $filePath;
 
-        $phpTemplate = <<<PHPTEMPLATE
-<?php
-/**
- * Created by O2System Framework File Generator.
- * DateTime: CREATE_DATETIME
- */
+        $phpTemplateFilePaths = $this->getFilePaths(true);
 
-// ------------------------------------------------------------------------
-
-CONFIG = [];
-PHPTEMPLATE;
+        foreach($phpTemplateFilePaths as $phpTemplateFilePath)
+        {
+            if(is_file($phpTemplateFilePath . 'Config.tpl')) {
+                $phpTemplate = file_get_contents($phpTemplateFilePath . 'Config.tpl');
+                break;
+            }
+        }
 
         $fileContent = str_replace(array_keys($vars), array_values($vars), $phpTemplate);
         file_put_contents($filePath, $fileContent);

@@ -99,20 +99,6 @@ class Migrate extends Commander
     protected $optionSeed = true;
 
     /**
-     * Migrate::$optionSql
-     *
-     * @var string
-     */
-    protected $optionSql;
-
-    /**
-     * Migrate::$optionFilename
-     *
-     * @var string
-     */
-    protected $optionFilename;
-
-    /**
      * Migrate::$optionBatch
      *
      * @var int
@@ -153,26 +139,6 @@ class Migrate extends Commander
     }
 
     // ------------------------------------------------------------------------
-
-    /**
-     * Migrate::optionRefresh
-     *
-     * @param string $sql
-     */
-    public function optionSql($sql)
-    {
-        $this->optionSql = $sql;
-    }
-
-    /**
-     * Migrate::optionFilename
-     *
-     * @param string $filename
-     */
-    public function optionFilename($filename)
-    {
-        $this->optionFilename = $filename;
-    }
 
     /**
      * Migrate::optionBatch
@@ -420,28 +386,6 @@ class Migrate extends Commander
     // ------------------------------------------------------------------------
 
     /**
-     * Migrate::import
-     */
-    public function import()
-    {
-        if( ! empty($this->optionSql)) {
-            $filePath = PATH_DATABASE . str_replace(['/','\\'], DIRECTORY_SEPARATOR, $this->optionSql);
-
-            if(is_file($filePath)) {
-                $sqlStatement = file_get_contents($filePath);
-
-                if($this->model->db->query($sqlStatement)) {
-
-                } else {
-
-                }
-            }
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
      * Migrate::latest
      */
     public function latest()
@@ -611,18 +555,6 @@ class Migrate extends Commander
 
                 break;
             }
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Migrate::execute
-     */
-    public function execute()
-    {
-        if($this->optionFilename) {
-            $this->run($this->optionFilename);
         }
     }
 }

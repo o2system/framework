@@ -78,17 +78,15 @@ class Model extends Make
         }
 
         $className = prepare_class_name(pathinfo($filePath, PATHINFO_FILENAME));
-        @list($namespaceDirectory, $subNamespace) = explode('Models', dirname($filePath));
+        @list($namespaceDirectory, $subNamespace) = explode('Models', str_replace(['\\','/'], '\\', dirname($filePath)));
+        $subNamespace = rtrim($subNamespace, '\\');
 
         $classNamespace = loader()->getDirNamespace(
                 $namespaceDirectory
             ) . 'Models' . (empty($subNamespace)
                 ? null
-                : str_replace(
-                    '/',
-                    '\\',
-                    $subNamespace
-                )) . '\\';
+                : $subNamespace) . '\\';
+
 
         $vars[ 'CREATE_DATETIME' ] = date('d/m/Y H:m');
         $vars[ 'NAMESPACE' ] = trim($classNamespace, '\\');
@@ -96,31 +94,15 @@ class Model extends Make
         $vars[ 'CLASS' ] = $className;
         $vars[ 'FILEPATH' ] = $filePath;
 
-        $phpTemplate = <<<PHPTEMPLATE
-<?php
-/**
- * Created by O2System Framework File Generator.
- * DateTime: CREATE_DATETIME
- */
+        $phpTemplateFilePaths = $this->getFilePaths(true);
 
-// ------------------------------------------------------------------------
-
-namespace NAMESPACE;
-
-// ------------------------------------------------------------------------
-
-use O2System\Framework\Models\Sql\Model;
-
-/**
- * Class CLASS
- *
- * @package PACKAGE
- */
-class CLASS extends Model
-{
-    public \$table = 'table_name';
-}
-PHPTEMPLATE;
+        foreach($phpTemplateFilePaths as $phpTemplateFilePath)
+        {
+            if(is_file($phpTemplateFilePath . 'Model.tpl')) {
+                $phpTemplate = file_get_contents($phpTemplateFilePath . 'Model.tpl');
+                break;
+            }
+        }
 
         $fileContent = str_replace(array_keys($vars), array_values($vars), $phpTemplate);
         file_put_contents($filePath, $fileContent);

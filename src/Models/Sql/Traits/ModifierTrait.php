@@ -702,7 +702,7 @@ trait ModifierTrait
     public function update(SplArrayStorage $data, array $conditions = [])
     {
         if (empty($this->updateValidationRules)) {
-            if (empty($this->model->primaryKeys)) {
+            if (empty($this->primaryKeys)) {
                 $primaryKey = empty($this->primaryKey) ? 'id' : $this->primaryKey;
                 if ($data->offsetExists($primaryKey)) {
                     if (!array_key_exists($primaryKey, $conditions)) {
@@ -715,7 +715,7 @@ trait ModifierTrait
                     'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
                 ];
             } else {
-                foreach ($this->model->primaryKeys as $primaryKey) {
+                foreach ($this->primaryKeys as $primaryKey) {
                     if ($data->offsetExists($primaryKey)) {
                         if (!array_key_exists($primaryKey, $conditions)) {
                             $conditions[$primaryKey] = $data->offsetGet($primaryKey);
@@ -1073,10 +1073,10 @@ trait ModifierTrait
         if(count($params)) {
             $conditions = [];
 
-            if(empty($this->model->primaryKeys)) {
-                $conditions[$this->model->primaryKey] = reset($params);
+            if(empty($this->primaryKeys)) {
+                $conditions[$this->primaryKey] = reset($params);
             } else {
-                foreach($this->model->primaryKeys as $key => $primaryKey) {
+                foreach($this->primaryKeys as $key => $primaryKey) {
                     if(isset($params[$key])) {
                         $conditions[$primaryKey] = $params[$key];
                     }
@@ -1440,10 +1440,10 @@ trait ModifierTrait
     {
         $conditions = [];
 
-        if(empty($this->model->primaryKeys)) {
-            $conditions[$this->model->primaryKey] = reset($primaryKeys);
+        if(empty($this->primaryKeys)) {
+            $conditions[$this->primaryKey] = reset($primaryKeys);
         } else {
-            foreach($this->model->primaryKeys as $key => $primaryKey) {
+            foreach($this->primaryKeys as $key => $primaryKey) {
                 if(isset($params[$key])) {
                     $conditions[$primaryKey] = $params[$key];
                 }

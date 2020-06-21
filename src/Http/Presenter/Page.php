@@ -73,7 +73,6 @@ class Page extends AbstractRepository
     {
         // Create Page breadcrumbs
         $this->breadcrumb = new Breadcrumb();
-        $this->breadcrumb->createList(new Link(language()->getLine('HOME'), base_url()));
 
         // Store Page Uri
         $this->uri = new Uri();

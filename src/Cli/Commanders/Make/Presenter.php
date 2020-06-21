@@ -78,17 +78,14 @@ class Presenter extends Make
         }
 
         $className = prepare_class_name(pathinfo($filePath, PATHINFO_FILENAME));
-        @list($namespaceDirectory, $subNamespace) = explode('Presenters', dirname($filePath));
+        @list($namespaceDirectory, $subNamespace) = explode('Presenters', str_replace(['\\','/'], '\\', dirname($filePath)));
+        $subNamespace = rtrim($subNamespace, '\\');
 
         $classNamespace = loader()->getDirNamespace(
                 $namespaceDirectory
             ) . 'Presenters' . (empty($subNamespace)
                 ? null
-                : str_replace(
-                    '/',
-                    '\\',
-                    $subNamespace
-                )) . '\\';
+                : $subNamespace) . '\\';
 
         $vars[ 'CREATE_DATETIME' ] = date('d/m/Y H:m');
         $vars[ 'NAMESPACE' ] = trim($classNamespace, '\\');
@@ -96,31 +93,15 @@ class Presenter extends Make
         $vars[ 'CLASS' ] = $className;
         $vars[ 'FILEPATH' ] = $filePath;
 
-        $phpTemplate = <<<PHPTEMPLATE
-<?php
-/**
- * Created by O2System Framework File Generator.
- * DateTime: CREATE_DATETIME
- */
+        $phpTemplateFilePaths = $this->getFilePaths(true);
 
-// ------------------------------------------------------------------------
-
-namespace NAMESPACE;
-
-// ------------------------------------------------------------------------
-
-use O2System\Framework\Http\Presenter;
-
-/**
- * Class CLASS
- *
- * @package PACKAGE
- */
-class CLASS extends Presenter
-{
-    
-}
-PHPTEMPLATE;
+        foreach($phpTemplateFilePaths as $phpTemplateFilePath)
+        {
+            if(is_file($phpTemplateFilePath . 'Presenter.tpl')) {
+                $phpTemplate = file_get_contents($phpTemplateFilePath . 'Presenter.tpl');
+                break;
+            }
+        }
 
         $fileContent = str_replace(array_keys($vars), array_values($vars), $phpTemplate);
         file_put_contents($filePath, $fileContent);

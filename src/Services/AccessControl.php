@@ -16,6 +16,7 @@ namespace O2System\Framework\Services;
 // ------------------------------------------------------------------------
 
 use O2System\Cache\Item;
+use O2System\Framework\Models\Sql\System\Users;
 use O2System\Security\Authentication\JsonWebToken;
 use O2System\Security\Authentication\User;
 use O2System\Security\Authentication\User\Account;
@@ -55,9 +56,7 @@ class AccessControl extends User
             $this->setConfig($config->getArrayCopy());
         }
 
-        if (!models('users')) {
-            throw new RuntimeException('ACL_E_UNDEFINED_USERS_MODEL');
-        }
+        models()->load(Users::class, 'users');
     }
 
     // ------------------------------------------------------------------------

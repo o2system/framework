@@ -385,6 +385,10 @@ class Framework extends Kernel
                 }
                 $requestCommander = $commander->getInstance();
 
+                if (method_exists($requestController, '__reconstruct')) {
+                    $requestCommander->__reconstruct();
+                }
+
                 if (profiler() !== false) {
                     profiler()->watch('Calling Hooks Service: Post Commander');
                 }

@@ -85,23 +85,15 @@ class Helper extends Make
         );
         $vars[ 'FILEPATH' ] = $filePath;
 
-        $phpTemplate = <<<PHPTEMPLATE
-<?php
-/**
- * Created by O2System Framework File Generator.
- * DateTime: CREATE_DATETIME
- */
+        $phpTemplateFilePaths = $this->getFilePaths(true);
 
-// ------------------------------------------------------------------------
-
-if ( ! function_exists( 'HELPER' ) ) {
-    /**
-     * HELPER
-     */
-    function HELPER() {
-    }
-}
-PHPTEMPLATE;
+        foreach($phpTemplateFilePaths as $phpTemplateFilePath)
+        {
+            if(is_file($phpTemplateFilePath . 'Helper.tpl')) {
+                $phpTemplate = file_get_contents($phpTemplateFilePath . 'Helper.tpl');
+                break;
+            }
+        }
 
         $fileContent = str_replace(array_keys($vars), array_values($vars), $phpTemplate);
         file_put_contents($filePath, $fileContent);
