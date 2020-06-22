@@ -21,5 +21,13 @@ namespace O2System\Framework\Cli;
  */
 class Router extends \O2System\Kernel\Cli\Router
 {
-
+    /**
+     * Router::__construct
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        
+        $this->addFilePath(PATH_FRAMEWORK);
+    }
 }
