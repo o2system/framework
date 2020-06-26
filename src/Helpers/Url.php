@@ -27,11 +27,12 @@ if ( ! function_exists('base_url')) {
 
         if($uri->getSubDomain() !== globals()->get('app')) {
             if(!empty(globals()->app->getSegments())) {
-                if(is_array($segments)) {
-                    $segments = array_merge(globals()->app->getSegments(), $segments);
-                } elseif(is_string($segments)) {
-                    $segments = implode('/', globals()->app->getSegments()) . '/' . $segments;
+                if(is_string($segments)) {
+                    $segments = explode('/', $segments);
+                    $segments = array_diff(globals()->app->getSegments(), $segments);
                 }
+
+                $segments = array_merge(globals()->app->getSegments(), $segments);
             }
         }
 
@@ -174,11 +175,11 @@ if ( ! function_exists('images_url')) {
      *
      * @return string
      */
-    function images_url($path)
+    function images_url($path, $size = null)
     {
         $urlPath = str_replace(PATH_STORAGE, '', $path);
 
-        return base_url('images/' . $urlPath);
+        return base_url('images/' . (isset($size) ? '/' . $size : '') . $urlPath);
     }
 }
 

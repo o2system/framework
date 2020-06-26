@@ -117,9 +117,7 @@ class Storage extends Controller
                         }
 
                         header('Content-Type: ' . $fileInfo->getMime());
-                        header('Cache-Control: no-cache, no-store, must-revalidate');
-                        header('Pragma: no-cache');
-                        header('Expires: 0');
+                        header('Cache-Control: max-age=60');
                         header('Content-Length:' . ($lengthEnd - $lengthStart));
                         header("Content-Range: bytes " . ($lengthStart-$lengthEnd)/$fileInfo->getSize());
                         header("Content-Disposition: inline; filename=" . $fileInfo->getFilename() . '.' . $fileInfo->getExtension());

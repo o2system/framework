@@ -701,43 +701,41 @@ trait ModifierTrait
      */
     public function update(SplArrayStorage $data, array $conditions = [])
     {
-        if (empty($this->updateValidationRules)) {
-            if (empty($this->primaryKeys)) {
-                $primaryKey = empty($this->primaryKey) ? 'id' : $this->primaryKey;
-                if ($data->offsetExists($primaryKey)) {
-                    if (!array_key_exists($primaryKey, $conditions)) {
+        if(empty($conditions)) {
+            if(count($this->primaryKeys)) {
+                foreach ($this->primaryKeys as $primaryKey) {
+                    if($data->offsetExists($primaryKey)) {
                         $conditions[$primaryKey] = $data->offsetGet($primaryKey);
                     }
-                }
 
-                $this->updateValidationRules[$primaryKey] = 'required';
-                $this->updateValidationCustomErrors[$primaryKey] = [
-                    'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                ];
-            } else {
-                foreach ($this->primaryKeys as $primaryKey) {
-                    if ($data->offsetExists($primaryKey)) {
-                        if (!array_key_exists($primaryKey, $conditions)) {
-                            $conditions[$primaryKey] = $data->offsetGet($primaryKey);
-                        }
+                    if(empty($this->updateValidationRules)) {
+                        $this->updateValidationRules[$primaryKey] = 'required';
+                        $this->updateValidationCustomErrors[$primaryKey] = [
+                            'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
+                        ];
                     }
-
-                    $this->updateValidationRules[$primaryKey] = 'required';
-                    $this->updateValidationCustomErrors[$primaryKey] = [
-                        'required' => language('LABEL_' . strtoupper($primaryKey)) . ' cannot be empty!',
-                    ];
                 }
             }
-        } elseif (empty($conditions)) {
-            if (empty($this->primaryKeys)) {
-                foreach ($this->primaryKeys as $primaryKey) {
-                    if ($data->offsetExists($primaryKey)) {
-                        $conditions[$primaryKey] = $data->offsetGet($primaryKey);
+        }
+
+        if($data instanceof AbstractInput) {
+            if (count($this->updateValidationRules)) {
+                $data->validation($this->updateValidationRules, $this->updateValidationCustomErrors);
+
+                if (!$data->validate()) {
+                    $this->addErrors($data->validator->getErrors());
+
+                    if (services()->has('session') and $this->flashMessage) {
+                        $errors = new Unordered();
+                        foreach ($data->validator->getErrors() as $error) {
+                            $errors->createList($error);
+                        }
+
+                        session()->setFlash('danger',
+                            language('FAILED_INSERT', $errors->__toString()));
                     }
-                }
-            } else {
-                if ($data->offsetExists($primaryKey)) {
-                    $conditions = [$primaryKey => $data->offsetGet($primaryKey)];
+
+                    return false;
                 }
             }
         }
@@ -877,11 +875,11 @@ trait ModifierTrait
                         $data['settings'] = new SplArrayObject();
 
                         if (empty($this->primaryKeys)) {
-                            $ownershipId = $data->offsetGet($this->primaryKey);
+                            $ownershipId = $data[$this->primaryKey];
                         } else {
                             $ownershipId = [];
                             foreach ($this->primaryKeys as $primaryKey) {
-                                array_push($ownershipId, $data->offsetGet($this->primaryKey));
+                                array_push($ownershipId, $data[$primaryKey]);
                             }
 
                             $ownershipId = implode('-', $ownershipId);
@@ -1188,7 +1186,7 @@ trait ModifierTrait
             } else {
                 $ownershipId = [];
                 foreach ($this->primaryKeys as $primaryKey) {
-                    array_push($ownershipId, $data[$primaryKey]);
+                    array_push($ownershipId, $row->offsetGet($primaryKey));
                 }
 
                 $ownershipId = implode('-', $ownershipId);

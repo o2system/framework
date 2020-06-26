@@ -102,7 +102,7 @@ class Images extends Controller
     public function __construct()
     {
         $this->storagePath = PATH_STORAGE . 'images' . DIRECTORY_SEPARATOR;
-        $this->imageNotFoundFilename = $this->storagePath . 'default/not-found.jpg';
+        $this->imageNotFoundFilename = $this->storagePath . 'default'. DIRECTORY_SEPARATOR . 'not-found.jpg';
     }
 
     // ------------------------------------------------------------------------
@@ -115,7 +115,7 @@ class Images extends Controller
         $segments = server_request()->getUri()->segments->getArrayCopy();
 
         if (false !== ($key = array_search('images', $segments))) {
-            unset($segments[$key]);
+            $segments = array_slice($segments, $key + 1);
         } else {
             array_shift($segments);
         }
