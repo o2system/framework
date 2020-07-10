@@ -25,14 +25,16 @@ if ( ! function_exists('base_url')) {
             ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
             ->withQuery('');
 
-        if($uri->getSubDomain() !== globals()->get('app')) {
-            if(!empty(globals()->app->getSegments())) {
+        if($uri->getSubDomain() !== reset(globals()->app->getSegments())) {
+            if(!empty($appSegments = globals()->app->getSegments())) {
                 if(is_string($segments)) {
                     $segments = explode('/', $segments);
-                    $segments = array_diff(globals()->app->getSegments(), $segments);
+                    $segments = array_diff($segments, $appSegments);
+                } elseif(is_null($segments)) {
+                    $segments = [];
                 }
 
-                $segments = array_merge(globals()->app->getSegments(), $segments);
+                $segments = array_merge($appSegments, $segments);
             }
         }
 
@@ -71,19 +73,31 @@ if ( ! function_exists('domain_url')) {
     function domain_url($segments = null, $query = null, $subdomain = null)
     {
         $uri = (new \O2System\Kernel\Http\Message\Uri())
-            ->withSubDomain($subdomain)
-            ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments($segments))
-            ->withQuery($query);
+            ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
+            ->withQuery('');
+
+        if(is_null($subdomain)) {
+            $uri->domain->setSubDomain('');
+        } elseif(isset($subdomain)) {
+            $uri->domain->setSubDomain($subdomain);
+        }
 
         if ($uriConfig = config()->offsetGet('uri')) {
             if ( ! empty($uriConfig[ 'base' ])) {
                 $base = (is_https() ? 'https' : 'http') . '://' . str_replace(['http://', 'https://'], '',
                         $uriConfig[ 'base' ]);
                 $uri = (new \O2System\Kernel\Http\Message\Uri($base))
-                    ->withSubDomain($subdomain)
-                    ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments($segments))
-                    ->withQuery($query);
+                    ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
+                    ->withQuery('');
             }
+        }
+
+        if (isset($query)) {
+            $uri = $uri->addQuery($query);
+        }
+
+        if (isset($segments)) {
+            $uri = $uri->addSegments($segments);
         }
 
         return $uri->__toString();
@@ -162,6 +176,24 @@ if ( ! function_exists('storage_url')) {
         $urlPath = str_replace(PATH_STORAGE, '', $path);
 
         return base_url('storage/' . $urlPath);
+    }
+}
+
+// ------------------------------------------------------------------------
+
+if ( ! function_exists('resources_url')) {
+    /**
+     * resource_url
+     *
+     * @param string $path Uri path.
+     *
+     * @return string
+     */
+    function resources_url($path)
+    {
+        $urlPath = str_replace(PATH_RESOURCES, '', $path);
+
+        return base_url('resources/' . $urlPath);
     }
 }
 

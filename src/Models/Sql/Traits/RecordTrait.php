@@ -173,8 +173,8 @@ trait RecordTrait
     protected function updateRecordData(SplArrayStorage &$data)
     {
         if(is_null($this->recordUser)) {
-            if(globals()->offsetExists('account')) {
-                $this->setRecordUser(globals()->account->id);
+            if(session()->offsetExists('account')) {
+                $this->setRecordUser(session()->account->id);
             }
         }
 
@@ -207,5 +207,12 @@ trait RecordTrait
         }
 
         return 0;
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function getNumOfRecords()
+    {
+        return $this->qb->table($this->table)->countAll();
     }
 }

@@ -555,7 +555,7 @@ class Restful extends Controller
                             'data' => $post,
                         ]);
                     } else {
-                        $this->sendError(400, $this->model->getLatestErrorMessage());
+                        $this->sendError(400, $this->model->getLastErrorMessage());
                     }
                 } else {
                     $this->sendError(400, 'Post parameters cannot be empty!');
@@ -593,7 +593,7 @@ class Restful extends Controller
                                 'data' => $post,
                             ]);
                         } else {
-                            $this->sendError(400, $this->model->getLatestErrorMessage());
+                            $this->sendError(400, $this->model->getLastErrorMessage());
                         }
                     } else {
                         $this->sendError(400, 'Post parameters cannot be empty!');
@@ -645,7 +645,7 @@ class Restful extends Controller
                             'Successful delete data'
                         ]);
                     } else {
-                        $this->sendError(400, $this->model->getLatestErrorMessage());
+                        $this->sendError(400, $this->model->getLastErrorMessage());
                     }
                 } else {
                     $this->sendError(400, 'Request parameters cannot be empty!');
@@ -682,7 +682,7 @@ class Restful extends Controller
                             'Successful ' . $method . ' request',
                         ]);
                     } else {
-                        $this->sendError(400, $this->model->getLatestErrorMessage());
+                        $this->sendError(400, $this->model->getLastErrorMessage());
                     }
                 } else {
                     $this->sendError(400, 'Request parameters cannot be empty!');

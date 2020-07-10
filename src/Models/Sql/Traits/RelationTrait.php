@@ -248,14 +248,14 @@ trait RelationTrait
      * @param string|Model $associateModel
      * @param string|Model $intermediaryModel
      * @param string|null  $intermediaryObjectForeignKey
-     * @param string|null  $morphKey
+     * @param string       $morphKey
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
     final protected function morphOneThrough(
         $associateModel,
         $intermediaryModel,
-        $morphKey = null
+        $morphKey
     ) {
         return (new Relations\MorphOneThrough(
             (new Relations\Maps\Polymorphic($this, $associateModel, $morphKey))
@@ -281,7 +281,7 @@ trait RelationTrait
     // ------------------------------------------------------------------------
 
     /**
-     * RelationTrait::morphMany
+     * RelationTrait::morphToMany
      *
      * @param string|Model  $associateModel
      * @param string        $morphKey
@@ -319,6 +319,21 @@ trait RelationTrait
     // ------------------------------------------------------------------------
 
     /**
+     * RelationTrait::morphedByOne
+     *
+     * @param string|Model $associateModel
+     * @param string       $morphKey
+     */
+    final protected function morphedByOne($associateModel, $morphKey)
+    {
+        return (new Relations\MorphByOne(
+            new Relations\Maps\Polymorphic($this, $associateModel, $morphKey)
+        ))->getResult();
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
      * RelationTrait::morphedByMany
      *
      * @param string|Model $associateModel
@@ -328,6 +343,52 @@ trait RelationTrait
     {
         return (new Relations\MorphByMany(
             new Relations\Maps\Polymorphic($this, $associateModel, $morphKey)
+        ))->getResult();
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * RelationTrait::morphByOneThrough
+     *
+     * @param string|Model $associateModel
+     * @param string|Model $intermediaryModel
+     * @param string|null  $intermediaryObjectForeignKey
+     * @param string       $morphKey
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    final protected function morphByOneThrough(
+        $associateModel,
+        $intermediaryModel,
+        $morphKey
+    ) {
+        return (new Relations\MorphByOneThrough(
+            (new Relations\Maps\Polymorphic($this, $associateModel, $morphKey))
+                ->setIntermediary($intermediaryModel)
+        ))->getResult();
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * RelationTrait::morphByManyThrough
+     *
+     * @param string|Model $associateModel
+     * @param string|Model $intermediaryModel
+     * @param string|null  $intermediaryObjectForeignKey
+     * @param string       $morphKey
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    final protected function morphByManyThrough(
+        $associateModel,
+        $intermediaryModel,
+        $morphKey
+    ) {
+        return (new Relations\MorphByManyThrough(
+            (new Relations\Maps\Polymorphic($this, $associateModel, $morphKey))
+                ->setIntermediary($intermediaryModel)
         ))->getResult();
     }
 }

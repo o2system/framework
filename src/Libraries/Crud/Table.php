@@ -34,6 +34,7 @@ class Table extends Ui\Contents\Table
      * @var \O2System\Database\DataObjects\Result
      */
     public $rows;
+
     /**
      * Table::$columns
      *

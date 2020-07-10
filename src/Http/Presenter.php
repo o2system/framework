@@ -51,6 +51,13 @@ class Presenter extends AbstractRepository
     public $assets;
 
     /**
+     * Presenter::$navigations
+     *
+     * @var Presenter\Repositories\Navigations
+     */
+    public $navigations;
+
+    /**
      * Presenter::$partials
      *
      * @var Presenter\Repositories\Partials
@@ -83,6 +90,7 @@ class Presenter extends AbstractRepository
         $this->meta = new Presenter\Meta;
         $this->page = new Presenter\Page;
         $this->assets = new Presenter\Assets;
+        $this->navigations = new Presenter\Repositories\Navigations();
         $this->partials = new Presenter\Repositories\Partials();
         $this->widgets = new Presenter\Repositories\Widgets();
     }
@@ -224,6 +232,8 @@ class Presenter extends AbstractRepository
             'head' => $this->assets->getHead(),
             'body' => $this->assets->getBody(),
         ]);
+
+        $storage[ 'navigations' ] = $this->navigations;
         $storage[ 'partials' ] = $this->partials;
         $storage[ 'widgets' ] = $this->widgets;
         $storage[ 'theme' ] = $this->theme;

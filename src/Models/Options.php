@@ -40,7 +40,7 @@ class Options extends Model
         $religions = [];
 
         foreach (['ATHEIST', 'HINDU', 'BUDDHA', 'MOSLEM', 'CHRISTIAN', 'CATHOLIC', 'UNDEFINED'] as $religion) {
-            $religions[ $religion ] = $this->language->getLine($religion);
+            $religions[$religion] = $this->language->getLine($religion);
         }
 
         return $religions;
@@ -54,7 +54,7 @@ class Options extends Model
         $genders = [];
 
         foreach (['MALE', 'FEMALE', 'UNDEFINED'] as $gender) {
-            $genders[ $gender ] = $this->language->getLine($gender);
+            $genders[$gender] = $this->language->getLine($gender);
         }
 
         return $genders;
@@ -68,7 +68,7 @@ class Options extends Model
         $maritals = [];
 
         foreach (['SINGLE', 'MARRIED', 'DIVORCED', 'UNDEFINED'] as $marital) {
-            $maritals[ $marital ] = $this->language->getLine($marital);
+            $maritals[$marital] = $this->language->getLine($marital);
         }
 
         return $maritals;
@@ -82,7 +82,7 @@ class Options extends Model
         $bloodTypes = [];
 
         foreach (['A', 'B', 'AB', 'O', 'UNDEFINED'] as $bloodType) {
-            $bloodTypes[ $bloodType ] = $this->language->getLine($bloodType);
+            $bloodTypes[$bloodType] = $this->language->getLine($bloodType);
         }
 
         return $bloodTypes;
@@ -105,7 +105,7 @@ class Options extends Model
 
         for ($i = $start; $i <= $end; $i++) {
             $time = strtotime($year . 'W' . $week . $i);
-            $days[ strtoupper(date('D', $time)) ] = $this->language->getLine(
+            $days[strtoupper(date('D', $time))] = $this->language->getLine(
                 'CAL_' . strtoupper(date($labelFormat, $time)));
         }
 
@@ -126,7 +126,7 @@ class Options extends Model
             if ($leading) {
                 $date = strlen($date) == 1 ? '0' . $date : $date;
             }
-            $dates[ $date ] = $date;
+            $dates[$date] = $date;
         }
 
         return $dates;
@@ -148,7 +148,7 @@ class Options extends Model
             if ($leading) {
                 $month = strlen($month) == 1 ? '0' . $month : $month;
             }
-            $months[ $month ] = $this->language->getLine(strtoupper('CAL_' . date('F',
+            $months[$month] = $this->language->getLine(strtoupper('CAL_' . date('F',
                     strtotime('1-' . $month . '-2000'))));
         }
 
@@ -166,7 +166,7 @@ class Options extends Model
         $years = [];
 
         foreach (range($start, $end) as $year) {
-            $years[ $year ] = $year;
+            $years[$year] = $year;
         }
 
         return $years;
@@ -180,7 +180,7 @@ class Options extends Model
         $identities = [];
 
         foreach (['UNDEFINED', 'IDENTITY_CARD', 'STUDENT_CARD', 'DRIVER_LICENSE', 'PASSPORT'] as $identity) {
-            $identities[ $identity ] = $this->language->getLine($identity);
+            $identities[$identity] = $this->language->getLine($identity);
         }
 
         return $identities;
@@ -193,7 +193,7 @@ class Options extends Model
     {
         $sizes = [];
         foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'] as $size) {
-            $sizes[ $size ] = $size;
+            $sizes[$size] = $size;
         }
 
         return $sizes;
@@ -206,7 +206,7 @@ class Options extends Model
     {
         $boolean = [];
         foreach (['YES', 'NO'] as $bool) {
-            $boolean[ $bool ] = $this->language->getLine('BOOL_' . $bool);
+            $boolean[$bool] = $this->language->getLine('BOOL_' . $bool);
         }
 
         return $boolean;
@@ -231,7 +231,7 @@ class Options extends Model
                      'AUNTS_UNCLES_CHILD',
                  ] as $relationship
         ) {
-            $familyRelationships[ $relationship ] = $this->language->getLine($relationship);
+            $familyRelationships[$relationship] = $this->language->getLine($relationship);
         }
 
         return $familyRelationships;
@@ -253,7 +253,7 @@ class Options extends Model
                      'LOCKED'
                  ] as $status
         ) {
-            $statuses[ $status ] = $this->language->getLine($status);
+            $statuses[$status] = $this->language->getLine($status);
         }
 
         return $statuses;
@@ -277,7 +277,7 @@ class Options extends Model
                      'MEMBERONLY',
                  ] as $visibility
         ) {
-            $visibilities[ $visibility ] = $this->language->getLine($visibility);
+            $visibilities[$visibility] = $this->language->getLine($visibility);
         }
 
         return $visibilities;
@@ -304,6 +304,38 @@ class Options extends Model
      */
     public function timezones()
     {
-        return timezone_identifiers_list();
+        language()->loadFile('date');
+
+        $timezoneIdentifiers = \DateTimeZone::listIdentifiers();
+        $continent = '';
+        $timeszoneIdentifierKey = '';
+        $timezones = array();
+        $phpTime = \Date("Y-m-d H:i:s");
+
+        foreach ($timezoneIdentifiers as $timezoneIdentifier) {
+            if (preg_match('/^(Europe|America|Asia|Antartica|Arctic|Atlantic|Indian|Pacific)\//', $timezoneIdentifier)) {
+                $timezoneIdentifierParts = explode("/", $timezoneIdentifier); //obtain continent,city
+                if ($continent != $timezoneIdentifierParts[0]) {
+                    $timeszoneIdentifierKey = $timezoneIdentifierParts[0];
+                }
+
+                $timezone = new \DateTimeZone($timezoneIdentifier); // Get default system timezone to create a new DateTimeZone object
+                $offset = $timezone->getOffset(new \DateTime($phpTime));
+                $offsetHours = round(abs($offset) / 3600);
+                $offsetString = ($offset < 0 ? '-' : '+');
+                if ($offsetHours == 1 or $offsetHours == -1) {
+                    $label = language('DATE_HOUR');
+                } else {
+                    $label = language('DATE_HOURS');
+                }
+
+                $city = $timezoneIdentifierParts[1];
+                $continent = $timezoneIdentifierParts[0];
+                $identifer[$timeszoneIdentifierKey][$timezoneIdentifier] = isset($timezoneIdentifierParts[2]) ? $timezoneIdentifierParts[1] . ' - ' . $timezoneIdentifierParts[2] : $timezoneIdentifierParts[1];
+                $timezones[$timeszoneIdentifierKey][$timezoneIdentifier] = $identifer[$timeszoneIdentifierKey][$timezoneIdentifier] . " (" . $offsetString . $offsetHours . " " . $label . ")";
+            }
+        }
+
+        return $timezones;
     }
 }

@@ -46,10 +46,6 @@ class MorphMany extends Sql\Relations\Abstracts\AbstractRelation
 
         $conditions[ $this->map->associateTable . '.' . $morphKey . '_model' ] = get_class($this->map->objectModel);
 
-        if ($result = $this->map->associateModel->findWhere($conditions)) {
-            return $result;
-        }
-
-        return new Result([]);
+        return $this->map->associateModel->findWhere($conditions);
     }
 }

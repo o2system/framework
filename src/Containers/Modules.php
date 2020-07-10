@@ -68,6 +68,8 @@ class Modules extends SplArrayStack
      */
     private function autoload(DataStructures\Module $module)
     {
+        config()->addFilePath($module->getRealPath());
+
         if (!in_array($module->getRealPath(), $this->loaded)) {
             // Register to loaded property
             $this->loaded[] = $module->getRealPath();
@@ -163,7 +165,6 @@ class Modules extends SplArrayStack
      */
     private function autoloadConfig(DataStructures\Module $module)
     {
-        config()->addFilePath($module->getRealPath());
         config()->loadFile('Config');
 
         $addresses = config()->loadFile('Addresses', true);
@@ -406,21 +407,34 @@ class Modules extends SplArrayStack
                     'Plugins',
                 ];
                 $packageJsonFile = 'app.json';
-
-                if (is_file($packageJsonFilePath = $packageRealPath . $packageJsonFile)) {
-                    array_shift($segments);
-
-                    if ($packageRegistry = $this->getPackageRegistry($packageJsonFilePath)) {
-                        if($register === true) {
-                            $this->register($packageRegistry);
-                        }
-                    }
-                }
             } elseif(is_dir($packageRealPath = PATH_APP . 'Modules' . DIRECTORY_SEPARATOR . studlycase($segments[0]) . DIRECTORY_SEPARATOR)) {
                 $packageSubDirectories = [
                     'Plugins',
                 ];
                 $packageJsonFile = 'module.json';
+            } elseif(globals()->offsetExists('app')) {
+                if(is_dir($packageRealPath = globals()->app->getRealPath() . studlycase($segments[0]) . DIRECTORY_SEPARATOR)) {
+                    $packageSubDirectories = [
+                        'Modules',
+                        'Plugins',
+                    ];
+                    $packageJsonFile = 'app.json';
+                } elseif(is_dir($packageRealPath = globals()->app->getRealPath() . 'Modules' . DIRECTORY_SEPARATOR . studlycase($segments[0]) . DIRECTORY_SEPARATOR)) {
+                    $packageSubDirectories = [
+                        'Plugins',
+                    ];
+                    $packageJsonFile = 'module.json';
+                }
+            }
+
+            if (is_file($packageJsonFilePath = $packageRealPath . $packageJsonFile)) {
+                array_shift($segments);
+
+                if ($packageRegistry = $this->getPackageRegistry($packageJsonFilePath)) {
+                    if($register === true) {
+                        $this->register($packageRegistry);
+                    }
+                }
             }
 
             if(isset($packageSubDirectories)) {

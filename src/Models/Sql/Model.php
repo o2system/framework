@@ -15,7 +15,7 @@ namespace O2System\Framework\Models\Sql;
 
 // ------------------------------------------------------------------------
 
-use O2System\Database\DataObjects\Result;
+use O2System\Framework\Models\Sql\DataObjects\Result;
 use O2System\Framework\Models\Sql\DataObjects\Result\Row;
 use O2System\Framework\Models\Sql\Traits\FinderTrait;
 use O2System\Framework\Models\Sql\Traits\ModifierTrait;
@@ -227,7 +227,7 @@ class Model
             $this->table = underscore($modelClassName);
         }
 
-        $this->result = new Result([]);
+        $this->result = new Result(new \O2System\Database\DataObjects\Result([]), $this);
 
         // Fetch sub-models
         $this->fetchSubModels();

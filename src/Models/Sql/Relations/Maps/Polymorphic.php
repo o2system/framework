@@ -41,7 +41,7 @@ class Polymorphic extends AbstractMap
      *
      * @param \O2System\Framework\Models\Sql\Model        $objectModel
      * @param string|\O2System\Framework\Models\Sql\Model $associativeModel
-     * @param string                                    $morphKey
+     * @param string                                      $morphKey
      */
     public function __construct(
         Model $objectModel,

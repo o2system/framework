@@ -297,15 +297,31 @@ class View implements RenderableInterface
             return realpath($filename);
         } else {
             $pagesDirectories = [
-                modules()->top()->getRealPath() . 'Pages' . DIRECTORY_SEPARATOR,
-                modules()->top()->getRealPath() . 'Pages' . DIRECTORY_SEPARATOR . language()->getDefault() . DIRECTORY_SEPARATOR,
-                PATH_RESOURCES . modules()->top()->getParameter() . DIRECTORY_SEPARATOR . 'pages' . DIRECTORY_SEPARATOR,
-                PATH_RESOURCES . modules()->top()->getParameter() . DIRECTORY_SEPARATOR . 'pages' . DIRECTORY_SEPARATOR . language()->getDefault() . DIRECTORY_SEPARATOR,
                 PATH_APP . 'Pages' . DIRECTORY_SEPARATOR,
                 PATH_APP . 'Pages' . DIRECTORY_SEPARATOR . language()->getDefault() . DIRECTORY_SEPARATOR,
                 PATH_RESOURCES . 'pages' . DIRECTORY_SEPARATOR,
                 PATH_RESOURCES . 'pages' . DIRECTORY_SEPARATOR . language()->getDefault() . DIRECTORY_SEPARATOR,
             ];
+
+            if(globals()->offsetExists('app') and globals()->app->getDirname() !== 'app') {
+                array_unshift($pagesDirectories, globals()->app->getPath()  . DIRECTORY_SEPARATOR. 'Pages' . DIRECTORY_SEPARATOR);
+                array_unshift($pagesDirectories, globals()->app->getPath()  . DIRECTORY_SEPARATOR. 'Pages' . DIRECTORY_SEPARATOR . language()->getDefault() . DIRECTORY_SEPARATOR);
+                array_unshift($pagesDirectories, PATH_RESOURCES . globals()->app->getParameter() . DIRECTORY_SEPARATOR . 'pages' . DIRECTORY_SEPARATOR);
+                array_unshift($pagesDirectories, PATH_RESOURCES . globals()->app->getParameter() . DIRECTORY_SEPARATOR . 'pages' . DIRECTORY_SEPARATOR . language()->getDefault() . DIRECTORY_SEPARATOR);
+
+                if(globals()->offsetExists('module')) {
+                    array_unshift($pagesDirectories, globals()->module->getPath()  . DIRECTORY_SEPARATOR. 'Pages' . DIRECTORY_SEPARATOR);
+                    array_unshift($pagesDirectories, globals()->module->getPath()  . DIRECTORY_SEPARATOR. 'Pages' . language()->getDefault() . DIRECTORY_SEPARATOR);
+                    array_unshift($pagesDirectories, PATH_RESOURCES . globals()->app->getParameter() . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . globals()->module->getParameter() . DIRECTORY_SEPARATOR . 'pages' . DIRECTORY_SEPARATOR);
+                    array_unshift($pagesDirectories, PATH_RESOURCES . globals()->app->getParameter() . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . globals()->module->getParameter() . DIRECTORY_SEPARATOR . 'pages' . language()->getDefault() . DIRECTORY_SEPARATOR);
+                }
+            } elseif(globals()->offsetExists('module')) {
+                array_unshift($pagesDirectories, globals()->module->getPath()  . DIRECTORY_SEPARATOR. 'Pages' . DIRECTORY_SEPARATOR);
+                array_unshift($pagesDirectories, globals()->module->getPath()  . DIRECTORY_SEPARATOR. 'Pages' . DIRECTORY_SEPARATOR . language()->getDefault() . DIRECTORY_SEPARATOR);
+
+                array_unshift($pagesDirectories, PATH_RESOURCES . 'modules' . DIRECTORY_SEPARATOR . globals()->module->getParameter() . DIRECTORY_SEPARATOR . 'pages' . DIRECTORY_SEPARATOR);
+                array_unshift($pagesDirectories, PATH_RESOURCES . 'modules' . DIRECTORY_SEPARATOR . globals()->module->getParameter() . DIRECTORY_SEPARATOR . 'pages' . language()->getDefault() . DIRECTORY_SEPARATOR);
+            }
 
             if(presenter()->theme) {
                 array_unshift($pagesDirectories, presenter()->theme->getRealPath() . 'pages' . DIRECTORY_SEPARATOR . language()->getDefault() . DIRECTORY_SEPARATOR);
@@ -313,7 +329,7 @@ class View implements RenderableInterface
             }
 
             foreach ($pagesDirectories as $pageDirectory) {
-                foreach (['.php','.phtml', '.html', '.vue', '.jsx'] as $pageExtension) {
+                foreach (['.phtml', '.php', '.html', '.vue', '.jsx'] as $pageExtension) {
                     // Find specific view file for mobile version
                     if (services('userAgent')->isMobile()) {
                         // Find without controller parameter as sub directory
@@ -361,13 +377,24 @@ class View implements RenderableInterface
             return realpath($filename);
         } else {
             $viewsDirectories = [
-                modules()->top()->getRealPath() . 'Views' . DIRECTORY_SEPARATOR,
-                PATH_RESOURCES . modules()->top()->getParameter() . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR,
                 PATH_APP . 'Views' . DIRECTORY_SEPARATOR,
                 PATH_RESOURCES . 'views' . DIRECTORY_SEPARATOR,
                 PATH_FRAMEWORK . 'Views' . DIRECTORY_SEPARATOR,
                 PATH_KERNEL . 'Views' . DIRECTORY_SEPARATOR
             ];
+
+            if(globals()->offsetExists('app') and globals()->app->getDirname() !== 'app') {
+                array_unshift($viewsDirectories, globals()->app->getPath()  . DIRECTORY_SEPARATOR. 'Views' . DIRECTORY_SEPARATOR);
+                array_unshift($viewsDirectories, PATH_RESOURCES . globals()->app->getParameter() . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR);
+
+                if(globals()->offsetExists('module')) {
+                    array_unshift($viewsDirectories, globals()->module->getPath()  . DIRECTORY_SEPARATOR. 'Views' . DIRECTORY_SEPARATOR);
+                    array_unshift($viewsDirectories, PATH_RESOURCES . globals()->app->getParameter() . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . globals()->module->getParameter() . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR);
+                }
+            } elseif(globals()->offsetExists('module')) {
+                array_unshift($viewsDirectories, globals()->module->getPath()  . DIRECTORY_SEPARATOR. 'Views' . DIRECTORY_SEPARATOR);
+                array_unshift($viewsDirectories, PATH_RESOURCES . 'modules' . DIRECTORY_SEPARATOR . globals()->module->getParameter() . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR);
+            }
 
             if(presenter()->theme) {
                 array_unshift($viewsDirectories, presenter()->theme->getRealPath() . 'views' . DIRECTORY_SEPARATOR);
@@ -817,6 +844,10 @@ class View implements RenderableInterface
             'href' => '/manifest.json',
         ]);
 
+        if(controller()->getReflection()->hasMethod('output')) {
+            controller()->getInstance()->output($this->document);
+        }
+
         $htmlOutput = $this->document->saveHTML();
 
         // Uglify Output
@@ -861,6 +892,21 @@ class View implements RenderableInterface
 
         if (profiler() !== false) {
             profiler()->watch('Ending View Rendering');
+        }
+
+        // Injecting Clickjacking Protection
+        if(config()->security['protection']['clickjacking']) {
+            output()->sendHeader('X-Frame-Options', 'ALLOW-FROM ' . domain_url());
+
+            $securityPolicy = 'frame-ancestors ';
+
+            if(server_request()->getUri()->domain->getNumOfTlds()) {
+                $securityPolicy .= '*.' . server_request()->getUri()->domain->getMainDomain();
+            } else {
+                $securityPolicy .= "'self'";
+            }
+
+            output()->sendHeader('Content-Security-Policy', $securityPolicy);
         }
 
         return $htmlOutput;

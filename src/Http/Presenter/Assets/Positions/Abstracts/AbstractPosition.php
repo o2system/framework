@@ -53,18 +53,10 @@ abstract class AbstractPosition
             return $realPath;
         }
 
-        return (new Uri())
-            ->withQuery(null)
-            ->withSegments(
-                new Uri\Segments(
-                    str_replace(
-                        [PATH_PUBLIC, DIRECTORY_SEPARATOR],
-                        ['', '/'],
-                        $realPath
-                    )
-                )
-            )
-            ->__toString();
+        $realPath = str_replace(PATH_PUBLIC, '', $realPath);
+        $realPath = str_replace(['\\', '/'], '/', $realPath);
+
+        return base_url($realPath);
     }
 
     // ------------------------------------------------------------------------

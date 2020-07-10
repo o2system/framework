@@ -180,10 +180,9 @@ class Users extends Restful
                             }
 
                             $this->sendPayload([
-                                'ssid' => globals()->account->session->ssid,
-                                'jwt' => globals()->account->session->jwt,
-                                'timestamp' => gmdate('D, d M Y H:i:s e', strtotime(globals()->account->session->timestamp)),
-                                'expires' => gmdate('D, d M Y H:i:s e', strtotime(globals()->account->session->expires))
+                                'ssid' => session()->ssid,
+                                'jwt' => session()->jwt,
+                                'expires' => gmdate('D, d M Y H:i:s e', strtotime(session()->expires))
                             ]);
                         } else {
                             $this->sendPayload([

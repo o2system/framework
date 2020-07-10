@@ -16,6 +16,7 @@ namespace O2System\Framework\Models\Sql\System;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Models\Sql\Model;
+use O2System\Spl\DataStructures\SplArrayObject;
 
 /**
  * Class Settings
@@ -40,5 +41,17 @@ class Settings extends Model
     public function ownership()
     {
         return $this->morphTo();
+    }
+
+    public function fetch(): SplArrayObject
+    {
+        $metadata = new SplArrayObject();
+
+        if ($result = $this->all()) {
+            foreach ($result as $row) {
+                $metadata->offsetSet($row->key, $row->value);
+            }
+        }
+        return $metadata;
     }
 }

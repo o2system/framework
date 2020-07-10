@@ -43,4 +43,15 @@ class Actions extends Model
         return $this->belongsTo(Users::class, 'id_sys_user');
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Actions::reference
+     *
+     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
+    public function reference()
+    {
+        return $this->morphTo();
+    }
 }

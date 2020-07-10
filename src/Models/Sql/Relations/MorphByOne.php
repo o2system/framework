@@ -19,11 +19,11 @@ use O2System\Database\DataObjects\Result;
 use O2System\Framework\Models\Sql;
 
 /**
- * Class MorphByMany
+ * Class MorphByOne
  *
  * @package O2System\Framework\Models\Sql\Relations
  */
-class MorphByMany extends Sql\Relations\Abstracts\AbstractRelation
+class MorphByOne extends Sql\Relations\Abstracts\AbstractRelation
 {
     /**
      * MorphByMany::getResult
@@ -51,10 +51,14 @@ class MorphByMany extends Sql\Relations\Abstracts\AbstractRelation
                 ])
         );
 
-        if ($result = $this->map->associateModel->qb->get()) {
+        if ($result = $this->map->associateModel->qb->limit(1)->get()) {
             $this->map->associateModel->result = new Sql\DataObjects\Result($result, $this->map->associateModel);
+
+            if ($this->map->associateModel->result->count() == 1) {
+                return $this->map->associateModel->result->first();
+            }
         }
 
-        return $this->map->associateModel->result;
+        return false;
     }
 }

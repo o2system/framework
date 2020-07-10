@@ -32,29 +32,19 @@ class MorphToMany extends Sql\Relations\Abstracts\AbstractRelation
      */
     public function getResult()
     {
-        $morphKey = plural($this->map->morphKey);
-        $this->map->setIntermediary($intermediaryModel = get_class($this->map->associateModel) . '\\' . studlycase($morphKey));
-
-        if( ! $this->map->intermediaryModel instanceof $intermediaryModel) {
-            $this->map->setIntermediary($this->map->associateTable . '_' . underscore($morphKey));
-        }
-
         $morphKey = singular($this->map->morphKey);
-        $this->map->associateModel->qb->whereIn(
-            $this->map->associateTable . '.' . $this->map->associatePrimaryKey,
-            $this->map->associateModel->qb->subQuery()
-                ->from($this->map->intermediaryTable)
-                ->select($this->map->intermediaryTable . '.' . $this->map->intermediaryAssociateForeignKey)
-                ->where([
-                    $this->map->intermediaryTable . '.' . $morphKey . '_id' => $this->map->objectModel->row->offsetGet($this->map->objectPrimaryKey),
-                    $this->map->intermediaryTable . '.' . $morphKey . '_model' => get_class($this->map->objectModel)
-            ])
-        );
+        $this->map->associateModel->qb
+            ->select($this->map->associateTable . '.*')
+            ->from($this->map->associateTable)
+            ->where([
+                $this->map->associateTable . '.' . $morphKey . '_id' => $this->map->objectModel->row->offsetGet($this->map->objectPrimaryKey),
+                $this->map->associateTable . '.' . $morphKey . '_model' => get_class($this->map->objectModel)
+            ]);
 
-        if ($result = $this->map->associateModel->all()) {
-            return $result;
+        if ($result = $this->map->associateModel->qb->get()) {
+            $this->map->associateModel->result = new Sql\DataObjects\Result($result, $this->map->associateModel);
         }
 
-        return new Result([]);
+        return $this->map->associateModel->result;
     }
 }

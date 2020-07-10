@@ -45,12 +45,6 @@ class MorphOne extends Sql\Relations\Abstracts\AbstractRelation
 
         $conditions[ $this->map->associateTable . '.' . $morphKey . '_model' ] = get_class($this->map->objectModel);
 
-        if ($result = $this->map->associateModel->findWhere($conditions)) {
-            if ($result->count()) {
-                return $result->first();
-            }
-        }
-
-        return false;
+        return $this->map->associateModel->findWhere($conditions, 1);
     }
 }

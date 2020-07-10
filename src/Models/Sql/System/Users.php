@@ -15,8 +15,9 @@ namespace O2System\Framework\Models\Sql\System;
 
 // ------------------------------------------------------------------------
 
+use App\Models\People;
 use O2System\Framework\Models\Sql\Model;
-use O2System\Framework\Models\Sql\Traits\MetadataTrait;
+use O2System\Framework\Models\Sql\Traits\SettingsTrait;
 
 /**
  * Class Users
@@ -24,6 +25,8 @@ use O2System\Framework\Models\Sql\Traits\MetadataTrait;
  */
 class Users extends Model
 {
+    use SettingsTrait;
+
     /**
      * Users::$table
      *
@@ -37,8 +40,7 @@ class Users extends Model
      * @var array
      */
     public $appendColumns = [
-        'profile',
-        'type'
+        'profile'
     ];
 
     /**
@@ -55,39 +57,53 @@ class Users extends Model
      *
      * @param array $sets
      *
-     * @return void
+     * @return bool
      */
     protected function beforeInsert(array &$sets)
     {
         if (key_exists('password_confirm', $sets)) {
             if ($sets[ 'password_confirm' ] !== $sets[ 'password' ]) {
-                session()->setFlash('danger', 'password not equal');
+                if (services()->has('session') and $this->flashMessage) {
+                    session()->setFlash('danger', language('E_PASSWORD_NOT_EQUAL'));
+                }
 
-                return;
+                return false;
             }
+
             unset($sets[ 'password_confirm' ]);
         }
 
-//        $sets['password'] = services('user')->passwordHash($sets['password']);
+        if (count($this->findWhere([
+            'email' => $sets[ 'email' ],
+        ]))) {
+            if (services()->has('session') and $this->flashMessage) {
+                session()->setFlash('danger', language('E_EMAIL_EXISTS'));
+            }
 
-        //if has exits email
-        if ($this->hasExist('email', $sets[ 'email' ])) {
-//            session()->setFlash('danger', 'email has exist');
-            return;
-        }
-        //if has msisdn
-
-        if ($this->hasExist('msisdn', $sets[ 'msisdn' ])) {
-//            session()->setFlash('danger', 'number phone has exist');
-            return;
+            return false;
         }
 
-        //if has username
+        if (count($this->findWhere([
+            'msisdn' => $sets[ 'msisdn' ],
+        ]))) {
+            if (services()->has('session') and $this->flashMessage) {
+                session()->setFlash('danger', language('E_MSISDN_EXISTS'));
+            }
 
-        if ($this->hasExist('username', $sets[ 'username' ])) {
-//            session()->setFlash('danger', 'username has exist');
-            return;
+            return false;
         }
+
+        if (count($this->findWhere([
+            'username' => $sets[ 'username' ],
+        ]))) {
+            if (services()->has('session') and $this->flashMessage) {
+                session()->setFlash('danger', language('E_USERNAME_EXISTS'));
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     // ------------------------------------------------------------------------
@@ -99,28 +115,7 @@ class Users extends Model
      */
     public function modules()
     {
-        return $this->hasManyThrough(Modules::class, Modules\Users::class);
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Users::hasExist
-     *
-     * @param $field
-     * @param $value
-     *
-     * @return bool
-     */
-    protected function hasExist($field, $value)
-    {
-        if (count($this->findWhere([
-            $field => $value,
-        ]))) {
-            return true;
-        }
-
-        return false;
+        return $this->hasManyThrough(Modules::class, Users\Modules::class);
     }
 
     // ------------------------------------------------------------------------
@@ -132,64 +127,7 @@ class Users extends Model
      */
     public function profile()
     {
-        if (globals()->has('module')) {
-            if ( ! empty(globals()->module->user->profile)) {
-                return globals()->module->user->profile;
-            }
-        }
-
-        models(Users\Profiles::class)->hideColumns = [
-            'id_sys_user'
-        ];
-
-        return $this->hasOne(Users\Profiles::class, 'id_sys_user');
+        return $this->morphOneThrough(People::class, Relationships::class, 'relation');
     }
     // ------------------------------------------------------------------------
-
-    /**
-     * Users::type
-     *
-     * @return string
-     */
-    public function type()
-    {
-        return 'PEOPLE';
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Users::tags
-     *
-     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
-     */
-    public function tags()
-    {
-        return $this->hasMany(Users\Tags::class);
-    }
-    // ------------------------------------------------------------------------
-
-    /**
-     * Users::actions
-     *
-     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
-     */
-    public function actions()
-    {
-        return $this->hasMany(Users\Actions::class, 'id_sys_user');
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Users::storage
-     *
-     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
-     */
-    public function storage()
-    {
-        return $this->morphOne(Storage::class, 'ownership');
-    }
-
-    
 }

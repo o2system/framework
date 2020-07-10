@@ -137,10 +137,10 @@ class Make extends Commander
      */
     public function optionFilename($name)
     {
-        $name = str_replace('.php', '', $name);
-        $this->optionFilename = prepare_filename($name) . '.php';
+        $pathinfo = pathinfo($name);
+        $this->optionFilename = $pathinfo['filename'] . '.' . (empty($pathinfo['extension']) ? 'php' : $pathinfo['extension']);
 
-        $this->optionPath = empty($this->optionPath) ? modules()->top()->getRealPath() : $this->optionPath;
+        $this->optionPath = empty($pathinfo['dirname']) || $pathinfo['dirname'] === '.' ? $this->optionPath : $pathinfo['dirname'] . DIRECTORY_SEPARATOR;
 
         return $this;
     }

@@ -207,9 +207,13 @@ class Router extends KernelRouter
             } elseif (class_exists($pagesModelClassName = modules()->top()->getNamespace() . 'Models\Pages')) {
                 models()->load($pagesModelClassName, 'controller');
 
-                if (false !== ($page = models('controller')->find($this->uri->segments->__toString(), 'segments'))) {
+                if (false !== ($page = models('controller')->findWhere([
+                        'slug' => $this->uri->segments->__toString()
+                    ], 1))) {
                     if (isset($page->content)) {
-                        presenter()->partials->offsetSet('content', $page->content);
+                        foreach($page as $offset => $value) {
+                            presenter()->page->offsetSet($offset, $value);
+                        }
 
                         if (class_exists($spaControllerClassName = modules()->top()->getNamespace() . 'Controllers\Pages')) {
                             $this->setController(

@@ -28,6 +28,7 @@ class Router extends \O2System\Kernel\Cli\Router
     {
         parent::__construct();
         
-        $this->addFilePath(PATH_FRAMEWORK);
+        $this->addFilePath(PATH_FRAMEWORK . 'Cli' . DIRECTORY_SEPARATOR);
+        $this->addFilePath(PATH_APP);
     }
 }

@@ -16,29 +16,42 @@ namespace O2System\Framework\Models\Sql\System;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Models\Sql\Model;
+use O2System\Framework\Models\Sql\System\Sessions\Trails;
 
 /**
- * Class Repeaters
+ * Class Sessions
  * @package O2System\Framework\Models\Sql\System
  */
-class Repeaters extends Model
+class Sessions extends Model
 {
     /**
-     * Repeaters::$table
+     * Sessions::$table
      *
      * @var string
      */
-    public $table = 'sys_repeaters';
+    public $table = 'sys_sessions';
 
     // ------------------------------------------------------------------------
 
     /**
-     * Repeaters::ownership
+     * Sessions::ownership
      *
-     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
     public function ownership()
     {
         return $this->morphTo();
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Sessions::trails
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function trails()
+    {
+        return $this->hasMany(Trails::class);
     }
 }

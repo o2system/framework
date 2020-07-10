@@ -36,7 +36,10 @@ class Modules extends Model
      *
      * @var array
      */
-    public $appendColumns = [];
+    public $appendColumns = [
+        'module',
+        'role'
+    ];
 
     // ------------------------------------------------------------------------
 

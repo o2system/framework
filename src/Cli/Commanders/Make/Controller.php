@@ -64,7 +64,9 @@ class Controller extends Make
      */
     public function execute()
     {
-        $this->__callOptions();
+        if(empty($this->optionFilename)) {
+            parent::execute();
+        }
 
         if (empty($this->optionFilename)) {
             output()->write(
@@ -91,9 +93,9 @@ class Controller extends Make
         }
 
         if (strpos($this->optionPath, $controllerDir) === false) {
-            $filePath = $this->optionPath . $controllerDir . DIRECTORY_SEPARATOR . $this->optionFilename;
+            $filePath = $this->optionPath . $controllerDir . DIRECTORY_SEPARATOR . str_replace($this->optionPath, '', $this->optionFilename);
         } else {
-            $filePath = $this->optionPath . $this->optionFilename;
+            $filePath = $this->optionPath . str_replace($this->optionPath, '', $this->optionFilename);
         }
 
         $fileDirectory = dirname($filePath) . DIRECTORY_SEPARATOR;
@@ -114,14 +116,9 @@ class Controller extends Make
         }
 
         $className = prepare_class_name(pathinfo($filePath, PATHINFO_FILENAME));
-        @list($namespaceDirectory, $subNamespace) = explode($controllerDir, str_replace(['\\','/'], '\\', dirname($filePath)));
-        $subNamespace = rtrim($subNamespace, '\\');
 
-        $classNamespace = loader()->getDirNamespace(
-                $namespaceDirectory
-            ) . $controllerDir . (empty($subNamespace)
-                ? null
-                : $subNamespace) . '\\';
+        $classNamespace = str_replace(PATH_APP, 'App\\', dirname($filePath));
+        $classNamespace = str_replace(['\\','/'], '\\', $classNamespace);
 
         $vars[ 'CREATE_DATETIME' ] = date('d/m/Y H:m');
         $vars[ 'NAMESPACE' ] = trim($classNamespace, '\\');

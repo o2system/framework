@@ -505,8 +505,8 @@ class Loader implements AutoloadInterface
             PATH_APP . 'Helpers' . DIRECTORY_SEPARATOR,
         ];
 
-        if (method_exists(modules(), 'current')) {
-            array_push($helperDirectories, modules()->top()->getPath() . 'Helpers' . DIRECTORY_SEPARATOR);
+        if (globals()->offsetExists('app')) {
+            array_push($helperDirectories, globals()->app->getPath() . DIRECTORY_SEPARATOR . 'Helpers' . DIRECTORY_SEPARATOR);
         }
 
         if ( ! array_key_exists($helper, $this->loadedHelpers)) {

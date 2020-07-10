@@ -11,47 +11,52 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\Sql\System;
+namespace O2System\Framework\Models\Sql\System\Modules;
 
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Models\Sql\Model;
+use O2System\Framework\Models\Sql\System\Modules;
 
 /**
- * Class Logs
- * @package O2System\Framework\Models\Sql\System
+ * Class Roles
+ * @package O2System\Framework\Models\Sql\System\Modules
  */
-class Logs extends Model
+class Roles extends Model
 {
     /**
-     * Logs::$table
+     * Roles::$table
      *
      * @var string
      */
-    public $table = 'sys_logs';
+    public $table = 'sys_modules_roles';
 
     // ------------------------------------------------------------------------
 
     /**
-     * Logs::__construct
-     * @throws \ReflectionException
+     * Roles::module
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
-    public function __construct()
+    public function module()
     {
-        parent::__construct();
-
-        $this->qb->orderBy($this->primaryKey, 'DESC');
+        return $this->belongsTo(Modules::class);
     }
 
     // ------------------------------------------------------------------------
 
     /**
-     * Logs::ownership
+     * Roles::authorities
      *
-     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function ownership()
+    public function authorities()
     {
-        return $this->morphTo();
+        models(Modules\Roles\Authorities::class)->appendColumns = [
+            'role',
+            'endpoint'
+        ];
+
+        return $this->hasMany(Modules\Roles\Authorities::class);
     }
 }

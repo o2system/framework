@@ -253,6 +253,18 @@ class Framework extends Kernel
             $this->services->load($className, $classOffset);
         }
 
+        // Instantiate Globals Container
+        if (profiler() !== false) {
+            profiler()->watch('Starting Globals Container');
+        }
+        $this->globals = new Kernel\DataStructures\Input\Globals();
+
+        // Instantiate Environment Container
+        if (profiler() !== false) {
+            profiler()->watch('Starting Environment Container');
+        }
+        $this->env = new Kernel\DataStructures\Input\Env();
+
         // Instantiate Config Container
         if (profiler() !== false) {
             profiler()->watch('Starting Config Container');
@@ -281,18 +293,6 @@ class Framework extends Kernel
 
         // Instantiate Loader Service
         $this->services->load('Services\Loader', 'loader');
-
-        // Instantiate Globals Container
-        if (profiler() !== false) {
-            profiler()->watch('Starting Globals Container');
-        }
-        $this->globals = new Kernel\DataStructures\Input\Globals();
-
-        // Instantiate Environment Container
-        if (profiler() !== false) {
-            profiler()->watch('Starting Environment Container');
-        }
-        $this->env = new Kernel\DataStructures\Input\Env();
 
         // Instantiate Models Container
         if (profiler() !== false) {
@@ -330,7 +330,7 @@ class Framework extends Kernel
 
         if (is_cli()) {
             // Instantiate CLI Router Service
-            $this->services->load(Kernel\Cli\Router::class);
+            $this->services->load(Framework\Cli\Router::class);
 
             $this->cliHandler();
         } else {
@@ -385,7 +385,7 @@ class Framework extends Kernel
                 }
                 $requestCommander = $commander->getInstance();
 
-                if (method_exists($requestController, '__reconstruct')) {
+                if (method_exists($requestCommander, '__reconstruct')) {
                     $requestCommander->__reconstruct();
                 }
 
@@ -441,12 +441,12 @@ class Framework extends Kernel
         }
 
         if($this->modules instanceof Framework\Containers\Modules) {
-            if(empty($this->config->get('app'))) {
-                $app = (new Framework\Containers\Modules\DataStructures\Module(PATH_APP))
-                    ->setType('APP')
-                    ->setNamespace('App\\');
-                $this->modules->register($app);
-            } else {
+            $app = (new Framework\Containers\Modules\DataStructures\Module(PATH_APP))
+                ->setType('APP')
+                ->setNamespace('App\\');
+            $this->modules->register($app);
+
+            if($this->config->get('app') !== null) {
                 $app = (new Framework\Containers\Modules\DataStructures\Module(PATH_APP .  $this->config->get('app') . DIRECTORY_SEPARATOR))
                     ->setType('APP')
                     ->setNamespace('App\\' . studlycase($this->config->get('app')) . '\\');
@@ -612,6 +612,10 @@ class Framework extends Kernel
                     }
                 } elseif ($this->services->has('view')) {
                     if (empty($requestControllerOutput) or $requestControllerOutput === '') {
+                        if(presenter()->page->offsetExists('content')) {
+                            presenter()->partials->offsetSet('content', presenter()->page->offsetGet('content'));
+                        }
+
                         if(presenter()->partials->offsetExists('content')) {
                             $htmlOutput = view()->render();
 

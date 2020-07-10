@@ -88,12 +88,16 @@ class Result extends \O2System\Database\DataObjects\Result
      */
     public function pagination()
     {
-        $rows = $this->info->num_rows;
-        $rows = empty($rows) ? 0 : $rows;
+        if(view()->getFilePath('components/pagination')) {
+            return view('components/pagination', ['result' => $this], true);
+        } else {
+            $rows = $this->info->num_rows;
+            $rows = empty($rows) ? 0 : $rows;
 
-        $limit = input()->get('limit');
-        $limit = empty($limit) ? $this->info->limit : $limit;
+            $limit = input()->get('limit');
+            $limit = empty($limit) ? $this->info->limit : $limit;
 
-        return new Pagination($rows, $limit);
+            return new Pagination($rows, $limit);
+        }
     }
 }

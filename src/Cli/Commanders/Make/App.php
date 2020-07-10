@@ -60,7 +60,7 @@ class App extends Make
      */
     public function execute()
     {
-        $this->__callOptions();
+        parent::execute();
 
         if (empty($this->optionName)) {
             output()->write(

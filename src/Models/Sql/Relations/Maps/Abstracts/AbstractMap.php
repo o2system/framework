@@ -181,5 +181,9 @@ abstract class AbstractMap
         if (empty($this->objectForeignKey)) {
             $this->objectForeignKey = $this->getTableKey($this->associateTable, $this->associatePrimaryKey);
         }
+
+        if (empty($this->associateForeignKey)) {
+            $this->associateForeignKey = $this->getTableKey($this->objectTable, $this->objectPrimaryKey);
+        }
     }
 }

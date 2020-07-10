@@ -48,27 +48,4 @@ class Calendars extends Model
     {
         return $this->morphTo();
     }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Calendars::users
-     *
-     * @return array|bool|\O2System\Database\DataObjects\Result
-     */
-    public function tags()
-    {
-        models(Tags::class)->appendColumns = [
-            'tag',
-        ];
-
-        models(Tags::class)->hideColumns = [
-            'ownership_id',
-            'ownership_model',
-            'tag_id',
-            'tag_model'
-        ];
-
-        return $this->morphMany(Tags::class, 'ownership');
-    }
 }

@@ -25,7 +25,7 @@ use O2System\Spl\Info\SplFileInfo;
 /**
  * Class Page
  *
- * @package App\DataStructures
+ * @package O2System\Framework\Http\Presenter
  */
 class Page extends AbstractRepository
 {

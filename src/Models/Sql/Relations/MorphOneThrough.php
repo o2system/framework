@@ -32,28 +32,56 @@ class MorphOneThrough extends Sql\Relations\Abstracts\AbstractRelation
      */
     public function getResult()
     {
-        $morphKey = plural($this->map->morphKey);
-        $this->map->setIntermediary($intermediaryModel = get_class($this->map->associateModel) . '\\' . studlycase($morphKey));
+        if(empty($this->map->objectModel->primaryKeys)) {
+            $ownershipIdField = $this->map->objectModel->table . '.' . $this->map->objectModel->primaryKey;
+            $conditions = [
+                $this->map->intermediaryModel->table . '.ownership_id' => $this->map->objectModel->row->offsetGet($this->map->objectPrimaryKey)
+            ];
+        } else {
+            $ownershipId = [];
+            $ownershipIdField = 'CONCAT(';
+            $i = 0;
+            foreach($this->map->objectModel->primaryKeys as $primaryKey) {
+                $ownershipIdField.= $this->map->objectModel->table . '.' . $primaryKey;
 
-        if( ! $this->map->intermediaryModel instanceof $intermediaryModel) {
-            $this->map->setIntermediary($this->map->associateTable . '_' . underscore($morphKey));
+                if($i == 0 and $i != count($this->map->objectModel->primaryKeys)) {
+                    $ownershipIdField.= ', "-", ';
+                }
+
+                $ownershipId[] = $this->map->objectModel->row->offsetGet($primaryKey);
+
+                $i++;
+            }
+            $ownershipIdField.= ')';
+
+            $conditions = [
+                $this->map->intermediaryModel->table . '.ownership_id' => implode('-', $ownershipId)
+            ];
         }
 
-        $morphKey = singular($this->map->morphKey);
-        $this->map->associateModel->qb->whereIn(
-            $this->map->associateTable . '.' . $this->map->associatePrimaryKey,
-            $this->map->associateModel->qb->subQuery()
-                ->from($this->map->intermediaryTable)
-                ->select($this->map->intermediaryTable . '.' . $this->map->intermediaryAssociateForeignKey)
-                ->where([
-                    $this->map->intermediaryTable . '.' . $morphKey . '_id' => $this->map->objectModel->row->offsetGet($this->map->objectPrimaryKey),
-                    $this->map->intermediaryTable . '.' . $morphKey . '_model' => get_class($this->map->objectModel)
-                ])
-        );
+        $this->map->associateModel->qb
+            ->select($this->map->associateModel->table . '.*')
+            ->from($this->map->associateModel->table)
+            ->whereIn('id', $this->map->associateModel->qb->subQuery()
+                ->select($this->map->intermediaryModel->table . '.' . $this->map->morphKey . '_id')
+                ->from($this->map->intermediaryModel->table)
+                ->join($this->map->objectModel->table,
+                    $this->map->intermediaryModel->table . '.ownership_id=' . $ownershipIdField .
+                    ' AND ' .
+                    $this->map->intermediaryModel->table . '.ownership_model="' . str_replace('\\', '\\\\', get_class($this->map->objectModel)) . '"'
+                    ,'INNER')
+                ->join($this->map->associateModel->table,
+                    $this->map->intermediaryModel->table . '.' . $this->map->morphKey . '_id=' . $this->map->associateModel->table . '.' . $this->map->associateModel->primaryKey .
+                    ' AND ' .
+                    $this->map->intermediaryModel->table . '.' . $this->map->morphKey . '_model="' . str_replace('\\', '\\\\', get_class($this->map->associateModel)) . '"'
+                    ,'INNER')
+                ->where($conditions));
 
-        if ($result = $this->map->associateModel->all()) {
-            if($result->count()) {
-                return $result->first();
+        if ($result = $this->map->associateModel->qb->limit(1)->get()) {
+            $this->map->associateModel->result = new Sql\DataObjects\Result($result, $this->map->associateModel);
+
+            if ($this->map->associateModel->result->count() == 1) {
+                return $this->map->associateModel->result->first();
             }
         }
 

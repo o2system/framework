@@ -59,6 +59,13 @@ class Meta extends AbstractRepository
 
         $this->offsetSet('language', language()->getDefault());
         $this->offsetSet('generator', FRAMEWORK_NAME . ' v' . FRAMEWORK_VERSION);
+
+        if(config()->security['protection']['clickjacking']) {
+            $this->offsetSet('X-Frame-Options', 'ALLOW-FROM ' . domain_url());
+            $this->offsetSet('Content-Security-Policy',
+                'frame-ancestors *.' . server_request()->getUri()->domain->getMainDomain());
+        }
+
         $this->offsetSet('url', current_url());
     }
 

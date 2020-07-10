@@ -31,6 +31,15 @@ class Comments extends Model
      */
     public $table = 'sys_users_comments';
 
+    /**
+     * Comments::$appendColumns
+     *
+     * @var array
+     */
+    public $appendColumns = [
+        'user'
+    ];
+
     // ------------------------------------------------------------------------
 
     /**
@@ -46,11 +55,11 @@ class Comments extends Model
     // ------------------------------------------------------------------------
 
     /**
-     * Comments::commentable
+     * Comments::reference
      *
      * @return mixed
      */
-    public function commentable()
+    public function reference()
     {
         return $this->morphTo();
     }

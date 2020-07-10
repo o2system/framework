@@ -130,37 +130,15 @@ abstract class AbstractList extends Element
     {
         if ($node->hasChildNodes()) {
             if ($node->childNodes->first() instanceof Link) {
+                $href = $node->childNodes->first()->getAttributeHref();
+                $segments = [];
 
-                $parseUrl = parse_url($node->childNodes->first()->getAttributeHref());
-                $parseUrlQuery = [];
-
-                if (isset($parseUrl[ 'query' ])) {
-                    parse_str($parseUrl[ 'query' ], $parseUrlQuery);
+                if(strpos($href, 'http') === false) {
+                    $segments = explode('/', $href);
                 }
 
-                if (isset($parseUrlQuery[ 'page' ])) {
-                    if (input()->get('page') === $parseUrlQuery[ 'page' ]) {
-                        $node->attributes->addAttributeClass('active');
-                        $node->childNodes->first()->attributes->addAttributeClass('active');
-                    }
-                } else {
-                    $hrefUriSegments = [];
-
-                    if (isset($parseUrl[ 'path' ])) {
-                        $hrefUriSegments = (new Uri\Segments($parseUrl[ 'path' ]))->getArrayCopy();
-                    }
-
-                    $currentUriSegments = server_request()->getUri()->segments->getArrayCopy();
-
-                    $matchSegments = array_slice($currentUriSegments, 0, count($hrefUriSegments));
-
-                    $stringHrefSegments = implode('/', $hrefUriSegments);
-                    $stringMatchSegments = implode('/', $matchSegments);
-
-                    if ($stringHrefSegments === $stringMatchSegments) {
-                        $node->attributes->addAttributeClass('active');
-                        $node->childNodes->first()->attributes->addAttributeClass('active');
-                    }
+                if(server_request()->getUri()->segments->has(reset($segments)) && server_request()->getUri()->segments->has(end($segments))) {
+                    $link->attributes->addAttributeClass('active');
                 }
             }
         }

@@ -393,4 +393,64 @@ class Row extends SplArrayObject
     {
         return $this->updateRecordStatus('draft');
     }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::merge
+     *
+     * @param array $values
+     * @return array
+     */
+    public function merge(array $values)
+    {
+        $storage = $this->getArrayCopy();
+
+        foreach($values as $key => $value) {
+            if(strpos($key, 'record_') !== false) {
+                $this->record->offsetSet(str_replace('record_', '', $key), $value);
+            } elseif(($currentValue = $this->offsetGet($key)) instanceof SplArrayObject) {
+                if(is_array($value)) {
+                    $currentValue->merge($value);
+                } elseif($value instanceof SplArrayObject) {
+                    $currentValue->merge($value->getArrayCopy());
+                }
+
+                $this->offsetSet($key, $currentValue);
+            } else {
+                $this->offsetSet($key, $value);
+            }
+        }
+
+        return $storage;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Row::getArrayCopy
+     *
+     * @return array|void
+     */
+    public function getArrayCopy()
+    {
+        $arrayCopy = parent::getArrayCopy();
+
+        foreach ($this->record as $key => $value) {
+            $recordKey = 'record_' . $key;
+            if(in_array($recordKey, ['record_create', 'record_update'])) {
+                foreach($value as $valueKey => $valueValue) {
+                    if($valueKey === 'timestamp') {
+                        $arrayCopy[$recordKey . '_' . $valueKey] = (string) $valueValue;
+                    } else {
+                        $arrayCopy[$recordKey . '_' . $valueKey] = $valueValue;
+                    }
+                }
+            } else {
+                $arrayCopy[$recordKey] = $value;
+            }
+        }
+
+        return $arrayCopy;
+    }
 }

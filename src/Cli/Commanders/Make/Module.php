@@ -64,7 +64,7 @@ class Module extends Make
      */
     public function execute()
     {
-        $this->__callOptions();
+        parent::execute();
 
         if (empty($this->optionName)) {
             output()->write(
@@ -131,15 +131,11 @@ class Module extends Make
 
         file_put_contents($filePath, $fileContent);
 
-        $this->optionPath = $modulePath;
-        $this->optionFilename = prepare_filename($this->optionName) . '.php';
-
-        (new Controller())
-            ->optionPath($this->optionPath)
-            ->optionFilename($this->optionFilename)
-            ->execute();
-
         if (is_dir($modulePath)) {
+            (new Controller())
+                ->optionFilename($modulePath . 'Controllers' . DIRECTORY_SEPARATOR . prepare_filename($this->optionName) . '.php')
+                ->execute();
+
             output()->write(
                 (new Format())
                     ->setContextualClass(Format::SUCCESS)

@@ -43,6 +43,7 @@ class Config extends Env
     public function __construct()
     {
         $this->setFileDirName('Config');
+        $this->addFilePath(PATH_KERNEL);
         $this->addFilePath(PATH_FRAMEWORK);
         $this->addFilePath(PATH_APP);
 
@@ -67,7 +68,7 @@ class Config extends Env
         $configFile = str_replace($basename, $filename, $offset);
         $offset = camelcase($basename);
 
-        $configFilePaths = array_reverse($this->filePaths);
+        $configFilePaths = $this->getFilePaths(true);
 
         foreach ($configFilePaths as $configFilePath) {
             if (is_file(

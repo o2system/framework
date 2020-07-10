@@ -16,6 +16,7 @@ namespace O2System\Framework\Services;
 // ------------------------------------------------------------------------
 
 use O2System\Cache\Item;
+use O2System\Framework\Models\Sql\System\Sessions;
 use O2System\Framework\Models\Sql\System\Users;
 use O2System\Security\Authentication\JsonWebToken;
 use O2System\Security\Authentication\User;
@@ -97,7 +98,7 @@ class AccessControl extends User
                         'password' => $this->passwordHash($password),
                     ]);
 
-                    models('users')->update($update, [
+                    models(Users::class)->update($update, [
                         'id' => $account->id
                     ]);
                 }
@@ -132,7 +133,7 @@ class AccessControl extends User
             $column = 'msisdn';
         }
 
-        if ($user = models('users')->findWhere([
+        if ($user = models(Users::class)->findWhere([
             $column => $username,
         ], 1)) {
             return $user;
@@ -197,43 +198,39 @@ class AccessControl extends User
                 }
             }
 
-            if ($sessionsModel = models('users')->sessions) {
-                $jwt = new JsonWebToken();
+            $jwt = new JsonWebToken();
 
-                $payload = $jwt->encode(array_merge($account, [
-                    'iat' => $timestamp = timestamp(),
-                    'exp' => $expires = timestamp(strtotime('+1 day'))
-                ]));
+            $jwt = $jwt->encode(array_merge($account, [
+                'iat' => $timestamp = timestamp(),
+                'exp' => $expires = timestamp(time() + config()->session['lifetime'])
+            ]));
 
-                $userAgent = input()->server('HTTP_USER_AGENT');
-                $ssid = substr(md5(json_encode($account) . $userAgent), -6, 10);
+            $userAgent = input()->server('HTTP_USER_AGENT');
+            $ssid = substr(md5(json_encode($account) . $userAgent), -6, 10);
 
-                $session = new SplArrayStorage();
-                $session->append([
-                    'id_sys_user' => $account['id'],
-                    'ssid' => $ssid,
-                    'jwt' => $payload,
-                    'timestamp' => $timestamp,
-                    'expires' => $expires,
-                    'useragent' => $userAgent
-                ]);
+            $session = new SplArrayStorage();
+            $session->append([
+                'id_session' => session_id(),
+                'ssid' => $ssid,
+                'jwt' => $jwt,
+                'timestamp' => $timestamp,
+                'expires' => $expires,
+                'useragent' => $userAgent,
+                'ownership_id' => $account['id'],
+                'ownership_model' => Users::class
+            ]);
 
-                if ($sessionsModel->insertOrUpdate($session, [
-                    'id_sys_user' => $account['id'],
-                    'ssid' => $ssid
-                ])) {
-                    $account['session'] = $sessionsModel->findWhere([
-                        'jwt' => $session['jwt']
-                    ], 1);
-                }
+            if (models(Sessions::class)->insertOrUpdate($session, [
+                'id_session' => session_id()
+            ])) {
+                session()->offsetSet('ssid', $ssid);
+                session()->offsetSet('jwt', $jwt);
+                session()->offsetSet('expires', $expires);
+                session()->offsetSet('timestamp', $timestamp);
+                session()->offsetSet('account', new Account($account));
+
+                return true;
             }
-
-            $account = new Account($account);
-
-            session()->store('account', $account);
-            globals()->store('account', $account);
-
-            return true;
         }
 
         return false;

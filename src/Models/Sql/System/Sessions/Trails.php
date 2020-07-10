@@ -11,22 +11,35 @@
 
 // ------------------------------------------------------------------------
 
-namespace O2System\Framework\Models\Sql\System;
+namespace O2System\Framework\Models\Sql\System\Sessions;
 
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Models\Sql\Model;
+use O2System\Framework\Models\Sql\System\Sessions;
 
 /**
- * Class Tags
+ * Class Trails
  * @package O2System\Framework\Models\Sql\System
  */
-class Tags extends Model
+class Trails extends Model
 {
     /**
-     * Tags::$table
+     * Trails::$table
      *
      * @var string
      */
-    public $table = 'sys_tags';
+    public $table = 'sys_sessions_trails';
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Trails::session
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function session()
+    {
+        return $this->belongsTo(Sessions::class);
+    }
 }

@@ -41,7 +41,7 @@ class Helper extends Make
      */
     public function execute()
     {
-        $this->__callOptions();
+        parent::execute();
 
         if (empty($this->optionFilename)) {
             output()->write(
