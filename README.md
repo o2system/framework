@@ -1,4 +1,4 @@
-[![O2System Framework](http://o2system.id/assets/img/logo/logo-200px.png)](http://o2system.id/assets/img/logo/logo-200px.png)
+![alt text](https://repository-images.githubusercontent.com/68261382/9385fa80-c578-11ea-8364-d99a54cb3465 "O2System Framework")
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/o2system/framework/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/o2system/framework/?branch=master)
 [![Build Status](https://scrutinizer-ci.com/g/o2system/framework/badges/build.png?b=master)](https://scrutinizer-ci.com/g/o2system/framework/build-status/master)
