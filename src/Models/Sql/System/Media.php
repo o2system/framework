@@ -66,4 +66,19 @@ class Media extends Model
 
         $row->url = $row->record->type === 'IMAGE' ? images_url($filePath) : storage_url($filePath);
     }
+
+    // ------------------------------------------------------------------------
+    /**
+     * Media::image
+     *
+     * @return string
+     */
+    public function image(): string
+    {
+        $image = PATH_STORAGE . 'images/' .$this->row->filepath;
+        if (is_file($image)) {
+            return images_url($image);
+        }
+        return images_url('/images/default/no-image.jpg');
+    }
 }

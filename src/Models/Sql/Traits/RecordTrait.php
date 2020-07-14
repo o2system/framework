@@ -14,6 +14,7 @@ namespace O2System\Framework\Models\Sql\Traits;
 
 // ------------------------------------------------------------------------
 
+use O2System\Session;
 use O2System\Spl\DataStructures\SplArrayStorage;
 
 /**
@@ -173,8 +174,10 @@ trait RecordTrait
     protected function updateRecordData(SplArrayStorage &$data)
     {
         if(is_null($this->recordUser)) {
-            if(session()->offsetExists('account')) {
-                $this->setRecordUser(session()->account->id);
+            if(session() instanceof Session) {
+                if(session()->offsetExists('account')) {
+                    $this->setRecordUser(session()->account->id);
+                }
             }
         }
 

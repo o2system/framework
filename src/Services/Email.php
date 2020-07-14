@@ -36,6 +36,10 @@ class Email extends Message
         if ($config = config()->loadFile('email', true)) {
             $this->setConfig($config->getArrayCopy());
         }
+
+        if(ENVIRONMENT === 'PRODUCTION') {
+            $this->config['debug'] = false;
+        }
     }
 
     // ------------------------------------------------------------------------

@@ -191,38 +191,40 @@ class Router extends KernelRouter
              * Try to find static page
              * ------------------------------------------------------------------------
              */
-            if (false !== ($pageFilePath = view()->getPageFilePath($this->uri->segments->__toString()))) {
-                presenter()->page->setFile($pageFilePath);
+            if(services()->has('view')){
+                if (false !== ($pageFilePath = view()->getPageFilePath($this->uri->segments->__toString()))) {
+                    presenter()->page->setFile($pageFilePath);
 
-                if($spaControllerClassName = $this->getControllerClassName('Pages')) {
-                    if (presenter()->page->file instanceof SplFileInfo) {
-                        $this->setController(
-                            (new KernelControllerDataStructure($spaControllerClassName))
-                                ->setRequestMethod('index')
-                        );
-
-                        return true;
-                    }
-                }
-            } elseif (class_exists($pagesModelClassName = modules()->top()->getNamespace() . 'Models\Pages')) {
-                models()->load($pagesModelClassName, 'controller');
-
-                if (false !== ($page = models('controller')->findWhere([
-                        'slug' => $this->uri->segments->__toString()
-                    ], 1))) {
-                    if (isset($page->content)) {
-                        foreach($page as $offset => $value) {
-                            presenter()->page->offsetSet($offset, $value);
-                        }
-
-                        if (class_exists($spaControllerClassName = modules()->top()->getNamespace() . 'Controllers\Pages')) {
+                    if($spaControllerClassName = $this->getControllerClassName('Pages')) {
+                        if (presenter()->page->file instanceof SplFileInfo) {
                             $this->setController(
                                 (new KernelControllerDataStructure($spaControllerClassName))
                                     ->setRequestMethod('index')
                             );
-                        }
 
-                        return true;
+                            return true;
+                        }
+                    }
+                } elseif (class_exists($pagesModelClassName = modules()->top()->getNamespace() . 'Models\Pages')) {
+                    models()->load($pagesModelClassName, 'controller');
+
+                    if (false !== ($page = models('controller')->findWhere([
+                            'slug' => $this->uri->segments->__toString()
+                        ], 1))) {
+                        if (isset($page->content)) {
+                            foreach($page as $offset => $value) {
+                                presenter()->page->offsetSet($offset, $value);
+                            }
+
+                            if (class_exists($spaControllerClassName = modules()->top()->getNamespace() . 'Controllers\Pages')) {
+                                $this->setController(
+                                    (new KernelControllerDataStructure($spaControllerClassName))
+                                        ->setRequestMethod('index')
+                                );
+                            }
+
+                            return true;
+                        }
                     }
                 }
             }
