@@ -24,8 +24,6 @@ namespace O2System;
  * By default development will show errors but testing and live will hide them.
  */
 
-use O2System\Kernel\Http\Message\Uri;
-
 switch (strtoupper(ENVIRONMENT)) {
     case 'DEVELOPMENT':
         error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT & ~E_USER_NOTICE & ~E_USER_DEPRECATED);
@@ -445,9 +443,9 @@ class Framework extends Kernel
                 ->setType('APP')
                 ->setNamespace('App\\');
             $this->modules->register($app);
-
+            
             if($this->config->get('app') !== null) {
-                $app = (new Framework\Containers\Modules\DataStructures\Module(PATH_APP .  $this->config->get('app') . DIRECTORY_SEPARATOR))
+                $app = (new Framework\Containers\Modules\DataStructures\Module(PATH_APP .  studlycase($this->config->get('app')) . DIRECTORY_SEPARATOR))
                     ->setType('APP')
                     ->setNamespace('App\\' . studlycase($this->config->get('app')) . '\\');
                 $this->modules->register($app);
@@ -608,7 +606,9 @@ class Framework extends Kernel
                     if(empty($requestControllerOutput) or $requestControllerOutput === '') {
                         output()->sendError(204);
                     } else {
-                        output()->sendPayload($requestControllerOutput);
+                        output()->sendPayload([
+                            'output' => $requestControllerOutput
+                        ]);
                     }
                 } elseif ($this->services->has('view')) {
                     if (empty($requestControllerOutput) or $requestControllerOutput === '') {

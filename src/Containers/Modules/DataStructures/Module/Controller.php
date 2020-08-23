@@ -93,7 +93,8 @@ class Controller extends SplClassInfo
                                 'settings',
                                 'setting',
                                 'sendError',
-                                'sendPayload'
+                                'sendPayload',
+                                'process'
                             ])) {
                         $methodSegments = $segments;
 

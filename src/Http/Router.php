@@ -166,22 +166,10 @@ class Router extends KernelRouter
                      */
                     if (class_exists($controllerClassName = $controllerNamespace . implode('\\',
                             array_map('studlycase', $uriRoutedSegments)))) {
-
-                        if ($controllerClassName::$inherited) {
-                            $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
-                            $this->setController(new KernelControllerDataStructure($controllerClassName),
-                                $uriSegments);
-                            return true;
-                            break; // break modular
-                            break; // break routed uri segments
-                        } else {
-                            $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
-                            $this->setController(new KernelControllerDataStructure($controllerClassName),
-                                $uriSegments);
-                            return true;
-                            break; // break modular
-                            break; // break routed uri segments
-                        }
+                        $uriSegments = array_diff($uriSegments, $uriRoutedSegments);
+                        $this->setController(new KernelControllerDataStructure($controllerClassName),
+                            $uriSegments);
+                        return true;
                     }
                 }
             }
@@ -308,7 +296,6 @@ class Router extends KernelRouter
 
             if (class_exists($controllerClassName)) {
                 return $controllerClassName;
-                break;
             }
         }
 

@@ -78,6 +78,13 @@ class Presenter extends AbstractRepository
      */
     public $theme = false;
 
+    /**
+     * Presenter::$favicon
+     *
+     * @var string
+     */
+    public $favicon = 'default/icons/favicon.jpg';
+
     // ------------------------------------------------------------------------
 
     /**

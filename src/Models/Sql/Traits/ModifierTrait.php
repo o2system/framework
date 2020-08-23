@@ -21,6 +21,7 @@ use O2System\Framework\Libraries\Ui\Contents\Lists\Unordered;
 use O2System\Framework\Models\Sql\DataObjects\Result;
 use O2System\Framework\Models\Sql\DataObjects\Result\Row;
 use O2System\Kernel\DataStructures\Input\Abstracts\AbstractInput;
+use O2System\Kernel\DataStructures\Input\Data;
 use O2System\Kernel\Http\Message\UploadFile;
 use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\DataStructures\SplArrayStorage;
@@ -288,7 +289,7 @@ trait ModifierTrait
             // Remove data metadata
             if ($this->hasMetadata === true) {
                 if (isset($data['metadata'])) {
-                    $temporaryData['metadata'] = new SplArrayStorage($data['metadata']);
+                    $temporaryData['metadata'] = new Data($data['metadata']);
                     unset($data['metadata']);
                 }
             }
@@ -296,7 +297,7 @@ trait ModifierTrait
             // Remove data settings
             if ($this->hasSettings === true) {
                 if (isset($data['settings'])) {
-                    $temporaryData['settings'] = new SplArrayStorage($data['settings']);
+                    $temporaryData['settings'] = new Data($data['settings']);
                     unset($data['settings']);
                 }
             }
@@ -333,7 +334,7 @@ trait ModifierTrait
                     }
 
                     foreach ($temporaryData['metadata'] as $field => $value) {
-                        models(Metadata::class)->insertOrUpdate(new SplArrayStorage([
+                        models(Metadata::class)->insertOrUpdate(new Data([
                             'ownership_id' => $ownershipId,
                             'ownership_model' => get_called_class(),
                             'name' => $field,
@@ -359,7 +360,7 @@ trait ModifierTrait
                     }
 
                     foreach ($temporaryData['settings'] as $field => $value) {
-                        models(Metadata::class)->insertOrUpdate(new SplArrayStorage([
+                        models(Metadata::class)->insertOrUpdate(new Data([
                             'ownership_id' => $ownershipId,
                             'ownership_model' => get_called_class(),
                             'key' => $field,
@@ -399,11 +400,25 @@ trait ModifierTrait
                 // After Insert Hook Process
                 if ($this->db->transactionSuccess()) {
                     if (method_exists($this, 'afterInsertOrUpdate')) {
-                        $this->afterInsertOrUpdate($this->row);
+                        $reflectionMethod = new \ReflectionMethod($this, 'afterInsertOrUpdate');
+                        $parameterName = $reflectionMethod->getParameters();
+                        
+                        if($parameterName === 'O2System\Database\DataObjects\Result\Row') {
+                            $this->afterInsertOrUpdate($this->row);
+                        } else {
+                            $this->afterInsertOrUpdate($data);
+                        }
                     }
 
                     if (method_exists($this, 'afterInsert')) {
-                        $this->afterInsert($this->row);
+                        $reflectionMethod = new \ReflectionMethod($this, 'afterInsert');
+                        $parameterName = $reflectionMethod->getParameters()[0]->getType()->getName();
+
+                        if($parameterName === 'O2System\Database\DataObjects\Result\Row') {
+                            $this->afterInsert($this->row);
+                        } else {
+                            $this->afterInsert($data);
+                        }
                     }
                 }
 
@@ -862,7 +877,7 @@ trait ModifierTrait
                         }
 
                         foreach ($temporaryData['metadata'] as $field => $value) {
-                            models(Metadata::class)->insertOrUpdate(new SplArrayStorage([
+                            models(Metadata::class)->insertOrUpdate(new Data([
                                 'ownership_id' => $ownershipId,
                                 'ownership_model' => get_called_class(),
                                 'name' => $field,
@@ -895,7 +910,7 @@ trait ModifierTrait
                         }
 
                         foreach ($temporaryData['settings'] as $field => $value) {
-                            models(Settings::class)->insertOrUpdate(new SplArrayStorage([
+                            models(Settings::class)->insertOrUpdate(new Data([
                                 'ownership_id' => $ownershipId,
                                 'ownership_model' => get_called_class(),
                                 'key' => $field,
@@ -910,13 +925,28 @@ trait ModifierTrait
 
                     unset($temporaryData);
 
+                    // After Insert Hook Process
                     if ($this->db->transactionSuccess()) {
                         if (method_exists($this, 'afterInsertOrUpdate')) {
-                            $this->afterInsertOrUpdate($this->row);
+                            $reflectionMethod = new \ReflectionMethod($this, 'afterInsertOrUpdate');
+                            $parameterName = $reflectionMethod->getParameters()[0]->getType()->getName();
+
+                            if($parameterName === 'O2System\Database\DataObjects\Result\Row') {
+                                $this->afterInsertOrUpdate($this->row);
+                            } else {
+                                $this->afterInsertOrUpdate($data);
+                            }
                         }
 
-                        if (method_exists($this, 'afterUpdate')) {
-                            $this->afterUpdate($this->row);
+                        if (method_exists($this, 'afterInsert')) {
+                            $reflectionMethod = new \ReflectionMethod($this, 'afterInsert');
+                            $parameterName = $reflectionMethod->getParameters()[0]->getType()->getName();
+
+                            if($parameterName === 'O2System\Database\DataObjects\Result\Row') {
+                                $this->afterInsert($this->row);
+                            } else {
+                                $this->afterInsert($data);
+                            }
                         }
                     }
 

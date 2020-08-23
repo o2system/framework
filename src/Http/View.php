@@ -335,23 +335,15 @@ class View implements RenderableInterface
                         // Find without controller parameter as sub directory
                         if (is_file($filePath = $pageDirectory . $filename . '.mobile' . $pageExtension)) {
                             return realpath($filePath);
-                            break; // break extension
-                            break; // break directory
                         } elseif (is_file($filePath = $pageDirectory . $filename . DIRECTORY_SEPARATOR . 'index.mobile' . $pageExtension)) {
                             return realpath($filePath);
-                            break; // break extension
-                            break; // break directory
                         }
                     }
 
                     if (is_file($filePath = $pageDirectory . $filename . $pageExtension)) {
                         return realpath($filePath);
-                        break; // break extension
-                        break; // break directory
                     } elseif(is_file($filePath = $pageDirectory . $filename . DIRECTORY_SEPARATOR . 'index' . $pageExtension)) {
                         return realpath($filePath);
-                        break; // break extension
-                        break; // break directory
                     }
                 }
             }
@@ -804,6 +796,9 @@ class View implements RenderableInterface
             }
         }
 
+        // Microsoft TileImage
+        presenter()->meta->offsetSet('msapplication-TileImage', images_url(pathinfo(presenter()->favicon, PATHINFO_DIRNAME) . '/144x144/' . pathinfo(presenter()->favicon, PATHINFO_BASENAME)));
+
         if (presenter()->meta->count()) {
             $meta = presenter()->meta->getArrayCopy();
 
@@ -841,8 +836,48 @@ class View implements RenderableInterface
          */
         $this->document->linkNodes->createElement([
             'rel'  => 'manifest',
-            'href' => '/manifest.json',
+            'href' => base_url() . '/manifest.json',
         ]);
+
+        /**
+         * Injecting Favicons
+         */
+        $this->document->linkNodes->createElement([
+            'rel'  => 'icon',
+            'type' => 'image/jpg',
+            'href' => images_url(pathinfo(presenter()->favicon, PATHINFO_DIRNAME) . '/' . pathinfo(presenter()->favicon, PATHINFO_BASENAME)),
+        ]);
+
+        $appleFavicons = [
+            '57x57',
+            '60x60',
+            '72x72',
+            '76x76',
+            '114x114',
+            '120x120',
+            '144x144',
+            '152x152',
+            '180x180'
+        ];
+        foreach($appleFavicons as $appleFavicon) {
+            $this->document->linkNodes->createElement([
+                'rel'  => 'apple-touch-icon',
+                'href' => images_url(pathinfo(presenter()->favicon, PATHINFO_DIRNAME) . '/'. $appleFavicon . '/' . pathinfo(presenter()->favicon, PATHINFO_BASENAME)),
+            ]);
+        }
+
+        $androidFavicons = [
+            '192x192',
+            '32x32',
+            '96x96',
+            '16x16'
+        ];
+        foreach($androidFavicons as $andoidFavicon) {
+            $this->document->linkNodes->createElement([
+                'rel'  => 'icon',
+                'href' => images_url(pathinfo(presenter()->favicon, PATHINFO_DIRNAME) . '/'. $andoidFavicon . '/' . pathinfo(presenter()->favicon, PATHINFO_BASENAME)),
+            ]);
+        }
 
         if(controller()->getReflection()->hasMethod('output')) {
             controller()->getInstance()->output($this->document);

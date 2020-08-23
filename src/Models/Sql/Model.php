@@ -343,16 +343,14 @@ class Model
             }
         }
 
-        if (empty($get[ $property ])) {
-            if (services()->has($property)) {
-                return services()->get($property);
-            } elseif ($this->hasSubModel($property)) {
-                return $this->loadSubModel($property);
-            } elseif (o2system()->__isset($property)) {
-                return o2system()->__get($property);
-            } elseif (models()->__isset($property)) {
-                return models()->get($property);
-            }
+        if (services()->has($property)) {
+            return services()->get($property);
+        } elseif ($this->hasSubModel($property)) {
+            return $this->loadSubModel($property);
+        } elseif (o2system()->__isset($property)) {
+            return o2system()->__get($property);
+        } elseif (models()->__isset($property)) {
+            return models()->get($property);
         }
 
         return false;

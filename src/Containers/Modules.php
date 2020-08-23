@@ -15,15 +15,13 @@ namespace O2System\Framework\Containers;
 
 // ------------------------------------------------------------------------
 
-use O2System\Cache\Item;
 use O2System\Framework\Containers\Modules\DataStructures;
 use O2System\Framework\Services\Hooks;
-use O2System\Kernel\Cli\Writers\Format;
 use O2System\Kernel\Http\Message\Uri\Segments;
 use O2System\Kernel\Http\Router\Addresses;
 use O2System\Spl\DataStructures\SplArrayStack;
+use O2System\Spl\Exceptions\RuntimeException;
 use O2System\Spl\Info\SplNamespaceInfo;
-use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * Class Modules
@@ -90,8 +88,8 @@ class Modules extends SplArrayStack
 
                 // Add View Resource Directory
                 if(services()->has('view')) {
-                    //view()->addFilePath($module->getResourcesDir());
-                    presenter()->assets->pushFilePath($module->getResourcesDir());
+                    view()->addFilePath($module->getResourcesDir());
+                    presenter()->assets->addFilePath($module->getResourcesDir());
 
                     // Initialize Presenter
                     if($module->getType() === 'APP') {
@@ -489,6 +487,7 @@ class Modules extends SplArrayStack
      *
      * @param $packageJsonFile
      * @return DataStructures\Module|bool Returns FALSE if failed.
+     * @throws RuntimeException
      */
     private function getPackageRegistry($packageJsonFile)
     {
@@ -497,11 +496,8 @@ class Modules extends SplArrayStack
         $packageJsonMetadata = json_decode(file_get_contents($packageJsonFile), true);
 
         if (!is_array($packageJsonMetadata)) {
-            return false;
+            throw new RuntimeException('E_INVALID_JSON_MANIFEST');
         }
-
-        $modularType = strtoupper($packageJsonFileInfo['filename']);
-
 
         $moduleSegments = explode(
             DIRECTORY_SEPARATOR,

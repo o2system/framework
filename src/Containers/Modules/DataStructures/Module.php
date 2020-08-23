@@ -78,6 +78,11 @@ class Module extends SplDirectoryInfo
     {
         parent::__construct($dir);
         $this->namespace = prepare_namespace(str_replace(PATH_ROOT, '', $dir), false);
+
+        if(is_file($moduleManifestFilePath = $dir . strtolower($this->getType()) . '.json')) {
+            $moduleManifest = file_get_contents($moduleManifestFilePath);
+            $this->properties = json_decode($moduleManifest, true);
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -486,6 +491,13 @@ class Module extends SplDirectoryInfo
         }
     }
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Module::getControllers
+     *
+     * @return array
+     */
     public function getControllers()
     {
         $controllers = [];
@@ -498,6 +510,12 @@ class Module extends SplDirectoryInfo
             );
 
             foreach ($iterator as $file) {
+                $fileDir = pathinfo($file->getRealPath(), PATHINFO_DIRNAME);
+                $fileDir = str_replace(rtrim($directory, DIRECTORY_SEPARATOR), '', $fileDir);
+                $fileDir = ltrim($fileDir, DIRECTORY_SEPARATOR);
+                $fileDirParts = explode(DIRECTORY_SEPARATOR, $fileDir);
+                $fileDirParts = array_filter($fileDirParts);
+
                 if (pathinfo($file, PATHINFO_EXTENSION) == "php") {
                     $controllerClassName = str_replace([
                         $directory,
@@ -512,14 +530,17 @@ class Module extends SplDirectoryInfo
                     ], $file->getRealPath());
 
                     $controller = new Module\Controller($namespace . $controllerClassName);
+                    $controller->depth = count($fileDirParts);
 
                     if ( ! empty($controller->name) and ! in_array($controller->getParameter(),
                             ['login', 'pages', 'setup', 'license'])) {
-                        $controllers[ $controller->getParameter() ] = $controller;
+                        $controllers[ $controller->getClass() ] = $controller;
                     }
                 }
             }
         }
+
+        ksort($controllers);
 
         return $controllers;
     }

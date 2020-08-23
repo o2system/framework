@@ -15,19 +15,16 @@ namespace O2System\Framework\Services;
 
 // ------------------------------------------------------------------------
 
-use O2System\Cache\Item;
+use O2System\Security\Generators\Token;
 use O2System\Framework\Models\Sql\System\Sessions;
+use O2system\Framework\Services\Session;
 use O2System\Framework\Models\Sql\System\Users;
+use O2System\Kernel\DataStructures\Input\Abstracts\AbstractInput;
 use O2System\Security\Authentication\JsonWebToken;
 use O2System\Security\Authentication\User;
 use O2System\Security\Authentication\User\Account;
-use O2System\Security\Authentication\User\Role;
-use O2System\Session;
-use O2System\Spl\DataStructures\SplArrayObject;
 use O2System\Spl\DataStructures\SplArrayStorage;
-use O2System\Spl\Exceptions\RuntimeException;
 use O2System\Spl\Traits\Collectors\ErrorCollectorTrait;
-use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * Class AccessControl
@@ -117,6 +114,70 @@ class AccessControl extends User
     // ------------------------------------------------------------------------
 
     /**
+     * User::register
+     *
+     * @author Gemblue
+     * @param  AbstractInput $data
+     * @return mixed
+     */
+    public function register($data)
+    {
+        // Init
+        $pin = Token::generate(20);
+
+        // Is email exist before?
+        models(Users::class)->qb
+            ->where('username', $data['username'])
+            ->orWhere('email', $data['email'])
+            ->orWhere('msisdn', $data['msisdn'])
+            ->limit(1);
+
+        if (($result = models(Users::class)->get())->count()) {
+            $this->addError(__LINE__, 'USER_ALREADY_EXISTS');
+
+            return false;
+        }
+
+        /** Let's insert to master account */
+        $register = models(Users::class)->insert(new SplArrayStorage([
+            'fullname' => $data['fullname'],
+            'email' => $data['email'],
+            'msisdn' => $data['msisdn'],
+            'username' => $data['username'],
+            'password' => $this->passwordHash($data['password']),
+            'password_confirm' => $data['password_confirm'],
+            'pin' => $pin,
+            'record_status' => 'DRAFT',
+            'record_create_timestamp' => date('Y-m-d H:i:s')
+        ]));
+        
+        if ($register) {
+           
+            /** Send Email */
+            $email = new Email();
+            $email->subject('Registration - Please Confirm Your Email');
+            $email->from('noreply@gocart.com', 'noreply@gocart.com');
+            $email->to('gocart-a7925d@inbox.mailtrap.io');
+            $email->template('email/registration', [
+                'name' => $data['fullname'],
+                'link' => base_url('users/register/confirm/' . $pin)
+            ]);
+            
+            if ($email->send()) {
+                return true;
+            }
+
+            return false;
+        }
+        
+        $this->addError(__LINE__, 'USER_REGISTRATION_FAILED');
+
+        return false;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
      * User::find
      *
      * @param string $username
@@ -153,8 +214,6 @@ class AccessControl extends User
     public function loggedIn()
     {
         if (session()->has('account')) {
-            $account = session()->get('account');
-
             return true;
         }
 

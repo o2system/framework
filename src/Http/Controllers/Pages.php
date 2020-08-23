@@ -26,17 +26,6 @@ use O2System\Spl\Info\SplFileInfo;
 class Pages extends Controller
 {
     /**
-     * Controller::$inherited
-     *
-     * Controller inherited flag.
-     *
-     * @var bool
-     */
-    static public $inherited = true;
-
-    // ------------------------------------------------------------------------
-
-    /**
      * Pages::index
      *
      * @return void

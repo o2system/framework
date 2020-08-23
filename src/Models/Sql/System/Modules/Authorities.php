@@ -46,12 +46,32 @@ class Authorities extends Model
     // ------------------------------------------------------------------------
 
     /**
-     * Actions::ownership
+     * Authorities::ownership
      *
      * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
     public function ownership()
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Authorities::isChecked
+     *
+     * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
+    public function isChecked($module, $endpoint, $role, $permission)
+    {
+        $result = $this->findWhere([
+            'id_sys_module' => $module,
+            'endpoint' => $endpoint,
+            'ownership_id' => $role,
+            'permission' => $permission
+        ]);
+        
+        if ($result->count())
+            return true;
+        
+        return false;
     }
 }

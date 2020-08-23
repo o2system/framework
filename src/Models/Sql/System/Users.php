@@ -18,6 +18,7 @@ namespace O2System\Framework\Models\Sql\System;
 use App\Models\People;
 use O2System\Framework\Models\Sql\Model;
 use O2System\Framework\Models\Sql\Traits\SettingsTrait;
+use O2System\Spl\DataStructures\SplArrayStorage;
 
 /**
  * Class Users
@@ -33,6 +34,21 @@ class Users extends Model
      * @var string
      */
     public $table = 'sys_users';
+
+    /**
+     * Users::$fillableColumns
+     *
+     * @var array
+     */
+    public $fillableColumns = [
+        'email',
+        'msisdn',
+        'username',
+        'password',
+        'pin',
+        'record_status',
+        'record_create_timestamp'
+    ];
 
     /**
      * Users::$appendColumns
@@ -59,7 +75,7 @@ class Users extends Model
      *
      * @return bool
      */
-    protected function beforeInsert(array &$sets)
+    protected function beforeInsert(SplArrayStorage &$sets)
     {
         if (key_exists('password_confirm', $sets)) {
             if ($sets[ 'password_confirm' ] !== $sets[ 'password' ]) {
@@ -104,6 +120,24 @@ class Users extends Model
         }
 
         return true;
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Users::aftrerInsert
+     *
+     * @param array $sets
+     *
+     * @return bool
+     */
+    protected function afterInsert(SplArrayStorage &$sets)
+    {
+        // Insert to people.
+        models(People::class)->insert(new SplArrayStorage([
+            'fullname'  =>  $sets['fullname'],
+            'gender'    => 'MALE'
+        ]));
     }
 
     // ------------------------------------------------------------------------
