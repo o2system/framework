@@ -674,7 +674,7 @@ class View implements RenderableInterface
 
                 $this->document->loadHTML($htmlOutput);
             }
-        } elseif (false !== ($theme = presenter()->getConfig('theme'))) {
+        } elseif (false !== ($theme = presenter()->getConfig('theme')) and presenter()->theme !== false) {
             if (modules()->top()->hasTheme($theme)) {
                 presenter()->setTheme($theme);
 

@@ -33,6 +33,7 @@ class Media extends Model
      * @var string
      */
     public $table = 'sys_media';
+    // ------------------------------------------------------------------------
 
     /**
      * Media::$appendColumns
@@ -40,6 +41,99 @@ class Media extends Model
      * @var array
      */
     public $appendColumns = [];
+
+    // ------------------------------------------------------------------------
+    /**
+     * Media::$createValidationRules
+     *
+     * @var array
+     */
+    public $createValidationRules = [
+        'label' => 'required',
+        'filename' => 'required',
+        'filepath' => 'required',
+        'mime' => 'required',
+        'ownership_id' => 'required|integer',
+        'ownership_model' => 'optional'
+    ];
+
+    // ------------------------------------------------------------------------
+    /**
+     * Media::$createValidationCustomErrors
+     *
+     * @var array
+     */
+    public $createValidationCustomErrors = [
+        'label' => [
+            'required' => 'Label media cannot be empty!'
+        ],
+        'filename' => [
+            'required' => 'Filename media cannot be empty!'
+        ],
+        'filepath' => [
+            'required' => 'Filepath media cannot be empty!'
+        ],
+        'mime' => [
+            'required' => 'Mime media cannot be empty!'
+        ],
+        'ownership_id' => [
+            'required' => 'Ownership id cannot be empty!',
+            'integer' => 'Ownership id data must be an integer'
+        ],
+        'ownership_model' => [
+            'required' => 'Ownership model cannot be empty!'
+        ],
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Media::$updateValidationRules
+     *
+     * @var array
+     */
+    public $updateValidationRules = [
+        'id' => 'required|integer',
+        'label' => 'required',
+        'filename' => 'required',
+        'filepath' => 'required',
+        'mime' => 'required',
+        'ownership_id' => 'required|integer',
+        'ownership_model' => 'optional'
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Media::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [
+        'id' => [
+            'required' => 'Log id cannot be empty!',
+            'integer' => 'Log id data must be an integer'
+        ],
+        'label' => [
+            'required' => 'Label media cannot be empty!'
+        ],
+        'filename' => [
+            'required' => 'Filename media cannot be empty!'
+        ],
+        'filepath' => [
+            'required' => 'Filepath media cannot be empty!'
+        ],
+        'mime' => [
+            'required' => 'Mime media cannot be empty!'
+        ],
+        'ownership_id' => [
+            'required' => 'Ownership id cannot be empty!',
+            'integer' => 'Ownership id data must be an integer'
+        ],
+        'ownership_model' => [
+            'required' => 'Ownership model cannot be empty!'
+        ],
+    ];
 
     // ------------------------------------------------------------------------
 

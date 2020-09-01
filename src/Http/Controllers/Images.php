@@ -18,6 +18,7 @@ namespace O2System\Framework\Http\Controllers;
 use O2System\Cache\Item;
 use O2System\Framework\Http\Controller;
 use O2System\Image\Manipulation;
+use O2System\Image\DataStructures\Config;
 
 /**
  * Class Images
@@ -27,20 +28,18 @@ use O2System\Image\Manipulation;
 class Images extends Controller
 {
     /**
-     * Images::$inherited
-     *
-     * Controller inherited flag.
-     *
-     * @var bool
-     */
-    static public $inherited = true;
-
-    /**
      * Images::$storagePath
      *
      * @var string
      */
     public $storagePath;
+
+    /**
+     * Images::$imageConfig
+     *
+     * @var Config
+     */
+    public $imageConfig;
 
     /**
      * Images::$imageNotFoundFilename
@@ -120,13 +119,14 @@ class Images extends Controller
             array_shift($segments);
         }
 
+        $this->imageConfig = config('image', true);
         $this->imageFilePath = $this->imageNotFoundFilename;
 
-        $this->imageSize[ 'width' ] = $this->input->get('width');
-        $this->imageSize[ 'height' ] = $this->input->get('height');
-        $this->imageScale = $this->input->get('scale');
-        $this->imageQuality = $this->input->get('quality');
-        $this->imageCrop = $this->input->get('crop');
+        $this->imageSize[ 'width' ] = input()->get('width');
+        $this->imageSize[ 'height' ] = input()->get('height');
+        $this->imageScale = input()->get('scale');
+        $this->imageQuality = input()->get('quality', $this->imageConfig->offsetGet('quality'));
+        $this->imageCrop = input()->get('crop');
 
         if (false !== ($key = array_search('crop', $segments))) {
             $this->imageCrop = true;
@@ -215,13 +215,7 @@ class Images extends Controller
      */
     protected function scale()
     {
-        $config = config('image', true);
-
-        if ( ! empty($this->imageQuality)) {
-            $config->offsetSet('quality', intval($this->imageQuality));
-        }
-
-        if ($config->cached === true) {
+        if ($this->imageConfig->offsetGet('cached') === true) {
             if ($this->imageFilePath !== $this->imageNotFoundFilename) {
                 $cacheImageKey = 'image-' . $this->imageScale . '-' . str_replace($this->storagePath, '',
                         $this->imageFilePath);
@@ -232,12 +226,12 @@ class Images extends Controller
                     if ($cacheItemPool->hasItem($cacheImageKey)) {
                         $cacheImageString = $cacheItemPool->getItem($cacheImageKey)->get();
 
-                        $manipulation = new Manipulation($config);
+                        $manipulation = new Manipulation($this->imageConfig);
                         $manipulation->setImageFile($this->imageFilePath);
                         $manipulation->setImageString($cacheImageString);
                         $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
                     } else {
-                        $manipulation = new Manipulation($config);
+                        $manipulation = new Manipulation($this->imageConfig);
                         $manipulation->setImageFile($this->imageFilePath);
                         $manipulation->scaleImage($this->imageScale);
                         $cacheItemPool->save(new Item($cacheImageKey, $manipulation->getBlobImage(), false));
@@ -249,7 +243,7 @@ class Images extends Controller
             }
         }
 
-        $manipulation = new Manipulation($config);
+        $manipulation = new Manipulation($this->imageConfig);
         $manipulation->setImageFile($this->imageFilePath);
         $manipulation->scaleImage($this->imageScale);
         $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
@@ -265,34 +259,27 @@ class Images extends Controller
      */
     protected function resize()
     {
-        $config = config('image', true);
-
-        if ( ! empty($this->imageQuality)) {
-            $config->offsetSet('quality', intval($this->imageQuality));
-        }
-
-        if ($config->cached === true) {
+        if ($this->imageConfig->offsetGet('cached') === true) {
             if ($this->imageFilePath !== $this->imageNotFoundFilename) {
-                $cacheImageKey = 'image-' . ($this->input->get('crop') ? 'crop-' : '') . implode('x',
+                $cacheImageKey = 'image-' . (input()->get('crop') ? 'crop-' : '') . implode('x',
                         $this->imageSize) . '-' . str_replace($this->storagePath, '', $this->imageFilePath);
 
                 if (cache()->hasItemPool('images')) {
+
                     $cacheItemPool = cache()->getItemPool('images');
 
                     if ($cacheItemPool->hasItem($cacheImageKey)) {
                         $cacheImageString = $cacheItemPool->getItem($cacheImageKey)->get();
-
-                        $manipulation = new Manipulation($config);
+                        $manipulation = new Manipulation($this->imageConfig);
                         $manipulation->setImageFile($this->imageFilePath);
                         $manipulation->setImageString($cacheImageString);
                         $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
                     } else {
-                        $manipulation = new Manipulation($config);
+                        $manipulation = new Manipulation($this->imageConfig);
                         $manipulation->setImageFile($this->imageFilePath);
                         $manipulation->resizeImage($this->imageSize[ 'width' ], $this->imageSize[ 'height' ],
                             (bool)$this->imageCrop);
                         $cacheItemPool->save(new Item($cacheImageKey, $manipulation->getBlobImage(), false));
-
                         $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
                         exit(EXIT_SUCCESS);
                     }
@@ -300,7 +287,7 @@ class Images extends Controller
             }
         }
 
-        $manipulation = new Manipulation($config);
+        $manipulation = new Manipulation($this->imageConfig);
         $manipulation->setImageFile($this->imageFilePath);
         $manipulation->resizeImage($this->imageSize[ 'width' ], $this->imageSize[ 'height' ], (bool)$this->imageCrop);
         $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
@@ -316,12 +303,6 @@ class Images extends Controller
      */
     protected function original()
     {
-        $config = config('image', true);
-
-        if ( ! empty($this->imageQuality)) {
-            $config->offsetSet('quality', intval($this->imageQuality));
-        }
-
         if(in_array(pathinfo($this->imageFilePath, PATHINFO_EXTENSION), ['gif', 'svg'])) {
             header('Content-Transfer-Encoding: binary');
             header('Last-Modified: ' . gmdate('D, d M Y H:i:s', strtotime(filemtime($this->imageFilePath))) . ' GMT');
@@ -330,9 +311,8 @@ class Images extends Controller
 
             echo readfile($this->imageFilePath);
         } else {
-            $manipulation = new Manipulation($config);
+            $manipulation = new Manipulation($this->imageConfig);
             $manipulation->setImageFile($this->imageFilePath);
-
             $manipulation->displayImage(intval($this->imageQuality), $this->imageFileMime);
         }
 

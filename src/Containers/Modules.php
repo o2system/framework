@@ -396,6 +396,8 @@ class Modules extends SplArrayStack
             $segments = $segments->getArrayCopy();
         }
 
+        $packageJsonFile = null;
+
         if (is_array($segments)) {
             $segments = array_values($segments);
 

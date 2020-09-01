@@ -58,6 +58,10 @@ class Authorities extends Model
     /**
      * Authorities::isChecked
      *
+     * @param $module
+     * @param $endpoint
+     * @param $role
+     * @param $permission
      * @return array|bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
     public function isChecked($module, $endpoint, $role, $permission)
@@ -68,10 +72,10 @@ class Authorities extends Model
             'ownership_id' => $role,
             'permission' => $permission
         ]);
-        
+
         if ($result->count())
             return true;
-        
+
         return false;
     }
 }

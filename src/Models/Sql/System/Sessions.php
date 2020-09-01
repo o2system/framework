@@ -16,7 +16,6 @@ namespace O2System\Framework\Models\Sql\System;
 // ------------------------------------------------------------------------
 
 use O2System\Framework\Models\Sql\Model;
-use O2System\Framework\Models\Sql\System\Sessions\Trails;
 
 /**
  * Class Sessions
@@ -41,17 +40,5 @@ class Sessions extends Model
     public function ownership()
     {
         return $this->morphTo();
-    }
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Sessions::trails
-     *
-     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
-     */
-    public function trails()
-    {
-        return $this->hasMany(Trails::class);
     }
 }

@@ -32,6 +32,75 @@ class Settings extends Model
     public $table = 'sys_settings';
 
     // ------------------------------------------------------------------------
+    /**
+     * Settings::$insertValidationRules
+     *
+     * @var array
+     */
+    public $insertValidationRules = [
+        'ownership_id' => 'required|integer',
+        'ownership_model' => 'required',
+        'key' => 'required',
+        'value' => 'optional'
+    ];
+
+    // ------------------------------------------------------------------------
+    /**
+     * Settings::$insertValidationCustomErrors
+     *
+     * @var array
+     */
+    public $insertValidationCustomErrors = [
+        'ownership_id' => [
+            'required' => 'Ownership id cannot be empty!',
+            'integer' => 'Ownership id data must be an integer'
+        ],
+        'ownership_model' => [
+            'required' => 'Ownership model cannot be empty!'
+        ],
+        'key' => [
+            'required' => 'Setting name cannot be empty!'
+        ]
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Settings::$updateValidationRules
+     *
+     * @var array
+     */
+    public $updateValidationRules = [
+        'id' => 'required|integer',
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Settings::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [
+        'id' => [
+            'required' => 'Settings id cannot be empty!',
+            'integer' => 'Settings id data must be an integer'
+        ],
+        'ownership_id' => [
+            'required' => 'Ownership id cannot be empty!',
+            'integer' => 'Ownership id data must be an integer'
+        ],
+        'ownership_model' => [
+            'required' => 'Ownership model cannot be empty!'
+        ],
+        'key' => [
+            'required' => 'Setting name cannot be empty!'
+        ]
+    ];
+
+
+
+    // ------------------------------------------------------------------------
 
     /**
      * Settings::ownership
@@ -43,6 +112,12 @@ class Settings extends Model
         return $this->morphTo();
     }
 
+    /**
+     * Settings::fetch
+     *
+     * @deprecated
+     * @return SplArrayObject
+     */
     public function fetch(): SplArrayObject
     {
         $metadata = new SplArrayObject();

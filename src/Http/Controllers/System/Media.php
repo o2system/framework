@@ -8,26 +8,38 @@
  * @author         Steeve Andrian Salim
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
-// ------------------------------------------------------------------------
 
 namespace O2System\Framework\Http\Controllers\System;
 
+// ------------------------------------------------------------------------
 
 use O2System\Framework\Http\Controllers\Restful;
-
 // ------------------------------------------------------------------------
 /**
- * Class Modules
+ * Class Storage
  * @package O2System\Framework\Http\Controllers\System
  */
-class Modules extends Restful
+class Media extends Restful
 {
     /**
-     * Modules::$model
+     * Storage::$model
      *
      * @var string
      */
-    public $model = '\O2System\Framework\Models\Sql\System\Modules';
+    public $model = '\O2System\Framework\Models\Sql\System\Storage';
 
+    // ------------------------------------------------------------------------
+
+    /**
+     * Storage::$searchableColumns
+     *
+     * @var array
+     */
+    public $searchableColumns = [
+        'label',
+        'filename',
+        'filepath',
+        'mime'
+    ];
 
 }

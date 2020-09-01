@@ -32,6 +32,77 @@ class Roles extends Model
     public $table = 'sys_modules_roles';
 
     // ------------------------------------------------------------------------
+    /**
+     * Roles::$insertValidationRules
+     *
+     * @var array
+     */
+    public $insertValidationRules = [
+        'id_sys_module' => 'required|integer',
+        'label' => 'required',
+        'description' => 'optional',
+        'code' => 'required',
+    ];
+
+    // ------------------------------------------------------------------------
+    /**
+     * Roles::$insertValidationCustomErrors
+     *
+     * @var array
+     */
+    public $insertValidationCustomErrors = [
+        'id_sys_module' => [
+            'required' => 'System Module cannot be empty!',
+            'integer' => 'System Module data must be an integer'
+        ],
+        'label' => [
+            'required' => 'System Module Role label cannot be empty!'
+        ],
+        'code' => [
+            'required' => 'System Module Role code cannot be empty!'
+        ],
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Roles::$updateValidationRules
+     *
+     * @var array
+     */
+    public $updateValidationRules = [
+        'id' => 'required|integer',
+        'id_sys_module' => 'required|integer',
+        'label' => 'required',
+        'description' => 'optional',
+        'code' => 'required',
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Roles::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [
+        'id' => [
+            'required' => 'Role id cannot be empty!',
+            'integer' => 'Role id data must be an integer'
+        ],
+        'id_sys_module' => [
+            'required' => 'System Module cannot be empty!',
+            'integer' => 'System Module data must be an integer'
+        ],
+        'label' => [
+            'required' => 'System Module Role label cannot be empty!'
+        ],
+        'code' => [
+            'required' => 'System Module Role code cannot be empty!'
+        ],
+    ];
+
+    // ------------------------------------------------------------------------
 
     /**
      * Roles::module
@@ -52,11 +123,11 @@ class Roles extends Model
      */
     public function authorities()
     {
-        models(Modules\Roles\Authorities::class)->appendColumns = [
+        models(Roles\Authorities::class)->appendColumns = [
             'role',
             'endpoint'
         ];
 
-        return $this->hasMany(Modules\Roles\Authorities::class);
+        return $this->hasMany(Roles\Authorities::class);
     }
 }

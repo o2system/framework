@@ -49,13 +49,11 @@ class Error extends Controller
         if (presenter()->theme) {
             if (presenter()->theme->hasLayout('error-code')) {
                 presenter()->theme->setLayout('error-code');
+            } else {
+                presenter()->setTheme(false);
             }
-
-            if (false !== ($layout = presenter()->theme->getLayout())) {
-                if ($layout->getFilename() === 'theme') {
-                    presenter()->setTheme(false);
-                }
-            }
+        } else {
+            presenter()->setTheme(false);
         }
 
         view($viewFilePath, [

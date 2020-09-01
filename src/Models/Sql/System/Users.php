@@ -47,7 +47,7 @@ class Users extends Model
         'password',
         'pin',
         'record_status',
-        'record_create_timestamp'
+        'record_insert_timestamp'
     ];
 
     /**
@@ -59,12 +59,89 @@ class Users extends Model
         'profile'
     ];
 
+
     /**
-     * Users::$hideColumns
+     * Users::$insertValidationRules
      *
      * @var array
      */
-    public $hideColumns = [];
+    public $insertValidationRules = [
+        'email' => 'required|email',
+        'msisdn' => 'required|msisdn[0]',
+        'username' => 'required',
+        'password' => 'required|password',
+        'pin'   => 'required',
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Users::$insertValidationCustomErrors
+     *
+     * @var array
+     */
+    public $insertValidationCustomErrors = [
+        'email' => [
+            'required' => 'Email cannot be empty!'
+        ],
+        'msisdn' => [
+            'required' => 'msisdn cannot be empty!'
+        ],
+        'username' => [
+            'required' => 'Username cannot be empty!'
+        ],
+        'password' => [
+            'required' => 'Password cannot be empty!'
+        ],
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Users::$updateValidationRules
+     *
+     * @var array
+     */
+    public $updateValidationRules = [
+        'id' => 'required|integer',
+        'email' => 'required|email',
+        'msisdn' => 'required|msisdn[0]',
+        'username' => 'required',
+        'password' => 'required|password',
+        'pin'   => 'required',
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Users::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [
+        'id' => [
+            'required' => 'User id cannot be empty!',
+            'integer' => 'User id data must be an integer'
+        ],
+        'email' => [
+            'required' => 'Email cannot be empty!'
+        ],
+        'msisdn' => [
+            'required' => 'msisdn cannot be empty!'
+        ],
+        'username' => [
+            'required' => 'Username cannot be empty!'
+        ],
+        'password' => [
+            'required' => 'Password cannot be empty!'
+        ],
+        'pin'   =>  [
+            'required' => 'Pin cannot be empty!'
+        ],
+        'sso'   => [
+            'required' => 'Sso cannot be empty!'
+        ],
+    ];
 
     // ------------------------------------------------------------------------
 

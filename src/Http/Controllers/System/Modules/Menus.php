@@ -28,78 +28,7 @@ class Menus extends Restful
      */
     public $model = '\O2System\Framework\Models\Sql\System\Modules\Menus';
 
-    // ------------------------------------------------------------------------
-    /**
-     * Menus::$createValidationRules
-     *
-     * @var array
-     */
-    public $createValidationRules = [
-        'id_sys_module' => 'optional|integer',
-        'id_parent' => 'optional|integer',
-        'position' => 'optional',
-        'label' => 'optional',
-        'description' => 'optional',
-        'href' => 'optional',
-        'attributes' => 'optional',
-        'settings' => 'optional',
-        'metadata' => 'optional',
-    ];
 
-    // ------------------------------------------------------------------------
-    /**
-     * Menus::$createValidationCustomErrors
-     *
-     * @var array
-     */
-    public $createValidationCustomErrors = [
-        'id_sys_module' => [
-            'integer' => 'System Module data must be an integer'
-        ],
-        'id_parent' => [
-            'integer' => 'Parent data must be an integer'
-        ],
-    ];
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Menus::$updateValidationRules
-     *
-     * @var array
-     */
-    public $updateValidationRules = [
-        'id' => 'required|integer',
-        'id_sys_module' => 'optional|integer',
-        'id_parent' => 'optional|integer',
-        'position' => 'optional',
-        'label' => 'optional',
-        'description' => 'optional',
-        'href' => 'optional',
-        'attributes' => 'optional',
-        'settings' => 'optional',
-        'metadata' => 'optional',
-    ];
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Menus::$updateValidationCustomErrors
-     *
-     * @var array
-     */
-    public $updateValidationCustomErrors = [
-        'id' => [
-            'required' => 'Menu id cannot be empty!',
-            'integer' => 'Menu id data must be an integer'
-        ],
-        'id_sys_module' => [
-            'integer' => 'System Module data must be an integer'
-        ],
-        'id_parent' => [
-            'integer' => 'Parent data must be an integer'
-        ],
-    ];
 
     // ------------------------------------------------------------------------
 

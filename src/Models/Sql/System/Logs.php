@@ -31,6 +31,77 @@ class Logs extends Model
     public $table = 'sys_logs';
 
     // ------------------------------------------------------------------------
+    /**
+     * Logs::$insertValidationRules
+     *
+     * @var array
+     */
+    public $insertValidationRules = [
+        'timestamp' => 'optional|date[Y-m-d h:i:s]',
+        'status' => 'optional',
+        'message' => 'optional',
+        'log_id' => 'required|integer',
+        'log_model' => 'required'
+    ];
+
+    // ------------------------------------------------------------------------
+    /**
+     * Logs::$insertValidationCustomErrors
+     *
+     * @var array
+     */
+    public $insertValidationCustomErrors = [
+        'timestamp' => [
+            'date' => 'Log date format must be Y-m-d H:i:s'
+        ],
+        'log_id' => [
+            'required' => 'Log id cannot be empty!',
+            'integer' => 'Log id data must be an integer'
+        ],
+        'log_model' => [
+            'required' => 'Log model id cannot be empty!'
+        ],
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Logs::$updateValidationRules
+     *
+     * @var array
+     */
+    public $updateValidationRules = [
+        'id' => 'required|integer',
+        'timestamp' => 'optional|date[Y-m-d h:i:s]',
+        'status' => 'optional',
+        'message' => 'optional',
+        'log_id' => 'required|integer',
+        'log_model' => 'required'
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Logs::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [
+        'id' => [
+            'required' => 'Log id cannot be empty!',
+            'integer' => 'Log id data must be an integer'
+        ],
+        'timestamp' => [
+            'date' => 'Log date format must be Y-m-d H:i:s'
+        ],
+        'log_id' => [
+            'required' => 'Log id cannot be empty!',
+            'integer' => 'Log id data must be an integer'
+        ],
+        'log_model' => [
+            'required' => 'Log model id cannot be empty!'
+        ],
+    ];
 
     /**
      * Logs::__construct

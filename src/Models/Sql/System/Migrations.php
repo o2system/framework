@@ -29,4 +29,27 @@ class Migrations extends Model
      * @var string
      */
     public $table = 'sys_migrations';
+
+    /**
+     * Migrations::$updateValidationRules
+     *
+     * @var array
+     */
+    public $updateValidationRules = [
+        'id' => 'required|integer',
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Migrations::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [
+        'id' => [
+            'required' => 'Migration id cannot be empty!',
+            'integer' => 'Migration id data must be an integer'
+        ],
+    ];
 }

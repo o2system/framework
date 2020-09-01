@@ -29,78 +29,7 @@ class Authorities extends Restful
      */
     public $model = '\O2System\Framework\Models\Sql\System\Users\Authorities';
 
-    // ------------------------------------------------------------------------
-    /**
-     * Authorities::$createValidationRules
-     *
-     * @var array
-     */
-    public $createValidationRules = [
-        'id_sys_user' => 'required|integer',
-        'id_sys_module_segment' => 'required|integer',
-        'permission' => 'required|listed[DENIED,GRANTED,WRITE]'
-    ];
 
-    // ------------------------------------------------------------------------
-    /**
-     * Authorities::$createValidationCustomErrors
-     *
-     * @var array
-     */
-    public $createValidationCustomErrors = [
-        'id_sys_user' => [
-            'required' => 'System User cannot be empty!',
-            'integer' => 'System User data must be an integer'
-        ],
-        'id_sys_module_segment' => [
-            'required' => 'System User module segment cannot be empty!',
-            'integer' => 'System User module segment data cannot be empty!',
-        ],
-        'permission' => [
-            'required' => 'System User authorities cannot be empty!',
-            'listed' => 'System User authorities data must be listed : DENIED,GRANTED,WRITE'
-        ]
-    ];
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Authorities::$updateValidationRules
-     *
-     * @var array
-     */
-    public $updateValidationRules = [
-        'id' => 'required|integer',
-        'id_sys_user' => 'required|integer',
-        'id_sys_module_segment' => 'required|integer',
-        'permission' => 'required|listed[DENIED,GRANTED,WRITE]'
-    ];
-
-    // ------------------------------------------------------------------------
-
-    /**
-     * Authorities::$updateValidationCustomErrors
-     *
-     * @var array
-     */
-    public $updateValidationCustomErrors = [
-        'id' => [
-            'required' => 'Comment id cannot be empty!',
-            'integer' => 'Comment id data must be an integer'
-        ],
-        'id_sys_user' => [
-            'required' => 'System User cannot be empty!',
-            'integer' => 'System User data must be an integer'
-        ],
-        'id_sys_module_segment' => [
-            'required' => 'System User module segment cannot be empty!',
-            'integer' => 'System User module segment data cannot be empty!',
-        ],
-        'permission' => [
-            'required' => 'System User authorities cannot be empty!',
-            'listed' => 'System User authorities data must be listed : DENIED,GRANTED,WRITE'
-        ]
-    ];
 
     // ------------------------------------------------------------------------
 

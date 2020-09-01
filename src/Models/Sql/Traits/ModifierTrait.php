@@ -110,6 +110,7 @@ trait ModifierTrait
      *
      * @param array $files
      * @param mixed $uploadFilePaths
+     * @param array $data
      * @return array
      */
     private function getUploadedFiles(array $files, $uploadFilePaths, array &$data)
@@ -184,7 +185,7 @@ trait ModifierTrait
     /**
      * ModifierTrait::removeUploadedFiles
      *
-     * @param array $files
+     * @param array $row
      * @param mixed $uploadFilePaths
      * @return array
      */
@@ -257,7 +258,7 @@ trait ModifierTrait
                 }
             }
         }
-        
+
         if (count($data)) {
             if (method_exists($this, 'insertRecordData')) {
                 $this->insertRecordData($data);
@@ -399,25 +400,21 @@ trait ModifierTrait
 
                 // After Insert Hook Process
                 if ($this->db->transactionSuccess()) {
-                    if (method_exists($this, 'afterInsertOrUpdate')) {
-                        $reflectionMethod = new \ReflectionMethod($this, 'afterInsertOrUpdate');
-                        $parameterName = $reflectionMethod->getParameters();
-                        
-                        if($parameterName === 'O2System\Database\DataObjects\Result\Row') {
-                            $this->afterInsertOrUpdate($this->row);
-                        } else {
-                            $this->afterInsertOrUpdate($data);
-                        }
-                    }
+                    foreach(['afterInsertOrUpdate', 'afterInsert'] as $afterInsertMethod) {
+                        if (method_exists($this, $afterInsertMethod)) {
+                            $parameterName = null;
+                            $reflectionMethod = new \ReflectionMethod($this, $afterInsertMethod);
 
-                    if (method_exists($this, 'afterInsert')) {
-                        $reflectionMethod = new \ReflectionMethod($this, 'afterInsert');
-                        $parameterName = $reflectionMethod->getParameters()[0]->getType()->getName();
+                            if(method_exists($reflectionMethod->getParameters()[0]->getType(), 'getName')) {
+                                $parameterName = $reflectionMethod->getParameters()[0]->getType()->getName();
+                            }
 
-                        if($parameterName === 'O2System\Database\DataObjects\Result\Row') {
-                            $this->afterInsert($this->row);
-                        } else {
-                            $this->afterInsert($data);
+
+                            if($parameterName === 'O2System\Database\DataObjects\Result\Row') {
+                                call_user_func_array([&$this, $afterInsertMethod], [$this->row]);
+                            } else {
+                                call_user_func_array([&$this, $afterInsertMethod], [$data]);
+                            }
                         }
                     }
                 }
@@ -576,7 +573,7 @@ trait ModifierTrait
                             }
                         }
                     }
-                    
+
                     return $this->insert($data);
                 }
             }
@@ -697,7 +694,7 @@ trait ModifierTrait
                 }
             }
         }
-        
+
         if (empty($conditions)) {
             $conditions = $data->getArrayCopy();
         }
@@ -775,7 +772,7 @@ trait ModifierTrait
                 }
             }
         }
-        
+
         if (count($data)) {
             if (method_exists($this, 'updateRecordData')) {
                 $this->updateRecordData($data);
@@ -794,7 +791,6 @@ trait ModifierTrait
                     $data['record_ordering'] = $this->getRecordOrdering();
                 }
             }
-
             if ($result = $this->findWhere($conditions)) {
                 $this->row = null;
 
@@ -806,14 +802,15 @@ trait ModifierTrait
                     }
                 }
 
-                $this->row->merge($data->getArrayCopy());
-
                 if (empty($this->row)) {
                     if (services()->has('session') and $this->flashMessage) {
-                        session()->setFlash('danger', language('FAILED_UPDATE_INVALID_DATA'));
+                        session()->setFlash('danger', language('FAILED_DATA_NOT_FOUND'));
                     }
 
+                    $this->addError(__LINE__, language('FAILED_DATA_NOT_FOUND'));
                     return false;
+                } else {
+                    $this->row->merge($data->getArrayCopy());
                 }
 
                 // Process Images and Files
@@ -927,25 +924,21 @@ trait ModifierTrait
 
                     // After Insert Hook Process
                     if ($this->db->transactionSuccess()) {
-                        if (method_exists($this, 'afterInsertOrUpdate')) {
-                            $reflectionMethod = new \ReflectionMethod($this, 'afterInsertOrUpdate');
-                            $parameterName = $reflectionMethod->getParameters()[0]->getType()->getName();
+                        foreach(['afterInsertOrUpdate', 'afterUpdate'] as $afterInsertMethod) {
+                            if (method_exists($this, $afterInsertMethod)) {
+                                $parameterName = null;
+                                $reflectionMethod = new \ReflectionMethod($this, $afterInsertMethod);
 
-                            if($parameterName === 'O2System\Database\DataObjects\Result\Row') {
-                                $this->afterInsertOrUpdate($this->row);
-                            } else {
-                                $this->afterInsertOrUpdate($data);
-                            }
-                        }
+                                if(method_exists($reflectionMethod->getParameters()[0]->getType(), 'getName')) {
+                                    $parameterName = $reflectionMethod->getParameters()[0]->getType()->getName();
+                                }
 
-                        if (method_exists($this, 'afterInsert')) {
-                            $reflectionMethod = new \ReflectionMethod($this, 'afterInsert');
-                            $parameterName = $reflectionMethod->getParameters()[0]->getType()->getName();
 
-                            if($parameterName === 'O2System\Database\DataObjects\Result\Row') {
-                                $this->afterInsert($this->row);
-                            } else {
-                                $this->afterInsert($data);
+                                if($parameterName === 'O2System\Database\DataObjects\Result\Row') {
+                                    call_user_func_array([&$this, $afterInsertMethod], [$this->row]);
+                                } else {
+                                    call_user_func_array([&$this, $afterInsertMethod], [$data]);
+                                }
                             }
                         }
                     }

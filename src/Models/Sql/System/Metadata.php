@@ -29,6 +29,72 @@ class Metadata extends Model
      * @var string
      */
     public $table = 'sys_metadata';
+    // ------------------------------------------------------------------------
+    /**
+     * Metadata::$insertValidationRules
+     *
+     * @var array
+     */
+    public $insertValidationRules = [
+        'ownership_id' => 'required|integer',
+        'ownership_model' => 'required',
+        'name' => 'required',
+        'content' => 'optional'
+    ];
+
+    // ------------------------------------------------------------------------
+    /**
+     * Metadata::$insertValidationCustomErrors
+     *
+     * @var array
+     */
+    public $insertValidationCustomErrors = [
+        'ownership_id' => [
+            'required' => 'Ownership id cannot be empty!',
+            'integer' => 'Ownership id data must be an integer'
+        ],
+        'ownership_model' => [
+            'required' => 'Ownership model cannot be empty!'
+        ],
+        'name' => [
+            'required' => 'Metadata name cannot be empty!'
+        ]
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Metadata::$updateValidationRules
+     *
+     * @var array
+     */
+    public $updateValidationRules = [
+        'id' => 'required|integer',
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Metadata::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [
+        'id' => [
+            'required' => 'Metadata id cannot be empty!',
+            'integer' => 'Metadata id data must be an integer'
+        ],
+        'ownership_id' => [
+            'required' => 'Ownership id cannot be empty!',
+            'integer' => 'Ownership id data must be an integer'
+        ],
+        'ownership_model' => [
+            'required' => 'Ownership model cannot be empty!'
+        ],
+        'name' => [
+            'required' => 'Metadata name cannot be empty!'
+        ]
+    ];
 
     // ------------------------------------------------------------------------
 

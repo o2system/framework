@@ -31,6 +31,86 @@ class Comments extends Model
      */
     public $table = 'sys_users_comments';
 
+    // ------------------------------------------------------------------------
+    /**
+     * Comments::$insertValidationRules
+     *
+     * @var array
+     */
+    public $insertValidationRules = [
+        'id_sys_user' => 'required|integer',
+        'message' => 'required',
+        'commentable_id' => 'required|integer',
+        'commentatble_model' => 'required',
+
+    ];
+
+    // ------------------------------------------------------------------------
+    /**
+     * Comments::$insertValidationCustomErrors
+     *
+     * @var array
+     */
+    public $insertValidationCustomErrors = [
+        'id_sys_user' => [
+            'required' => 'System User cannot be empty!',
+            'integer' => 'System User data must be an integer'
+        ],
+        'message' => [
+            'required' => 'System User comment message cannot be empty!',
+        ],
+        'commentable_id' => [
+            'required' => 'System User commentable id cannot be empty!',
+            'integer' => 'System User commentable id data must be an integer'
+        ],
+        'commentatble_model' => [
+            'required' => 'System User commentable model cannot be empty!',
+        ],
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Comments::$updateValidationRules
+     *
+     * @var array
+     */
+    public $updateValidationRules = [
+        'id' => 'required|integer',
+        'id_sys_user' => 'required|integer',
+        'message' => 'required',
+        'commentable_id' => 'required|integer',
+        'commentatble_model' => 'required',
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Comments::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [
+        'id' => [
+            'required' => 'Comment id cannot be empty!',
+            'integer' => 'Comment id data must be an integer'
+        ],
+        'id_sys_user' => [
+            'required' => 'System User cannot be empty!',
+            'integer' => 'System User data must be an integer'
+        ],
+        'message' => [
+            'required' => 'System User comment message cannot be empty!',
+        ],
+        'commentable_id' => [
+            'required' => 'System User commentable id cannot be empty!',
+            'integer' => 'System User commentable id data must be an integer'
+        ],
+        'commentatble_model' => [
+            'required' => 'System User commentable model cannot be empty!',
+        ],
+    ];
+
     /**
      * Comments::$appendColumns
      *
@@ -44,7 +124,7 @@ class Comments extends Model
 
     /**
      * Comments::user
-     * 
+     *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
      */
     public function user()

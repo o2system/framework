@@ -612,11 +612,11 @@ class Restful extends Controller
     /**
      * Restful::delete
      *
-     * @throws \O2System\Spl\Exceptions\Logic\OutOfRangeException
+     * @param int $id
      * @throws \O2System\Spl\Exceptions\RuntimeException
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function delete($id)
+    public function delete(int $id)
     {
         if (input()->server('REQUEST_METHOD') === 'DELETE') {
             if (empty($this->model)) {
@@ -661,11 +661,12 @@ class Restful extends Controller
     /**
      * Restful::updateRecordStatus
      *
-     * @param array $params
+     * @param array $primaryKeys
      * @param string $recordStatus
      * @param string $method
+     * @throws \Exception
      */
-    private function updateRecordStatus(array $primaryKeys, $recordStatus, $method)
+    private function updateRecordStatus(array $primaryKeys, string $recordStatus, string $method)
     {
         if (input()->server('REQUEST_METHOD') === 'PATCH') {
             if (empty($this->model)) {
@@ -716,7 +717,7 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function unpublish($id)
+    public function unpublish(int $id)
     {
         $this->updateRecordStatus(func_get_args(), 'UNPUBLISH', 'unpublish');
     }
@@ -730,7 +731,7 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function archive($id)
+    public function archive(int $id)
     {
         $this->updateRecordStatus(func_get_args(), 'ARCHIVED', 'archive');
     }
@@ -744,7 +745,7 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function lock($id)
+    public function lock(int $id)
     {
         $this->updateRecordStatus(func_get_args(), 'LOCKED', 'lock');
     }
@@ -758,7 +759,7 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function softDelete($id)
+    public function softDelete(int $id)
     {
         $this->updateRecordStatus(func_get_args(), 'DELETED', 'softDelete');
     }
@@ -772,7 +773,7 @@ class Restful extends Controller
      *
      * @throws OutOfRangeException
      */
-    public function draft($id)
+    public function draft(int $id)
     {
         $this->updateRecordStatus(func_get_args(), 'DRAFT', 'draft');
     }
@@ -785,7 +786,7 @@ class Restful extends Controller
      * @param int $code
      * @param string|null $message
      */
-    protected function sendError($code, $message = null)
+    protected function sendError(int $code, string $message = null)
     {
         if ($this->ajaxOnly === false) {
             output()->setContentType('application/json');
