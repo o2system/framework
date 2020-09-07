@@ -5,6 +5,7 @@ namespace O2System\Framework\Models\Sql\System\Modules;
 
 // ------------------------------------------------------------------------
 use O2System\Framework\Models\Sql\Model;
+use O2System\Framework\Models\Sql\System\Modules;
 
 /**
  * Class Endpoints
@@ -28,9 +29,7 @@ class Endpoints extends Model
     public $insertValidationRules = [
         'id_sys_module' => 'required|integer',
         'name' => 'required',
-        'uri' => 'required',
-        'slug' => 'required',
-        'class' => 'required',
+        'endpoint' => 'required',
     ];
 
     // ------------------------------------------------------------------------
@@ -47,15 +46,9 @@ class Endpoints extends Model
         'name' => [
             'required' => 'System module endpoint name cannot be empty!'
         ],
-        'uri' => [
+        'endpoint' => [
             'required' => 'System module endpoint uri cannot be empty!'
-        ],
-        'slug' => [
-            'required' => 'System module endpoint slug cannot be empty!'
-        ],
-        'class' => [
-            'required' => 'System module endpoint class cannot be empty!'
-        ],
+        ]
     ];
 
     // ------------------------------------------------------------------------
@@ -69,9 +62,7 @@ class Endpoints extends Model
         'id' => 'required|integer',
         'id_sys_module' => 'required|integer',
         'name' => 'required',
-        'uri' => 'required',
-        'slug' => 'required',
-        'class' => 'required',
+        'endpoint' => 'required',
     ];
 
     // ------------------------------------------------------------------------
@@ -93,14 +84,30 @@ class Endpoints extends Model
         'name' => [
             'required' => 'System module endpoint name cannot be empty!'
         ],
-        'uri' => [
+        'endpoint' => [
             'required' => 'System module endpoint uri cannot be empty!'
-        ],
-        'slug' => [
-            'required' => 'System module endpoint slug cannot be empty!'
-        ],
-        'class' => [
-            'required' => 'System module endpoint class cannot be empty!'
-        ],
+        ]
     ];
+    // ------------------------------------------------------------------------
+
+    /**
+     * Endpoints::module
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
+    public function module()
+    {
+        return $this->belongsTo(Modules::class);
+    }
+
+    // ------------------------------------------------------------------------
+    /**
+     * Endpoints::authorities
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function authorities()
+    {
+        return $this->hasMany(Authorities::class);
+    }
 }

@@ -1,12 +1,24 @@
 <?php
 
-
+/**
+ * This file is part of the O2System Framework package.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @author         Steeve Andrian Salim
+ * @copyright      Copyright (c) Steeve Andrian Salim
+ */
 namespace O2System\Framework\Models\Sql\System;
 
-
+// ------------------------------------------------------------------------
 use O2System\Framework\Models\Sql\Model;
 use O2System\Framework\Models\Sql\Traits\MetadataTrait;
-
+// ------------------------------------------------------------------------
+/**
+ * Class People
+ * @package O2System\Framework\Models\Sql\System
+ */
 class People extends Model
 {
     use MetadataTrait;
@@ -17,6 +29,70 @@ class People extends Model
      * @var string
      */
     public $table = 'sys_people';
+    // ------------------------------------------------------------------------
+    /**
+     * People::$insertValidationRules
+     *
+     * @var array
+     */
+    public $insertValidationRules = [
+        'fullname' => 'required',
+        'avatar' => 'optional',
+        'cover' => 'optional',
+        'gender' => 'required|listed[MALE, FEMALE]',
+    ];
+
+    // ------------------------------------------------------------------------
+    /**
+     * People::$insertValidationCustomErrors
+     *
+     * @var array
+     */
+    public $insertValidationCustomErrors = [
+        'fullname' => [
+            'required' => 'People full name id cannot be empty!',
+        ],
+        'gender' => [
+            'required' => 'People gender cannot be empty!',
+            'listed' => 'Gender data must be listed: FEMALE or MALE'
+        ],
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * People::$updateValidationRules
+     *
+     * @var array
+     */
+    public $updateValidationRules = [
+        'id' => 'required|integer',
+        'fullname' => 'required',
+        'avatar' => 'optional',
+        'cover' => 'optional',
+        'gender' => 'required',
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * People::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [
+        'id' => [
+            'required' => 'People id cannot be empty!',
+            'integer' => 'People id data must be an integer'
+        ],
+        'fullname' => [
+            'required' => 'People full name id cannot be empty!',
+        ],
+        'gender' => [
+            'required' => 'People gender cannot be empty!',
+            'listed' => 'Gender data must be listed: FEMALE or MALE'
+        ],
+    ];
 
     /**
      * People::$uploadFilePaths
@@ -29,6 +105,7 @@ class People extends Model
         'cover' => PATH_STORAGE . 'images' . DIRECTORY_SEPARATOR . 'people' . DIRECTORY_SEPARATOR
     ]; */
 
+    // ------------------------------------------------------------------------
     /**
      * People::$fillableColumns
      *

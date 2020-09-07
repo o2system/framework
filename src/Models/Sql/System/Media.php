@@ -53,8 +53,6 @@ class Media extends Model
         'filename' => 'required',
         'filepath' => 'required',
         'mime' => 'required',
-        'ownership_id' => 'required|integer',
-        'ownership_model' => 'optional'
     ];
 
     // ------------------------------------------------------------------------
@@ -75,14 +73,7 @@ class Media extends Model
         ],
         'mime' => [
             'required' => 'Mime media cannot be empty!'
-        ],
-        'ownership_id' => [
-            'required' => 'Ownership id cannot be empty!',
-            'integer' => 'Ownership id data must be an integer'
-        ],
-        'ownership_model' => [
-            'required' => 'Ownership model cannot be empty!'
-        ],
+        ]
     ];
 
     // ------------------------------------------------------------------------
@@ -125,13 +116,6 @@ class Media extends Model
         ],
         'mime' => [
             'required' => 'Mime media cannot be empty!'
-        ],
-        'ownership_id' => [
-            'required' => 'Ownership id cannot be empty!',
-            'integer' => 'Ownership id data must be an integer'
-        ],
-        'ownership_model' => [
-            'required' => 'Ownership model cannot be empty!'
         ],
     ];
 

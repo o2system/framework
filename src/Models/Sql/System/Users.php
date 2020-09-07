@@ -15,7 +15,6 @@ namespace O2System\Framework\Models\Sql\System;
 
 // ------------------------------------------------------------------------
 
-use App\Models\People;
 use O2System\Framework\Models\Sql\Model;
 use O2System\Framework\Models\Sql\Traits\SettingsTrait;
 use O2System\Spl\DataStructures\SplArrayStorage;
@@ -202,11 +201,12 @@ class Users extends Model
     // ------------------------------------------------------------------------
 
     /**
-     * Users::aftrerInsert
+     * Users::afterInsert
      *
-     * @param array $sets
+     * @param SplArrayStorage $sets
      *
-     * @return bool
+     * @return void
+     * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
      */
     protected function afterInsert(SplArrayStorage &$sets)
     {

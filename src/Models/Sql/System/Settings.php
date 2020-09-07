@@ -38,7 +38,7 @@ class Settings extends Model
      * @var array
      */
     public $insertValidationRules = [
-        'ownership_id' => 'required|integer',
+        'ownership_id' => 'required',
         'ownership_model' => 'required',
         'key' => 'required',
         'value' => 'optional'
@@ -53,7 +53,6 @@ class Settings extends Model
     public $insertValidationCustomErrors = [
         'ownership_id' => [
             'required' => 'Ownership id cannot be empty!',
-            'integer' => 'Ownership id data must be an integer'
         ],
         'ownership_model' => [
             'required' => 'Ownership model cannot be empty!'
@@ -72,6 +71,10 @@ class Settings extends Model
      */
     public $updateValidationRules = [
         'id' => 'required|integer',
+        'ownership_id' => 'required',
+        'ownership_model' => 'required',
+        'key' => 'required',
+        'value' => 'optional'
     ];
 
     // ------------------------------------------------------------------------
@@ -94,11 +97,9 @@ class Settings extends Model
             'required' => 'Ownership model cannot be empty!'
         ],
         'key' => [
-            'required' => 'Setting name cannot be empty!'
+            'required' => 'Setting key cannot be empty!'
         ]
     ];
-
-
 
     // ------------------------------------------------------------------------
 
@@ -112,21 +113,4 @@ class Settings extends Model
         return $this->morphTo();
     }
 
-    /**
-     * Settings::fetch
-     *
-     * @deprecated
-     * @return SplArrayObject
-     */
-    public function fetch(): SplArrayObject
-    {
-        $metadata = new SplArrayObject();
-
-        if ($result = $this->all()) {
-            foreach ($result as $row) {
-                $metadata->offsetSet($row->key, $row->value);
-            }
-        }
-        return $metadata;
-    }
 }

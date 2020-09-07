@@ -17,7 +17,6 @@ namespace O2System\Framework\Models\Sql\System;
 
 use O2System\Framework\Models\Sql\Model;
 use O2System\Framework\Models\Sql\System\Consumers\Authorities;
-use O2System\Framework\Models\Sql\System\Consumers\Sessions;
 
 /**
  * Class Consumers
@@ -33,16 +32,74 @@ class Consumers extends Model
     public $table = 'sys_consumers';
 
     // ------------------------------------------------------------------------
+    /**
+     * Consumers::$insertValidationRules
+     *
+     * @var array
+     */
+    public $insertValidationRules = [
+        'namespace' => 'required',
+        'key' => 'required',
+        'secret' => 'required',
+        'callback' => 'optional',
+    ];
+
+    // ------------------------------------------------------------------------
+    /**
+     * Consumers::$insertValidationCustomErrors
+     *
+     * @var array
+     */
+    public $insertValidationCustomErrors = [
+        'namespace' => [
+            'required' => 'Consumer namespace  cannot be empty!'
+        ],
+        'key' => [
+            'required' => 'Consumer key cannot be empty!',
+        ],
+        'secret' => [
+            'required' => 'Consumer model secret cannot be empty!'
+        ],
+    ];
+
+    // ------------------------------------------------------------------------
 
     /**
-     * Consumers::authorities
+     * Consumers::$updateValidationRules
      *
-     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     * @var array
      */
-    public function authorities()
-    {
-        return $this->hasMany(Authorities::class);
-    }
+    public $updateValidationRules = [
+        'id' => 'required|integer',
+        'timestamp' => 'optional|date[Y-m-d h:i:s]',
+        'status' => 'optional',
+        'message' => 'optional',
+        'log_id' => 'required|integer',
+        'log_model' => 'required'
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Consumers::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [
+        'id' => [
+            'required' => 'Consumer id cannot be empty!',
+            'integer' => 'Consumer id data must be an integer'
+        ],
+        'namespace' => [
+            'required' => 'Consumer namespace  cannot be empty!'
+        ],
+        'key' => [
+            'required' => 'Consumer key cannot be empty!',
+        ],
+        'secret' => [
+            'required' => 'Consumer model secret cannot be empty!'
+        ],
+    ];
 
     // ------------------------------------------------------------------------
 
@@ -55,4 +112,17 @@ class Consumers extends Model
     {
         return $this->hasMany(Sessions::class);
     }
+
+    // ------------------------------------------------------------------------
+    /**
+     * Consumers::authorities
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
+     */
+    public function authorities()
+    {
+        return $this->hasMany(Authorities::class);
+
+    }
+
 }

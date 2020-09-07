@@ -5,6 +5,7 @@ namespace O2System\Framework\Models\Sql\System\Modules;
 
 
 use O2System\Framework\Models\Sql\Model;
+use O2System\Framework\Models\Sql\System\Modules;
 
 /**
  * Class Languages
@@ -94,5 +95,17 @@ class Languages extends Model
             'required' => 'System Module Language translation cannot be empty!'
         ],
     ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Languages::module
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
+    public function module()
+    {
+        return $this->belongsTo(Modules::class);
+    }
 
 }

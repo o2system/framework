@@ -29,7 +29,88 @@ class Sessions extends Model
      * @var string
      */
     public $table = 'sys_sessions';
+    // ------------------------------------------------------------------------
 
+    /**
+     * Sessions::$insertValidationRules
+     *
+     * @var array
+     */
+    public $insertValidationRules = [
+        'id_session' => 'required',
+        'ssid' => 'required',
+        'jwt' => 'required',
+        'expires' => 'optional',
+        'useragent' => 'optional',
+        'ownership_id' => 'required',
+        'ownership_model' => 'required',
+    ];
+
+    // ------------------------------------------------------------------------
+    /**
+     * Sessions::$insertValidationCustomErrors
+     *
+     * @var array
+     */
+    public $insertValidationCustomErrors = [
+        'id_session' => [
+            'required' => 'Session ID cannot be empty!'
+        ],
+        'ssid' => [
+            'required' => 'SSID name cannot be empty!'
+        ],
+        'jwt' => [
+            'required' => 'JWT name cannot be empty!'
+        ],
+        'ownership_id' => [
+            'required' => 'Ownership id cannot be empty!',
+            'integer' => 'Ownership id data must be an integer'
+        ],
+        'ownership_model' => [
+            'required' => 'Ownership model cannot be empty!'
+        ],
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Sessions::$updateValidationRules
+     *
+     * @var array
+     */
+    public $updateValidationRules = [
+        'id' => 'required|integer',
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Sessions::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [
+        'id' => [
+            'required' => 'Session id cannot be empty!',
+            'integer' => 'Session id data must be an integer'
+        ],
+        'id_session' => [
+            'required' => 'Session ID cannot be empty!'
+        ],
+        'ssid' => [
+            'required' => 'SSID name cannot be empty!'
+        ],
+        'jwt' => [
+            'required' => 'JWT name cannot be empty!'
+        ],
+        'ownership_id' => [
+            'required' => 'Ownership id cannot be empty!',
+            'integer' => 'Ownership id data must be an integer'
+        ],
+        'ownership_model' => [
+            'required' => 'Ownership model cannot be empty!'
+        ],
+    ];
     // ------------------------------------------------------------------------
 
     /**

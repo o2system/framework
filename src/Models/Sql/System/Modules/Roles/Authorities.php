@@ -2,6 +2,8 @@
 namespace O2System\Framework\Models\Sql\System\Modules\Roles;
 
 use O2System\Framework\Models\Sql\Model;
+use O2System\Framework\Models\Sql\System\Modules\Endpoints;
+use O2System\Framework\Models\Sql\System\Modules\Roles;
 
 /**
  * Class Authorities
@@ -89,5 +91,26 @@ class Authorities extends Model
             'listed' => 'System module role authority permission must be listed: DENIED,GRANTED,WRITE'
         ]
     ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Roles::module
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
+    public function roles()
+    {
+        return $this->belongsTo(Roles::class);
+    }
+    /**
+     * Roles::endpoint
+     *
+     * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result\Row
+     */
+    public function endpoint()
+    {
+        return $this->belongsTo(Endpoints::class);
+    }
 
 }

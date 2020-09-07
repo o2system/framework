@@ -443,12 +443,22 @@ class Framework extends Kernel
                 ->setType('APP')
                 ->setNamespace('App\\');
             $this->modules->register($app);
+
+            if(class_exists('App\Http\Presenter')) {
+                // Instantiate Http Presenter Service
+                $this->services->load('App\Http\Presenter');
+            }
             
             if($this->config->get('app') !== null) {
                 $app = (new Framework\Containers\Modules\DataStructures\Module(PATH_APP .  studlycase($this->config->get('app')) . DIRECTORY_SEPARATOR))
                     ->setType('APP')
                     ->setNamespace('App\\' . studlycase($this->config->get('app')) . '\\');
                 $this->modules->register($app);
+
+                if(class_exists('App\\' . studlycase($this->config->get('app')) . '\\Http\\Presenter')) {
+                    // Instantiate Http Presenter Service
+                    $this->services->load('App\Http\Presenter');
+                }
             }
         }
         

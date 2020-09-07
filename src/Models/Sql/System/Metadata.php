@@ -51,7 +51,6 @@ class Metadata extends Model
     public $insertValidationCustomErrors = [
         'ownership_id' => [
             'required' => 'Ownership id cannot be empty!',
-            'integer' => 'Ownership id data must be an integer'
         ],
         'ownership_model' => [
             'required' => 'Ownership model cannot be empty!'
@@ -82,7 +81,6 @@ class Metadata extends Model
     public $updateValidationCustomErrors = [
         'id' => [
             'required' => 'Metadata id cannot be empty!',
-            'integer' => 'Metadata id data must be an integer'
         ],
         'ownership_id' => [
             'required' => 'Ownership id cannot be empty!',

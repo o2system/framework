@@ -32,16 +32,29 @@ class Logs extends Model
 
     // ------------------------------------------------------------------------
     /**
+     * Logs::__construct
+     *
+     * @throws \ReflectionException
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->qb->orderBy($this->primaryKey, 'DESC');
+    }
+
+    // ------------------------------------------------------------------------
+    /**
      * Logs::$insertValidationRules
      *
      * @var array
      */
     public $insertValidationRules = [
-        'timestamp' => 'optional|date[Y-m-d h:i:s]',
-        'status' => 'optional',
-        'message' => 'optional',
-        'log_id' => 'required|integer',
-        'log_model' => 'required'
+        'ownership_id' => 'required',
+        'ownership_model' => 'required',
+        'timestamp' => 'required|date[Y-m-d h:i:s]',
+        'status' => 'required',
+        'message' => 'optional'
     ];
 
     // ------------------------------------------------------------------------
@@ -51,15 +64,18 @@ class Logs extends Model
      * @var array
      */
     public $insertValidationCustomErrors = [
+        'ownership_id' => [
+            'required' => 'Log ownership id cannot be empty!',
+        ],
+        'ownership_model' => [
+            'required' => 'Log ownership model cannot be empty!',
+        ],
         'timestamp' => [
-            'date' => 'Log date format must be Y-m-d H:i:s'
+            'required' => 'Log timestamp cannot be empty!',
+            'date' => 'Log timestamp format must be Y-m-d H:i:s'
         ],
-        'log_id' => [
-            'required' => 'Log id cannot be empty!',
-            'integer' => 'Log id data must be an integer'
-        ],
-        'log_model' => [
-            'required' => 'Log model id cannot be empty!'
+        'status' => [
+            'required' => 'Log status cannot be empty!'
         ],
     ];
 
@@ -72,11 +88,11 @@ class Logs extends Model
      */
     public $updateValidationRules = [
         'id' => 'required|integer',
-        'timestamp' => 'optional|date[Y-m-d h:i:s]',
-        'status' => 'optional',
-        'message' => 'optional',
-        'log_id' => 'required|integer',
-        'log_model' => 'required'
+        'ownership_id' => 'required',
+        'ownership_model' => 'required',
+        'timestamp' => 'required|date[Y-m-d h:i:s]',
+        'status' => 'required',
+        'message' => 'optional'
     ];
 
     // ------------------------------------------------------------------------
@@ -91,28 +107,20 @@ class Logs extends Model
             'required' => 'Log id cannot be empty!',
             'integer' => 'Log id data must be an integer'
         ],
+        'ownership_id' => [
+            'required' => 'Log ownership id cannot be empty!',
+        ],
+        'ownership_model' => [
+            'required' => 'Log ownership model cannot be empty!',
+        ],
         'timestamp' => [
-            'date' => 'Log date format must be Y-m-d H:i:s'
+            'required' => 'Log timestamp cannot be empty!',
+            'date' => 'Log timestamp format must be Y-m-d H:i:s'
         ],
-        'log_id' => [
-            'required' => 'Log id cannot be empty!',
-            'integer' => 'Log id data must be an integer'
-        ],
-        'log_model' => [
-            'required' => 'Log model id cannot be empty!'
+        'status' => [
+            'required' => 'Log status cannot be empty!'
         ],
     ];
-
-    /**
-     * Logs::__construct
-     * @throws \ReflectionException
-     */
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->qb->orderBy($this->primaryKey, 'DESC');
-    }
 
     // ------------------------------------------------------------------------
 

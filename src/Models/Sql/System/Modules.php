@@ -55,11 +55,10 @@ class Modules extends Model
      */
     public $insertValidationRules = [
         'id_parent' => 'required|integer',
-        'segments' => 'required',
+        'endpoint' => 'required',
         'namespace' => 'required',
         'path' => 'required',
-        'type'   => 'required',
-        'metadata'   => 'required',
+        'type'   => 'required|listed[APP, MODULE, COMPONENT, PLUGIN]',
     ];
 
     // ------------------------------------------------------------------------
@@ -71,14 +70,22 @@ class Modules extends Model
      */
     public $insertValidationCustomErrors = [
         'id_parent' => [
-            'required' => 'Parent cannot be empty!',
-            'integer' => 'Parent data must be an integer'
+            'required' => 'Module parent id cannot be empty!',
+            'integer' => 'Module parent id data must be an integer'
         ],
-        'segments' => ['required' => 'Module segments cannot be empty!'],
-        'namespace' => ['required' => 'Module namespace cannot be empty!'],
-        'path' => ['required' => 'Module path cannot be empty!'],
-        'type' => ['required' => 'Module type cannot be empty!'],
-        'metadata' => ['required' => 'Module metadata cannot be empty!'],
+        'endpoint' => [
+            'required' => 'Module endpoint cannot be empty!'
+        ],
+        'namespace' => [
+            'required' => 'Module namespace cannot be empty!'
+        ],
+        'path' => [
+            'required' => 'Module path cannot be empty!'
+        ],
+        'type' => [
+            'required' => 'Module type cannot be empty!',
+            'listed' => 'Calendar record type data must be listed: APP, MODULE, COMPONENT or PLUGIN',
+        ],
     ];
 
     // ------------------------------------------------------------------------
@@ -91,11 +98,10 @@ class Modules extends Model
     public $updateValidationRules = [
         'id' => 'required|integer',
         'id_parent' => 'required|integer',
-        'segments' => 'required',
+        'endpoint' => 'required',
         'namespace' => 'required',
         'path' => 'required',
-        'type'   => 'required',
-        'metadata'   => 'required',
+        'type'   => 'required|listed[APP, MODULE, COMPONENT, PLUGIN]',
     ];
 
     // ------------------------------------------------------------------------
@@ -111,14 +117,22 @@ class Modules extends Model
             'integer' => 'Module id data must be an integer'
         ],
         'id_parent' => [
-            'required' => 'Parent cannot be empty!',
-            'integer' => 'Parent data must be an integer'
+            'required' => 'Module parent id cannot be empty!',
+            'integer' => 'Module parent id data must be an integer'
         ],
-        'segments' => ['required' => 'Module segments cannot be empty!'],
-        'namespace' => ['required' => 'Module namespace cannot be empty!'],
-        'path' => ['required' => 'Module path cannot be empty!'],
-        'type' => ['required' => 'Module type cannot be empty!'],
-        'metadata' => ['required' => 'Module metadata cannot be empty!'],
+        'endpoint' => [
+            'required' => 'Module endpoint cannot be empty!'
+        ],
+        'namespace' => [
+            'required' => 'Module namespace cannot be empty!'
+        ],
+        'path' => [
+            'required' => 'Module path cannot be empty!'
+        ],
+        'type' => [
+            'required' => 'Module type cannot be empty!',
+            'listed' => 'Calendar record type data must be listed: APP, MODULE, COMPONENT or PLUGIN',
+        ],
     ];
 
     // ------------------------------------------------------------------------

@@ -44,11 +44,19 @@ class Calendars extends Model
      * @var array
      */
     public $insertValidationRules = [
-        'ownership_id' => 'required|integer',
+        'ownership_id' => 'required',
         'ownership_model' => 'required',
-        'ownership_key' => 'optional',
-        'datetime_start' => 'required|date[Y-m-d h:i:s]',
-        'datetime_end' => 'optional|date[Y-m-d h:i:s]',
+        'start_date' => 'optional|date[Y-m-d]',
+        'start_time' => 'optional|date[h:i:s]',
+        'end_date' => 'optional|date[Y-m-d]',
+        'end_time' => 'optional|date[h:i:s]',
+        'repeat_minute' => 'optional',
+        'repeat_hour' => 'optional',
+        'repeat_day' => 'optional',
+        'repeat_date' => 'optional',
+        'repeat_month' => 'optional',
+        'repeat_year' => 'optional',
+        'repeat_until' => 'optional',
         'record_type' => 'listed[HOLIDAY,BIRTHDAY,LEAVE,EVENT,MEETING,PROJECT,APPOINTMENT,REMINDER,TASK,GOAL,NEWS,ANNOUNCEMENT,SCHEDULE,CAREER,CONTRACT,MAINTENANCE,TRAINING]'
     ];
 
@@ -61,20 +69,24 @@ class Calendars extends Model
     public $insertValidationCustomErrors = [
         'ownership_id' => [
             'required' => 'Ownership id cannot be empty!',
-            'integer' => 'Ownership id data must be an integer'
         ],
         'ownership_model' => [
             'required' => 'Ownership model cannot be empty!'
         ],
-        'datetime_start' => [
-            'required' => 'Calendars name cannot be empty!',
-            'date' => 'Calendar datetime start data must be an date Y-m-d h:i:s'
+        'start_date' => [
+            'date' => 'Calendar datetime start data must be an date Y-m-d'
         ],
-        'datetime_end' => [
-            'date' => 'Calendar datetime start data must be an date Y-m-d h:i:s'
+        'start_time' => [
+            'date' => 'Calendar datetime start time must be an date Y-m-d h:i:s'
+        ],
+        'end_date' => [
+            'date' => 'Calendar datetime end date must be an date Y-m-d'
+        ],
+        'end_time' => [
+            'date' => 'Calendar datetime end time data must be an date h:i:s'
         ],
         'record_type' => [
-            'listed' => 'Calendar recorrt type data must be listed: HOLIDAY,BIRTHDAY,LEAVE,EVENT,MEETING,PROJECT,APPOINTMENT,REMINDER,TASK,GOAL,NEWS,ANNOUNCEMENT,SCHEDULE,CAREER,CONTRACT,MAINTENANCE,TRAINING'
+            'listed' => 'Calendar record type data must be listed: HOLIDAY,BIRTHDAY,LEAVE,EVENT,MEETING,PROJECT,APPOINTMENT,REMINDER,TASK,GOAL,NEWS,ANNOUNCEMENT,SCHEDULE,CAREER,CONTRACT,MAINTENANCE,TRAINING'
         ]
     ];
 
@@ -87,11 +99,19 @@ class Calendars extends Model
      */
     public $updateValidationRules = [
         'id' => 'required|integer',
-        'ownership_id' => 'required|integer',
+        'ownership_id' => 'required',
         'ownership_model' => 'required',
-        'ownership_key' => 'optional',
-        'datetime_start' => 'required|date[Y-m-d h:i:s]',
-        'datetime_end' => 'optional|date[Y-m-d h:i:s]',
+        'start_date' => 'optional|date[Y-m-d]',
+        'start_time' => 'optional|date[h:i:s]',
+        'end_date' => 'optional|date[Y-m-d]',
+        'end_time' => 'optional|date[h:i:s]',
+        'repeat_minute' => 'optional',
+        'repeat_hour' => 'optional',
+        'repeat_day' => 'optional',
+        'repeat_date' => 'optional',
+        'repeat_month' => 'optional',
+        'repeat_year' => 'optional',
+        'repeat_until' => 'optional',
         'record_type' => 'listed[HOLIDAY,BIRTHDAY,LEAVE,EVENT,MEETING,PROJECT,APPOINTMENT,REMINDER,TASK,GOAL,NEWS,ANNOUNCEMENT,SCHEDULE,CAREER,CONTRACT,MAINTENANCE,TRAINING]'
     ];
 
@@ -109,20 +129,24 @@ class Calendars extends Model
         ],
         'ownership_id' => [
             'required' => 'Ownership id cannot be empty!',
-            'integer' => 'Ownership id data must be an integer'
         ],
         'ownership_model' => [
             'required' => 'Ownership model cannot be empty!'
         ],
-        'datetime_start' => [
-            'required' => 'Calendars name cannot be empty!',
-            'date' => 'Calendar datetime start data must be an date Y-m-d h:i:s'
+        'start_date' => [
+            'date' => 'Calendar datetime start data must be an date Y-m-d'
         ],
-        'datetime_end' => [
-            'date' => 'Calendar datetime start data must be an date Y-m-d h:i:s'
+        'start_time' => [
+            'date' => 'Calendar datetime start time must be an date Y-m-d h:i:s'
+        ],
+        'end_date' => [
+            'date' => 'Calendar datetime end date must be an date Y-m-d'
+        ],
+        'end_time' => [
+            'date' => 'Calendar datetime end time data must be an date h:i:s'
         ],
         'record_type' => [
-            'listed' => 'Calendar recorrt type data must be listed: HOLIDAY,BIRTHDAY,LEAVE,EVENT,MEETING,PROJECT,APPOINTMENT,REMINDER,TASK,GOAL,NEWS,ANNOUNCEMENT,SCHEDULE,CAREER,CONTRACT,MAINTENANCE,TRAINING'
+            'listed' => 'Calendar record type data must be listed: HOLIDAY,BIRTHDAY,LEAVE,EVENT,MEETING,PROJECT,APPOINTMENT,REMINDER,TASK,GOAL,NEWS,ANNOUNCEMENT,SCHEDULE,CAREER,CONTRACT,MAINTENANCE,TRAINING'
         ]
     ];
 

@@ -17,6 +17,7 @@ namespace O2System\Framework\Models\Sql\System\Users;
 
 use O2System\Framework\Models\Sql\Model;
 use O2System\Framework\Models\Sql\System\Users;
+use O2System\Framework\Models\Sql\Traits\MetadataTrait;
 
 /**
  * Class Comments
@@ -24,6 +25,7 @@ use O2System\Framework\Models\Sql\System\Users;
  */
 class Comments extends Model
 {
+    use MetadataTrait;
     /**
      * Comments::$table
      *

@@ -30,6 +30,94 @@ class Authorities extends Model
      * @var string
      */
     public $table = 'sys_modules_authorities';
+    // ------------------------------------------------------------------------
+    /**
+     * Authorities::$insertValidationRules
+     *
+     * @var array
+     */
+    public $insertValidationRules = [
+        'id_sys_module' => 'required|integer',
+        'endpoint' => 'required',
+        'permission' => 'required',
+        'scope' => 'optional',
+        'ownership_id' => 'required',
+        'ownership_model' => 'required'
+    ];
+
+    // ------------------------------------------------------------------------
+    /**
+     * Authorities::$insertValidationCustomErrors
+     *
+     * @var array
+     */
+    public $insertValidationCustomErrors = [
+        'id_sys_module' => [
+            'required' => 'Authority id sys module cannot be empty!',
+            'integer' => 'Authority id sys module data must be an integer'
+        ],
+        'endpoint' => [
+            'required' => 'Authority endpoint cannot be empty!',
+        ],
+        'permission' => [
+            'required' => 'Authority permission cannot be empty!'
+        ],
+        'ownership_id' => [
+            'required' => 'Authority  ownership id sys consumer cannot be empty!',
+            'integer' => 'Authority ownership id sys consumer data must be an integer'
+        ],
+        'ownership_model' => [
+            'required' => 'Authority ownership model  cannot be empty!',
+        ]
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Authorities::$updateValidationRules
+     *
+     * @var array
+     */
+    public $updateValidationRules = [
+        'id' => 'required|integer',
+        'id_sys_module' => 'required|integer',
+        'endpoint' => 'required',
+        'permission' => 'required',
+        'scope' => 'optional',
+        'ownership_id' => 'required',
+        'ownership_model' => 'required'
+    ];
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * Authorities::$updateValidationCustomErrors
+     *
+     * @var array
+     */
+    public $updateValidationCustomErrors = [
+        'id' => [
+            'required' => 'Authority id cannot be empty!',
+            'integer' => 'Authority id data must be an integer'
+        ],
+        'id_sys_module' => [
+            'required' => 'Authority id sys module cannot be empty!',
+            'integer' => 'Authority id sys module data must be an integer'
+        ],
+        'endpoint' => [
+            'required' => 'Authority endpoint cannot be empty!',
+        ],
+        'permission' => [
+            'required' => 'Authority permission cannot be empty!'
+        ],
+        'ownership_id' => [
+            'required' => 'Authority  ownership id sys consumer cannot be empty!',
+            'integer' => 'Authority ownership id sys consumer data must be an integer'
+        ],
+        'ownership_model' => [
+            'required' => 'Authority ownership model  cannot be empty!',
+        ]
+    ];
 
     // ------------------------------------------------------------------------
 

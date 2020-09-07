@@ -24,8 +24,8 @@ class Repeaters extends Model
      * @var array
      */
     public $createValidationRules = [
-        'repeatable_id' => 'required|integer',
-        'repeatable_model' => 'required',
+        'ownership_id' => 'required|integer',
+        'ownership_model' => 'required',
         'repeat_minute' => 'optional',
         'repeat_hour' => 'optional',
         'repeat_day' => 'optional',
@@ -48,11 +48,11 @@ class Repeaters extends Model
      * @var array
      */
     public $createValidationCustomErrors = [
-        'repeatable_id' => [
+        'ownership_id' => [
             'required' => 'Repeater id cannot be empty!',
             'integer' => 'Repeater id data must be an integer'
         ],
-        'repeatable_model' => [
+        'ownership_model' => [
             'required' => 'Repeater model cannot be empty!'
         ],
         'until' => [
@@ -83,11 +83,11 @@ class Repeaters extends Model
             'required' => 'Repeater id cannot be empty!',
             'integer' => 'Repeater id data must be an integer'
         ],
-        'repeatable_id' => [
+        'ownership_id' => [
             'required' => 'Repeater id cannot be empty!',
             'integer' => 'Repeater id data must be an integer'
         ],
-        'repeatable_model' => [
+        'ownership_model' => [
             'required' => 'Repeater model cannot be empty!'
         ],
         'until' => [

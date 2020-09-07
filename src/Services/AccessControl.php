@@ -15,19 +15,14 @@ namespace O2System\Framework\Services;
 
 // ------------------------------------------------------------------------
 
-use App\Models\People;
-use O2System\Cache\Item;
-use O2System\Framework\Services\Email;
 use O2System\Security\Generators\Token;
 use O2System\Framework\Models\Sql\System\Sessions;
-use O2system\Framework\Services\Session;
 use O2System\Framework\Models\Sql\System\Users;
 use O2System\Kernel\DataStructures\Input\Abstracts\AbstractInput;
 use O2System\Security\Authentication\JsonWebToken;
 use O2System\Security\Authentication\User;
 use O2System\Security\Authentication\User\Account;
-use O2System\Security\Authentication\User\Role;
-use O2System\Spl\DataStructures\SplArrayObject;
+use O2System\Session;
 use O2System\Spl\DataStructures\SplArrayStorage;
 use O2System\Spl\Traits\Collectors\ErrorCollectorTrait;
 
