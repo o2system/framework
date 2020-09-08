@@ -2,9 +2,9 @@
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/o2system/framework/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/o2system/framework/?branch=master)
 [![Build Status](https://scrutinizer-ci.com/g/o2system/framework/badges/build.png?b=master)](https://scrutinizer-ci.com/g/o2system/framework/build-status/master)
-[![Latest Stable Version](https://poser.pugx.org/o2system/framework/v/stable)](https://packagist.org/packages/o2system/framework)
-[![Total Downloads](https://poser.pugx.org/o2system/framework/downloads)](https://packagist.org/packages/o2system/framework)
-[![License](https://poser.pugx.org/o2system/framework/license)](https://packagist.org/packages/o2system/framework)
+[![Latest Stable Version](https://poser.pugx.org/o2system/framework/v)](//packagist.org/packages/o2system/framework)
+[![Total Downloads](https://poser.pugx.org/o2system/framework/downloads)](//packagist.org/packages/o2system/framework)
+[![License](https://poser.pugx.org/o2system/framework/license)](//packagist.org/packages/o2system/framework)
 
 # O2System Framework
 Open Source PHP Modular HMVC-MVM-P Framework. The new generation of PHP Framework.
