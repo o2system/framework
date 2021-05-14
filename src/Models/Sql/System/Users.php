@@ -247,7 +247,7 @@ class Users extends Model
      *
      * @return string
      */
-    public function avatar()
+    public function avatar(): string
     {
         return 'https://avatars.dicebear.com/v2/initials/' . preg_replace('/[^a-z0-9 _.-]+/i', '', $this->row->username) . '.svg';
     }

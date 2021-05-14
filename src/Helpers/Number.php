@@ -26,7 +26,7 @@ if ( ! function_exists('is_positive')) {
      *
      * @return  bool
      */
-    function is_positive($number)
+    function is_positive(int $number): bool
     {
         if ($number > 0) {
             return true;
@@ -47,7 +47,7 @@ if ( ! function_exists('is_negative')) {
      *
      * @return  bool
      */
-    function is_negative($number)
+    function is_negative(int $number): bool
     {
         if ($number < 0) {
             return true;
@@ -68,7 +68,7 @@ if ( ! function_exists('is_odd')) {
      *
      * @return  bool
      */
-    function is_odd($number)
+    function is_odd(int $number): bool
     {
         if ($number % 2 == 0) {
             return true;
@@ -89,7 +89,7 @@ if ( ! function_exists('is_even')) {
      *
      * @return  bool
      */
-    function is_even($number)
+    function is_even(int $number): bool
     {
         if ($number % 2 == 0) {
             return false;
@@ -106,14 +106,14 @@ if ( ! function_exists('currency_format')) {
      *
      * Format a number into string of formatted currency value.
      *
-     * @param int    $number    The numeric value.
+     * @param int $number    The numeric value.
      * @param string $locale    The locale code indicating the language to use.
      * @param string $currency  The 3-letter ISO 4217 currency code indicating the currency to use.
-     * @param bool   $add_space Add a space between currency and the formatted number.
+     * @param bool $add_space Add a space between currency and the formatted number.
      *
      * @return string
      */
-    function currency_format($number, $locale = 'en_US', $currency = 'USD', $add_space = false)
+    function currency_format(int $number, string $locale = 'en_US', string $currency = 'USD', bool $add_space = false): string
     {
         $formatter = new \NumberFormatter($locale, \NumberFormatter::CURRENCY);
 
@@ -132,15 +132,15 @@ if ( ! function_exists('unit_format')) {
      *
      * Format a number with grouped thousands and added a custom unit suffix.
      *
-     * @param int    $number              The numeric value.
-     * @param string $unit                The custom unit suffix
-     * @param int    $decimals            The number of decimal points.
+     * @param int $number              The numeric value.
+     * @param string|null $unit                The custom unit suffix
+     * @param int $decimals            The number of decimal points.
      * @param string $decimal_point       The separator for the decimal point.
      * @param string $thousands_separator The thousands separator.
      *
      * @return string
      */
-    function unit_format($number, $unit = null, $decimals = 0, $decimal_point = '.', $thousands_separator = ',')
+    function unit_format(int $number, string $unit = null, int $decimals = 0, string $decimal_point = '.', string $thousands_separator = ','): string
     {
         $number = number_format($number, $decimals, $decimal_point, $thousands_separator);
 

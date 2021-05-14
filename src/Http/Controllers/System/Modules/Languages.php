@@ -24,7 +24,7 @@ class Languages extends Restful
     /**
      * Languages::$model
      *
-     * @var string
+     * @var string|\O2System\Framework\Models\Sql\System\Modules\Languages
      */
     public $model = '\O2System\Framework\Models\Sql\System\Modules\Languages';
 

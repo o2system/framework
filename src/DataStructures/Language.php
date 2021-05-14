@@ -60,7 +60,7 @@ class Language extends SplDirectoryInfo
      *
      * @return bool
      */
-    public function isValid()
+    public function isValid(): bool
     {
         if (count($this->properties)) {
             return true;
@@ -76,7 +76,7 @@ class Language extends SplDirectoryInfo
      *
      * @return string
      */
-    public function getCode()
+    public function getCode(): string
     {
         return strtoupper(substr(md5($this->getDirName()), 2, 7));
     }
@@ -88,7 +88,7 @@ class Language extends SplDirectoryInfo
      *
      * @return string
      */
-    public function getChecksum()
+    public function getChecksum(): string
     {
         return md5($this->getMTime());
     }
@@ -100,7 +100,7 @@ class Language extends SplDirectoryInfo
      *
      * @return \O2System\Spl\DataStructures\SplArrayObject
      */
-    public function getProperties()
+    public function getProperties(): SplArrayObject
     {
         return new SplArrayObject($this->properties);
     }
@@ -126,7 +126,7 @@ class Language extends SplDirectoryInfo
      *
      * @return string
      */
-    public function getParameter()
+    public function getParameter(): string
     {
         return $this->getDirName();
     }

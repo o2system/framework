@@ -17,13 +17,13 @@ if ( ! function_exists('str_echo')) {
      * Output one or more strings with string validation whether the string is empty or not,
      * and add additional prefix and suffix string with self-defined glue string.
      *
-     * @param mixed  $string String to be echo.
-     * @param string $prefix Add a prefix string.
-     * @param string $suffix Add a suffix string.
-     *
+     * @param mixed $string String to be echo.
+     * @param null $prefix Add a prefix string.
+     * @param string|null $suffix Add a suffix string.
+     * @param string $glue
      * @return string
      */
-    function str_echo($string, $prefix = null, $suffix = null, $glue = '')
+    function str_echo($string, $prefix = null, string $suffix = null, string $glue = ''): string
     {
         if ( ! empty($string) OR $string !== '') {
             return implode($glue, array_filter([
@@ -49,7 +49,7 @@ if ( ! function_exists('str_email')) {
      *
      * @return string
      */
-    function str_email($string)
+    function str_email(string $string): string
     {
         if ( ! empty($string) or $string != '') {
             return str_replace(
@@ -82,7 +82,7 @@ if ( ! function_exists('str_alphanumeric')) {
      *
      * @return    string
      */
-    function str_alphanumeric($string)
+    function str_alphanumeric($string): string
     {
         if ( ! empty($string) or $string != '') {
             $string = preg_replace("/[^a-zA-Z0-9\s]/", "", $string);
@@ -107,7 +107,7 @@ if ( ! function_exists('str_numeric')) {
      *
      * @return    string
      */
-    function str_numeric($string)
+    function str_numeric($string): string
     {
         if ( ! empty($string) or $string != '') {
             $string = preg_replace("/[^0-9\s]/", "", $string);
@@ -126,12 +126,12 @@ if ( ! function_exists('str_truncate')) {
      * Truncates a string to a certain length.
      *
      * @param string $string
-     * @param int    $limit
+     * @param int $limit
      * @param string $ending
      *
      * @return string
      */
-    function str_truncate($string, $limit = 25, $ending = '')
+    function str_truncate(string $string, int $limit = 25, string $ending = ''): string
     {
         if (strlen($string) > $limit) {
             $string = strip_tags($string);
@@ -154,11 +154,11 @@ if ( ! function_exists('str_shorten')) {
      * if a string is too long will be shorten it in the middle.
      *
      * @param string $string
-     * @param int    $limit
+     * @param int $limit
      *
      * @return string
      */
-    function str_shorten($string, $limit = 25)
+    function str_shorten(string $string, int $limit = 25): string
     {
         if (strlen($string) > $limit) {
             $prefix = substr($string, 0, ($limit / 2));
@@ -182,7 +182,7 @@ if ( ! function_exists('str_obfuscate')) {
      *
      * @return string
      */
-    function str_obfuscate($string)
+    function str_obfuscate(string $string): string
     {
         $length = strlen($string);
         $scrambled = '';
@@ -203,11 +203,11 @@ if ( ! function_exists('str_symbol_to_entities')) {
      *
      * Converts high-character symbols into their respective html entities.
      *
-     * @return string
-     *
      * @param  string $string
+     *@return string
+     *
      */
-    function str_symbol_to_entities($string)
+    function str_symbol_to_entities(string $string): string
     {
         static $symbols = [
             '‚',
@@ -472,7 +472,7 @@ if ( ! function_exists('str_strip_slashes')) {
      *
      * @param    mixed    string or array
      *
-     * @return    mixed    string or array
+     * @return    array|string    string or array
      */
     function str_strip_slashes($string)
     {
@@ -500,7 +500,7 @@ if ( ! function_exists('str_quote_strip')) {
      *
      * @return    string
      */
-    function str_quote_strip($str)
+    function str_quote_strip($str): string
     {
         return str_replace(['"', "'"], '', $str);
     }
@@ -518,7 +518,7 @@ if ( ! function_exists('str_quote_to_entities')) {
      *
      * @return    string
      */
-    function str_quote_to_entities($string)
+    function str_quote_to_entities($string): string
     {
         return str_replace(["\'", "\"", "'", '"'], ["&#39;", "&quot;", "&#39;", "&quot;"], $string);
     }
@@ -533,19 +533,19 @@ if ( ! function_exists('str_filter_char')) {
      *
      * Reduces multiple instances of a particular character.
      *
-     * @example
+     * @param string $str       The string to be filtered.
+     * @param string $character The character you wish to reduce.
+          * @param bool $trim      TRUE/FALSE - whether to trim the character from the beginning/end.
+     *
+     * @return  string
+     *@example
      * Fred, Bill,, Joe, Jimmy
      *
      * @result
      * Fred, Bill, Joe, Jimmy
      *
-     * @param string $str       The string to be filtered.
-     * @param string $character The character you wish to reduce.
-     * @param bool   $trim      TRUE/FALSE - whether to trim the character from the beginning/end.
-     *
-     * @return  string
      */
-    function str_filter_char($str, $character = ',', $trim = false)
+    function str_filter_char(string $str, string $character = ',', bool $trim = false): string
     {
         $str = preg_replace('#' . preg_quote($character, '#') . '{2,}#', $character, $str);
 
@@ -561,13 +561,13 @@ if ( ! function_exists('str_rand')) {
      *
      * Create a random string, very useful for generating passwords or hashes.
      *
-     * @param   string $type    Type of random string.
+     * @param string $type    Type of random string.
      *                          basic, alpha, alnum, numeric, nozero, unique, md5, encrypt and sha1
-     * @param   int    $length  Number of characters
+     * @param int $length  Number of characters
      *
      * @return  string
      */
-    function str_rand($type = 'alnum', $length = 8)
+    function str_rand(string $type = 'alnum', int $length = 8): string
     {
         switch ($type) {
             case 'basic':
@@ -610,13 +610,13 @@ if ( ! function_exists('str_inc')) {
      *
      * Add's _1 to a string or increment the ending number to allow _2, _3, etc.
      *
-     * @param   string $string    The string to be increased.
-     * @param   string $separator What should the duplicate number be appended with.
+     * @param string $string    The string to be increased.
+     * @param string $separator What should the duplicate number be appended with.
      * @param   string $first     Which number should be used for the first dupe increment
      *
      * @return  string
      */
-    function str_inc($string, $separator = '_', $first = 1)
+    function str_inc(string $string, string $separator = '_', $first = 1): string
     {
         preg_match('/(.+)' . $separator . '([0-9]+)$/', $string, $match);
 
@@ -632,11 +632,9 @@ if ( ! function_exists('str_alt')) {
      *
      * Allows strings to be alternated. See docs...
      *
-     * @param string $param as many parameters as needed.
-     *
      * @return string
      */
-    function str_alt()
+    function str_alt(): string
     {
         static $i;
 
@@ -658,11 +656,11 @@ if ( ! function_exists('str_char_to_ascii')) {
      *
      * Convert accented foreign characters to ASCII.
      *
-     * @param   string $string The string to be converted.
+     * @param string $string The string to be converted.
      *
      * @return  string
      */
-    function str_chars_to_ascii($string)
+    function str_chars_to_ascii(string $string): string
     {
         static $array_from, $array_to;
 
@@ -776,12 +774,12 @@ if ( ! function_exists('str_entities_to_ascii')) {
      *
      * Converts character entities back to ASCII.
      *
-     * @param   string $string The string to be converted.
-     * @param   bool   $all    TRUE/FALSE - whether convert all entities or not.
+     * @param string $string The string to be converted.
+     * @param bool $all    TRUE/FALSE - whether convert all entities or not.
      *
      * @return  string
      */
-    function str_entities_to_ascii($string, $all = true)
+    function str_entities_to_ascii(string $string, bool $all = true): string
     {
         if (preg_match_all('/\&#(\d+)\;/', $string, $matches)) {
             for ($i = 0, $s = count($matches[ 0 ]); $i < $s; $i++) {
@@ -828,7 +826,7 @@ if ( ! function_exists('str_ascii_to_entities')) {
      *
      * @return string
      */
-    function str_ascii_to_entities($string)
+    function str_ascii_to_entities(string $string): string
     {
         $out = '';
         for ($i = 0, $s = strlen($string) - 1, $count = 1, $temp = []; $i <= $s; $i++) {

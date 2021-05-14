@@ -28,11 +28,11 @@ trait FinderTrait
      * FinderTrait::all
      *
      * @param array|string|null $fields
-     * @param int|null          $limit
+     * @param int|null $limit
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function all($fields = null, $limit = null)
+    public function all($fields = null, int $limit = null)
     {
         if (isset($fields)) {
             $this->qb->select($fields);
@@ -74,11 +74,11 @@ trait FinderTrait
      * FinderTrait::allWithPaging
      *
      * @param array|string|null $fields
-     * @param int|null          $numPerPage
+     * @param int|null $numPerPage
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function allWithPaging($fields = null, $numPerPage = null)
+    public function allWithPaging($fields = null, int $numPerPage = null)
     {
         return $this->withPaging(null, $numPerPage)->all($fields, $numPerPage);
     }
@@ -93,7 +93,7 @@ trait FinderTrait
      *
      * @return bool|\O2System\Framework\Models\Sql\Model
      */
-    public function withPaging($page = null, $numPerPage = null)
+    public function withPaging(int $page = null, int $numPerPage = null)
     {
         $getPage = $this->input->get('page');
         $getLimit = $this->input->get('limit');
@@ -115,7 +115,7 @@ trait FinderTrait
      *
      * @return bool|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function paginate($numPerPage)
+    public function paginate(int $numPerPage)
     {
         return $this->withPaging(null, $numPerPage)->all($numPerPage);
     }
@@ -127,17 +127,17 @@ trait FinderTrait
      *
      * @param mixed       $criteria
      * @param string|null $field
-     * @param int|null    $limit
+     * @param int|null $limit
      *
      * @return bool|mixed|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function find($criteria, $field = null, $limit = null)
+    public function find($criteria, string $field = null, int $limit = null)
     {
         if (is_array($criteria)) {
             return $this->findIn($criteria, $field);
         }
 
-        $field = isset($field) ? $field : $this->primaryKey;
+        $field = $field ?? $this->primaryKey;
         if (strpos($field, '.') === false) {
             $field = $this->table . '.' . $field;
         }
@@ -185,7 +185,7 @@ trait FinderTrait
      *
      * @return bool|mixed|\O2System\Framework\Models\Sql\DataObjects\Result
      */
-    public function findWhere(array $conditions, $limit = null)
+    public function findWhere(array $conditions, int $limit = null)
     {
         foreach ($conditions as $field => $criteria) {
             if (strpos($field, '.') === false) {
@@ -236,7 +236,7 @@ trait FinderTrait
      */
     public function findIn(array $inCriteria, $field = null)
     {
-        $field = isset($field) ? $field : $this->primaryKey;
+        $field = $field ?? $this->primaryKey;
         $field = $this->table . '.' . $field;
 
         if (property_exists($this, 'isHierarchical')) {
@@ -278,7 +278,7 @@ trait FinderTrait
      */
     public function findNotIn(array $notInCriteria, $field = null)
     {
-        $field = isset($field) ? $field : $this->primaryKey;
+        $field = $field ?? $this->primaryKey;
         if (strpos($field, '.') === false) {
             $field = $this->table . '.' . $field;
         }

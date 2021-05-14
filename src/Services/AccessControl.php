@@ -84,8 +84,9 @@ class AccessControl extends User
      * @param string $password
      *
      * @return bool
+     * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
      */
-    public function authenticate($username, $password)
+    public function authenticate(string $username, string $password): bool
     {
         if ($account = $this->find($username)) {
             if ($this->passwordVerify($password, $account->password)) {
@@ -116,9 +117,10 @@ class AccessControl extends User
     /**
      * User::register
      *
-     * @author Gemblue
-     * @param  AbstractInput $data
+     * @param AbstractInput $data
      * @return mixed
+     * @throws \O2System\Spl\Exceptions\Logic\BadFunctionCall\BadDependencyCallException
+     * @author Gemblue
      */
     public function register($data)
     {

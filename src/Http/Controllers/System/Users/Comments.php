@@ -23,7 +23,7 @@ class Comments extends Restful
     /**
      * Comments::$model
      *
-     * @var string
+     * @var string|\O2System\Framework\Models\Sql\System\Users\Comments
      */
     public $model = '\O2System\Framework\Models\Sql\System\Users\Comments';
 

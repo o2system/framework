@@ -12,7 +12,6 @@
 namespace O2System\Framework\Http\Controllers\System\Users\Sessions;
 
 // ------------------------------------------------------------------------
-use App\Api\Http\Controller;
 use O2System\Framework\Http\Controllers\Restful;
 // ------------------------------------------------------------------------
 /**

@@ -84,7 +84,7 @@ class Result extends \O2System\Database\DataObjects\Result
     /**
      * Result::pagination
      *
-     * @return \O2System\Framework\Libraries\Ui\Components\Pagination
+     * @return false|\O2System\Framework\Http\View|Pagination|string
      */
     public function pagination()
     {

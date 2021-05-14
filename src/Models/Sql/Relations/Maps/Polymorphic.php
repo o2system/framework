@@ -64,7 +64,7 @@ class Polymorphic extends AbstractMap
      *
      * @return static
      */
-    public function setKey(string $key)
+    public function setKey(string $key): self
     {
         $this->morphKey = $key;
         

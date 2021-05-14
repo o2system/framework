@@ -24,7 +24,7 @@ class Menus extends Restful
     /**
      * Menus::$model
      *
-     * @var string
+     * @var string|\O2System\Framework\Models\Sql\System\Modules\Menus
      */
     public $model = '\O2System\Framework\Models\Sql\System\Modules\Menus';
 

@@ -24,6 +24,7 @@ class Files extends \O2System\Kernel\DataStructures\Input\Files
 {
     /**
      * Files::__construct
+     * @throws BadDependencyCallException
      */
     public function __construct()
     {

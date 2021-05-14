@@ -24,7 +24,7 @@ class Roles extends Restful
     /**
      * Roles::$model
      *
-     * @var string
+     * @var string|\O2System\Framework\Models\Sql\System\Modules\Roles
      */
     public $model = '\O2System\Framework\Models\Sql\System\Modules\Roles';
 

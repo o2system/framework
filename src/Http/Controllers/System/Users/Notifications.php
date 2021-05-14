@@ -22,7 +22,7 @@ class Notifications extends Restful
     /**
      * Notifications::$model
      *
-     * @var string
+     * @var string|\O2System\Framework\Models\Sql\System\Users\Notifications
      */
     public $model = '\O2System\Framework\Models\Sql\System\Users\Notifications';
 

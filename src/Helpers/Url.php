@@ -18,8 +18,9 @@ if ( ! function_exists('base_url')) {
      * @param null $query
      *
      * @return string
+     * @throws \O2System\Spl\Exceptions\RuntimeException
      */
-    function base_url($segments = null, $query = null)
+    function base_url($segments = null, $query = null): string
     {
         $uri = (new \O2System\Kernel\Http\Message\Uri())
             ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
@@ -69,8 +70,9 @@ if ( ! function_exists('domain_url')) {
      * @param null $subdomain
      *
      * @return string
+     * @throws \O2System\Spl\Exceptions\RuntimeException
      */
-    function domain_url($segments = null, $query = null, $subdomain = null)
+    function domain_url($segments = null, $query = null, $subdomain = null): string
     {
         $uri = (new \O2System\Kernel\Http\Message\Uri())
             ->withSegments(new \O2System\Kernel\Http\Message\Uri\Segments(''))
@@ -114,8 +116,9 @@ if ( ! function_exists('current_url')) {
      * @param null $query
      *
      * @return string
+     * @throws \O2System\Spl\Exceptions\RuntimeException
      */
-    function current_url($segments = null, $query = null)
+    function current_url($segments = null, $query = null): string
     {
         $uri = new \O2System\Kernel\Http\Message\Uri();
 
@@ -139,7 +142,7 @@ if ( ! function_exists('public_url')) {
      *
      * @return string
      */
-    function public_url($path)
+    function public_url(string $path): string
     {
         return path_to_url($path);
     }
@@ -155,7 +158,7 @@ if ( ! function_exists('assets_url')) {
      *
      * @return string
      */
-    function assets_url($path)
+    function assets_url(string $path): string
     {
         return presenter()->assets->file($path);
     }
@@ -170,8 +173,9 @@ if ( ! function_exists('storage_url')) {
      * @param string $path Uri path.
      *
      * @return string
+     * @throws \O2System\Spl\Exceptions\RuntimeException
      */
-    function storage_url($path)
+    function storage_url(string $path): string
     {
         $urlPath = str_replace(PATH_STORAGE, '', $path);
 
@@ -188,8 +192,9 @@ if ( ! function_exists('resources_url')) {
      * @param string $path Uri path.
      *
      * @return string
+     * @throws \O2System\Spl\Exceptions\RuntimeException
      */
-    function resources_url($path)
+    function resources_url(string $path): string
     {
         $urlPath = str_replace(PATH_RESOURCES, '', $path);
 
@@ -204,10 +209,11 @@ if ( ! function_exists('images_url')) {
      * images_url
      *
      * @param string $path Uri path.
-     *
+     * @param null $size
      * @return string
+     * @throws \O2System\Spl\Exceptions\RuntimeException
      */
-    function images_url($path, $size = null)
+    function images_url(string $path, $size = null): string
     {
         $urlPath = str_replace(PATH_STORAGE, '', $path);
 
@@ -227,7 +233,7 @@ if ( ! function_exists('prepare_url')) {
      *
      * @return    string
      */
-    function prepare_url($uri = '')
+    function prepare_url($uri = ''): string
     {
         if ($uri === 'http://' or $uri === 'https://' or $uri === '') {
             return '';
@@ -265,14 +271,15 @@ if ( ! function_exists('redirect_url')) {
      * For very fine grained control over headers, you could use the Browser
      * Library's set_header() function.
      *
-     * @param    string $uri    URL
-     * @param    string $method Redirect method
+     * @param string $uri URL
+     * @param string $method Redirect method
      *                          'auto', 'location' or 'refresh'
-     * @param    int    $code   HTTP Response status code
+     * @param null $code HTTP Response status code
      *
      * @return    void
+     * @throws \O2System\Spl\Exceptions\RuntimeException
      */
-    function redirect_url($uri = '', $method = 'auto', $code = null)
+    function redirect_url(string $uri = '', string $method = 'auto', $code = null)
     {
         if (is_array($uri)) {
             $uri = implode('/', $uri);

@@ -68,7 +68,7 @@ class Email extends Message
      *
      * @return static
      */
-    public function with($vars, $value = null)
+    public function with($vars, $value = null): self
     {
         view()->with($vars, $value);
 
@@ -85,7 +85,7 @@ class Email extends Message
      *
      * @return static
      */
-    public function template($filename, array $vars = [])
+    public function template(string $filename, array $vars = []): self
     {
         if ($view = view()->load($filename, $vars, true)) {
             $this->body($view);
@@ -101,7 +101,7 @@ class Email extends Message
      *
      * @return bool
      */
-    public function send()
+    public function send(): bool
     {
         $spool = new Spool(new Config($this->config));
 

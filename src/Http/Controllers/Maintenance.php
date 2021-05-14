@@ -38,7 +38,7 @@ class Maintenance extends Controller
     /**
      * Maintenance::index
      *
-     * @param int $code
+     * @throws \Exception
      */
     public function index()
     {

@@ -25,7 +25,7 @@ class Profiles extends Restful
     /**
      * Profiles::$model
      *
-     * @var string
+     * @var string|\O2System\Framework\Models\Sql\System\Users\Profiles
      */
     public $model = '\O2System\Framework\Models\Sql\System\Users\Profiles';
 

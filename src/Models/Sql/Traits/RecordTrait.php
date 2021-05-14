@@ -61,7 +61,7 @@ trait RecordTrait
      *
      * @return static
      */
-    public function setRecordUser($idUser)
+    public function setRecordUser(int $idUser)
     {
         if (is_numeric($idUser)) {
             $this->recordUser = $idUser;
@@ -79,7 +79,7 @@ trait RecordTrait
      *
      * @return static
      */
-    public function setRecordStatus($status)
+    public function setRecordStatus(string $status):self
     {
         $status = strtoupper($status);
 
@@ -114,7 +114,7 @@ trait RecordTrait
         }
 
         if (empty($this->primaryKeys)) {
-            $primaryKey = isset($this->primaryKey) ? $this->primaryKey : 'id';
+            $primaryKey = $this->primaryKey ?? 'id';
 
             if (isset($data[ $primaryKey ])) {
                 if (empty($data[ $primaryKey ])) {
@@ -203,7 +203,7 @@ trait RecordTrait
      *
      * @return int
      */
-    public function getRecordOrdering()
+    public function getRecordOrdering(): int
     {
         if($this->recordOrdering === true) {
             return $this->qb->countAllResults($this->table) + 1;
@@ -214,6 +214,9 @@ trait RecordTrait
 
     // ------------------------------------------------------------------------
 
+    /**
+     * @return mixed
+     */
     public function getNumOfRecords()
     {
         return $this->qb->table($this->table)->countAll();

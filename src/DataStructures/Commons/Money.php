@@ -19,6 +19,7 @@ use O2System\Spl\Patterns\Structural\Repository\AbstractRepository;
 
 /**
  * Class Money
+ * @property float amount
  * @package O2System\Framework\DataStructures\Commons
  */
 class Money extends AbstractRepository
@@ -28,7 +29,7 @@ class Money extends AbstractRepository
      *
      * @param int $amount
      */
-    public function __construct($amount)
+    public function __construct(int $amount)
     {
         $money = [];
         if (is_numeric($amount)) {
@@ -55,7 +56,7 @@ class Money extends AbstractRepository
      *
      * @return string
      */
-    public function shortFormat($decimals = 0)
+    public function shortFormat(int $decimals = 0): string
     {
         return short_format($this->amount, $decimals);
     }
@@ -65,13 +66,13 @@ class Money extends AbstractRepository
     /**
      * Money::numberFormat
      *
-     * @param int    $decimals
+     * @param int $decimals
      * @param string $thousandSeparator
      * @param string $decimalSeparator
      *
      * @return string
      */
-    public function numberFormat($decimals = 0, $thousandSeparator = '.', $decimalSeparator = ',')
+    public function numberFormat(int $decimals = 0, string $thousandSeparator = '.', string $decimalSeparator = ','): string
     {
         $decimalSeparator = $thousandSeparator === '.' ? ',' : '.';
 
@@ -87,7 +88,7 @@ class Money extends AbstractRepository
      *
      * @return bool
      */
-    public function isSufficient($amount)
+    public function isSufficient(int $amount): bool
     {
         if ($amount < $this->amount) {
             return true;
@@ -117,11 +118,11 @@ class Money extends AbstractRepository
      *
      * @param string $locale
      * @param string $currency
-     * @param bool   $addSpace
+     * @param bool $addSpace
      *
      * @return string
      */
-    public function currencyFormat($locale = 'id_ID', $currency = 'IDR', $addSpace = true)
+    public function currencyFormat(string $locale = 'id_ID', string $currency = 'IDR', bool $addSpace = true): string
     {
         return currency_format($this->amount, $locale, $currency, $addSpace);
     }

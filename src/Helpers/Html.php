@@ -22,13 +22,13 @@ if ( ! function_exists('tag')) {
      *
      * Generate html tag with auto closed when the content is set.
      *
-     * @param string      $tagName
+     * @param string $tagName
      * @param string|null $contents
      * @param array       $attributes
      *
      * @return string
      */
-    function tag($tagName, $contents = null, array $attributes = [])
+    function tag(string $tagName, string $contents = null, array $attributes = [])
     {
         if (($tag = substr($tagName, 0)) === '/') {
             $element = new \O2System\Html\Element($tag);

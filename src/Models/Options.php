@@ -35,7 +35,7 @@ class Options extends Model
     /**
      * @return array
      */
-    public function religions()
+    public function religions(): array
     {
         $religions = [];
 
@@ -49,7 +49,7 @@ class Options extends Model
     /**
      * @return array
      */
-    public function genders()
+    public function genders(): array
     {
         $genders = [];
 
@@ -63,7 +63,7 @@ class Options extends Model
     /**
      * @return array
      */
-    public function maritals()
+    public function maritals(): array
     {
         $maritals = [];
 
@@ -77,7 +77,7 @@ class Options extends Model
     /**
      * @return array
      */
-    public function bloodTypes()
+    public function bloodTypes(): array
     {
         $bloodTypes = [];
 
@@ -94,7 +94,7 @@ class Options extends Model
      * @param string $labelFormat
      * @return array
      */
-    public function days($start = 1, $end = 7, $labelFormat = 'l')
+    public function days(int $start = 1, int $end = 7, string $labelFormat = 'l'): array
     {
         $this->language->loadFile('calendar');
 
@@ -118,7 +118,7 @@ class Options extends Model
      * @param bool $leading
      * @return array
      */
-    public function dates($start = 1, $end = 31, $leading = true)
+    public function dates(int $start = 1, int $end = 31, bool $leading = true): array
     {
         $dates = [];
 
@@ -138,7 +138,7 @@ class Options extends Model
      * @param bool $leading
      * @return array
      */
-    public function months($start = 1, $end = 12, $leading = true)
+    public function months(int $start = 1, int $end = 12, bool $leading = true): array
     {
         $this->language->loadFile('calendar');
 
@@ -160,7 +160,7 @@ class Options extends Model
      * @param null $end
      * @return array
      */
-    public function years($start = 1900, $end = null)
+    public function years(int $start = 1900, $end = null): array
     {
         $end = empty($end) ? date('Y') : $end;
         $years = [];
@@ -175,7 +175,7 @@ class Options extends Model
     /**
      * @return array
      */
-    public function identities()
+    public function identities(): array
     {
         $identities = [];
 
@@ -189,7 +189,7 @@ class Options extends Model
     /**
      * @return array
      */
-    public function sizes()
+    public function sizes(): array
     {
         $sizes = [];
         foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'] as $size) {
@@ -202,7 +202,7 @@ class Options extends Model
     /**
      * @return array
      */
-    public function boolean()
+    public function boolean(): array
     {
         $boolean = [];
         foreach (['YES', 'NO'] as $bool) {
@@ -215,7 +215,7 @@ class Options extends Model
     /**
      * @return array
      */
-    public function familyRelationships()
+    public function familyRelationships(): array
     {
         $familyRelationships = [];
 
@@ -240,7 +240,7 @@ class Options extends Model
     /**
      * @return array
      */
-    public function status()
+    public function status(): array
     {
         $statuses = [];
 
@@ -265,7 +265,7 @@ class Options extends Model
     /**
      * @return array
      */
-    public function visibilities()
+    public function visibilities(): array
     {
         $visibilities = [];
 
@@ -290,7 +290,7 @@ class Options extends Model
      *
      * @return array
      */
-    public function languages()
+    public function languages(): array
     {
         return $this->language->getOptions();
     }
@@ -301,8 +301,9 @@ class Options extends Model
      * Options::languages
      *
      * @return array
+     * @throws \Exception
      */
-    public function timezones()
+    public function timezones(): array
     {
         language()->loadFile('date');
 

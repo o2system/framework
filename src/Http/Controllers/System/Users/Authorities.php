@@ -25,7 +25,7 @@ class Authorities extends Restful
     /**
      * Authorities::$model
      *
-     * @var string
+     * @var string|\O2System\Framework\Models\Sql\System\Users\Authorities
      */
     public $model = '\O2System\Framework\Models\Sql\System\Users\Authorities';
 

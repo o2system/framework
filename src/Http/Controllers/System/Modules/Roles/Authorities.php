@@ -9,7 +9,7 @@
  * @copyright      Copyright (c) Steeve Andrian Salim
  */
 // ------------------------------------------------------------------------
-namespace O2System\Framework\Http\Controllers\System\Roles;
+namespace O2System\Framework\Http\Controllers\System\Modules\Roles;
 
 
 use O2System\Framework\Http\Controllers\Restful;
@@ -23,7 +23,7 @@ class Authorities extends Restful
     /**
      * Authorities::$model
      *
-     * @var string
+     * @var string|\O2System\Framework\Models\Sql\System\Modules\Roles\Authorities
      */
     public $model = '\O2System\Framework\Models\Sql\System\Modules\Roles\Authorities';
 

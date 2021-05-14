@@ -96,7 +96,7 @@ trait ModifierTrait
      *
      * @return static
      */
-    public function flashMessage($enabled)
+    public function flashMessage($enabled): self
     {
         $this->flashMessage = (bool)$enabled;
 

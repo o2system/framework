@@ -22,11 +22,11 @@ if ( ! function_exists('strip_image_tags')) {
      *
      * Strip all image tags from string of HTML source code.
      *
-     * @param   string $source_code The string of HTML source code.
+     * @param string $source_code The string of HTML source code.
      *
      * @return  string
      */
-    function strip_image_tags($source_code)
+    function strip_image_tags(string $source_code): string
     {
         return preg_replace(
             [
@@ -47,11 +47,11 @@ if ( ! function_exists('strip_cdata')) {
      *
      * Strip all CDATA encapsulation from string of HTML source code.
      *
-     * @param   string $source_code The string of HTML source code.
+     * @param string $source_code The string of HTML source code.
      *
      * @return  string
      */
-    function strip_cdata($source_code)
+    function strip_cdata(string $source_code): string
     {
         preg_match_all('/<!\[cdata\[(.*?)\]\]>/is', $source_code, $matches);
 
@@ -67,11 +67,11 @@ if ( ! function_exists('strips_all_tags')) {
      * Strip all HTML tags from string of HTML source code but keep safe
      * the original content.
      *
-     * @param   string $source_code The string of HTML source code.
+     * @param string $source_code The string of HTML source code.
      *
      * @return  string
      */
-    function strips_all_tags($source_code)
+    function strips_all_tags(string $source_code): string
     {
         return preg_replace([
             '@<script[^>]*?>.*?</script>@si', // Strip out javascript
@@ -91,13 +91,13 @@ if ( ! function_exists('strips_tags')) {
      * Strips all HTML tags and its content at the defined tags.
      * Strip out all the content between any tag that has an opening and closing tag, like <table>, <object>, etc.
      *
-     * @param   string  $source_code     The string of HTML source code.
-     * @param   string  $disallowed_tags The list of disallowed HTML tags, separated with |.
-     * @param    string $allowed_tags    The list of allowed HTML tags, separated with |.
+     * @param string $source_code     The string of HTML source code.
+     * @param string $disallowed_tags The list of disallowed HTML tags, separated with |.
+     * @param string $allowed_tags    The list of allowed HTML tags, separated with |.
      *
      * @return  string
      */
-    function strips_tags($source_code, $disallowed_tags = 'script|style|noframes|select|option', $allowed_tags = '')
+    function strips_tags(string $source_code, string $disallowed_tags = 'script|style|noframes|select|option', string $allowed_tags = ''): string
     {
         //prep the string
         $source_code = ' ' . $source_code;
@@ -161,12 +161,12 @@ if ( ! function_exists('strip_word_doc')) {
      *
      * Strip all word doc tags from string of source code.
      *
-     * @param   string $source_code  The string of HTML source code.
-     * @param   string $allowed_tags The list of disallowed HTML tags, separated with |.
+     * @param string $source_code  The string of HTML source code.
+     * @param string $allowed_tags The list of disallowed HTML tags, separated with |.
      *
      * @return  string
      */
-    function strip_word_doc($source_code, $allowed_tags = '')
+    function strip_word_doc(string $source_code, string $allowed_tags = '')
     {
         mb_regex_encoding('UTF-8');
 
@@ -273,11 +273,9 @@ if ( ! function_exists('strip_slashes_recursive')) {
      * @since 4.0
      * @since 5.0
      */
-    function strip_slashes_recursive($string)
+    function strip_slashes_recursive(string $string)
     {
-        $string = is_array($string) ? array_map('strip_slashes_recursive', $string) : stripslashes($string);
-
-        return $string;
+        return is_array($string) ? array_map('strip_slashes_recursive', $string) : stripslashes($string);
     }
 }
 
@@ -289,11 +287,11 @@ if ( ! function_exists('strip_comments')) {
      *
      * Strip HTML Comments
      *
-     * @param   string $source_code HTML Source Code
+     * @param string $source_code HTML Source Code
      *
      * @return  string
      */
-    function strip_comments($source_code)
+    function strip_comments(string $source_code): string
     {
         return preg_replace('/<!--[\s\S]*?-->/', '', $source_code);
     }
@@ -307,11 +305,11 @@ if ( ! function_exists('clean_white_space')) {
      *
      * Clean HTML Whitespace
      *
-     * @param   string $source_code HTML Source Code
+     * @param string $source_code HTML Source Code
      *
      * @return  string
      */
-    function clean_white_space($source_code)
+    function clean_white_space(string $source_code): string
     {
         $source_code = str_replace(["\n", "\r", '&nbsp;', "\t"], '', $source_code);
 
@@ -327,11 +325,11 @@ if ( ! function_exists('encode_php_tags')) {
      *
      * Encode PHP tags to entities.
      *
-     * @param   string $string The string tobe encoded.
+     * @param string $string The string tobe encoded.
      *
      * @return  string
      */
-    function encode_php_tags($string)
+    function encode_php_tags(string $string): string
     {
         return str_replace(['<?', '?>'], ['&lt;?', '?&gt;'], $string);
     }
@@ -346,11 +344,11 @@ if ( ! function_exists('escape_html')) {
      * Returns HTML escaped variable.
      *
      * @param    mixed $source_code   The input string or array of strings to be escaped.
-     * @param    bool  $double_encode $double_encode set to FALSE prevents escaping twice.
+     * @param bool $double_encode $double_encode set to FALSE prevents escaping twice.
      *
      * @return    mixed            The escaped string or array of strings as a result.
      */
-    function escape_html($source_code, $encoding = 'UTF-8', $double_encode = true)
+    function escape_html($source_code, $encoding = 'UTF-8', bool $double_encode = true)
     {
         if (is_array($source_code)) {
             return array_map('escape_html', $source_code, array_fill(0, count($source_code), $double_encode));

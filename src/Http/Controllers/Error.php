@@ -40,7 +40,7 @@ class Error extends Controller
      *
      * @param int $code
      */
-    public function index($code = 500)
+    public function index(int $code = 500)
     {
         $codeString = $code . '_' . error_code_string($code);
 

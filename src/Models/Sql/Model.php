@@ -205,6 +205,7 @@ class Model
     /**
      * Model::__construct
      *
+     * @throws RuntimeException
      * @throws \ReflectionException
      */
     public function __construct()

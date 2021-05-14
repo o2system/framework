@@ -15,7 +15,6 @@ namespace O2System\Framework\Models\Sql\Traits;
 
 // ------------------------------------------------------------------------
 
-use O2System\Framework\Models\Sql\Model;
 use O2System\Framework\Models\Sql\System\Metadata;
 use O2System\Spl\DataStructures\SplArrayObject;
 
@@ -37,9 +36,9 @@ trait MetadataTrait
     /**
      * MetadataTrait::metadata
      *
-     * @return array|bool|\O2System\Database\DataObjects\Result
+     * @return SplArrayObject
      */
-    public function metadata()
+    public function metadata(): SplArrayObject
     {
         $metadata = new SplArrayObject();
 

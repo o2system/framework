@@ -115,7 +115,7 @@ class Cart extends AbstractRepository
      *
      * @return int
      */
-    public function getTotalWeight()
+    public function getTotalWeight(): int
     {
         $totalWeight = 0;
 
@@ -137,7 +137,7 @@ class Cart extends AbstractRepository
      *
      * @return int
      */
-    public function getTotalPrice()
+    public function getTotalPrice(): int
     {
         $totalPrice = 0;
 

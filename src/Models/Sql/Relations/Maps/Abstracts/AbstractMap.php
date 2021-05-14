@@ -98,11 +98,12 @@ abstract class AbstractMap
     /**
      * AbstractMap::getTableKey
      *
-     * @param string      $table
+     * @param string $table
      * @param string|null $prefix
      * @param string|null $suffix
+     * @return string
      */
-    protected function getTableKey($table, $prefix = null, $suffix = null)
+    protected function getTableKey(string $table, string $prefix = null, string $suffix = null): string
     {
         $table = str_replace([
             't_',

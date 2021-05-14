@@ -19,12 +19,12 @@ if ( ! function_exists('text_split')) {
      * @params string $text
      *
      * @param   string $text     Text Source
-     * @param   string $splitter Split Text Marker
+     * @param string $splitter Split Text Marker
      * @param   int    $limit    Split after num of limit characters
      *
      * @return string
      */
-    function text_split($text, $splitter = '<---text-split--->', $limit = 100)
+    function text_split($text, string $splitter = '<---text-split--->', $limit = 100): string
     {
         $wrap_text = wordwrap($text, $limit, $splitter);
         $wrap_text = preg_split('[' . $splitter . ']', $wrap_text, -1, PREG_SPLIT_NO_EMPTY);
@@ -40,12 +40,12 @@ if ( ! function_exists('text_columns')) {
      *
      * Split a block of strings or text evenly across a number of columns.
      *
-     * @param  string $text Text Source
-     * @param  int    $cols Number of columns
+     * @param string $text Text Source
+     * @param int $cols Number of columns
      *
      * @return array
      */
-    function text_columns($text, $cols)
+    function text_columns(string $text, int $cols): array
     {
         $col_length = ceil(strlen($text) / $cols) + 3;
         $return = explode("\n", wordwrap(strrev($text), $col_length));
@@ -68,13 +68,13 @@ if ( ! function_exists('text_wrap')) {
      *
      * Wrap the given string to a certain chars length and lines.
      *
-     * @param  string   $text  Text Source
-     * @param  int      $chars 10 means wrap at 40 chars
+     * @param string $text  Text Source
+     * @param int $chars 10 means wrap at 40 chars
      * @param  int|bool $lines True or false $lines = false or $lines = 3, means truncate after 3 lines
      *
      * @return string
      */
-    function text_wrap($text, $chars = 10, $lines = false)
+    function text_wrap(string $text, int $chars = 10, $lines = false): string
     {
         # the simple case - return wrapped words
         if ( ! $lines) {
@@ -97,14 +97,14 @@ if ( ! function_exists('text_trim')) {
      *
      * Cuts the given string to a certain length without breaking a word.
      *
-     * @param  string $text   Text source
-     * @param  int    $limit  number of maximum characters leave remaining
-     * @param  string $break  = "." break on dot ending or keep maximum set on ' '
-     * @param  string $ending = '...' to display '...' on the end of the trimmed string
+     * @param string $text   Text source
+     * @param int $limit  number of maximum characters leave remaining
+     * @param string $break  = "." break on dot ending or keep maximum set on ' '
+     * @param string $ending = '...' to display '...' on the end of the trimmed string
      *
      * @return string
      */
-    function text_trim($text, $limit, $break = '.', $ending = '.')
+    function text_trim(string $text, int $limit, string $break = '.', string $ending = '.'): string
     {
         // return with no change if string is shorter than $limit
         if (strlen($text) <= $limit) {
@@ -135,7 +135,7 @@ if ( ! function_exists('text_word_limiter')) {
      *
      * @return    string
      */
-    function text_word_limiter($str, $limit = 100, $end_char = '&#8230;')
+    function text_word_limiter($str, $limit = 100, $end_char = '&#8230;'): string
     {
         if (trim($str) === '') {
             return $str;
@@ -166,7 +166,7 @@ if ( ! function_exists('text_character_limiter')) {
      *
      * @return    string
      */
-    function text_character_limiter($string, $n = 500, $end_char = '&#8230;')
+    function text_character_limiter($string, $n = 500, $end_char = '&#8230;'): string
     {
         if (mb_strlen($string) < $n) {
             return $string;
@@ -208,7 +208,7 @@ if ( ! function_exists('text_censored')) {
      *
      * @return    string
      */
-    function text_censored($string, $censored, $replacement = '')
+    function text_censored($string, $censored, $replacement = ''): string
     {
         if ( ! is_array($censored)) {
             return $string;
@@ -250,14 +250,14 @@ if ( ! function_exists('text_highlight_phrase')) {
      *
      * Highlights a phrase within a text string.
      *
-     * @param    string $string    the text string
-     * @param    string $phrase    the phrase you'd like to highlight
-     * @param    string $tag_open  the openging tag to precede the phrase with
-     * @param    string $tag_close the closing tag to end the phrase with
+     * @param string $string    the text string
+     * @param string $phrase    the phrase you'd like to highlight
+     * @param string $tag_open  the openging tag to precede the phrase with
+     * @param string $tag_close the closing tag to end the phrase with
      *
      * @return    string
      */
-    function text_highlight_phrase($string, $phrase, $tag_open = '<mark>', $tag_close = '</mark>')
+    function text_highlight_phrase(string $string, string $phrase, string $tag_open = '<mark>', string $tag_close = '</mark>'): string
     {
         return ($string !== '' && $phrase !== '')
             ? preg_replace(
@@ -279,12 +279,12 @@ if ( ! function_exists('text_word_wrap')) {
      * Anything placed between {unwrap}{/unwrap} will not be word wrapped, nor
      * will URLs.
      *
-     * @param    string $string the text string
-     * @param    int    $limit  = 76    the number of characters to wrap at
+     * @param string $string the text string
+     * @param int $limit  = 76    the number of characters to wrap at
      *
      * @return    string
      */
-    function text_word_wrap($string, $limit = 76)
+    function text_word_wrap(string $string, int $limit = 76): string
     {
         // Set the character limit
         is_numeric($limit) OR $limit = 76;
@@ -369,7 +369,7 @@ if ( ! function_exists('text_ellipsis')) {
      *
      * @return    string    ellipsis string
      */
-    function text_ellipsis($string, $max_length, $position = 1, $ellipsis = '&hellip;')
+    function text_ellipsis($string, $max_length, $position = 1, $ellipsis = '&hellip;'): string
     {
         // Strip tags
         $string = trim(strip_tags($string));
@@ -400,17 +400,17 @@ if ( ! function_exists('text_excerpt')) {
      *
      * Allows to extract a piece of text surrounding a word or phrase.
      *
-     * @param   string $string   String to search the phrase
-     * @param   string $phrase   Phrase that will be searched for.
-     * @param   int    $radius   The amount of characters returned arround the phrase.
-     * @param   string $ellipsis Ending that will be appended
+     * @param string $string   String to search the phrase
+     * @param string|null $phrase   Phrase that will be searched for.
+     * @param int $radius   The amount of characters returned arround the phrase.
+     * @param string $ellipsis Ending that will be appended
      *
      * @return  string
      *
      * If no $phrase is passed, will generate an excerpt of $radius characters
      * from the begining of $text.
      */
-    function text_excerpt($string, $phrase = null, $radius = 100, $ellipsis = '...')
+    function text_excerpt(string $string, string $phrase = null, int $radius = 100, string $ellipsis = '...'): string
     {
         if (isset($phrase)) {
             $phrase_pos = strpos(strtolower($string), strtolower($phrase));

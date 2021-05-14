@@ -28,7 +28,7 @@ if ( ! function_exists('array_get_value')) {
      *
      * @return mixed
      */
-    function array_get_value($key, array $array, $default = null)
+    function array_get_value(string $key, array $array, $default = null)
     {
         return array_key_exists($key, $array) ? $array[ $key ] : $default;
     }
@@ -49,7 +49,7 @@ if ( ! function_exists('array_get_values')) {
      *
      * @return array
      */
-    function array_get_values(array $keys, array $array, $default = [])
+    function array_get_values(array $keys, array $array, array $default = []): array
     {
         $return = [];
 
@@ -83,7 +83,7 @@ if ( ! function_exists('array_combines')) {
      *
      * @return array
      */
-    function array_combines(array $keys, array $values)
+    function array_combines(array $keys, array $values): array
     {
         $combine_array = [];
 
@@ -111,11 +111,11 @@ if ( ! function_exists('array_group')) {
      * Group the array by value or key.
      *
      * @param array $array
-     * @param bool  $flip
+     * @param bool $flip
      *
      * @return array
      */
-    function array_group(array $array, $flip = true)
+    function array_group(array $array, bool $flip = true): array
     {
         $group_array = [];
 
@@ -150,13 +150,13 @@ if ( ! function_exists('array_filter_recursive')) {
      *
      * Remove element by the value of array.
      *
-     * @param   array $array The array source.
+     * @param array $array The array source.
      * @param   mixed $value
-     * @param   int   $limit
+     * @param int $limit
      *
      * @return  array
      */
-    function array_filter_recursive(&$array, $value, $limit = 0)
+    function array_filter_recursive(array &$array, $value, int $limit = 0): array
     {
         if (is_array($value)) {
             foreach ($value as $remove) {
@@ -203,11 +203,11 @@ if ( ! function_exists('array_search_recursive')) {
      *
      * @param mixed $needle   The searched value.
      * @param array $haystack The multidimensional array.
-     * @param bool  $strict
+     * @param bool $strict
      *
      * @return bool|int|string
      */
-    function array_search_recursive($needle, array $haystack, $strict = false)
+    function array_search_recursive($needle, array $haystack, bool $strict = false)
     {
         $result = '';
         foreach ($haystack as $key => $value) {
@@ -248,7 +248,7 @@ if ( ! function_exists('array_unique_recursive')) {
      *
      * @return  array
      */
-    function array_unique_recursive(array $array)
+    function array_unique_recursive(array $array): array
     {
         $serialized = array_map('serialize', $array);
         $unique = array_unique($serialized);
@@ -269,7 +269,7 @@ if ( ! function_exists('array_flatten')) {
      *
      * @return array
      */
-    function array_flatten(array $array = [])
+    function array_flatten(array $array = []): array
     {
         $flat_array = [];
 
@@ -293,13 +293,13 @@ if ( ! function_exists('range_price')) {
      *
      * Create an array containing a range of prices.
      *
-     * @param   int $min        The minimum price numeric value.
-     * @param   int $max        The maximum price numeric value.
-     * @param   int $multiplier The multiplier used in the range, default is 0.
+     * @param int $min        The minimum price numeric value.
+     * @param int $max        The maximum price numeric value.
+     * @param int $multiplier The multiplier used in the range, default is 0.
      *
      * @return  array
      */
-    function range_price($min, $max, $multiplier = 0)
+    function range_price(int $min, int $max, int $multiplier = 0): array
     {
         $multiplier = $multiplier * 20;
         $num_range = $max / $min;
@@ -337,11 +337,11 @@ if ( ! function_exists('range_date')) {
      * Creates an array containing a range of dates.
      *
      * @param   string|int $start_date Start Date
-     * @param   int        $days       Num of days
+     * @param int $days       Num of days
      *
      * @return  array
      */
-    function range_date($start_date, $days = 1)
+    function range_date($start_date, int $days = 1): array
     {
         $start_date = (is_string($start_date) ? strtotime($start_date) : $start_date);
 
@@ -361,13 +361,13 @@ if ( ! function_exists('range_year')) {
      *
      * Create an array containing a range of years.
      *
-     * @param int  $min  The minimum numeric year value.
+     * @param int $min  The minimum numeric year value.
      * @param null $max  The maximum numeric year value.
-     * @param int  $step The increment used in the range, default is 1.
+     * @param int $step The increment used in the range, default is 1.
      *
      * @return array
      */
-    function range_year($min = 1995, $max = null, $step = 1)
+    function range_year(int $min = 1995, $max = null, int $step = 1): array
     {
         $max = empty($max) ? date('Y') : $max;
 
