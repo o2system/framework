@@ -361,7 +361,7 @@ trait ModifierTrait
                     }
 
                     foreach ($temporaryData['settings'] as $field => $value) {
-                        models(Metadata::class)->insertOrUpdate(new Data([
+                        models(Settings::class)->insertOrUpdate(new Data([
                             'ownership_id' => $ownershipId,
                             'ownership_model' => get_called_class(),
                             'key' => $field,
